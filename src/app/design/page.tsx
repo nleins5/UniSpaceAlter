@@ -545,7 +545,6 @@ export default function DesignPage() {
     setIsLoading(true);
 
     try {
-      // Use AbortController for timeout (90s max)
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 90000);
 
@@ -585,6 +584,34 @@ export default function DesignPage() {
         ...prev,
         { id: `msg-${Date.now()}-err`, role: "ai", content: errorMsg },
       ]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Refresh images IN-PLACE on existing AI message (no scroll needed)
+  const handleRefreshMessage = useCallback(async (msgId: string, prompt: string) => {
+    setIsLoading(true);
+    // Show spinner by temporarily clearing images
+    setMessages((prev) => prev.map(m => m.id === msgId ? { ...m, content: '⏳ Đang tạo mẫu mới...' } : m));
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const methodLabel = data.method === "svg" ? "✨ Gemini AI" : data.method === "smart" ? "🎨 Mẫu thông minh" : "🖼️ AI";
+      setMessages((prev) => prev.map(m => m.id === msgId
+        ? { ...m, content: `${methodLabel} — Đã tạo ${data.images.length} mẫu mới! 👇`, images: data.images }
+        : m
+      ));
+    } catch {
+      setMessages((prev) => prev.map(m => m.id === msgId
+        ? { ...m, content: '⚠️ Có lỗi xảy ra. Thử lại nhé!' }
+        : m
+      ));
     } finally {
       setIsLoading(false);
     }
@@ -930,7 +957,13 @@ export default function DesignPage() {
                             ))}
                           </div>
                           {msg.role === "ai" && !isLoading && (
-                            <button className="canva-btn-more" onClick={() => handleSendMessage(messages.filter(m => m.role === "user").pop()?.content || "thiết kế")}>
+                            <button
+                              className="canva-btn-more"
+                              onClick={() => handleRefreshMessage(
+                                msg.id,
+                                messages.filter(m => m.role === "user").pop()?.content || "thiết kế"
+                              )}
+                            >
                               ↻ Tạo thêm mẫu
                             </button>
                           )}

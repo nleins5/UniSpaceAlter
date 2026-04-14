@@ -2575,12 +2575,18 @@ body {
 .admin-status-select[data-status="completed"]     { color: #10b981; background: #ecfdf5; border-color: rgba(16,185,129,0.25); }
 .admin-status-select[data-status="cancelled"]     { color: #ef4444; background: #fef2f2; border-color: rgba(239,68,68,0.25); }
 
-/* Kanban column header — color from CSS var */
-.dash-column-header { border-top: 3px solid var(--col-color, var(--accent)); }
-.dash-column-count { background: var(--col-bg, var(--surface-hover)); color: var(--col-color, var(--accent)); }
+/* Kanban column header — per-status colours via data-col */
+.dash-column-header[data-col="pending"]       { border-top-color: #6c5ce7; }
+.dash-column-header[data-col="confirmed"]     { border-top-color: #f59e0b; }
+.dash-column-header[data-col="manufacturing"] { border-top-color: #3b82f6; }
+.dash-column-header[data-col="completed"]     { border-top-color: #10b981; }
+.dash-column-count[data-col="pending"]       { background: #f0edff; color: #6c5ce7; }
+.dash-column-count[data-col="confirmed"]     { background: #fffbeb; color: #f59e0b; }
+.dash-column-count[data-col="manufacturing"] { background: #eff6ff; color: #3b82f6; }
+.dash-column-count[data-col="completed"]     { background: #ecfdf5; color: #10b981; }
 
-/* Color swatch uses CSS var */
-.admin-color-swatch { background: var(--swatch-color, #e0e0e0); }
+/* Color swatch — background injected via generated <style> tag */
+.admin-color-swatch { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
 
 /* ─── Revenue Chart ─── */
 .admin-chart-card {

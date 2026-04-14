@@ -213,13 +213,25 @@ export default function DashboardPage() {
             <span className="admin-chart-title">Doanh thu 7 ngày</span>
             <span className="admin-chart-total">{formatMoney(stats.revenue)} VNĐ</span>
           </div>
+
+          {/* Dynamic styles: chart bars + colour swatches */}
+          <style dangerouslySetInnerHTML={{ __html:
+            [
+              ...chartData.map((d, i) =>
+                `.bar-${i}{height:${Math.round((d.revenue / maxRevenue) * 100)}%}`
+              ),
+              ...orders.map(o =>
+                `.sc-${o.orderId.replace(/\W/g,'_')}{background:${o.color}}`
+              ),
+            ].join('')
+          }} />
+
           <div className="admin-chart-bars">
             {chartData.map((d, i) => (
               <div key={i} className="admin-chart-bar-col">
                 <div className="admin-chart-bar-wrap">
                   <div
-                    className="admin-chart-bar"
-                    style={{ "--bar-h": `${(d.revenue / maxRevenue) * 100}%` } as React.CSSProperties}
+                    className={`admin-chart-bar bar-${i}`}
                     title={`${d.label}: ${formatMoney(d.revenue)} VNĐ (${d.count} đơn)`}
                   />
                 </div>
@@ -297,7 +309,6 @@ export default function DashboardPage() {
                   <div
                     className="dash-column-header"
                     data-col={col.key}
-                    style={{ "--col-color": col.color, "--col-bg": col.bg } as React.CSSProperties}
                   >
                     <span className="dash-column-icon">{col.icon}</span>
                     <span className="dash-column-title">{col.label}</span>
@@ -370,7 +381,6 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {filtered.map(order => {
-                  const st = STATUS_LABELS[order.status || "pending"] || STATUS_LABELS.pending;
                   return (
                     <tr key={order.orderId} className={updatingId === order.orderId ? "updating" : ""}>
                       <td><span className="admin-table-id">{order.orderId.slice(4, 16)}</span></td>
@@ -385,8 +395,7 @@ export default function DashboardPage() {
                       <td>
                         <div className="admin-color-cell">
                           <span
-                            className="admin-color-swatch"
-                            style={{ "--swatch-color": order.color } as React.CSSProperties}
+                            className={`admin-color-swatch sc-${order.orderId.replace(/\W/g,'_')}`}
                           />
                         </div>
                       </td>

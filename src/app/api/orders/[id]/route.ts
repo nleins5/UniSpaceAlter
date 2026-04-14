@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOrder, updateOrderStatus } from "@/lib/orderService";
+import { getOrder, updateOrderStatus } from "../../../../lib/orderService";
 
 export async function GET(
   req: NextRequest,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllOrders, createOrder } from "@/lib/orderService";
+import { getAllOrders, createOrder } from "../../../lib/orderService";
 
 export async function GET() {
   try {

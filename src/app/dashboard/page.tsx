@@ -219,7 +219,7 @@ export default function DashboardPage() {
                 <div className="admin-chart-bar-wrap">
                   <div
                     className="admin-chart-bar"
-                    style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
+                    style={{ "--bar-h": `${(d.revenue / maxRevenue) * 100}%` } as React.CSSProperties}
                     title={`${d.label}: ${formatMoney(d.revenue)} VNĐ (${d.count} đơn)`}
                   />
                 </div>
@@ -245,6 +245,7 @@ export default function DashboardPage() {
           </div>
 
           <select
+            aria-label="Lọc theo trạng thái"
             className="admin-filter-select"
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
@@ -293,10 +294,14 @@ export default function DashboardPage() {
               const colOrders = filtered.filter(o => (o.status || "pending") === col.key);
               return (
                 <div key={col.key} className="dash-column" onDragOver={handleDragOver} onDrop={e => handleDrop(e, col.key)}>
-                  <div className="dash-column-header" style={{ borderTop: `3px solid ${col.color}` }}>
+                  <div
+                    className="dash-column-header"
+                    data-col={col.key}
+                    style={{ "--col-color": col.color, "--col-bg": col.bg } as React.CSSProperties}
+                  >
                     <span className="dash-column-icon">{col.icon}</span>
                     <span className="dash-column-title">{col.label}</span>
-                    <span className="dash-column-count" style={{ background: col.bg, color: col.color }}>{colOrders.length}</span>
+                    <span className="dash-column-count" data-col={col.key}>{colOrders.length}</span>
                   </div>
                   <div className="dash-column-body">
                     {colOrders.map(order => (
@@ -322,8 +327,10 @@ export default function DashboardPage() {
                         <div className="admin-order-footer">
                           <span className="dash-order-date">{new Date(order.createdAt).toLocaleDateString("vi-VN")}</span>
                           <select
+                            aria-label="Trạng thái đơn hàng"
                             className="admin-status-select"
                             value={order.status || "pending"}
+                            data-status={order.status || "pending"}
                             onChange={e => handleStatusChange(order.orderId, e.target.value)}
                             onClick={e => e.stopPropagation()}
                           >
@@ -377,7 +384,10 @@ export default function DashboardPage() {
                       <td><span className="admin-size-badge">{order.size}</span></td>
                       <td>
                         <div className="admin-color-cell">
-                          <span className="admin-color-swatch" style={{ background: order.color }} />
+                          <span
+                            className="admin-color-swatch"
+                            style={{ "--swatch-color": order.color } as React.CSSProperties}
+                          />
                         </div>
                       </td>
                       <td className="admin-table-qty">×{order.quantity}</td>
@@ -385,9 +395,10 @@ export default function DashboardPage() {
                       <td className="admin-table-date">{new Date(order.createdAt).toLocaleDateString("vi-VN")}</td>
                       <td>
                         <select
+                          aria-label="Trạng thái đơn hàng"
                           className="admin-status-select"
                           value={order.status || "pending"}
-                          style={{ color: st.color, background: st.bg, border: `1px solid ${st.color}30` }}
+                          data-status={order.status || "pending"}
                           onChange={e => handleStatusChange(order.orderId, e.target.value)}
                         >
                           {STATUS_COLUMNS.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}

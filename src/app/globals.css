@@ -2569,6 +2569,18 @@ body {
   padding: 2px 6px; background: var(--surface-hover);
   cursor: pointer; appearance: none; max-width: 96px;
 }
+.admin-status-select[data-status="pending"]       { color: #6c5ce7; background: #f0edff; border-color: rgba(108,92,231,0.25); }
+.admin-status-select[data-status="confirmed"]     { color: #f59e0b; background: #fffbeb; border-color: rgba(245,158,11,0.25); }
+.admin-status-select[data-status="manufacturing"] { color: #3b82f6; background: #eff6ff; border-color: rgba(59,130,246,0.25); }
+.admin-status-select[data-status="completed"]     { color: #10b981; background: #ecfdf5; border-color: rgba(16,185,129,0.25); }
+.admin-status-select[data-status="cancelled"]     { color: #ef4444; background: #fef2f2; border-color: rgba(239,68,68,0.25); }
+
+/* Kanban column header — color from CSS var */
+.dash-column-header { border-top: 3px solid var(--col-color, var(--accent)); }
+.dash-column-count { background: var(--col-bg, var(--surface-hover)); color: var(--col-color, var(--accent)); }
+
+/* Color swatch uses CSS var */
+.admin-color-swatch { background: var(--swatch-color, #e0e0e0); }
 
 /* ─── Revenue Chart ─── */
 .admin-chart-card {
@@ -2588,6 +2600,7 @@ body {
 .admin-chart-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
 .admin-chart-bar {
   width: 100%; min-height: 3px;
+  height: var(--bar-h, 3px);
   background: var(--accent); border-radius: 4px 4px 0 0;
   opacity: 0.85; transition: opacity 0.2s;
 }

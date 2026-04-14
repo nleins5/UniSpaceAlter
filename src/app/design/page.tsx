@@ -1095,6 +1095,8 @@ export default function DesignPage() {
                           value={textColor}
                           readOnly
                           tabIndex={-1}
+                          aria-label="Màu chữ đang chọn"
+                          title="Màu chữ đang chọn"
                           className="canva-color-dot-native"
                         />
                         <span className="canva-color-hex">{textColor}</span>

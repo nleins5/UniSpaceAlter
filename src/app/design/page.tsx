@@ -1090,9 +1090,12 @@ export default function DesignPage() {
                     <div className="canva-half">
                       <label className="canva-label">Màu chữ</label>
                       <div className="canva-color-preview">
-                        <div
-                          className="canva-color-dot"
-                          style={{'--dot-color': textColor} as React.CSSProperties}
+                        <input
+                          type="color"
+                          value={textColor}
+                          readOnly
+                          tabIndex={-1}
+                          className="canva-color-dot-native"
                         />
                         <span className="canva-color-hex">{textColor}</span>
                       </div>
@@ -1108,7 +1111,7 @@ export default function DesignPage() {
                           title={c}
                           onClick={() => setTextColor(c)}
                           className={`canva-swatch${textColor === c ? ' canva-swatch-active' : ''}`}
-                          style={{'--sw-color': c} as React.CSSProperties}
+                          data-color={c}
                         />
                       ))}
                       <label title="Màu tùy chỉnh" className="canva-swatch-custom">

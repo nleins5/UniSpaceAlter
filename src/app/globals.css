@@ -374,6 +374,22 @@ body {
   flex-shrink: 0;
   background: var(--dot-color, #000);
 }
+/* Native color input as a visual swatch (no picker opens due to pointer-events) */
+.canva-color-dot-native {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  padding: 0;
+  cursor: default;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.canva-color-dot-native::-webkit-color-swatch-wrapper { padding: 0; border-radius: 4px; }
+.canva-color-dot-native::-webkit-color-swatch { border: none; border-radius: 4px; }
+.canva-color-dot-native::-moz-color-swatch { border: none; border-radius: 4px; }
 .canva-color-hex {
   font-size: 12px;
   font-family: var(--font-mono, monospace);
@@ -396,6 +412,19 @@ body {
   transition: transform 0.1s, border 0.1s;
   background: var(--sw-color, #ccc);
 }
+/* Hardcoded swatch colors via data-color attribute — no inline style needed */
+.canva-swatch[data-color="#000000"] { background: #000000; }
+.canva-swatch[data-color="#ffffff"] { background: #ffffff; }
+.canva-swatch[data-color="#e84393"] { background: #e84393; }
+.canva-swatch[data-color="#6c5ce7"] { background: #6c5ce7; }
+.canva-swatch[data-color="#0984e3"] { background: #0984e3; }
+.canva-swatch[data-color="#00b894"] { background: #00b894; }
+.canva-swatch[data-color="#f1c40f"] { background: #f1c40f; }
+.canva-swatch[data-color="#e17055"] { background: #e17055; }
+.canva-swatch[data-color="#2d3436"] { background: #2d3436; }
+.canva-swatch[data-color="#fdcb6e"] { background: #fdcb6e; }
+.canva-swatch[data-color="#ff7675"] { background: #ff7675; }
+.canva-swatch[data-color="#74b9ff"] { background: #74b9ff; }
 .canva-swatch:hover { transform: scale(1.1); }
 .canva-swatch-active {
   border: 3px solid #6c5ce7;

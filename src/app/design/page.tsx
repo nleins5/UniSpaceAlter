@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
@@ -800,8 +801,8 @@ export default function DesignPage() {
       {/* ═══ TOP BAR ═══ */}
       <header className="canva-topbar">
         <div className="canva-topbar-left">
-          <Link href="/" className="canva-logo">
-            <span className="canva-logo-accent">Uni</span>Space
+          <Link href="/" className="canva-logo" style={{ textDecoration: 'none' }}>
+            <Logo scale={0.4} />
           </Link>
           <div className="canva-topbar-divider" />
           <span className="canva-file-name">Thiết kế áo lớp</span>

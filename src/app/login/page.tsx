@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,8 +43,8 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-header">
-          <Link href="/" className="login-logo">
-            <span className="login-logo-accent">Uni</span>Space
+          <Link href="/" className="login-logo" style={{ textDecoration: 'none', display: 'inline-block' }}>
+            <Logo scale={0.9} />
           </Link>
           <p className="login-subtitle">Đăng nhập để quản lý đơn hàng</p>
         </div>

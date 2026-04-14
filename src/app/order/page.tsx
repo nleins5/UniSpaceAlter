@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 interface DesignElement {
   id: string;
@@ -208,8 +209,8 @@ export default function OrderPage() {
       {/* Header */}
       <header className="order-header">
         <div className="order-header-inner">
-          <Link href="/" className="order-logo">
-            <span className="order-logo-accent">Uni</span>Space
+          <Link href="/" className="order-logo" style={{ textDecoration: 'none' }}>
+            <Logo scale={0.5} />
           </Link>
           <div className="order-steps">
             <span className="order-step done">

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Logo } from "@/components/Logo";
 
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
@@ -37,14 +38,14 @@ export default function HomePage() {
       {/* ═══ Navbar ═══ */}
       <nav className="home-nav">
         <div className="home-nav-inner">
-          <Link href="/" className="home-nav-logo">
-            <span className="home-nav-logo-accent">Uni</span>Space
+          <Link href="/" className="home-nav-logo-link" style={{ textDecoration: 'none' }}>
+            <Logo scale={0.5} />
           </Link>
           <div className="home-nav-links">
             <a href="#products">Sản phẩm</a>
             <a href="#why">Vì sao chọn chúng tôi</a>
             <a href="#pricing">Bảng giá</a>
-            <a href="https://www.facebook.com/UniSpaceTramdongphuc" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Facebook</a>
             <Link href="/login" className="home-nav-login">Đăng nhập</Link>
           </div>
           <Link href="/design" className="home-nav-cta">
@@ -241,7 +242,7 @@ export default function HomePage() {
                 <li>✓ Nhân viên tư vấn riêng</li>
                 <li>✓ Form áo riêng theo yêu cầu</li>
               </ul>
-              <a href="https://www.facebook.com/UniSpaceTramdongphuc" target="_blank" rel="noopener noreferrer" className="pricing-btn">Liên hệ báo giá</a>
+              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" className="pricing-btn">Liên hệ báo giá</a>
             </div>
           </div>
         </div>
@@ -252,9 +253,9 @@ export default function HomePage() {
         <div className="home-container">
           <div className="footer-grid">
             <div className="footer-brand">
-              <div className="footer-logo">
-                <span className="footer-logo-accent">Uni</span>Space
-              </div>
+              <Link href="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '1rem' }}>
+                <Logo scale={0.7} />
+              </Link>
               <p>Trạm In Áo — Chuyên áo lớp, áo nhóm, áo công ty. Biến ý tưởng thành chiếc áo độc nhất.</p>
               <p className="footer-address">📍 TP. Hồ Chí Minh</p>
               <div className="footer-social">

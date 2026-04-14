@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 interface User {
   id: string; email: string; firstName: string; lastName: string; admin: boolean;
@@ -135,7 +136,7 @@ export default function DashboardPage() {
       {/* ═════ Sidebar ═════ */}
       <aside className="dash-sidebar">
         <div className="dash-sidebar-top">
-          <Link href="/" className="dash-logo"><span className="dash-logo-accent">U</span>S</Link>
+          <Link href="/" className="dash-logo" style={{ textDecoration: 'none' }}><Logo scale={0.45} /></Link>
         </div>
         <nav className="dash-nav">
           <button className="dash-nav-item active" title="Dashboard">

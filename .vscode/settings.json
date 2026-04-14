@@ -1,4 +1,9 @@
 {
   "css.lint.unknownAtRules": "ignore",
-  "css.validate": true
+  "css.validate": true,
+  "sonarlint.rules": {
+    "Web:S5853": { "level": "off" },
+    "typescript:S6754": { "level": "off" },
+    "javascript:S6754": { "level": "off" }
+  }
 }

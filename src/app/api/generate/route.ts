@@ -123,7 +123,8 @@ Return ONLY a JSON array (no markdown, no extra text):
 // ═══════════════════════════════════════════════════════════════
 function getSmartSVG(prompt: string) {
   const p = prompt.toLowerCase();
-  const t = prompt.slice(0, 12).toUpperCase();
+  const t = "";
+
   const seed = Date.now();
 
   // ── Keyword detection ──────────────────────────────────────

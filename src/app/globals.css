@@ -2884,6 +2884,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  -webkit-user-select: none;
   user-select: none;
   background: white;
   box-shadow: 0 4px 10px rgba(176, 38, 255, 0.2);

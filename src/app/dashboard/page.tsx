@@ -186,14 +186,13 @@ export default function DashboardPage() {
         {/* Stats */}
         <div className="dash-stats">
           {[
-            { icon: "📦", label: "Tổng đơn",      value: stats.total,                   color: "purple" },
-            { icon: "🆕", label: "Hôm nay",        value: stats.today,                   color: "blue"   },
-            { icon: "⏳", label: "Chờ xử lý",      value: stats.pending,                 color: "orange" },
-            { icon: "👕", label: "Tổng áo",         value: stats.totalShirts,             color: "green"  },
-            { icon: "💰", label: "Doanh thu (VNĐ)", value: formatMoney(stats.revenue),    color: "teal"   },
+            { label: "Tổng đơn",      value: stats.total,                   color: "purple" },
+            { label: "Hôm nay",        value: stats.today,                   color: "blue"   },
+            { label: "Chờ xử lý",      value: stats.pending,                 color: "orange" },
+            { label: "Tổng áo",         value: stats.totalShirts,             color: "green"  },
+            { label: "Doanh thu (VNĐ)", value: formatMoney(stats.revenue),    color: "teal"   },
           ].map(s => (
             <div key={s.label} className="dash-stat-card">
-              <div className="dash-stat-icon" data-color={s.color}>{s.icon}</div>
               <div>
                 <span className="dash-stat-value">{s.value}</span>
                 <span className="dash-stat-label">{s.label}</span>
@@ -305,7 +304,6 @@ export default function DashboardPage() {
                     className="dash-column-header"
                     data-col={col.key}
                   >
-                    <span className="dash-column-icon">{col.icon}</span>
                     <span className="dash-column-title">{col.label}</span>
                     <span className="dash-column-count" data-col={col.key}>{colOrders.length}</span>
                   </div>

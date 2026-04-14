@@ -68,7 +68,7 @@ export default function HomePage() {
           </div>
 
           <h1 className="hero-title scroll-reveal">
-            <span className="hero-title-line1">Trạm đồng phục</span>
+            <span className="hero-title-line1">Trạm In Áo</span>
             <span className="hero-title-line2"><em>UniSpace</em></span>
           </h1>
 
@@ -255,10 +255,10 @@ export default function HomePage() {
               <div className="footer-logo">
                 <span className="footer-logo-accent">Uni</span>Space
               </div>
-              <p>Trạm đồng phục — Chuyên áo lớp, áo nhóm, áo công ty. Biến ý tưởng thành chiếc áo lớp độc nhất.</p>
+              <p>Trạm In Áo — Chuyên áo lớp, áo nhóm, áo công ty. Biến ý tưởng thành chiếc áo độc nhất.</p>
               <p className="footer-address">📍 TP. Hồ Chí Minh</p>
               <div className="footer-social">
-                <a href="https://www.facebook.com/UniSpaceTramdongphuc" target="_blank" rel="noopener noreferrer" title="Facebook">
+                <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" title="Facebook">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                 </a>
               </div>
@@ -279,7 +279,7 @@ export default function HomePage() {
           </div>
 
           <div className="footer-bottom">
-            <p>&copy; 2026 UniSpace — Trạm đồng phục. All rights reserved.</p>
+            <p>&copy; 2026 UniSpace — Trạm In Áo. All rights reserved.</p>
             <div className="footer-status">
               <span className="footer-status-dot" />
               <span className="footer-status-text">System Operational</span>

@@ -25,12 +25,12 @@ interface Order {
   status: string;
 }
 
-// Status columns inspired by angular-app-master's sprint board
+// Status columns
 const STATUS_COLUMNS = [
-  { key: "new", label: "Đơn mới", icon: "📥", color: "#6c5ce7" },
-  { key: "processing", label: "Đang xử lý", icon: "⚙️", color: "#f59e0b" },
-  { key: "printing", label: "Đang in", icon: "🖨️", color: "#3b82f6" },
-  { key: "done", label: "Hoàn thành", icon: "✅", color: "#10b981" },
+  { key: "pending",       label: "Đơn mới",      icon: "📥", color: "#6c5ce7" },
+  { key: "confirmed",     label: "Đang xử lý",   icon: "⚙️", color: "#f59e0b" },
+  { key: "manufacturing", label: "Đang in",       icon: "🖨️", color: "#3b82f6" },
+  { key: "completed",     label: "Hoàn thành",    icon: "✅", color: "#10b981" },
 ];
 
 export default function DashboardPage() {
@@ -78,10 +78,26 @@ export default function DashboardPage() {
     }
   };
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.orderId === orderId ? { ...o, status: newStatus } : o))
+  // Optimistic update + persist via PATCH
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    // 1. Update UI immediately (optimistic)
+    const prev = orders;
+    setOrders((current) =>
+      current.map((o) => (o.orderId === orderId ? { ...o, status: newStatus } : o))
     );
+    // 2. Persist to server
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error("API error");
+    } catch {
+      // Rollback on failure
+      setOrders(prev);
+      alert("Không thể cập nhật trạng thái. Vui lòng thử lại.");
+    }
   };
 
   const handleDragStart = (orderId: string) => setDraggedOrder(orderId);
@@ -215,7 +231,7 @@ export default function DashboardPage() {
           ) : (
             <div className="dash-columns">
               {STATUS_COLUMNS.map((col) => {
-                const colOrders = orders.filter((o) => (o.status || "new") === col.key);
+                const colOrders = orders.filter((o) => (o.status || "pending") === col.key);
                 return (
                   <div
                     key={col.key}

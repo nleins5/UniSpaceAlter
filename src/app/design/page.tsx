@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { Logo } from "../../components/Logo";
 
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {

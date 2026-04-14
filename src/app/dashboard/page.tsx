@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { Logo } from "../../components/Logo";
 
 interface User {
   id: string; email: string; firstName: string; lastName: string; admin: boolean;

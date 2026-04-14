@@ -2875,3 +2875,79 @@ body {
   .pricing-grid { grid-template-columns: 1fr; }
   .pricing-card-pop { transform: none; }
 }
+
+/* ═══════════════════════════════════════
+   UniSpace Logo Component
+   ═══════════════════════════════════════ */
+.unilogo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  background: white;
+  box-shadow: 0 4px 10px rgba(176, 38, 255, 0.2);
+}
+
+.unilogo-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+  background: var(--accent);
+}
+
+.unilogo-uni,
+.unilogo-space {
+  color: white;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.unilogo-tagline {
+  color: var(--accent);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Scale presets via data-scale attribute */
+.unilogo[data-scale="0.4"]  { width: 32px; height: 32px; border-radius: 7px; padding: 2px; }
+.unilogo[data-scale="0.4"]  .unilogo-box { border-radius: 6px 6px 2px 2px; }
+.unilogo[data-scale="0.4"]  .unilogo-uni   { font-size: 9px; margin-top: 1px; letter-spacing: -0.05em; }
+.unilogo[data-scale="0.4"]  .unilogo-space { font-size: 7px; letter-spacing: -0.02em; }
+.unilogo[data-scale="0.4"]  .unilogo-tagline { font-size: 3px; height: 8px; }
+
+.unilogo[data-scale="0.45"] { width: 36px; height: 36px; border-radius: 8px; padding: 2px; }
+.unilogo[data-scale="0.45"] .unilogo-box { border-radius: 6px 6px 2px 2px; }
+.unilogo[data-scale="0.45"] .unilogo-uni   { font-size: 10px; margin-top: 1px; letter-spacing: -0.05em; }
+.unilogo[data-scale="0.45"] .unilogo-space { font-size: 8px; letter-spacing: -0.02em; }
+.unilogo[data-scale="0.45"] .unilogo-tagline { font-size: 3.5px; height: 9px; }
+
+.unilogo[data-scale="0.5"]  { width: 40px; height: 40px; border-radius: 9px; padding: 2px; }
+.unilogo[data-scale="0.5"]  .unilogo-box { border-radius: 7px 7px 2px 2px; }
+.unilogo[data-scale="0.5"]  .unilogo-uni   { font-size: 11px; margin-top: 1px; letter-spacing: -0.05em; }
+.unilogo[data-scale="0.5"]  .unilogo-space { font-size: 9px; letter-spacing: -0.02em; }
+.unilogo[data-scale="0.5"]  .unilogo-tagline { font-size: 4px; height: 10px; }
+
+.unilogo[data-scale="0.7"]  { width: 56px; height: 56px; border-radius: 13px; padding: 3px; }
+.unilogo[data-scale="0.7"]  .unilogo-box { border-radius: 10px 10px 3px 3px; }
+.unilogo[data-scale="0.7"]  .unilogo-uni   { font-size: 15px; margin-top: 1px; letter-spacing: -0.05em; }
+.unilogo[data-scale="0.7"]  .unilogo-space { font-size: 13px; letter-spacing: -0.02em; }
+.unilogo[data-scale="0.7"]  .unilogo-tagline { font-size: 5.5px; height: 14px; }
+
+.unilogo[data-scale="0.9"]  { width: 72px; height: 72px; border-radius: 16px; padding: 4px; }
+.unilogo[data-scale="0.9"]  .unilogo-box { border-radius: 13px 13px 4px 4px; }
+.unilogo[data-scale="0.9"]  .unilogo-uni   { font-size: 20px; margin-top: 2px; letter-spacing: -0.05em; }
+.unilogo[data-scale="0.9"]  .unilogo-space { font-size: 16px; letter-spacing: -0.02em; }
+.unilogo[data-scale="0.9"]  .unilogo-tagline { font-size: 7px; height: 18px; }
+
+.unilogo[data-scale="1"]    { width: 80px; height: 80px; border-radius: 18px; padding: 4px; }
+.unilogo[data-scale="1"]    .unilogo-box { border-radius: 14px 14px 4px 4px; }
+.unilogo[data-scale="1"]    .unilogo-uni   { font-size: 22px; margin-top: 2px; letter-spacing: -0.05em; }
+.unilogo[data-scale="1"]    .unilogo-space { font-size: 18px; letter-spacing: -0.02em; }
+.unilogo[data-scale="1"]    .unilogo-tagline { font-size: 8px; height: 20px; }

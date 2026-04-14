@@ -1106,14 +1106,17 @@ export default function DesignPage() {
 
                   <div className="canva-quick-colors">
                     <label className="canva-label">Màu nhanh</label>
+                    <style>{[
+                      '#000000','#ffffff','#e84393','#6c5ce7','#0984e3','#00b894',
+                      '#f1c40f','#e17055','#2d3436','#fdcb6e','#ff7675','#74b9ff'
+                    ].map((c, i) => `.canva-swatch-color-${i}{background:${c}}`).join('')}</style>
                     <div className="canva-swatch-row">
-                      {['#000000','#ffffff','#e84393','#6c5ce7','#0984e3','#00b894','#f1c40f','#e17055','#2d3436','#fdcb6e','#ff7675','#74b9ff'].map(c => (
+                      {(['#000000','#ffffff','#e84393','#6c5ce7','#0984e3','#00b894','#f1c40f','#e17055','#2d3436','#fdcb6e','#ff7675','#74b9ff'] as const).map((c, i) => (
                         <button
                           key={c}
                           title={c}
                           onClick={() => setTextColor(c)}
-                          className={`canva-swatch${textColor === c ? ' canva-swatch-active' : ''}`}
-                          style={{ background: c }}
+                          className={`canva-swatch canva-swatch-color-${i}${textColor === c ? ' canva-swatch-active' : ''}`}
                         />
                       ))}
                       <label title="Màu tùy chỉnh" className="canva-swatch-custom">

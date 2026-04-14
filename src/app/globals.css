@@ -427,9 +427,42 @@ body {
 .canva-swatch-color-11 { background: #74b9ff; }
 .canva-swatch:hover { transform: scale(1.1); }
 .canva-swatch-active {
-  border: 3px solid #6c5ce7;
+  border: 3px solid #6c5ce7 !important;
   box-shadow: 0 0 0 2px white inset;
 }
+/* Canva-style palette grid */
+.canva-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  margin-bottom: 8px;
+}
+.canva-palette-cell {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.1s, border 0.1s;
+  padding: 0;
+}
+.canva-palette-cell:hover { transform: scale(1.15); border-color: rgba(0,0,0,0.3); z-index: 1; position: relative; }
+.canva-custom-color-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1.5px dashed var(--border);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  transition: background 0.15s;
+  position: relative;
+}
+.canva-custom-color-btn:hover { background: rgba(108,92,231,0.07); }
 .canva-swatch-custom {
   width: 32px;
   height: 32px;

@@ -1138,25 +1138,45 @@ export default function DesignPage() {
                   </div>
 
                   <div className="canva-quick-colors">
-                    <label className="canva-label">Màu nhanh</label>
-                    <style>{[
-                      '#000000','#ffffff','#e84393','#6c5ce7','#0984e3','#00b894',
-                      '#f1c40f','#e17055','#2d3436','#fdcb6e','#ff7675','#74b9ff'
-                    ].map((c, i) => `.canva-swatch-color-${i}{background:${c}}`).join('')}</style>
-                    <div className="canva-swatch-row">
-                      {(['#000000','#ffffff','#e84393','#6c5ce7','#0984e3','#00b894','#f1c40f','#e17055','#2d3436','#fdcb6e','#ff7675','#74b9ff'] as const).map((c, i) => (
-                        <button
-                          key={c}
-                          title={c}
-                          onClick={() => setTextColor(c)}
-                          className={`canva-swatch canva-swatch-color-${i}${textColor === c ? ' canva-swatch-active' : ''}`}
-                        />
-                      ))}
-                      <label title="Màu tùy chỉnh" className="canva-swatch-custom">
-                        🎨
-                        <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="canva-color-hidden" />
-                      </label>
-                    </div>
+                    <label className="canva-label">Màu chữ</label>
+                    {(() => {
+                      const palette = [
+                        // Row 1 — B&W + Greys
+                        ['#000000','#1a1a1a','#333333','#4d4d4d','#666666','#808080','#999999','#b3b3b3','#cccccc','#ffffff'],
+                        // Row 2 — Reds
+                        ['#ff0000','#e60000','#cc0000','#b30000','#ff4d4d','#ff8080','#ff9999','#ffb3b3','#ffcccc','#ffe5e5'],
+                        // Row 3 — Orange / Yellow
+                        ['#ff6600','#ff8c00','#ffa500','#ffbf00','#ffd700','#ffe066','#fff0a0','#f1c40f','#fdcb6e','#fff9c4'],
+                        // Row 4 — Green
+                        ['#00b894','#00a381','#27ae60','#2ecc71','#a8e063','#00c853','#69f0ae','#b9f6ca','#c8e6c9','#e8f5e9'],
+                        // Row 5 — Blue  
+                        ['#0984e3','#1565c0','#1976d2','#2196f3','#42a5f5','#64b5f6','#74b9ff','#90caf9','#bbdefb','#e3f2fd'],
+                        // Row 6 — Purple / Indigo
+                        ['#6c5ce7','#7c4dff','#673ab7','#9c27b0','#ab47bc','#ba68c8','#a29bfe','#ce93d8','#e1bee7','#ede7f6'],
+                        // Row 7 — Pink / Rose
+                        ['#e84393','#e91e63','#f06292','#f48fb1','#fd79a8','#ff80ab','#ffb3d1','#fce4ec','#d63031','#e17055'],
+                      ];
+                      const allColors = palette.flat();
+                      return (
+                        <>
+                          <style>{allColors.map((c,i) => `.csw-${i}{background:${c}}`).join('')}</style>
+                          <div className="canva-palette-grid">
+                            {allColors.map((c, i) => (
+                              <button
+                                key={c+i}
+                                title={c}
+                                onClick={() => setTextColor(c)}
+                                className={`canva-palette-cell csw-${i}${textColor === c ? ' canva-swatch-active' : ''}`}
+                              />
+                            ))}
+                          </div>
+                          <label title="Màu tùy chỉnh" className="canva-custom-color-btn">
+                            <span>+ Màu tùy chỉnh</span>
+                            <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="canva-color-hidden" />
+                          </label>
+                        </>
+                      );
+                    })()}
                   </div>
 
                   <button onClick={handleAddText} className="canva-btn-add" disabled={!textInput.trim()}>

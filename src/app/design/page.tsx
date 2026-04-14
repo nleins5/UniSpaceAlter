@@ -1123,15 +1123,8 @@ export default function DesignPage() {
                     <div className="canva-half">
                       <label className="canva-label">Màu chữ</label>
                       <div className="canva-color-preview">
-                        <input
-                          type="color"
-                          value={textColor}
-                          readOnly
-                          tabIndex={-1}
-                          aria-label="Màu chữ đang chọn"
-                          title="Màu chữ đang chọn"
-                          className="canva-color-dot-native"
-                        />
+                        <style>{`.cdot{background:${textColor}}`}</style>
+                        <div className="canva-color-dot cdot" title={textColor} />
                         <span className="canva-color-hex">{textColor}</span>
                       </div>
                     </div>

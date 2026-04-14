@@ -371,6 +371,7 @@ body {
   border-radius: 10px;
   border: 1px solid var(--border);
 }
+.canva-color-preview--mb { margin-bottom: 10px; }
 .canva-color-clickable {
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -2627,7 +2628,6 @@ body {
     border-top: 1px solid var(--border);
     z-index: 100;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
   }
   .canva-panel-right {
@@ -2641,10 +2641,9 @@ body {
     border-left: none !important;
     z-index: 99;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
   }
-  .canva-panel-body { -webkit-overflow-scrolling: touch; }
+
 
   /* Larger touch targets for resize handles */
   .canva-handle { width: 22px !important; height: 22px !important; }

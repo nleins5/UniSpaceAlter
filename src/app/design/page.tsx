@@ -506,18 +506,7 @@ export default function DesignPage() {
     });
   }, [elements]);
 
-  const colors = [
-    { name: "Trắng", value: "#ffffff" },
-    { name: "Đen", value: "#1a1a1a" },
-    { name: "Xám", value: "#6b7280" },
-    { name: "Navy", value: "#1e3a5f" },
-    { name: "Đỏ", value: "#ef4444" },
-    { name: "Xanh dương", value: "#3b82f6" },
-    { name: "Xanh lá", value: "#22c55e" },
-    { name: "Tím", value: "#8b5cf6" },
-    { name: "Hồng", value: "#ec4899" },
-    { name: "Vàng", value: "#f59e0b" },
-  ];
+
 
   const fonts = [
     // Sans Serif
@@ -1217,7 +1206,7 @@ export default function DesignPage() {
                   <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                 </div>
                 <div className="canva-panel-body">
-                  <div className="canva-color-preview" style={{marginBottom: 10}}>
+                  <div className="canva-color-preview canva-color-preview--mb">
                     <style>{`.scdot{background:${tshirtColor}}`}</style>
                     <div className="canva-color-dot scdot" />
                     <span className="canva-color-hex">{tshirtColor}</span>

@@ -22,13 +22,7 @@ const STATUS_COLUMNS = [
   { key: "completed",     label: "Hoàn thành",    icon: "✅", color: "#10b981", bg: "#ecfdf5" },
 ];
 
-const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  pending:       { label: "Đơn mới",    color: "#6c5ce7", bg: "#f0edff" },
-  confirmed:     { label: "Xử lý",      color: "#f59e0b", bg: "#fffbeb" },
-  manufacturing: { label: "Đang in",    color: "#3b82f6", bg: "#eff6ff" },
-  completed:     { label: "Hoàn thành", color: "#10b981", bg: "#ecfdf5" },
-  cancelled:     { label: "Huỷ",        color: "#ef4444", bg: "#fef2f2" },
-};
+
 
 export default function DashboardPage() {
   const router = useRouter();

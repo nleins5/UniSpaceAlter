@@ -12,6 +12,7 @@
     "@ai-sdk/google": "^3.0.63",
     "@google/generative-ai": "^0.24.1",
     "ai": "^6.0.158",
+    "firebase": "^12.12.0",
     "html2canvas-pro": "^2.0.2",
     "next": "16.2.3",
     "react": "19.2.4",

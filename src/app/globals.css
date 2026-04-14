@@ -2541,11 +2541,9 @@ body {
 .dash-order-id { font-family: var(--font-mono, monospace); font-size: 0.65rem; color: var(--muted); }
 .dash-order-link { color: var(--muted); transition: color 0.2s; }
 .dash-order-link:hover { color: var(--accent); }
-.dash-order-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
-.dash-order-meta { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--muted); }
-.dash-order-color { display: flex; align-items: center; gap: 4px; }
-.dash-color-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); }
-.dash-order-date { font-size: 0.65rem; color: var(--muted); margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--border); }
+.dash-order-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
+.dash-order-meta { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: var(--muted); margin: 4px 0; }
+.dash-order-date { font-size: 0.65rem; color: var(--muted); }
 
 /* ─── Loading & Empty ─── */
 .dash-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; }
@@ -2556,6 +2554,115 @@ body {
 .dash-empty-icon { font-size: 3rem; display: block; margin-bottom: 16px; }
 .dash-empty h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
 .dash-empty p { font-size: 0.85rem; color: var(--muted); margin-bottom: 20px; }
+
+/* ─── Admin extras on order cards ─── */
+.admin-order-phone { font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; }
+.admin-size-badge { background: var(--surface-hover); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 0.68rem; font-weight: 600; }
+.admin-qty-badge { font-size: 0.72rem; color: var(--accent); font-weight: 700; }
+.admin-order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.dash-order-card.updating { opacity: 0.6; pointer-events: none; }
+
+/* ─── Status select (inline dropdown) ─── */
+.admin-status-select {
+  font-size: 0.68rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 2px 6px; background: var(--surface-hover);
+  cursor: pointer; appearance: none; max-width: 96px;
+}
+
+/* ─── Revenue Chart ─── */
+.admin-chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.admin-chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.admin-chart-title { font-size: 0.85rem; font-weight: 700; }
+.admin-chart-total { font-size: 0.8rem; color: var(--accent); font-weight: 700; }
+.admin-chart-bars {
+  display: flex; align-items: flex-end; gap: 8px; height: 80px;
+}
+.admin-chart-bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.admin-chart-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+.admin-chart-bar {
+  width: 100%; min-height: 3px;
+  background: var(--accent); border-radius: 4px 4px 0 0;
+  opacity: 0.85; transition: opacity 0.2s;
+}
+.admin-chart-bar:hover { opacity: 1; }
+.admin-chart-day { font-size: 0.6rem; color: var(--muted); }
+.admin-chart-count { font-size: 0.6rem; color: var(--accent); font-weight: 700; }
+
+/* ─── Admin Toolbar ─── */
+.admin-toolbar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.admin-search-wrap { position: relative; flex: 1; min-width: 180px; }
+.admin-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.admin-search {
+  width: 100%; padding: 8px 12px 8px 34px;
+  border: 1px solid var(--border); border-radius: 10px;
+  font-size: 0.8rem; background: var(--surface);
+  transition: border-color 0.2s;
+}
+.admin-search:focus { outline: none; border-color: var(--accent); }
+.admin-filter-select {
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+  font-size: 0.8rem; background: var(--surface); cursor: pointer;
+}
+.admin-view-toggle { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.admin-view-btn {
+  padding: 8px 12px; border: none; background: var(--surface);
+  cursor: pointer; color: var(--muted); transition: all 0.15s;
+}
+.admin-view-btn.active { background: var(--accent); color: white; }
+.admin-refresh-btn {
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface); cursor: pointer; color: var(--muted);
+  transition: all 0.15s; display: flex; align-items: center;
+}
+.admin-refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ─── Table View ─── */
+.admin-table-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.admin-table th {
+  padding: 10px 14px; text-align: left; font-size: 0.7rem;
+  font-weight: 700; color: var(--muted); background: var(--surface);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.admin-table td {
+  padding: 10px 14px; border-bottom: 1px solid var(--border-light, #f0f0f0);
+  vertical-align: middle;
+}
+.admin-table tbody tr:hover { background: var(--surface); }
+.admin-table tbody tr:last-child td { border-bottom: none; }
+.admin-table tbody tr.updating td { opacity: 0.5; pointer-events: none; }
+.admin-table-id { font-family: monospace; font-size: 0.68rem; color: var(--muted); }
+.admin-table-customer { display: flex; flex-direction: column; gap: 1px; }
+.admin-table-name { font-weight: 600; }
+.admin-table-email { font-size: 0.65rem; color: var(--muted); }
+.admin-table-phone { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.admin-table-qty { font-weight: 700; color: var(--accent); }
+.admin-table-revenue { font-weight: 700; white-space: nowrap; }
+.admin-table-date { font-size: 0.72rem; white-space: nowrap; color: var(--muted); }
+.admin-color-cell { display: flex; align-items: center; gap: 6px; }
+.admin-color-swatch { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
+.admin-table-action {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 8px;
+  color: var(--muted); transition: all 0.15s;
+}
+.admin-table-action:hover { background: var(--surface-hover); color: var(--accent); }
+.admin-table tfoot td {
+  padding: 10px 14px; font-size: 0.75rem; font-weight: 700;
+  border-top: 2px solid var(--border); background: var(--surface);
+}
+.admin-table-footer-label { color: var(--muted); }
+.admin-table-footer-total { color: var(--accent); }
 
 
 /* ═══════════════════════════════════════════════

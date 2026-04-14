@@ -842,17 +842,28 @@ export default function DesignPage() {
         <div className="canva-topbar-right">
           {selectedId && (
             <>
-              <button onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleDuplicateSelected(); }} className="canva-topbar-btn" title="Nhân bản (Ctrl+D)" aria-label="Nhân bản">
+              <button
+                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onClick={handleDuplicateSelected}
+                onTouchEnd={(e) => { e.preventDefault(); handleDuplicateSelected(); }}
+                className="canva-topbar-btn" title="Nhân bản (Ctrl+D)" aria-label="Nhân bản"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               </button>
-              <button onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteSelected(); }} className="canva-topbar-btn canva-topbar-btn-danger" title="Xóa (Delete)" aria-label="Xóa">
+              <button
+                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onClick={handleDeleteSelected}
+                onTouchEnd={(e) => { e.preventDefault(); handleDeleteSelected(); }}
+                className="canva-topbar-btn canva-topbar-btn-danger" title="Xóa (Delete)" aria-label="Xóa"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
               <div className="canva-topbar-divider" />
             </>
           )}
           <button onClick={handleComplete} className="canva-btn-complete" disabled={elements.length === 0}>
-            Hoàn thành thiết kế
+            <span className="canva-complete-full">Hoàn thành thiết kế</span>
+            <span className="canva-complete-short">Đặt hàng</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
@@ -1333,12 +1344,28 @@ export default function DesignPage() {
 
       {/* ── Mobile Bottom Tab Bar (hidden on desktop via CSS) ── */}
       <nav className="canva-mobile-tabs">
+        {/* Side toggle: front / back */}
+        <button
+          className={`canva-mobile-tab canva-mobile-side-tab ${side === "front" ? "active" : ""}`}
+          onClick={() => setSide("front")}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          <span>Trước{frontCount > 0 && ` (${frontCount})`}</span>
+        </button>
+        <button
+          className={`canva-mobile-tab canva-mobile-side-tab ${side === "back" ? "active" : ""}`}
+          onClick={() => setSide("back")}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          <span>Sau{backCount > 0 && ` (${backCount})`}</span>
+        </button>
+        <div className="canva-mobile-tab-sep" />
         {([
-          { id: "ai",       label: "AI",      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="18" cy="6" r="3" fill="currentColor" stroke="none"/></svg> },
-          { id: "upload",   label: "Ảnh",     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
-          { id: "text",     label: "Chữ",     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> },
-          { id: "elements", label: "Mẫu",     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
-          { id: "layers",   label: "Layer",   icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> },
+          { id: "ai",       label: "AI",    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> },
+          { id: "upload",   label: "Ảnh",  icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
+          { id: "text",     label: "Chữ",  icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> },
+          { id: "elements", label: "Màu",  icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> },
+          { id: "layers",   label: "Layer",icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> },
         ] as const).map(tab => (
           <button
             key={tab.id}

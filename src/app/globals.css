@@ -183,6 +183,11 @@ body {
   cursor: pointer;
   transition: all var(--transition-fast);
 }
+/* On desktop: show full text, hide short */
+.canva-complete-full { display: inline; }
+.canva-complete-short { display: none; }
+/* Mobile tab separator hidden on desktop */
+.canva-mobile-tab-sep { display: none; }
 
 .canva-btn-complete:hover { background: #5b4bd4; transform: scale(1.02); }
 .canva-btn-complete:disabled { opacity: 0.4; pointer-events: none; }
@@ -2602,8 +2607,12 @@ body {
   .canva-topbar { padding: 0 10px; height: 48px; }
   .canva-workspace { flex: 1; width: 100%; overflow: auto; }
   .canva-canvas-wrapper { padding: 12px; min-height: unset; }
-  .canva-bottombar { padding: 0 8px; gap: 6px; height: 44px; overflow-x: auto; flex-wrap: nowrap; }
-  .canva-bottombar > * { flex-shrink: 0; }
+  /* Hide bottombar on mobile — side toggle is in mobile tab bar now */
+  .canva-bottombar { display: none !important; }
+
+  /* Short button text on mobile */
+  .canva-complete-full { display: none; }
+  .canva-complete-short { display: inline; }
 
   /* Panel → bottom sheet (slide up from bottom) */
   .canva-panel {
@@ -2612,12 +2621,13 @@ body {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    max-height: 55vh;
+    max-height: 72vh;
     border-radius: 20px 20px 0 0 !important;
     border-right: none !important;
     border-top: 1px solid var(--border);
     z-index: 100;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
   }
   .canva-panel-right {
@@ -2626,16 +2636,21 @@ body {
     left: 0;
     right: 0;
     width: 100% !important;
-    max-height: 40vh;
+    max-height: 72vh;
     border-radius: 20px 20px 0 0 !important;
     border-left: none !important;
     z-index: 99;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
   }
+  .canva-panel-body { -webkit-overflow-scrolling: touch; }
 
   /* Larger touch targets for resize handles */
-  .canva-handle { width: 18px !important; height: 18px !important; }
+  .canva-handle { width: 22px !important; height: 22px !important; }
+
+  /* Color palette: 7 cols on mobile for bigger tap targets */
+  .canva-palette-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 4px !important; }
 
   /* Show mobile bottom tab bar */
   .canva-mobile-tabs {
@@ -2649,10 +2664,13 @@ body {
     border-top: 1px solid var(--border);
     z-index: 200;
     padding-bottom: env(safe-area-inset-bottom);
+    overflow-x: auto;
+    gap: 0;
   }
   .canva-mobile-tab {
     display: flex !important;
     flex: 1;
+    min-width: 52px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -2667,6 +2685,20 @@ body {
   }
   .canva-mobile-tab.active { color: var(--accent); }
   .canva-mobile-tab svg { width: 20px; height: 20px; }
+  /* Side toggle tabs get accent bg when active */
+  .canva-mobile-side-tab.active {
+    color: var(--accent);
+    background: rgba(108,92,231,0.08);
+  }
+  /* Separator between side tabs and tool tabs */
+  .canva-mobile-tab-sep {
+    display: block;
+    width: 1px;
+    background: var(--border);
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
 }
 
 @media (max-width: 480px) {

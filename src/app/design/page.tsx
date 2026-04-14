@@ -538,6 +538,29 @@ export default function DesignPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // ─── Sync panel → selected text element (live update on canvas) ───
+  useEffect(() => {
+    if (!selectedId) return;
+    setElements(prev => prev.map(el =>
+      el.id === selectedId && el.type === "text"
+        ? { ...el, textColor, textFont, textSize }
+        : el
+    ));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [textColor, textFont, textSize]);
+
+  // ─── Sync selected text element → panel (when user clicks text) ───
+  useEffect(() => {
+    if (!selectedId) return;
+    const el = elements.find(e => e.id === selectedId);
+    if (el?.type === "text") {
+      if (el.textColor) setTextColor(el.textColor);
+      if (el.textFont) setTextFont(el.textFont);
+      if (el.textSize) setTextSize(el.textSize);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
+
   // ─── AI Chat (Gemini Integration) ─────────────────────────────────
   const handleSendMessage = useCallback(async (content: string) => {
     const userMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content };

@@ -543,7 +543,7 @@ export default function DesignPage() {
     if (!selectedId) return;
     setElements(prev => prev.map(el =>
       el.id === selectedId && el.type === "text"
-        ? { ...el, textColor, textFont, textSize }
+        ? { ...el, textColor, fontFamily: textFont, fontSize: textSize }
         : el
     ));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -555,8 +555,8 @@ export default function DesignPage() {
     const el = elements.find(e => e.id === selectedId);
     if (el?.type === "text") {
       if (el.textColor) setTextColor(el.textColor);
-      if (el.textFont) setTextFont(el.textFont);
-      if (el.textSize) setTextSize(el.textSize);
+      if (el.fontFamily) setTextFont(el.fontFamily);
+      if (el.fontSize) setTextSize(el.fontSize);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);

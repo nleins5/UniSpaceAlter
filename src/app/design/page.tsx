@@ -1092,7 +1092,6 @@ export default function DesignPage() {
                       <div className="canva-color-preview">
                         <div
                           className="canva-color-dot"
-                          // eslint-disable-next-line react/forbid-dom-props
                           style={{'--dot-color': textColor} as React.CSSProperties}
                         />
                         <span className="canva-color-hex">{textColor}</span>
@@ -1109,7 +1108,6 @@ export default function DesignPage() {
                           title={c}
                           onClick={() => setTextColor(c)}
                           className={`canva-swatch${textColor === c ? ' canva-swatch-active' : ''}`}
-                          // eslint-disable-next-line react/forbid-dom-props
                           style={{'--sw-color': c} as React.CSSProperties}
                         />
                       ))}

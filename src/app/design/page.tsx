@@ -1206,24 +1206,45 @@ export default function DesignPage() {
                   <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                 </div>
                 <div className="canva-panel-body">
-                  <div className="canva-color-grid">
-                    <style>{colors.map(c => {
-                      const cls = c.value.replace('#', 'c');
-                      return `.swatch-${cls} { background-color: ${c.value}; border-color: ${c.value === '#ffffff' ? '#ddd' : c.value}; }`;
-                    }).join(' ')}</style>
-                    {colors.map((c) => (
-                      <button
-                        key={c.value}
-                        onClick={() => setTshirtColor(c.value)}
-                        className={`canva-color-swatch swatch-${c.value.replace('#', 'c')} ${tshirtColor === c.value ? "active" : ""}`}
-                        title={c.name}
-                        aria-label={`Chọn màu ${c.name}`}
-                      >
-                        {tshirtColor === c.value && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c.value === "#ffffff" || c.value === "#f59e0b" ? "#333" : "#fff"} strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
-                      </button>
-                    ))}
+                  <div className="canva-color-preview" style={{marginBottom: 10}}>
+                    <style>{`.scdot{background:${tshirtColor}}`}</style>
+                    <div className="canva-color-dot scdot" />
+                    <span className="canva-color-hex">{tshirtColor}</span>
                   </div>
-                  <p className="canva-color-name">Đang chọn: <strong>{colors.find(c => c.value === tshirtColor)?.name}</strong></p>
+                  {(() => {
+                    const palette = [
+                      ['#ffffff','#f5f5f5','#e0e0e0','#bdbdbd','#9e9e9e','#757575','#616161','#424242','#212121','#000000'],
+                      ['#ffebee','#ffcdd2','#ef9a9a','#e57373','#ef5350','#f44336','#e53935','#d32f2f','#c62828','#b71c1c'],
+                      ['#fff3e0','#ffe0b2','#ffcc80','#ffa726','#ff9800','#fb8c00','#f57c00','#e65100','#bf360c','#8d3c00'],
+                      ['#fffff9','#fff9c4','#fff176','#ffee58','#ffeb3b','#fdd835','#f9a825','#f57f17','#e65100','#ff6f00'],
+                      ['#e8f5e9','#c8e6c9','#a5d6a7','#81c784','#66bb6a','#4caf50','#43a047','#388e3c','#2e7d32','#1b5e20'],
+                      ['#e3f2fd','#bbdefb','#90caf9','#64b5f6','#42a5f5','#2196f3','#1e88e5','#1976d2','#1565c0','#0d47a1'],
+                      ['#ede7f6','#d1c4e9','#b39ddb','#9575cd','#7e57c2','#673ab7','#5e35b1','#4527a0','#311b92','#1a237e'],
+                      ['#fce4ec','#f8bbd0','#f48fb1','#f06292','#ec407a','#e91e63','#d81b60','#c2185b','#ad1457','#880e4f'],
+                    ];
+                    const allColors = palette.flat();
+                    return (
+                      <>
+                        <style>{allColors.map((c, i) => `.sc-${i}{background:${c}; border-color:${c === '#ffffff' || c === '#fffff9' ? '#ddd' : 'transparent'}}`).join('')}</style>
+                        <div className="canva-palette-grid">
+                          {allColors.map((c, i) => (
+                            <button
+                              key={c + i}
+                              title={c}
+                              onClick={() => setTshirtColor(c)}
+                              className={`canva-palette-cell sc-${i}${tshirtColor === c ? ' canva-swatch-active' : ''}`}
+                            >
+                              {tshirtColor === c && (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={['#ffffff','#fffff9','#ffebee','#fff3e0','#fffff9','#e8f5e9','#e3f2fd','#ede7f6','#fce4ec','#f5f5f5'].includes(c) ? '#333' : '#fff'} strokeWidth="4">
+                                  <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             )}

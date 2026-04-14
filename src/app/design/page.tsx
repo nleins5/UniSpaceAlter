@@ -1145,17 +1145,44 @@ export default function DesignPage() {
                     </div>
                     <div className="canva-half">
                       <label className="canva-label">Màu chữ</label>
-                      <label className="canva-color-preview canva-color-clickable" title="Chọn màu chữ">
+                      <div className="canva-color-preview">
                         <style>{`.cdot{background:${textColor}}`}</style>
                         <div className="canva-color-dot cdot" />
                         <span className="canva-color-hex">{textColor}</span>
-                        <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="canva-color-hidden" />
-                      </label>
+                      </div>
                     </div>
                   </div>
 
-
-
+                  <div className="canva-quick-colors">
+                    <label className="canva-label">Bảng màu</label>
+                    {(() => {
+                      const palette = [
+                        ['#000000','#1a1a1a','#333333','#4d4d4d','#666666','#808080','#999999','#b3b3b3','#cccccc','#ffffff'],
+                        ['#ff0000','#e60000','#cc0000','#b30000','#ff4d4d','#ff8080','#ff9999','#ffb3b3','#ffcccc','#ffe5e5'],
+                        ['#ff6600','#ff8c00','#ffa500','#ffbf00','#ffd700','#ffe066','#fff0a0','#f1c40f','#fdcb6e','#fff9c4'],
+                        ['#00b894','#00a381','#27ae60','#2ecc71','#a8e063','#00c853','#69f0ae','#b9f6ca','#c8e6c9','#e8f5e9'],
+                        ['#0984e3','#1565c0','#1976d2','#2196f3','#42a5f5','#64b5f6','#74b9ff','#90caf9','#bbdefb','#e3f2fd'],
+                        ['#6c5ce7','#7c4dff','#673ab7','#9c27b0','#ab47bc','#ba68c8','#a29bfe','#ce93d8','#e1bee7','#ede7f6'],
+                        ['#e84393','#e91e63','#f06292','#f48fb1','#fd79a8','#ff80ab','#ffb3d1','#fce4ec','#d63031','#e17055'],
+                      ];
+                      const allColors = palette.flat();
+                      return (
+                        <>
+                          <style>{allColors.map((c, i) => `.csw-${i}{background:${c}}`).join('')}</style>
+                          <div className="canva-palette-grid">
+                            {allColors.map((c, i) => (
+                              <button
+                                key={c + i}
+                                title={c}
+                                onClick={() => setTextColor(c)}
+                                className={`canva-palette-cell csw-${i}${textColor === c ? ' canva-swatch-active' : ''}`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
 
                   <button onClick={handleAddText} className="canva-btn-add" disabled={!textInput.trim()}>
                     Thêm chữ vào áo

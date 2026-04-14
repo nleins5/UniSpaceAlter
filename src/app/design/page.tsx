@@ -932,7 +932,10 @@ export default function DesignPage() {
 
         {/* ═══ LEFT PANEL (content) ═══ */}
         {activePanel && (
-          <div className="canva-panel">
+          <>
+            {/* Mobile tap-outside overlay — closes panel when tapping canvas */}
+            <div className="canva-panel-overlay" onClick={() => setActivePanel(null)} />
+            <div className="canva-panel">
             {/* AI Panel */}
             {activePanel === "ai" && (
               <div className="canva-panel-content">
@@ -1279,6 +1282,7 @@ export default function DesignPage() {
               </div>
             )}
           </div>
+          </>
         )}
 
         {/* ═══ CENTER CANVAS ═══ */}

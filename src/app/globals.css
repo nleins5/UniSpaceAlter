@@ -366,6 +366,15 @@ body {
   border-radius: 10px;
   border: 1px solid var(--border);
 }
+.canva-color-clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+.canva-color-clickable:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108,92,231,0.15);
+}
 .canva-color-dot {
   width: 20px;
   height: 20px;

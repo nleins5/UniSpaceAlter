@@ -22,37 +22,19 @@ export async function POST(req: NextRequest) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // Strategy 1: Gemini SVG (fastest, works on free tier)
-    try {
-      const images = await generateSVGDesigns(genAI, prompt);
-      if (images && images.length > 0) {
-        return NextResponse.json({ images, isDemo: false, method: "svg" });
-      }
-    } catch (svgError) {
-      console.log("SVG failed:", (svgError as Error).message?.slice(0, 80));
+    // Hard timeout: if Gemini takes > 7s, immediately return smart SVG
+    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 7000));
+
+    const geminiResult = await Promise.race([
+      generateSVGDesigns(genAI, prompt).catch(() => null),
+      timeout,
+    ]);
+
+    if (geminiResult && (geminiResult as {length:number}).length > 0) {
+      return NextResponse.json({ images: geminiResult, isDemo: false, method: "svg" });
     }
 
-    // Strategy 2: Gemini native image output
-    try {
-      const images = await generateWithGeminiImage(genAI, prompt);
-      if (images && images.length > 0) {
-        return NextResponse.json({ images, isDemo: false, method: "native" });
-      }
-    } catch (nativeError) {
-      console.log("Native image failed:", (nativeError as Error).message?.slice(0, 80));
-    }
-
-    // Strategy 3: Imagen 4 (paid tier)
-    try {
-      const images = await generateWithImagen(genAI, apiKey, prompt);
-      if (images && images.length > 0) {
-        return NextResponse.json({ images, isDemo: false, method: "imagen" });
-      }
-    } catch (imagenError) {
-      console.log("Imagen failed:", (imagenError as Error).message?.slice(0, 80));
-    }
-
-    // Final fallback: keyword-based smart SVG
+    // Timeout or all models failed → instant smart SVG fallback
     return NextResponse.json({
       images: getSmartSVG(prompt),
       isDemo: false,
@@ -69,29 +51,39 @@ export async function POST(req: NextRequest) {
 // Gemini SVG — Text-based, reliable, free-tier friendly
 // ═══════════════════════════════════════════════════════════════
 async function generateSVGDesigns(genAI: GoogleGenerativeAI, prompt: string) {
-  const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-flash-001", "gemini-2.0-flash-lite"];
+  // Fastest first: flash-lite (free tier) → flash → flash-001
+  const modelsToTry = ["gemini-2.0-flash-lite", "gemini-2.5-flash", "gemini-2.5-flash-001"];
 
-  const svgPrompt = `You are a professional t-shirt graphic designer.
+  const svgPrompt = `You are a world-class t-shirt graphic designer specialising in SVG art.
 
 Customer request: "${prompt}"
 
-Create 6 DIFFERENT SVG design variations that VISUALLY REPRESENT "${prompt}".
-- If it's a heart → draw heart shapes
-- If it's a dragon → draw dragon shapes
-- If it's a flower → draw flower shapes
-- If it's text/logo → create text-based designs
-ALL designs MUST look like what was requested, not generic shapes.
+Create 4 STUNNING SVG t-shirt designs, each in a DIFFERENT style. The designs must actually depict "${prompt}" — not generic shapes.
 
-SVG requirements: viewBox="0 0 200 200", transparent background, bold colors, gradients, t-shirt ready.
+Style 1 — "Gradient Bold": Vibrant radial/linear gradients, thick outlines, bold colours. Use <defs> with <linearGradient> or <radialGradient>.
+Style 2 — "Neon Glow": Dark background optional OR transparent, glowing neon stroke effect using <filter><feGaussianBlur/><feMerge/>. Accent colours: electric blue, hot pink, or lime.
+Style 3 — "Vintage Badge": Shield/circle/hexagon frame, distressed texture via <feTurbulence>, muted earthy tones, serif-style label text.
+Style 4 — "Minimal Line": Clean single-weight strokes on white/transparent bg, geometric simplification of the subject, black or a single accent colour.
 
-Return ONLY valid JSON array:
-[{"label":"Vietnamese short name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"}]`;
+SVG rules (STRICT):
+- viewBox="0 0 200 200", xmlns="http://www.w3.org/2000/svg"
+- Use <defs> for gradients and filters — they MUST have unique IDs per design (prefix with s1_, s2_, s3_, s4_)
+- All artwork must fit within the 200×200 viewBox
+- Transparent background unless the design specifically needs a dark bg
+- Print-ready: high contrast, works on white AND dark fabric
+- NO external images, NO <image> tags, pure SVG paths/shapes only
+- Make it look PROFESSIONAL, like something from a real t-shirt brand
+
+Return ONLY a JSON array (no markdown, no extra text):
+[
+  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"},
+  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"},
+  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"},
+  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"}
+]`;
 
   for (const modelName of modelsToTry) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        if (attempt > 0) await new Promise(r => setTimeout(r, 3000));
-
+    try {
         const model = genAI.getGenerativeModel({
           model: modelName,
           generationConfig: {
@@ -110,7 +102,7 @@ Return ONLY valid JSON array:
         const designs = JSON.parse(text.trim());
         if (!Array.isArray(designs) || designs.length === 0) continue;
 
-        console.log(`✅ ${modelName} attempt ${attempt + 1}: ${designs.length} designs`);
+        console.log(`✅ ${modelName}: ${designs.length} designs`);
         return designs.map((d: { label: string; svg: string }, i: number) => ({
           id: `svg-${Date.now()}-${i}`,
           label: d.label || `Mẫu ${i + 1}`,
@@ -118,11 +110,10 @@ Return ONLY valid JSON array:
         }));
       } catch (e) {
         const msg = (e as Error).message || "";
-        console.log(`${modelName}[${attempt}]: ${msg.slice(0, 80)}`);
-        if (msg.includes("404")) break;
+        console.log(`${modelName}: ${msg.slice(0, 80)}`);
+        if (msg.includes("404") || msg.includes("429")) continue;
       }
     }
-  }
   throw new Error("All SVG models failed");
 }
 
@@ -328,16 +319,25 @@ function getSmartSVG(prompt: string) {
     ]);
   }
 
-  // ── Generic fallback: 8 varied shapes with prompt text ───────
+  // ── Generic fallback: premium quality designs ───────────
   return makeSVGs(seed, [
-    { label: "Logo khiên", shape: `<defs><linearGradient id="g0" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#6c5ce7"/><stop offset="100%" stop-color="#a29bfe"/></linearGradient></defs><path d="M100 15 L175 50 L175 110 Q175 160 100 190 Q25 160 25 110 L25 50Z" fill="url(#g0)"/><text x="100" y="108" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold" font-size="16">${t}</text>` },
-    { label: "Huy hiệu tròn", shape: `<circle cx="100" cy="100" r="85" fill="none" stroke="#e84393" stroke-width="4"/><circle cx="100" cy="100" r="72" fill="none" stroke="#e84393" stroke-width="1.5"/><text x="100" y="97" text-anchor="middle" fill="#e84393" font-family="Arial" font-weight="bold" font-size="15">${t}</text><text x="100" y="120" text-anchor="middle" fill="#fd79a8" font-family="Arial" font-size="11">2026</text>` },
-    { label: "Banner đậm", shape: `<defs><linearGradient id="b0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0984e3"/><stop offset="100%" stop-color="#6c5ce7"/></linearGradient></defs><rect x="15" y="60" width="170" height="80" rx="20" fill="url(#b0)"/><text x="100" y="107" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold" font-size="20">${t}</text>` },
-    { label: "Kim cương", shape: `<defs><linearGradient id="d0" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b894"/><stop offset="100%" stop-color="#0984e3"/></linearGradient></defs><polygon points="100,15 185,100 100,185 15,100" fill="url(#d0)"/><polygon points="100,40 160,100 100,160 40,100" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/><text x="100" y="105" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold" font-size="14">${t}</text>` },
-    { label: "Lục giác", shape: `<defs><linearGradient id="h0" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e17055"/><stop offset="100%" stop-color="#d63031"/></linearGradient></defs><polygon points="100,15 175,57 175,143 100,185 25,143 25,57" fill="url(#h0)"/><text x="100" y="105" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold" font-size="14">${t}</text>` },
-    { label: "Tem vintage", shape: `<circle cx="100" cy="100" r="85" fill="none" stroke="#2d3436" stroke-width="3" stroke-dasharray="6 3"/><circle cx="100" cy="100" r="75" fill="none" stroke="#2d3436" stroke-width="5"/><text x="100" y="90" text-anchor="middle" fill="#2d3436" font-family="Arial" font-weight="bold" font-size="14">${t}</text><line x1="35" y1="108" x2="165" y2="108" stroke="#e17055" stroke-width="1.5"/><text x="100" y="130" text-anchor="middle" fill="#e17055" font-family="Arial" font-size="12">EST. 2026</text>` },
-    { label: "Sóng gradient", shape: `<defs><linearGradient id="w0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6c5ce7"/><stop offset="100%" stop-color="#fd79a8"/></linearGradient></defs><path d="M0,120 Q50,80 100,120 Q150,160 200,120 L200,200 L0,200Z" fill="#6c5ce7" opacity="0.3"/><path d="M0,140 Q50,100 100,140 Q150,180 200,140 L200,200 L0,200Z" fill="#a29bfe" opacity="0.4"/><text x="100" y="80" text-anchor="middle" fill="#6c5ce7" font-family="Arial" font-weight="bold" font-size="18">${t}</text>` },
-    { label: "Ngôi sao", shape: `<defs><linearGradient id="s0" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fdcb6e"/><stop offset="100%" stop-color="#e17055"/></linearGradient></defs><polygon points="100,10 125,75 195,75 138,118 158,185 100,145 42,185 62,118 5,75 75,75" fill="url(#s0)"/><text x="100" y="112" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold" font-size="13">${t}</text>` },
+    // 1. Gradient crest / shield
+    { label: "Huy hiệu", shape: `<defs><linearGradient id="g0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a29bfe"/><stop offset="50%" stop-color="#6c5ce7"/><stop offset="100%" stop-color="#341f97"/></linearGradient><filter id="gsh"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#341f97" flood-opacity="0.4"/></filter></defs><path d="M100 12 L180 48 L180 112 Q180 165 100 192 Q20 165 20 112 L20 48Z" fill="url(#g0)" filter="url(#gsh)"/><path d="M100 32 L162 62 L162 112 Q162 152 100 172 Q38 152 38 112 L38 62Z" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/><circle cx="100" cy="105" r="32" fill="rgba(255,255,255,0.12)"/><text x="100" y="100" text-anchor="middle" fill="white" font-family="Arial" font-weight="900" font-size="17" letter-spacing="1">${t}</text><text x="100" y="150" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Arial" font-size="10" letter-spacing="3">EST 2026</text>` },
+
+    // 2. Neon circle glow
+    { label: "Neon glow", shape: `<defs><filter id="neon1"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter><radialGradient id="ng1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#00fff0" stop-opacity="0.15"/><stop offset="100%" stop-color="#00fff0" stop-opacity="0"/></radialGradient></defs><circle cx="100" cy="100" r="90" fill="url(#ng1)"/><circle cx="100" cy="100" r="82" fill="none" stroke="#00fff0" stroke-width="2.5" filter="url(#neon1)" opacity="0.9"/><circle cx="100" cy="100" r="68" fill="none" stroke="#7b61ff" stroke-width="1.5" filter="url(#neon1)" opacity="0.7"/><text x="100" y="95" text-anchor="middle" fill="#00fff0" font-family="Arial" font-weight="900" font-size="18" filter="url(#neon1)" letter-spacing="2">${t}</text><text x="100" y="118" text-anchor="middle" fill="#7b61ff" font-family="Arial" font-size="10" letter-spacing="4" filter="url(#neon1)">ORIGINAL</text>` },
+
+    // 3. Vintage stamp
+    { label: "Vintage Tem", shape: `<defs><filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter></defs><circle cx="100" cy="100" r="87" fill="none" stroke="#c0392b" stroke-width="6" stroke-dasharray="5 3" filter="url(#rough)"/><circle cx="100" cy="100" r="78" fill="none" stroke="#c0392b" stroke-width="2" filter="url(#rough)"/><text x="100" y="78" text-anchor="middle" fill="#c0392b" font-family="Georgia,serif" font-size="11" letter-spacing="5">✦ AUTHENTIC ✦</text><text x="100" y="108" text-anchor="middle" fill="#c0392b" font-family="Georgia,serif" font-weight="bold" font-size="20">${t}</text><line x1="40" y1="120" x2="160" y2="120" stroke="#c0392b" stroke-width="1.5"/><text x="100" y="138" text-anchor="middle" fill="#c0392b" font-family="Georgia,serif" font-size="10" letter-spacing="3">EST. 2026</text>` },
+
+    // 4. Bold retro arc text
+    { label: "Retro Arc", shape: `<defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f7971e"/><stop offset="100%" stop-color="#ffd200"/></linearGradient><filter id="sh3"><feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/></filter></defs><path d="M15 130 Q100 25 185 130" fill="none" stroke="#1a1a2e" stroke-width="42" stroke-linecap="round"/><path d="M22 130 Q100 33 178 130" fill="none" stroke="url(#g3)" stroke-width="32" stroke-linecap="round"/><path d="M30 100 Q100 200 170 100" fill="none" stroke="#1a1a2e" stroke-width="38" stroke-linecap="round"/><path d="M37 100 Q100 192 163 100" fill="none" stroke="url(#g3)" stroke-width="28" stroke-linecap="round"/><text x="100" y="98" text-anchor="middle" fill="#1a1a2e" font-family="Arial" font-weight="900" font-size="16" filter="url(#sh3)" letter-spacing="1">${t}</text>` },
+
+    // 5. Geometric layers
+    { label: "Geometric", shape: `<defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f953c6"/><stop offset="100%" stop-color="#b91d73"/></linearGradient><linearGradient id="g4b" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0575e6"/><stop offset="100%" stop-color="#021b79"/></linearGradient></defs><polygon points="100,8 192,55 192,145 100,192 8,145 8,55" fill="url(#g4b)"/><polygon points="100,30 170,65 170,135 100,170 30,135 30,65" fill="url(#g4)" opacity="0.7"/><polygon points="100,55 145,78 145,122 100,145 55,122 55,78" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/><circle cx="100" cy="100" r="22" fill="rgba(255,255,255,0.15)"/><text x="100" y="105" text-anchor="middle" fill="white" font-family="Arial" font-weight="900" font-size="15" letter-spacing="1">${t}</text>` },
+
+    // 6. Minimal line art
+    { label: "Minimal Line", shape: `<defs><filter id="sh6"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#6c5ce7" flood-opacity="0.3"/></filter></defs><circle cx="100" cy="100" r="80" fill="none" stroke="#111" stroke-width="4"/><line x1="20" y1="100" x2="180" y2="100" stroke="#111" stroke-width="2"/><line x1="100" y1="20" x2="100" y2="180" stroke="#111" stroke-width="2"/><circle cx="100" cy="100" r="40" fill="none" stroke="#6c5ce7" stroke-width="3" filter="url(#sh6)"/><text x="100" y="89" text-anchor="middle" fill="#111" font-family="Arial" font-weight="900" font-size="12" letter-spacing="2">${t}</text><text x="100" y="115" text-anchor="middle" fill="#6c5ce7" font-family="Arial" font-size="9" letter-spacing="3">ORIGINAL</text>` },
   ]);
 }
 

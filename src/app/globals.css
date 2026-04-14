@@ -355,6 +355,72 @@ body {
   background: var(--surface-hover);
 }
 
+/* Color preview + swatches */
+.canva-color-preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 10px;
+  background: var(--surface-hover);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.canva-color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  background: var(--dot-color, #000);
+}
+.canva-color-hex {
+  font-size: 12px;
+  font-family: var(--font-mono, monospace);
+  color: var(--muted);
+  flex: 1;
+}
+.canva-quick-colors { margin-top: 10px; }
+.canva-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.canva-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid rgba(0,0,0,0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s, border 0.1s;
+  background: var(--sw-color, #ccc);
+}
+.canva-swatch:hover { transform: scale(1.1); }
+.canva-swatch-active {
+  border: 3px solid #6c5ce7;
+  box-shadow: 0 0 0 2px white inset;
+}
+.canva-swatch-custom {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 16px;
+  position: relative;
+}
+.canva-color-hidden {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  position: absolute;
+}
+
 .canva-row {
   display: flex;
   gap: 10px;
@@ -2426,3 +2492,114 @@ body {
   .dash-sidebar { width: 56px; }
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — Design Studio + All Pages
+   ═══════════════════════════════════════════════════════════ */
+
+/* Bottom tab bar: hidden on desktop by default */
+.canva-mobile-tabs { display: none; }
+.canva-mobile-tab { display: none; }
+
+@media (max-width: 768px) {
+  /* ── Homepage ── */
+  .home-nav-links { display: none; }
+  .hero-image { position: static; transform: none; max-width: 100%; margin-top: 24px; }
+  .hero-title { font-size: 2rem !important; }
+  .hero-ctas { flex-direction: column; gap: 12px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .step-line { display: none; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+  .footer-bottom { flex-direction: column; gap: 12px; }
+
+  /* ── Dashboard ── */
+  .dash-stats { grid-template-columns: repeat(2, 1fr); }
+  .dash-columns { grid-template-columns: 1fr; }
+  .dash-main { margin-left: 0 !important; padding: 12px; }
+  .dash-sidebar { display: none !important; }
+
+  /* ── Order page ── */
+  .order-grid { grid-template-columns: 1fr !important; }
+  .order-page-title h1 { font-size: 1.5rem; }
+  .order-preview-col { position: static; }
+
+  /* ── Design Studio layout ── */
+  .canva-layout { height: 100dvh; }
+  .canva-body { flex-direction: column; }
+  .canva-sidebar-left { display: none !important; }
+  .canva-topbar { padding: 0 10px; height: 48px; }
+  .canva-workspace { flex: 1; width: 100%; overflow: auto; }
+  .canva-canvas-wrapper { padding: 12px; min-height: unset; }
+  .canva-bottombar { padding: 0 8px; gap: 6px; height: 44px; overflow-x: auto; flex-wrap: nowrap; }
+  .canva-bottombar > * { flex-shrink: 0; }
+
+  /* Panel → bottom sheet (slide up from bottom) */
+  .canva-panel {
+    position: fixed !important;
+    bottom: 56px !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-height: 55vh;
+    border-radius: 20px 20px 0 0 !important;
+    border-right: none !important;
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    overflow-y: auto;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+  }
+  .canva-panel-right {
+    position: fixed !important;
+    bottom: 56px;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    max-height: 40vh;
+    border-radius: 20px 20px 0 0 !important;
+    border-left: none !important;
+    z-index: 99;
+    overflow-y: auto;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
+  }
+
+  /* Larger touch targets for resize handles */
+  .canva-handle { width: 18px !important; height: 18px !important; }
+
+  /* Show mobile bottom tab bar */
+  .canva-mobile-tabs {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: white;
+    border-top: 1px solid var(--border);
+    z-index: 200;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .canva-mobile-tab {
+    display: flex !important;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: none;
+    background: none;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s;
+    padding: 4px 0;
+  }
+  .canva-mobile-tab.active { color: var(--accent); }
+  .canva-mobile-tab svg { width: 20px; height: 20px; }
+}
+
+@media (max-width: 480px) {
+  .canva-canvas-wrapper { padding: 8px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-card-pop { transform: none; }
+}

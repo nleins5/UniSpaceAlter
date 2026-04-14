@@ -17,6 +17,13 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "UniSpace — AI T-Shirt Designer",
   description: "Thiết kế áo thun độc đáo với AI. Tạo hình ảnh, kéo thả lên áo và đặt hàng ngay.",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  themeColor: "#6c5ce7",
 };
 
 export default function RootLayout({

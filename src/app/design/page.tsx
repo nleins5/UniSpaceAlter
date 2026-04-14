@@ -217,16 +217,18 @@ function DesignCanvas({
   const sideElements = elements.filter((el) => el.side === side);
 
   const handleElementMouseDown = useCallback(
-    (e: React.MouseEvent, el: DesignElement) => {
+    (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
       e.stopPropagation();
       e.preventDefault();
-      hasMovedRef.current = false; // reset before each drag
+      hasMovedRef.current = false;
       onSelectElement(el.id);
       const rect = canvasRef.current!.getBoundingClientRect();
       const scale = zoom / 100;
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
       setDragOffset({
-        x: (e.clientX - rect.left) / scale - el.x,
-        y: (e.clientY - rect.top) / scale - el.y,
+        x: (clientX - rect.left) / scale - el.x,
+        y: (clientY - rect.top) / scale - el.y,
       });
       setIsDragging(true);
     },
@@ -234,12 +236,14 @@ function DesignCanvas({
   );
 
   const handleResizeMouseDown = useCallback(
-    (e: React.MouseEvent, el: DesignElement, corner: 'tl'|'tr'|'bl'|'br' = 'br') => {
+    (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'tl'|'tr'|'bl'|'br' = 'br') => {
       // e.stopPropagation and preventDefault are called at the call site on handle divs
       setIsResizing(true);
       onSelectElement(el.id);
-      const startX = e.clientX;
-      const startY = e.clientY;
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      const startX = clientX;
+      const startY = clientY;
       const startWidth = el.width;
       const startHeight = el.height;
       const startElX = el.x;
@@ -267,9 +271,24 @@ function DesignCanvas({
         setIsResizing(false);
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleMouseUp);
+      };
+      const handleTouchMove = (moveE: TouchEvent) => {
+        if (!moveE.touches[0]) return;
+        const dx = (moveE.touches[0].clientX - startX) / scale;
+        const dy = (moveE.touches[0].clientY - startY) / scale;
+        let newWidth = startWidth, newHeight = startHeight, newX = startElX, newY = startElY;
+        if (corner === 'br') { newWidth = Math.max(20, startWidth + dx); newHeight = Math.max(20, startHeight + dy); }
+        if (corner === 'bl') { newWidth = Math.max(20, startWidth - dx); newHeight = Math.max(20, startHeight + dy); newX = startElX + dx; }
+        if (corner === 'tr') { newWidth = Math.max(20, startWidth + dx); newHeight = Math.max(20, startHeight - dy); newY = startElY + dy; }
+        if (corner === 'tl') { newWidth = Math.max(20, startWidth - dx); newHeight = Math.max(20, startHeight - dy); newX = startElX + dx; newY = startElY + dy; }
+        onResizeElement(el.id, newWidth, newHeight, newX, newY);
       };
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleMouseUp);
     },
     [onSelectElement, onResizeElement, zoom]
   );
@@ -280,22 +299,34 @@ function DesignCanvas({
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!canvasRef.current) return;
-      hasMovedRef.current = true; // mark that actual movement occurred
+      hasMovedRef.current = true;
       const rect = canvasRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / scale - dragOffset.x;
       const y = (e.clientY - rect.top) / scale - dragOffset.y;
       onMoveElement(selectedId, x, y);
     };
-
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!canvasRef.current || !e.touches[0]) return;
+      e.preventDefault();
+      hasMovedRef.current = true;
+      const rect = canvasRef.current.getBoundingClientRect();
+      const x = (e.touches[0].clientX - rect.left) / scale - dragOffset.x;
+      const y = (e.touches[0].clientY - rect.top) / scale - dragOffset.y;
+      onMoveElement(selectedId, x, y);
+    };
     const handleMouseUp = () => {
       pushHistoryRef.current();
       setIsDragging(false);
     };
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleMouseUp);
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleMouseUp);
     };
   }, [isDragging, selectedId, dragOffset, onMoveElement, zoom]); // no onPushHistory in deps
 
@@ -379,10 +410,10 @@ function DesignCanvas({
 
         {sideElements.map((el) => (
           <div key={el.id} className="canva-element-wrapper">
-            {/* Dynamic position/size via injected CSS .el-{id} */}
             <div
               className={`canva-element el-${el.id} ${selectedId === el.id ? "canva-element-selected" : ""}`}
               onMouseDown={(e) => handleElementMouseDown(e, el)}
+              onTouchStart={(e) => handleElementMouseDown(e, el)}
             >
               {el.type === "image" && el.url && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -394,13 +425,12 @@ function DesignCanvas({
                 </div>
               )}
             </div>
-            {/* Handles rendered as siblings — no event bubble to element */}
             {selectedId === el.id && !isDragging && !isResizing && (
               <>
-                <div className={`canva-handle canva-handle-tl hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'tl'); }} />
-                <div className={`canva-handle canva-handle-tr hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'tr'); }} />
-                <div className={`canva-handle canva-handle-bl hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'bl'); }} />
-                <div className={`canva-handle canva-handle-br hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'br'); }} />
+                <div className={`canva-handle canva-handle-tl hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'tl'); }} onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'tl'); }} />
+                <div className={`canva-handle canva-handle-tr hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'tr'); }} onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'tr'); }} />
+                <div className={`canva-handle canva-handle-bl hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'bl'); }} onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'bl'); }} />
+                <div className={`canva-handle canva-handle-br hdl-${el.id}`} onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'br'); }} onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); handleResizeMouseDown(e, el, 'br'); }} />
               </>
             )}
           </div>
@@ -1059,7 +1089,29 @@ export default function DesignPage() {
                     </div>
                     <div className="canva-half">
                       <label className="canva-label">Màu chữ</label>
-                      <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="canva-color-input" title="Chọn màu chữ" />
+                      <div className="canva-color-preview">
+                        <div className="canva-color-dot" style={{'--dot-color': textColor} as React.CSSProperties} />
+                        <span className="canva-color-hex">{textColor}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="canva-quick-colors">
+                    <label className="canva-label">Màu nhanh</label>
+                    <div className="canva-swatch-row">
+                      {['#000000','#ffffff','#e84393','#6c5ce7','#0984e3','#00b894','#f1c40f','#e17055','#2d3436','#fdcb6e','#ff7675','#74b9ff'].map(c => (
+                        <button
+                          key={c}
+                          title={c}
+                          onClick={() => setTextColor(c)}
+                          className={`canva-swatch${textColor === c ? ' canva-swatch-active' : ''}`}
+                          style={{'--sw-color': c} as React.CSSProperties}
+                        />
+                      ))}
+                      <label title="Màu tùy chỉnh" className="canva-swatch-custom">
+                        🎨
+                        <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="canva-color-hidden" />
+                      </label>
                     </div>
                   </div>
 
@@ -1188,6 +1240,26 @@ export default function DesignPage() {
           </div>
         </main>
       </div>
+
+      {/* ── Mobile Bottom Tab Bar (hidden on desktop via CSS) ── */}
+      <nav className="canva-mobile-tabs">
+        {([
+          { id: "ai",       label: "AI",      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="18" cy="6" r="3" fill="currentColor" stroke="none"/></svg> },
+          { id: "upload",   label: "Ảnh",     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
+          { id: "text",     label: "Chữ",     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> },
+          { id: "elements", label: "Mẫu",     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
+          { id: "layers",   label: "Layer",   icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> },
+        ] as const).map(tab => (
+          <button
+            key={tab.id}
+            className={`canva-mobile-tab ${activePanel === tab.id ? "active" : ""}`}
+            onClick={() => setActivePanel(activePanel === tab.id ? null : tab.id)}
+          >
+            {tab.icon}
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

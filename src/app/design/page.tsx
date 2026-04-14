@@ -1113,7 +1113,7 @@ export default function DesignPage() {
                           title={c}
                           onClick={() => setTextColor(c)}
                           className={`canva-swatch${textColor === c ? ' canva-swatch-active' : ''}`}
-                          data-color={c}
+                          style={{'--sw-color': c} as React.CSSProperties}
                         />
                       ))}
                       <label title="Màu tùy chỉnh" className="canva-swatch-custom">

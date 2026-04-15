@@ -1180,6 +1180,39 @@ body {
   overflow: auto;
 }
 
+/* ─── Realistic Mockup (Photo-based) ─── */
+.mockup-shirt-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mockup-color-layer {
+  position: absolute;
+  inset: 5%;
+  border-radius: 8px;
+  z-index: 0;
+}
+
+.mockup-shirt-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mockup-blend {
+  mix-blend-mode: multiply;
+}
+
 /* ─── Canvas (T-shirt) ─── */
 .canva-canvas {
   position: relative;

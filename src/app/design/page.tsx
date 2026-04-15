@@ -36,143 +36,43 @@ interface ChatMessage {
   images?: AIImage[];
 }
 
-// ─── T-Shirt SVG Component ──────────────────────────────────
+// ─── Realistic T-Shirt Mockup (Photo-based) ─────────────────
 function TShirtSVG({ color }: { color: string }) {
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 128;
-
+  const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id={`fab-${hex}`} x1="0.2" y1="0" x2="0.9" y2="1">
-          <stop offset="0%" stopColor={isLight ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.12)"} />
-          <stop offset="45%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="100%" stopColor={isLight ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.2)"} />
-        </linearGradient>
-        <linearGradient id={`side-${hex}`} x1="0" y1="0.5" x2="1" y2="0.5">
-          <stop offset="0%" stopColor="rgba(0,0,0,0.07)" />
-          <stop offset="20%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="80%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0.05)" />
-        </linearGradient>
-        <filter id="tshirtShadow" x="-8%" y="-3%" width="116%" height="112%">
-          <feDropShadow dx="0" dy="6" stdDeviation="12" floodOpacity="0.15" />
-        </filter>
-      </defs>
-
-      <g filter="url(#tshirtShadow)">
-        <path
-          d="M200 20 L150 20 C144 20 138 22 135 26 L96 62 L48 100 C40 106 38 116 40 124 L60 158 C63 164 70 168 76 164 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L324 164 C330 168 337 164 340 158 L360 124 C362 116 360 106 352 100 L304 62 L265 26 C262 22 256 20 250 20 L200 20Z"
-          fill={color}
-          stroke={isLight ? "#ddd" : "rgba(255,255,255,0.08)"}
-          strokeWidth="1.2"
-        />
-        <path
-          d="M200 20 L150 20 C144 20 138 22 135 26 L96 62 L48 100 C40 106 38 116 40 124 L60 158 C63 164 70 168 76 164 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L324 164 C330 168 337 164 340 158 L360 124 C362 116 360 106 352 100 L304 62 L265 26 C262 22 256 20 250 20 L200 20Z"
-          fill={`url(#fab-${hex})`}
-        />
-        <rect x="114" y="134" width="172" height="318" fill={`url(#side-${hex})`} />
-
-        <path d="M162 20 C170 44 184 56 200 60 C216 56 230 44 238 20" fill={isLight ? "rgba(0,0,0,0.04)" : "rgba(0,0,0,0.15)"} />
-        <path d="M162 20 C170 44 184 56 200 60 C216 56 230 44 238 20" fill="none" stroke={isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.12)"} strokeWidth="2.5" strokeLinecap="round" />
-
-        <path d="M76 162 L114 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
-        <path d="M324 162 L286 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
-        <path d="M128 448 L272 448" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="1" />
-      </g>
-    </svg>
+    <div className="mockup-shirt-wrapper">
+      {!isWhite && (
+        <div className="mockup-color-layer" style={{ backgroundColor: color }} />
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/mockup/tshirt-front.png"
+        alt="T-shirt mockup"
+        className={`mockup-shirt-img ${!isWhite ? "mockup-blend" : ""}`}
+        draggable={false}
+      />
+    </div>
   );
 }
 
 function PoloShirtSVG({ color }: { color: string }) {
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 128;
-
+  const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id={`pfab-${hex}`} x1="0.2" y1="0" x2="0.9" y2="1">
-          <stop offset="0%" stopColor={isLight ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.12)"} />
-          <stop offset="45%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="100%" stopColor={isLight ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.2)"} />
-        </linearGradient>
-        <linearGradient id={`pside-${hex}`} x1="0" y1="0.5" x2="1" y2="0.5">
-          <stop offset="0%" stopColor="rgba(0,0,0,0.07)" />
-          <stop offset="20%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="80%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0.05)" />
-        </linearGradient>
-        <filter id="poloShadow" x="-8%" y="-3%" width="116%" height="112%">
-          <feDropShadow dx="0" dy="6" stdDeviation="12" floodOpacity="0.15" />
-        </filter>
-      </defs>
-
-      <g filter="url(#poloShadow)">
-        {/* Body — short sleeves */}
-        <path
-          d="M200 28 L148 28 C142 28 136 30 133 34 L96 68 L58 100 C50 106 48 116 50 124 L68 152 C71 158 78 162 84 158 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L316 158 C322 162 329 158 332 152 L350 124 C352 116 350 106 342 100 L304 68 L267 34 C264 30 258 28 252 28 L200 28Z"
-          fill={color}
-          stroke={isLight ? "#ddd" : "rgba(255,255,255,0.08)"}
-          strokeWidth="1.2"
-        />
-        <path
-          d="M200 28 L148 28 C142 28 136 30 133 34 L96 68 L58 100 C50 106 48 116 50 124 L68 152 C71 158 78 162 84 158 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L316 158 C322 162 329 158 332 152 L350 124 C352 116 350 106 342 100 L304 68 L267 34 C264 30 258 28 252 28 L200 28Z"
-          fill={`url(#pfab-${hex})`}
-        />
-        <rect x="114" y="134" width="172" height="318" fill={`url(#pside-${hex})`} />
-
-        {/* Collar band — raised ring around neck */}
-        <path d="M150 28 C162 16 180 10 200 10 C220 10 238 16 250 28"
-          fill={color} />
-        <path d="M150 28 C162 16 180 10 200 10 C220 10 238 16 250 28"
-          fill={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.12)"} />
-        {/* Collar band top edge */}
-        <path d="M148 30 C160 14 178 6 200 6 C222 6 240 14 252 30"
-          fill="none" stroke={isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.25)"} strokeWidth="2" strokeLinecap="round" />
-
-        {/* Left collar flap — large pointed lapel */}
-        <path d="M150 30 L144 34 L120 62 L158 82 L194 58 L194 38 L170 30 Z"
-          fill={color} stroke={isLight ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"} strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M150 30 L144 34 L120 62 L158 82 L194 58 L194 38 L170 30 Z"
-          fill={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)"} />
-        {/* Left collar fold shadow */}
-        <path d="M150 30 L170 30 L194 38 L194 46 L168 38 L150 34 Z"
-          fill={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.06)"} />
-
-        {/* Right collar flap — large pointed lapel */}
-        <path d="M250 30 L256 34 L280 62 L242 82 L206 58 L206 38 L230 30 Z"
-          fill={color} stroke={isLight ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"} strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M250 30 L256 34 L280 62 L242 82 L206 58 L206 38 L230 30 Z"
-          fill={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)"} />
-        {/* Right collar fold shadow */}
-        <path d="M250 30 L230 30 L206 38 L206 46 L232 38 L250 34 Z"
-          fill={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.06)"} />
-
-        {/* Button placket strip */}
-        <rect x="194" y="38" width="12" height="125" rx="1"
-          fill={color} stroke={isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)"} strokeWidth="1" />
-        <rect x="194" y="38" width="12" height="125" rx="1"
-          fill={isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.06)"} />
-
-        {/* Buttons */}
-        <circle cx="200" cy="68" r="3" fill={isLight ? "#e8e8e8" : "rgba(255,255,255,0.35)"} stroke={isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.2)"} strokeWidth="0.8" />
-        <circle cx="200" cy="96" r="3" fill={isLight ? "#e8e8e8" : "rgba(255,255,255,0.35)"} stroke={isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.2)"} strokeWidth="0.8" />
-
-        {/* Sleeve seam lines */}
-        <path d="M84 156 L114 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
-        <path d="M316 156 L286 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
-        {/* Hem line */}
-        <path d="M128 448 L272 448" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="1" />
-      </g>
-    </svg>
+    <div className="mockup-shirt-wrapper">
+      {!isWhite && (
+        <div className="mockup-color-layer" style={{ backgroundColor: color }} />
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/mockup/polo-front.png"
+        alt="Polo shirt mockup"
+        className={`mockup-shirt-img ${!isWhite ? "mockup-blend" : ""}`}
+        draggable={false}
+      />
+    </div>
   );
 }
+
 
 
 // ─── Canva-style Design Canvas ──────────────────────────────

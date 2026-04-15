@@ -75,12 +75,18 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
         {/* Polo collar */}
         {shirtType === "polo" && side === "front" && (
           <>
-            <path d="M160 42 Q160 30 172 25 Q186 20 200 20 Q214 20 228 25 Q240 30 240 42" fill={color} stroke={strokeColor} strokeWidth="1" />
-            <line x1="190" y1="42" x2="198" y2="130" stroke={pipingColor} strokeWidth="2.5" />
-            <line x1="210" y1="42" x2="202" y2="130" stroke={pipingColor} strokeWidth="2.5" />
-            <circle cx="200" cy="60" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
-            <circle cx="200" cy="82" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
-            <circle cx="200" cy="104" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+            <rect x="155" y="8" width="90" height="34" rx="3" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1" />
+            <path d="M155 42 L155 20 L130 55 Q136 72 152 74 Q166 70 180 60 L193 48 Z" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.2" strokeLinejoin="round" />
+            <path d="M155 22 L133 52" stroke={backCollarTrim} strokeWidth="2" opacity="0.7" />
+            <path d="M245 42 L245 20 L270 55 Q264 72 248 74 Q234 70 220 60 L207 48 Z" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.2" strokeLinejoin="round" />
+            <path d="M245 22 L267 52" stroke={backCollarTrim} strokeWidth="2" opacity="0.7" />
+            <line x1="156" y1="12" x2="244" y2="12" stroke={backCollarTrim} strokeWidth="2" opacity="0.6" />
+            <line x1="156" y1="16" x2="244" y2="16" stroke={backCollarTrim} strokeWidth="1" opacity="0.3" />
+            <path d="M193 48 L200 120 L207 48" fill={color} stroke="none" />
+            <rect x="197" y="48" width="6" height="72" rx="1" fill={color} stroke={strokeColor} strokeWidth="0.5" />
+            <circle cx="200" cy="58" r="4" fill={buttonFill} />
+            <circle cx="200" cy="78" r="4" fill={buttonFill} />
+            <circle cx="200" cy="98" r="4" fill={buttonFill} />
           </>
         )}
         {shirtType === "polo" && side === "back" && (

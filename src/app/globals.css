@@ -3007,3 +3007,77 @@ body {
 .unilogo[data-scale="1"]    .unilogo-uni   { font-size: 22px; margin-top: 2px; letter-spacing: -0.05em; }
 .unilogo[data-scale="1"]    .unilogo-space { font-size: 18px; letter-spacing: -0.02em; }
 .unilogo[data-scale="1"]    .unilogo-tagline { font-size: 8px; height: 20px; }
+
+/* ═══════════════════════════════════════
+   Manufacturer Order Detail Page
+   ═══════════════════════════════════════ */
+.mfr-page { min-height: 100dvh; background: var(--surface-hover); }
+
+.mfr-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 12px; color: var(--muted); }
+.mfr-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.mfr-error-icon { width: 56px; height: 56px; border-radius: 50%; background: #fef2f2; color: #ef4444; font-size: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+.mfr-header { background: white; border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 10; }
+.mfr-header-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.mfr-logo-link { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.mfr-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+.mfr-status-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.mfr-status-dot { width: 7px; height: 7px; border-radius: 50%; animation: pulse 2s infinite; }
+
+.mfr-main { max-width: 960px; margin: 0 auto; padding: 32px 24px 60px; }
+
+.mfr-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+.mfr-title { font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.mfr-order-id { font-family: var(--font-mono, monospace); font-size: 13px; color: var(--muted); margin-top: 4px; }
+.mfr-date { font-size: 13px; color: var(--muted); text-align: right; white-space: nowrap; }
+
+.mfr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.mfr-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.mfr-card-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+
+.mfr-design-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mfr-design-slot { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.mfr-design-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--surface-hover); }
+.mfr-design-label { font-size: 13px; font-weight: 600; }
+.mfr-download-btn { font-size: 11px; font-weight: 600; color: white; background: var(--accent); padding: 4px 12px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.mfr-download-btn:hover { opacity: 0.85; }
+.mfr-no-design { font-size: 11px; color: var(--muted); }
+.mfr-design-preview { padding: 12px; background: var(--surface-hover); }
+.mfr-design-preview img { width: 100%; max-height: 220px; object-fit: contain; border-radius: 8px; }
+.mfr-design-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 32px 12px; color: #ccc; font-size: 12px; }
+
+.mfr-info-col { display: flex; flex-direction: column; gap: 20px; }
+
+.mfr-info-rows { display: flex; flex-direction: column; gap: 0; }
+.mfr-info-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; gap: 16px; }
+.mfr-info-row:last-child { border-bottom: none; }
+.mfr-info-row span { color: var(--muted); white-space: nowrap; }
+.mfr-info-row strong { text-align: right; font-weight: 600; color: var(--text); word-break: break-word; }
+.mfr-info-row a { color: var(--accent); text-decoration: none; }
+.mfr-info-row a:hover { text-decoration: underline; }
+
+.mfr-color-val { display: flex; align-items: center; gap: 8px; }
+.mfr-color-dot { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; }
+.mfr-qty { color: var(--accent) !important; font-size: 16px !important; }
+
+.mfr-notes { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.mfr-notes-label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; }
+.mfr-notes p { font-size: 14px; color: var(--text); line-height: 1.5; margin: 0; background: var(--surface-hover); padding: 12px 16px; border-radius: 12px; }
+
+@media (max-width: 768px) {
+  .mfr-grid { grid-template-columns: 1fr; }
+  .mfr-design-grid { grid-template-columns: 1fr; }
+  .mfr-title { font-size: 1.3rem; }
+  .mfr-title-row { flex-direction: column; }
+  .mfr-date { text-align: left; }
+}
+

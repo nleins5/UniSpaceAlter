@@ -56,7 +56,7 @@ function seedDemoOrders() {
 seedDemoOrders();
 
 // Try filesystem first, then memory
-async function useFilesystem(): Promise<boolean> {
+async function checkFilesystem(): Promise<boolean> {
   try {
     const fs = await import("fs/promises");
     const p = await import("path");
@@ -87,7 +87,7 @@ export async function getAllOrders(): Promise<Order[]> {
   }
 
   // Try filesystem
-  if (await useFilesystem()) {
+  if (await checkFilesystem()) {
     return getOrdersFromFilesystem();
   }
 
@@ -110,7 +110,7 @@ export async function getOrder(id: string): Promise<Order | null> {
     return { ...data, orderId: snap.id, createdAt } as Order;
   }
 
-  if (await useFilesystem()) {
+  if (await checkFilesystem()) {
     return getOrderFromFilesystem(id);
   }
 
@@ -119,7 +119,7 @@ export async function getOrder(id: string): Promise<Order | null> {
 
 // ── GET design file ──────────────────────────────────────────
 export async function getDesignFile(orderId: string, file: string): Promise<Buffer | null> {
-  if (await useFilesystem()) {
+  if (await checkFilesystem()) {
     try {
       const fs = await import("fs/promises");
       const p = await import("path");
@@ -167,7 +167,7 @@ export async function createOrder(
   }
 
   // Try filesystem first
-  if (await useFilesystem()) {
+  if (await checkFilesystem()) {
     return saveOrderToFilesystem(orderId, orderData, frontBlob, backBlob);
   }
 
@@ -197,7 +197,7 @@ export async function updateOrderStatus(id: string, status: string): Promise<voi
     return;
   }
 
-  if (await useFilesystem()) {
+  if (await checkFilesystem()) {
     const fs = await import("fs/promises");
     const p = await import("path");
     const orderPath = p.default.join(process.cwd(), "orders", id, "order.json");

@@ -44,8 +44,12 @@ async function generateWithCloudflare(prompt: string) {
   const cfAccountId = process.env.CF_ACCOUNT_ID || "";
   const cfToken = process.env.CF_API_TOKEN || "";
 
-  const results = await Promise.allSettled(
-    styles.map(async (style) => {
+  // Generate sequentially to avoid Vercel timeout (10s limit on hobby)
+  const images: {id:string;label:string;url:string}[] = [];
+  for (const style of styles) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
       const res = await fetch(
         `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${CF_MODEL}`,
         {
@@ -57,21 +61,29 @@ async function generateWithCloudflare(prompt: string) {
           body: JSON.stringify({
             prompt: `${enPrompt}, t-shirt graphic design, isolated on white background, centered${style.suffix}`,
           }),
+          signal: controller.signal,
         }
       );
+      clearTimeout(timeout);
       const data = await res.json();
-      if (!data.result?.image) throw new Error("No image");
-      return {
-        id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        label: style.label,
-        url: `data:image/jpeg;base64,${data.result.image}`,
-      };
-    })
-  );
+      if (data.result?.image) {
+        images.push({
+          id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          label: style.label,
+          url: `data:image/jpeg;base64,${data.result.image}`,
+        });
+        console.log(`✅ CF ${style.label} OK`);
+        // Return after first successful image to stay within timeout
+        if (images.length >= 1) break;
+      } else {
+        console.log(`❌ CF ${style.label}: no image in response`, JSON.stringify(data).slice(0, 200));
+      }
+    } catch (err) {
+      console.log(`❌ CF ${style.label} error:`, (err as Error).message?.slice(0, 100));
+    }
+  }
 
-  return results
-    .filter((r): r is PromiseFulfilledResult<{id:string;label:string;url:string}> => r.status === "fulfilled")
-    .map((r) => r.value);
+  return images;
 }
 // Rate limiter: max 20 generates per minute per IP
 const genLimiter = new Map<string, { count: number; resetAt: number }>();

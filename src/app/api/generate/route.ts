@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const CF_MODEL = "@cf/black-forest-labs/flux-1-schnell";
+const T8STAR_URL = "https://ai.t8star.cn/v1/images/generations";
+const T8STAR_MODEL = "flux-schnell";
+const GUEST_MAX_GENERATES = 3;
 
 // ── Vietnamese → English for AI image model ──────
 const VI_EN: Record<string, string> = {
@@ -30,9 +33,57 @@ function translatePrompt(prompt: string): string {
   return r;
 }
 
+// ── T8star AI Gateway (primary — unlimited Flux) ─────────────
+async function generateWithT8star(prompt: string) {
+  const enPrompt = translatePrompt(prompt);
+  console.log(`🔤 T8star: "${prompt}" → "${enPrompt}"`);
+
+  const t8Key = process.env.T8STAR_API_KEY;
+  if (!t8Key) return [];
+
+  const fullPrompt = `${enPrompt}, t-shirt graphic design, isolated on white background, centered, high quality, detailed, vibrant colors`;
+  
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    const res = await fetch(T8STAR_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${t8Key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: T8STAR_MODEL,
+        prompt: fullPrompt,
+        n: 1,
+        size: "512x512",
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    const data = await res.json();
+    
+    if (data.data && data.data.length > 0) {
+      const images = data.data.map((img: { url?: string; b64_json?: string }, i: number) => ({
+        id: `t8-${Date.now()}-${i}`,
+        label: "AI Design",
+        url: img.url || (img.b64_json ? `data:image/png;base64,${img.b64_json}` : ""),
+      })).filter((img: { url: string }) => img.url);
+      console.log(`✅ T8star: ${images.length} images`);
+      return images;
+    } else {
+      console.log(`❌ T8star error:`, JSON.stringify(data).slice(0, 200));
+    }
+  } catch (err) {
+    console.log(`❌ T8star failed:`, (err as Error).message?.slice(0, 100));
+  }
+  return [];
+}
+
+// ── Cloudflare AI (fallback) ─────────────────────────────────
 async function generateWithCloudflare(prompt: string) {
   const enPrompt = translatePrompt(prompt);
-  console.log(`🔤 "${prompt}" → "${enPrompt}"`);
+  console.log(`🔤 CF: "${prompt}" → "${enPrompt}"`);
 
   const styles = [
     { label: "Original", suffix: ", high quality, detailed, vibrant colors" },
@@ -44,7 +95,6 @@ async function generateWithCloudflare(prompt: string) {
   const cfAccountId = process.env.CF_ACCOUNT_ID || "";
   const cfToken = process.env.CF_API_TOKEN || "";
 
-  // Generate sequentially to avoid Vercel timeout (10s limit on hobby)
   const images: {id:string;label:string;url:string}[] = [];
   for (const style of styles) {
     try {
@@ -73,7 +123,6 @@ async function generateWithCloudflare(prompt: string) {
           url: `data:image/jpeg;base64,${data.result.image}`,
         });
         console.log(`✅ CF ${style.label} OK`);
-        // Return after first successful image to stay within timeout
         if (images.length >= 1) break;
       } else {
         console.log(`❌ CF ${style.label}: no image in response`, JSON.stringify(data).slice(0, 200));
@@ -87,6 +136,8 @@ async function generateWithCloudflare(prompt: string) {
 }
 // Rate limiter: max 20 generates per minute per IP
 const genLimiter = new Map<string, { count: number; resetAt: number }>();
+// Guest generation counter
+const guestCounter = new Map<string, number>();
 
 export async function POST(req: NextRequest) {
   try {
@@ -114,29 +165,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    // Check Cloudflare credentials
+    // Guest generation limit: 3 free, then require login
+    const isGuest = !req.headers.get("x-user-email");
+    if (isGuest) {
+      const guestCount = guestCounter.get(ip) || 0;
+      if (guestCount >= GUEST_MAX_GENERATES) {
+        return NextResponse.json({
+          error: "Bạn đã dùng hết 3 lượt tạo miễn phí. Vui lòng đăng nhập để tiếp tục!",
+          requireLogin: true,
+          guestCount,
+          maxFree: GUEST_MAX_GENERATES,
+        }, { status: 403 });
+      }
+      guestCounter.set(ip, guestCount + 1);
+    }
+
+    // Priority 1: T8star (unlimited Flux)
+    const t8Key = process.env.T8STAR_API_KEY;
+    if (t8Key) {
+      console.log(`🔑 T8star key: ${t8Key.slice(0,8)}...`);
+      try {
+        const images = await generateWithT8star(cleanPrompt);
+        if (images.length > 0) {
+          return NextResponse.json({ images, isDemo: false, method: "t8star" });
+        }
+      } catch (e) {
+        console.log("T8star failed:", (e as Error).message?.slice(0, 100));
+      }
+    }
+
+    // Priority 2: Cloudflare (daily limit)
     const accountId = process.env.CF_ACCOUNT_ID;
     const apiToken = process.env.CF_API_TOKEN;
-    console.log(`🔑 CF env: accountId=${accountId ? accountId.slice(0,8) + '...' : 'MISSING'}, token=${apiToken ? apiToken.slice(0,8) + '...' : 'MISSING'}`);
-    if (!accountId || !apiToken) {
-      console.log("⚠️ Missing CF env vars, falling back to smart SVG");
-      return NextResponse.json({
-        images: getSmartSVG(cleanPrompt),
-        isDemo: false,
-        method: "smart",
-      });
-    }
-
-    try {
-      const images = await generateWithCloudflare(cleanPrompt);
-      if (images.length > 0) {
-        console.log(`✅ Cloudflare AI: ${images.length} images for "${cleanPrompt}"`);
-        return NextResponse.json({ images, isDemo: false, method: "ai" });
+    if (accountId && apiToken) {
+      console.log(`🔑 CF env: ${accountId.slice(0,8)}...`);
+      try {
+        const images = await generateWithCloudflare(cleanPrompt);
+        if (images.length > 0) {
+          return NextResponse.json({ images, isDemo: false, method: "cloudflare" });
+        }
+      } catch (e) {
+        console.log("CF failed:", (e as Error).message?.slice(0, 100));
       }
-    } catch (e) {
-      console.log("Cloudflare AI failed:", (e as Error).message?.slice(0, 100));
     }
 
+    // Fallback: Smart SVG
     return NextResponse.json({
       images: getSmartSVG(cleanPrompt),
       isDemo: false,

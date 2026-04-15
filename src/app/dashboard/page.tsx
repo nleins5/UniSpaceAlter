@@ -19,10 +19,10 @@ interface Order {
 const UNIT_PRICE = 89000;
 
 const STATUS_COLUMNS = [
-  { key: "pending",       label: "Đơn mới",      icon: "📥", accent: "#7c3aed" },
-  { key: "confirmed",     label: "Xác nhận",      icon: "⚙️", accent: "#f59e0b" },
-  { key: "manufacturing", label: "Đang in",       icon: "🖨️", accent: "#3b82f6" },
-  { key: "completed",     label: "Hoàn thành",    icon: "✅", accent: "#10b981" },
+  { key: "pending", label: "Đơn mới", icon: "📥", accent: "#7c3aed" },
+  { key: "confirmed", label: "Xác nhận", icon: "⚙️", accent: "#f59e0b" },
+  { key: "manufacturing", label: "Đang in", icon: "🖨️", accent: "#3b82f6" },
+  { key: "completed", label: "Hoàn thành", icon: "✅", accent: "#10b981" },
 ];
 
 export default function DashboardPage() {
@@ -141,15 +141,19 @@ export default function DashboardPage() {
   return (
     <div className="adm">
       {/* Dynamic styles for chart bars + color swatches */}
-      <style dangerouslySetInnerHTML={{ __html:
-        [
-          ...chartData.map((d, i) =>
-            `.adm-bar-${i}{height:${Math.round((d.revenue / maxRevenue) * 100)}%}`
-          ),
-          ...orders.map(o =>
-            `.adm-sw-${o.orderId.replace(/\W/g,'_')}{background:${o.color}}`
-          ),
-        ].join('')
+      <style dangerouslySetInnerHTML={{
+        __html:
+          [
+            ...chartData.map((d, i) =>
+              `.adm-bar-${i}{height:${Math.round((d.revenue / maxRevenue) * 100)}%}`
+            ),
+            ...orders.map(o =>
+              `.adm-sw-${o.orderId.replace(/\W/g, '_')}{background:${o.color}}`
+            ),
+            ...STATUS_COLUMNS.map(c =>
+              `.adm-dot-${c.key}{background:${c.accent}}`
+            ),
+          ].join('')
       }} />
 
       {/* ═══ SIDEBAR ═══ */}
@@ -165,15 +169,15 @@ export default function DashboardPage() {
 
         <nav className="adm-side-nav">
           <button className="adm-side-btn active" title="Dashboard">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
             <span className="adm-side-label">Dashboard</span>
           </button>
           <Link href="/design" className="adm-side-btn" title="Thiết kế">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><circle cx="11" cy="11" r="2"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><circle cx="11" cy="11" r="2" /></svg>
             <span className="adm-side-label">Thiết kế</span>
           </Link>
           <Link href="/order" className="adm-side-btn" title="Đặt hàng">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
             <span className="adm-side-label">Đặt hàng</span>
           </Link>
         </nav>
@@ -181,7 +185,7 @@ export default function DashboardPage() {
         <div className="adm-side-footer">
           <div className="adm-avatar">{initials}</div>
           <button onClick={handleLogout} className="adm-side-btn" title="Đăng xuất">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
             <span className="adm-side-label">Đăng xuất</span>
           </button>
         </div>
@@ -197,10 +201,10 @@ export default function DashboardPage() {
           </div>
           <div className="adm-head-actions">
             <button onClick={loadOrders} className="adm-icon-btn" title="Làm mới">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" /></svg>
             </button>
             <Link href="/design" className="adm-primary-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
               Tạo đơn mới
             </Link>
           </div>
@@ -209,10 +213,10 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="adm-stats">
           {[
-            { label: "Tổng đơn",   val: stats.total,                     sub: `${stats.today} hôm nay`,          accent: "#7c3aed", icon: "📦" },
-            { label: "Chờ xử lý",  val: stats.pending,                   sub: "cần xác nhận",                     accent: "#f59e0b", icon: "⏳" },
-            { label: "Đã hoàn",    val: stats.completed,                 sub: `${stats.totalShirts} áo`,          accent: "#10b981", icon: "✅" },
-            { label: "Doanh thu",  val: fmtMoney(stats.revenue) + "₫",   sub: fmtFull(stats.revenue),             accent: "#ec4899", icon: "💰" },
+            { label: "Tổng đơn", val: stats.total, sub: `${stats.today} hôm nay`, accent: "#7c3aed", icon: "📦" },
+            { label: "Chờ xử lý", val: stats.pending, sub: "cần xác nhận", accent: "#f59e0b", icon: "⏳" },
+            { label: "Đã hoàn", val: stats.completed, sub: `${stats.totalShirts} áo`, accent: "#10b981", icon: "✅" },
+            { label: "Doanh thu", val: fmtMoney(stats.revenue) + "₫", sub: fmtFull(stats.revenue), accent: "#ec4899", icon: "💰" },
           ].map(s => (
             <div key={s.label} className="adm-stat">
               <div className="adm-stat-left">
@@ -268,7 +272,7 @@ export default function DashboardPage() {
         {/* Toolbar */}
         <div className="adm-toolbar">
           <div className="adm-search-box">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input
               placeholder="Tìm tên, SĐT, mã đơn…"
               value={search}
@@ -308,7 +312,7 @@ export default function DashboardPage() {
               return (
                 <div key={col.key} className="adm-col" onDragOver={handleDragOver} onDrop={e => handleDrop(e, col.key)}>
                   <div className="adm-col-head">
-                    <span className="adm-col-dot" style={{ background: col.accent }} />
+                    <span className={`adm-col-dot adm-dot-${col.key}`} />
                     <span className="adm-col-label">{col.label}</span>
                     <span className="adm-col-count">{colOrders.length}</span>
                   </div>
@@ -328,7 +332,7 @@ export default function DashboardPage() {
                         <p className="adm-card-name">{order.customerName}</p>
                         <p className="adm-card-phone">{order.phone}</p>
                         <div className="adm-card-tags">
-                          <span className={`adm-swatch adm-sw-${order.orderId.replace(/\W/g,'_')}`} />
+                          <span className={`adm-swatch adm-sw-${order.orderId.replace(/\W/g, '_')}`} />
                           <span className="adm-tag size">{order.size}</span>
                           <span className="adm-tag qty">×{order.quantity}</span>
                           <span className="adm-tag revenue">{fmtMoney(order.quantity * UNIT_PRICE)}₫</span>
@@ -387,7 +391,7 @@ export default function DashboardPage() {
                     </td>
                     <td>{order.phone}</td>
                     <td><span className="adm-tag size">{order.size}</span></td>
-                    <td><span className={`adm-swatch adm-sw-${order.orderId.replace(/\W/g,'_')}`} /></td>
+                    <td><span className={`adm-swatch adm-sw-${order.orderId.replace(/\W/g, '_')}`} /></td>
                     <td className="adm-tbl-qty">×{order.quantity}</td>
                     <td className="adm-tbl-rev">{fmtFull(order.quantity * UNIT_PRICE)}</td>
                     <td className="adm-tbl-date">{new Date(order.createdAt).toLocaleDateString("vi-VN")}</td>
@@ -405,7 +409,7 @@ export default function DashboardPage() {
                     </td>
                     <td>
                       <Link href={`/manufacturer/${order.orderId}`} className="adm-tbl-eye" title="Xem">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                       </Link>
                     </td>
                   </tr>

@@ -41,9 +41,7 @@ function TShirtSVG({ color }: { color: string }) {
   const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
   return (
     <div className="mockup-shirt-wrapper">
-      {!isWhite && (
-        <div className="mockup-color-layer" style={{ backgroundColor: color }} />
-      )}
+      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color}}`}</style><div className="mockup-color-layer" /></>}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/mockup/tshirt-front.png"
@@ -59,9 +57,7 @@ function PoloShirtSVG({ color }: { color: string }) {
   const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
   return (
     <div className="mockup-shirt-wrapper">
-      {!isWhite && (
-        <div className="mockup-color-layer" style={{ backgroundColor: color }} />
-      )}
+      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color}}`}</style><div className="mockup-color-layer" /></>}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/mockup/polo-front.png"

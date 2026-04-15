@@ -6,12 +6,18 @@ import { Logo } from "../../components/Logo";
 
 interface DesignElement {
   id: string;
-  url: string;
+  type?: "image" | "text";
+  url?: string;
+  text?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  textColor?: string;
   label: string;
   x: number;
   y: number;
   width: number;
   height: number;
+  rotation?: number;
   side: "front" | "back";
 }
 
@@ -131,9 +137,28 @@ function PreviewCanvas({
         `.order-el-${el.id.replace(/[^a-z0-9]/gi, '')} { left: ${(el.x / 400) * 100}%; top: ${(el.y / 480) * 100}%; width: ${(el.width / 400) * 100}%; height: ${(el.height / 480) * 100}%; }`
       ).join(' ')}</style>
       {sideElements.map((el) => (
-        <div key={el.id} className={`absolute order-el-${el.id.replace(/[^a-z0-9]/gi, '')}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={el.url} alt={el.label} className="w-full h-full object-contain" draggable={false} />
+        <div key={el.id} className={`absolute order-el-${el.id.replace(/[^a-z0-9]/gi, '')}`}
+          style={el.rotation ? { transform: `rotate(${el.rotation}deg)` } : undefined}
+        >
+          {el.type === "text" ? (
+            <div style={{
+              width: '100%', height: '100%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: `${((el.fontSize || 24) / 400) * 100}vw`,
+              fontFamily: el.fontFamily || 'sans-serif',
+              color: el.textColor || '#000000',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              lineHeight: 1.2,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}>
+              {el.text}
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={el.url} alt={el.label} className="w-full h-full object-contain" draggable={false} />
+          )}
         </div>
       ))}
     </div>

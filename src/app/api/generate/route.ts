@@ -154,6 +154,71 @@ async function generateWithCloudflare(prompt: string) {
 // Rate limiter: max RATE_LIMIT_PER_MINUTE generates per minute per IP
 const genLimiter = new Map<string, { count: number; resetAt: number }>();
 
+// ── Background removal via remove.bg ─────────────────────────
+async function removeBackground(base64Image: string): Promise<string> {
+  const apiKey = process.env.REMOVE_BG_API_KEY;
+  if (!apiKey) {
+    console.log("⚠️ No REMOVE_BG_API_KEY, skipping background removal");
+    return base64Image;
+  }
+
+  try {
+    // Strip data URI prefix if present
+    const rawBase64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, "");
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    const res = await fetch("https://api.remove.bg/v1.0/removebg", {
+      method: "POST",
+      headers: {
+        "X-Api-Key": apiKey,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({
+        image_file_b64: rawBase64,
+        size: "preview", // free tier: up to 625x400
+        type: "auto",
+        format: "png",
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.log(`❌ remove.bg HTTP ${res.status}: ${errText.slice(0, 200)}`);
+      return base64Image; // fallback to original
+    }
+
+    const data = await res.json();
+    if (data.data?.result_b64) {
+      console.log("✅ Background removed successfully");
+      return `data:image/png;base64,${data.data.result_b64}`;
+    }
+
+    console.log("❌ remove.bg: no result_b64 in response");
+    return base64Image;
+  } catch (err) {
+    console.log(`❌ remove.bg error: ${(err as Error).message?.slice(0, 100)}`);
+    return base64Image; // fallback to original
+  }
+}
+
+async function processImages(images: { id: string; label: string; url: string }[]): Promise<{ id: string; label: string; url: string }[]> {
+  // Process all images in parallel for speed
+  return Promise.all(
+    images.map(async (img) => {
+      if (img.url.startsWith("data:image/")) {
+        const cleaned = await removeBackground(img.url);
+        return { ...img, url: cleaned };
+      }
+      return img;
+    })
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Rate limiting
@@ -187,7 +252,8 @@ export async function POST(req: NextRequest) {
       try {
         const images = await generateWithT8star(cleanPrompt);
         if (images.length > 0) {
-          return NextResponse.json({ images, isDemo: false, method: "t8star" });
+          const processed = await processImages(images);
+          return NextResponse.json({ images: processed, isDemo: false, method: "t8star" });
         }
       } catch (e) {
         console.log("T8star failed:", (e as Error).message?.slice(0, 100));
@@ -202,7 +268,8 @@ export async function POST(req: NextRequest) {
       try {
         const images = await generateWithCloudflare(cleanPrompt);
         if (images.length > 0) {
-          return NextResponse.json({ images, isDemo: false, method: "cloudflare" });
+          const processed = await processImages(images);
+          return NextResponse.json({ images: processed, isDemo: false, method: "cloudflare" });
         }
       } catch (e) {
         console.log("CF failed:", (e as Error).message?.slice(0, 100));

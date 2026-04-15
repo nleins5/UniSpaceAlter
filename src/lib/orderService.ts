@@ -38,6 +38,23 @@ export interface Order {
 const memoryOrders = new Map<string, Order>();
 const memoryFiles = new Map<string, Buffer>();
 
+// Seed demo data for admin dashboard (Vercel serverless resets on cold-start)
+function seedDemoOrders() {
+  if (memoryOrders.size > 0) return;
+  const demos: Order[] = [
+    { orderId: "ORD-2026041501", customerName: "Nguyễn Văn An", phone: "0901234567", address: "59A Lê Đình Thám, Q.Tân Phú, TP.HCM", size: "L", color: "#ffffff", quantity: 5, status: "pending", createdAt: new Date(Date.now() - 3600000).toISOString(), notes: "Áo lớp 12A1, in logo mặt trước" },
+    { orderId: "ORD-2026041502", customerName: "Trần Thị Bình", phone: "0912345678", address: "123 Nguyễn Huệ, Q.1, TP.HCM", size: "M", color: "#1a1a2e", quantity: 10, status: "confirmed", createdAt: new Date(Date.now() - 7200000).toISOString(), notes: "Áo team building công ty" },
+    { orderId: "ORD-2026041503", customerName: "Lê Hoàng Cường", phone: "0923456789", address: "45 Trần Hưng Đạo, Q.5, TP.HCM", size: "XL", color: "#6c5ce7", quantity: 3, status: "manufacturing", createdAt: new Date(Date.now() - 14400000).toISOString(), notes: "Áo CLB bóng đá" },
+    { orderId: "ORD-2026041504", customerName: "Phạm Ngọc Dung", phone: "0934567890", address: "78 Võ Văn Tần, Q.3, TP.HCM", size: "S", color: "#e84393", quantity: 2, status: "completed", createdAt: new Date(Date.now() - 86400000).toISOString(), notes: "Áo couple" },
+    { orderId: "ORD-2026041505", customerName: "Hoàng Minh Đức", phone: "0945678901", address: "12 Phạm Ngọc Thạch, Q.3, TP.HCM", size: "L", color: "#00b894", quantity: 15, status: "pending", createdAt: new Date(Date.now() - 1800000).toISOString(), notes: "Áo đồng phục nhân viên" },
+    { orderId: "ORD-2026041506", customerName: "Võ Thị Hạnh", phone: "0956789012", address: "200 Lý Tự Trọng, Q.1, TP.HCM", size: "M", color: "#fdcb6e", quantity: 8, status: "confirmed", createdAt: new Date(Date.now() - 10800000).toISOString(), notes: "Áo lưu niệm du lịch Đà Lạt" },
+  ];
+  for (const d of demos) {
+    memoryOrders.set(d.orderId, d);
+  }
+}
+seedDemoOrders();
+
 // Try filesystem first, then memory
 async function useFilesystem(): Promise<boolean> {
   try {

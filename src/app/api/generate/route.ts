@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID || "";
-const CF_API_TOKEN = process.env.CF_API_TOKEN || "";
 const CF_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 
 // ── Vietnamese → English for AI image model ──────
@@ -43,14 +41,17 @@ async function generateWithCloudflare(prompt: string) {
     { label: "Streetwear", suffix: ", streetwear graphic art, bold urban, high contrast" },
   ];
 
+  const cfAccountId = process.env.CF_ACCOUNT_ID || "";
+  const cfToken = process.env.CF_API_TOKEN || "";
+
   const results = await Promise.allSettled(
     styles.map(async (style) => {
       const res = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/run/${CF_MODEL}`,
+        `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${CF_MODEL}`,
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${CF_API_TOKEN}`,
+            "Authorization": `Bearer ${cfToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -102,7 +103,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Check Cloudflare credentials
-    if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
+    const accountId = process.env.CF_ACCOUNT_ID;
+    const apiToken = process.env.CF_API_TOKEN;
+    if (!accountId || !apiToken) {
+      console.log("⚠️ Missing CF env vars, falling back to smart SVG");
       return NextResponse.json({
         images: getSmartSVG(cleanPrompt),
         isDemo: false,

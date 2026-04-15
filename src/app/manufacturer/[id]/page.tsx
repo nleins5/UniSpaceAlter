@@ -91,9 +91,9 @@ export default function ManufacturerPage({
             <Logo scale={0.6} />
             <span className="mfr-label">Nhà sản xuất</span>
           </Link>
-          <style>{`.mfr-st-badge{background:${st.bg};color:${st.color}}`}</style>
+          <style>{`.mfr-st-badge{background:${st.bg};color:${st.color}} .mfr-st-dot{background:${st.color}}`}</style>
           <div className="mfr-status-badge mfr-st-badge">
-            <span className="mfr-status-dot" style={{ background: st.color }} />
+            <span className="mfr-status-dot mfr-st-dot" />
             {st.icon} {st.label}
           </div>
         </div>

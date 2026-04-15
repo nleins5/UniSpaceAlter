@@ -397,6 +397,13 @@ function DesignCanvas({
           }
           hasMovedRef.current = false;
         }}
+        onTouchEnd={(e) => {
+          // Tap on canvas (shirt area) but not on an element → deselect on mobile
+          if (e.target === e.currentTarget && !hasMovedRef.current) {
+            onSelectElement(null);
+          }
+          hasMovedRef.current = false;
+        }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -1291,12 +1298,19 @@ export default function DesignPage() {
         )}
 
         {/* ═══ CENTER CANVAS ═══ */}
-        <main className="canva-workspace">
+        <main className="canva-workspace" onTouchStart={(e) => {
+          // Tap on workspace background (outside elements) → deselect on mobile
+          if (e.target === e.currentTarget) setSelectedId(null);
+        }}>
           {/* Canvas area with checkerboard bg */}
           <div
             className="canva-canvas-wrapper"
             onMouseDown={(e) => {
               // Click on checkered background (outside t-shirt canvas) → deselect
+              if (e.target === e.currentTarget) setSelectedId(null);
+            }}
+            onTouchStart={(e) => {
+              // Tap on checkered background → deselect on mobile
               if (e.target === e.currentTarget) setSelectedId(null);
             }}
           >

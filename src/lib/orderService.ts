@@ -1,8 +1,11 @@
 /**
- * Order Service — Firebase Firestore + Storage (with filesystem fallback)
+ * Order Service — Firebase Firestore + Storage (with in-memory fallback)
  *
  * If NEXT_PUBLIC_FIREBASE_PROJECT_ID is set → uses Firestore + Storage
- * Otherwise → falls back to local filesystem (dev/MVP mode)
+ * Otherwise → falls back to in-memory store (demo/MVP mode)
+ * 
+ * Note: In-memory store resets when serverless function cold-starts.
+ * For production, configure Firebase.
  */
 
 import { isFirebaseConfigured, db, storage } from "./firebase";
@@ -11,8 +14,6 @@ import {
   query, orderBy, serverTimestamp, Timestamp,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { readFile, readdir, writeFile, mkdir, stat } from "fs/promises";
-import path from "path";
 
 export interface Order {
   orderId: string;
@@ -33,6 +34,27 @@ export interface Order {
   hasBackDesign?: boolean;
 }
 
+// ── In-memory store (fallback for Vercel serverless) ──────────
+const memoryOrders = new Map<string, Order>();
+const memoryFiles = new Map<string, Buffer>();
+
+// Try filesystem first, then memory
+async function useFilesystem(): Promise<boolean> {
+  try {
+    const fs = await import("fs/promises");
+    const p = await import("path");
+    const ordersDir = p.default.join(process.cwd(), "orders");
+    await fs.stat(ordersDir).catch(() => fs.mkdir(ordersDir, { recursive: true }));
+    // Test write
+    const testFile = p.default.join(ordersDir, ".test");
+    await fs.writeFile(testFile, "ok");
+    await fs.unlink(testFile);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ── READ all orders ──────────────────────────────────────────
 export async function getAllOrders(): Promise<Order[]> {
   if (isFirebaseConfigured && db) {
@@ -46,8 +68,17 @@ export async function getAllOrders(): Promise<Order[]> {
       return { ...data, orderId: d.id, createdAt } as Order;
     });
   }
-  // Filesystem fallback
-  return getOrdersFromFilesystem();
+
+  // Try filesystem
+  if (await useFilesystem()) {
+    return getOrdersFromFilesystem();
+  }
+
+  // In-memory fallback
+  const orders = Array.from(memoryOrders.values());
+  return orders.sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 }
 
 // ── READ single order ────────────────────────────────────────
@@ -61,7 +92,24 @@ export async function getOrder(id: string): Promise<Order | null> {
       : data.createdAt;
     return { ...data, orderId: snap.id, createdAt } as Order;
   }
-  return getOrderFromFilesystem(id);
+
+  if (await useFilesystem()) {
+    return getOrderFromFilesystem(id);
+  }
+
+  return memoryOrders.get(id) || null;
+}
+
+// ── GET design file ──────────────────────────────────────────
+export async function getDesignFile(orderId: string, file: string): Promise<Buffer | null> {
+  if (await useFilesystem()) {
+    try {
+      const fs = await import("fs/promises");
+      const p = await import("path");
+      return await fs.readFile(p.default.join(process.cwd(), "orders", orderId, file)) as Buffer;
+    } catch { return null; }
+  }
+  return memoryFiles.get(`${orderId}/${file}`) || null;
 }
 
 // ── CREATE order ─────────────────────────────────────────────
@@ -73,7 +121,6 @@ export async function createOrder(
   const orderId = `ORD-${Date.now()}`;
 
   if (isFirebaseConfigured && db && storage) {
-    // Upload images to Firebase Storage
     let frontDesignUrl: string | undefined;
     let backDesignUrl: string | undefined;
 
@@ -102,8 +149,25 @@ export async function createOrder(
     return { orderId };
   }
 
-  // Filesystem fallback
-  return saveOrderToFilesystem(orderId, orderData, frontBlob, backBlob);
+  // Try filesystem first
+  if (await useFilesystem()) {
+    return saveOrderToFilesystem(orderId, orderData, frontBlob, backBlob);
+  }
+
+  // In-memory fallback (Vercel serverless)
+  const order: Order = {
+    ...orderData,
+    orderId,
+    status: "pending",
+    hasFrontDesign: Boolean(frontBlob),
+    hasBackDesign: Boolean(backBlob),
+    createdAt: new Date().toISOString(),
+  };
+  memoryOrders.set(orderId, order);
+  if (frontBlob) memoryFiles.set(`${orderId}/front_design.png`, frontBlob);
+  if (backBlob) memoryFiles.set(`${orderId}/back_design.png`, backBlob);
+  console.log(`📦 Order ${orderId} saved to memory (${memoryOrders.size} total)`);
+  return { orderId };
 }
 
 // ── UPDATE status ────────────────────────────────────────────
@@ -115,20 +179,34 @@ export async function updateOrderStatus(id: string, status: string): Promise<voi
     });
     return;
   }
-  // Filesystem fallback
-  const orderPath = path.join(process.cwd(), "orders", id, "order.json");
-  const orderInfo = JSON.parse(await readFile(orderPath, "utf-8"));
-  orderInfo.status = status;
-  orderInfo.updatedAt = new Date().toISOString();
-  await writeFile(orderPath, JSON.stringify(orderInfo, null, 2));
+
+  if (await useFilesystem()) {
+    const fs = await import("fs/promises");
+    const p = await import("path");
+    const orderPath = p.default.join(process.cwd(), "orders", id, "order.json");
+    const orderInfo = JSON.parse(await fs.readFile(orderPath, "utf-8"));
+    orderInfo.status = status;
+    orderInfo.updatedAt = new Date().toISOString();
+    await fs.writeFile(orderPath, JSON.stringify(orderInfo, null, 2));
+    return;
+  }
+
+  // In-memory fallback
+  const order = memoryOrders.get(id);
+  if (order) {
+    order.status = status;
+    order.updatedAt = new Date().toISOString();
+  }
 }
 
 // ── FILESYSTEM helpers ───────────────────────────────────────
 async function getOrdersFromFilesystem(): Promise<Order[]> {
   try {
-    const ordersDir = path.join(process.cwd(), "orders");
-    await stat(ordersDir);
-    const dirs = await readdir(ordersDir);
+    const fs = await import("fs/promises");
+    const p = await import("path");
+    const ordersDir = p.default.join(process.cwd(), "orders");
+    await fs.stat(ordersDir);
+    const dirs = await fs.readdir(ordersDir);
     const orders: Order[] = [];
     for (const dir of dirs) {
       try {
@@ -144,11 +222,13 @@ async function getOrdersFromFilesystem(): Promise<Order[]> {
 
 async function getOrderFromFilesystem(id: string): Promise<Order | null> {
   try {
-    const orderDir = path.join(process.cwd(), "orders", id);
+    const fs = await import("fs/promises");
+    const p = await import("path");
+    const orderDir = p.default.join(process.cwd(), "orders", id);
     const orderInfo = JSON.parse(
-      await readFile(path.join(orderDir, "order.json"), "utf-8")
+      await fs.readFile(p.default.join(orderDir, "order.json"), "utf-8")
     );
-    const files = await readdir(orderDir);
+    const files = await fs.readdir(orderDir);
     return {
       ...orderInfo,
       hasFrontDesign: files.includes("front_design.png"),
@@ -163,8 +243,10 @@ async function saveOrderToFilesystem(
   frontBlob?: Buffer,
   backBlob?: Buffer,
 ): Promise<{ orderId: string }> {
-  const orderDir = path.join(process.cwd(), "orders", orderId);
-  await mkdir(orderDir, { recursive: true });
+  const fs = await import("fs/promises");
+  const p = await import("path");
+  const orderDir = p.default.join(process.cwd(), "orders", orderId);
+  await fs.mkdir(orderDir, { recursive: true });
   const orderJson: Order = {
     ...orderData,
     orderId,
@@ -173,8 +255,8 @@ async function saveOrderToFilesystem(
     hasBackDesign: Boolean(backBlob),
     createdAt: new Date().toISOString(),
   };
-  await writeFile(path.join(orderDir, "order.json"), JSON.stringify(orderJson, null, 2));
-  if (frontBlob) await writeFile(path.join(orderDir, "front_design.png"), frontBlob);
-  if (backBlob) await writeFile(path.join(orderDir, "back_design.png"), backBlob);
+  await fs.writeFile(p.default.join(orderDir, "order.json"), JSON.stringify(orderJson, null, 2));
+  if (frontBlob) await fs.writeFile(p.default.join(orderDir, "front_design.png"), frontBlob);
+  if (backBlob) await fs.writeFile(p.default.join(orderDir, "back_design.png"), backBlob);
   return { orderId };
 }

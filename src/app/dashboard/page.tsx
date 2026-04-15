@@ -19,10 +19,10 @@ interface Order {
 const UNIT_PRICE = 89000;
 
 const STATUS_COLUMNS = [
-  { key: "pending", label: "Đơn mới", icon: "📥", accent: "#7c3aed" },
-  { key: "confirmed", label: "Xác nhận", icon: "⚙️", accent: "#f59e0b" },
-  { key: "manufacturing", label: "Đang in", icon: "🖨️", accent: "#3b82f6" },
-  { key: "completed", label: "Hoàn thành", icon: "✅", accent: "#10b981" },
+  { key: "pending", label: "Đơn mới", accent: "#7c3aed" },
+  { key: "confirmed", label: "Xác nhận", accent: "#f59e0b" },
+  { key: "manufacturing", label: "Đang in", accent: "#3b82f6" },
+  { key: "completed", label: "Hoàn thành", accent: "#10b981" },
 ];
 
 export default function DashboardPage() {
@@ -196,7 +196,7 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="adm-head">
           <div>
-            <p className="adm-head-greeting">Xin chào, {user.firstName} 👋</p>
+            <p className="adm-head-greeting">Xin chào, {user.firstName}</p>
             <h1 className="adm-head-title">Quản lý đơn hàng</h1>
           </div>
           <div className="adm-head-actions">
@@ -213,10 +213,22 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="adm-stats">
           {[
-            { label: "Tổng đơn", val: stats.total, sub: `${stats.today} hôm nay`, accent: "#7c3aed", icon: "📦" },
-            { label: "Chờ xử lý", val: stats.pending, sub: "cần xác nhận", accent: "#f59e0b", icon: "⏳" },
-            { label: "Đã hoàn", val: stats.completed, sub: `${stats.totalShirts} áo`, accent: "#10b981", icon: "✅" },
-            { label: "Doanh thu", val: fmtMoney(stats.revenue) + "₫", sub: fmtFull(stats.revenue), accent: "#ec4899", icon: "💰" },
+            {
+              label: "Tổng đơn", val: stats.total, sub: `${stats.today} hôm nay`, accent: "#7c3aed",
+              svg: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></svg>
+            },
+            {
+              label: "Chờ xử lý", val: stats.pending, sub: "cần xác nhận", accent: "#f59e0b",
+              svg: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            },
+            {
+              label: "Đã hoàn", val: stats.completed, sub: `${stats.totalShirts} áo`, accent: "#10b981",
+              svg: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+            },
+            {
+              label: "Doanh thu", val: fmtMoney(stats.revenue) + "₫", sub: fmtFull(stats.revenue), accent: "#ec4899",
+              svg: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
+            },
           ].map(s => (
             <div key={s.label} className="adm-stat">
               <div className="adm-stat-left">
@@ -224,7 +236,7 @@ export default function DashboardPage() {
                 <span className="adm-stat-label">{s.label}</span>
                 <span className="adm-stat-sub">{s.sub}</span>
               </div>
-              <span className="adm-stat-icon">{s.icon}</span>
+              <span className="adm-stat-icon" style={{ color: s.accent, opacity: 0.5 }}>{s.svg}</span>
             </div>
           ))}
         </div>
@@ -286,7 +298,7 @@ export default function DashboardPage() {
             onChange={e => setFilterStatus(e.target.value)}
           >
             <option value="all">Tất cả</option>
-            {STATUS_COLUMNS.map(c => <option key={c.key} value={c.key}>{c.icon} {c.label}</option>)}
+            {STATUS_COLUMNS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
           </select>
           <div className="adm-toggle">
             <button className={view === "kanban" ? "on" : ""} onClick={() => setView("kanban")}>Board</button>
@@ -299,7 +311,12 @@ export default function DashboardPage() {
           <div className="adm-loading"><div className="adm-spinner" /><p>Đang tải…</p></div>
         ) : filtered.length === 0 ? (
           <div className="adm-empty">
-            <span>{search ? "🔍" : "📭"}</span>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" style={{ opacity: 0.3 }}>
+              {search
+                ? <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></>
+                : <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></>
+              }
+            </svg>
             <h3>{search ? "Không tìm thấy" : "Chưa có đơn hàng"}</h3>
             <p>{search ? `Không có kết quả cho "${search}"` : "Đơn hàng sẽ hiện khi khách đặt"}</p>
           </div>

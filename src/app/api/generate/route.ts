@@ -41,7 +41,7 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
   const t8Key = process.env.T8STAR_API_KEY;
   if (!t8Key) return [];
 
-  const fullPrompt = `${enPrompt}, t-shirt graphic design, isolated on white background, centered, high quality, detailed, vibrant colors`;
+  const fullPrompt = `${enPrompt}, t-shirt graphic design, isolated on transparent background, no background, PNG with alpha transparency, centered, high quality, detailed, vibrant colors`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -126,7 +126,7 @@ async function generateWithCloudflare(prompt: string) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            prompt: `${enPrompt}, t-shirt graphic design, isolated on white background, centered${style.suffix}`,
+            prompt: `${enPrompt}, t-shirt graphic design, isolated on transparent background, no background, PNG with alpha transparency, centered${style.suffix}`,
           }),
           signal: controller.signal,
         }

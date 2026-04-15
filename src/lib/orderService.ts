@@ -1,19 +1,14 @@
 /**
- * Order Service — Firebase Firestore + Storage (with in-memory fallback)
+ * Order Service — Supabase (with in-memory fallback)
  *
- * If NEXT_PUBLIC_FIREBASE_PROJECT_ID is set → uses Firestore + Storage
- * Otherwise → falls back to in-memory store (demo/MVP mode)
- * 
- * Note: In-memory store resets when serverless function cold-starts.
- * For production, configure Firebase.
+ * If NEXT_PUBLIC_SUPABASE_URL is set → uses Supabase DB + Storage
+ * Otherwise → falls back to in-memory store (demo mode)
+ *
+ * Supabase table: orders
+ * Supabase storage bucket: designs
  */
 
-import { isFirebaseConfigured, db, storage } from "./firebase";
-import {
-  collection, doc, getDoc, getDocs, setDoc, updateDoc,
-  query, orderBy, serverTimestamp, Timestamp,
-} from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { isSupabaseConfigured, supabase } from "./supabase";
 
 export interface Order {
   orderId: string;
@@ -34,11 +29,11 @@ export interface Order {
   hasBackDesign?: boolean;
 }
 
-// ── In-memory store (fallback for Vercel serverless) ──────────
+// ── In-memory store (fallback for Vercel/demo) ───────────────
 const memoryOrders = new Map<string, Order>();
 const memoryFiles = new Map<string, Buffer>();
 
-// Seed demo data for admin dashboard (Vercel serverless resets on cold-start)
+// Seed demo data
 function seedDemoOrders() {
   if (memoryOrders.size > 0) return;
   const demos: Order[] = [
@@ -49,82 +44,71 @@ function seedDemoOrders() {
     { orderId: "ORD-2026041505", customerName: "Hoàng Minh Đức", phone: "0945678901", address: "12 Phạm Ngọc Thạch, Q.3, TP.HCM", size: "L", color: "#00b894", quantity: 15, status: "pending", createdAt: new Date(Date.now() - 1800000).toISOString(), notes: "Áo đồng phục nhân viên" },
     { orderId: "ORD-2026041506", customerName: "Võ Thị Hạnh", phone: "0956789012", address: "200 Lý Tự Trọng, Q.1, TP.HCM", size: "M", color: "#fdcb6e", quantity: 8, status: "confirmed", createdAt: new Date(Date.now() - 10800000).toISOString(), notes: "Áo lưu niệm du lịch Đà Lạt" },
   ];
-  for (const d of demos) {
-    memoryOrders.set(d.orderId, d);
-  }
+  for (const d of demos) memoryOrders.set(d.orderId, d);
 }
 seedDemoOrders();
 
-// Try filesystem first, then memory
-async function checkFilesystem(): Promise<boolean> {
-  try {
-    const fs = await import("fs/promises");
-    const p = await import("path");
-    const ordersDir = p.default.join(process.cwd(), "orders");
-    await fs.stat(ordersDir).catch(() => fs.mkdir(ordersDir, { recursive: true }));
-    // Test write
-    const testFile = p.default.join(ordersDir, ".test");
-    await fs.writeFile(testFile, "ok");
-    await fs.unlink(testFile);
-    return true;
-  } catch {
-    return false;
-  }
+// ── Helper: map Supabase row → Order ─────────────────────────
+function rowToOrder(row: Record<string, unknown>): Order {
+  return {
+    orderId: row.order_id as string,
+    customerName: row.customer_name as string,
+    phone: row.phone as string,
+    email: (row.email as string) || undefined,
+    address: row.address as string,
+    size: row.size as string,
+    color: row.color as string,
+    quantity: row.quantity as number,
+    notes: (row.notes as string) || undefined,
+    status: row.status as string,
+    createdAt: row.created_at as string,
+    updatedAt: (row.updated_at as string) || undefined,
+    frontDesignUrl: (row.front_design_url as string) || undefined,
+    backDesignUrl: (row.back_design_url as string) || undefined,
+    hasFrontDesign: Boolean(row.has_front_design),
+    hasBackDesign: Boolean(row.has_back_design),
+  };
 }
 
 // ── READ all orders ──────────────────────────────────────────
 export async function getAllOrders(): Promise<Order[]> {
-  if (isFirebaseConfigured && db) {
-    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => {
-      const data = d.data();
-      const createdAt = data.createdAt instanceof Timestamp
-        ? data.createdAt.toDate().toISOString()
-        : data.createdAt;
-      return { ...data, orderId: d.id, createdAt } as Order;
-    });
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) { console.error("Supabase getAllOrders:", error.message); return []; }
+    return (data || []).map(rowToOrder);
   }
-
-  // Try filesystem
-  if (await checkFilesystem()) {
-    return getOrdersFromFilesystem();
-  }
-
   // In-memory fallback
-  const orders = Array.from(memoryOrders.values());
-  return orders.sort((a, b) =>
+  return Array.from(memoryOrders.values()).sort((a, b) =>
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 }
 
 // ── READ single order ────────────────────────────────────────
 export async function getOrder(id: string): Promise<Order | null> {
-  if (isFirebaseConfigured && db) {
-    const snap = await getDoc(doc(db, "orders", id));
-    if (!snap.exists()) return null;
-    const data = snap.data();
-    const createdAt = data.createdAt instanceof Timestamp
-      ? data.createdAt.toDate().toISOString()
-      : data.createdAt;
-    return { ...data, orderId: snap.id, createdAt } as Order;
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("order_id", id)
+      .single();
+    if (error || !data) return null;
+    return rowToOrder(data);
   }
-
-  if (await checkFilesystem()) {
-    return getOrderFromFilesystem(id);
-  }
-
   return memoryOrders.get(id) || null;
 }
 
 // ── GET design file ──────────────────────────────────────────
 export async function getDesignFile(orderId: string, file: string): Promise<Buffer | null> {
-  if (await checkFilesystem()) {
-    try {
-      const fs = await import("fs/promises");
-      const p = await import("path");
-      return await fs.readFile(p.default.join(process.cwd(), "orders", orderId, file)) as Buffer;
-    } catch { return null; }
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase.storage
+      .from("designs")
+      .download(`${orderId}/${file}`);
+    if (error || !data) return null;
+    const arrayBuf = await data.arrayBuffer();
+    return Buffer.from(arrayBuf);
   }
   return memoryFiles.get(`${orderId}/${file}`) || null;
 }
@@ -137,41 +121,51 @@ export async function createOrder(
 ): Promise<{ orderId: string }> {
   const orderId = `ORD-${Date.now()}`;
 
-  if (isFirebaseConfigured && db && storage) {
+  if (isSupabaseConfigured && supabase) {
+    // Upload design files
     let frontDesignUrl: string | undefined;
     let backDesignUrl: string | undefined;
 
     if (frontBlob) {
-      const frontRef = ref(storage, `orders/${orderId}/front_design.png`);
-      await uploadBytes(frontRef, frontBlob, { contentType: "image/png" });
-      frontDesignUrl = await getDownloadURL(frontRef);
+      const { error } = await supabase.storage
+        .from("designs")
+        .upload(`${orderId}/front_design.png`, frontBlob, { contentType: "image/png" });
+      if (!error) {
+        const { data: urlData } = supabase.storage.from("designs").getPublicUrl(`${orderId}/front_design.png`);
+        frontDesignUrl = urlData.publicUrl;
+      }
     }
     if (backBlob) {
-      const backRef = ref(storage, `orders/${orderId}/back_design.png`);
-      await uploadBytes(backRef, backBlob, { contentType: "image/png" });
-      backDesignUrl = await getDownloadURL(backRef);
+      const { error } = await supabase.storage
+        .from("designs")
+        .upload(`${orderId}/back_design.png`, backBlob, { contentType: "image/png" });
+      if (!error) {
+        const { data: urlData } = supabase.storage.from("designs").getPublicUrl(`${orderId}/back_design.png`);
+        backDesignUrl = urlData.publicUrl;
+      }
     }
 
-    await setDoc(doc(db, "orders", orderId), {
-      ...orderData,
-      orderId,
+    const { error } = await supabase.from("orders").insert({
+      order_id: orderId,
+      customer_name: orderData.customerName,
+      phone: orderData.phone,
+      email: orderData.email || null,
+      address: orderData.address,
+      size: orderData.size,
+      color: orderData.color,
+      quantity: orderData.quantity,
+      notes: orderData.notes || null,
       status: "pending",
-      frontDesignUrl: frontDesignUrl || null,
-      backDesignUrl: backDesignUrl || null,
-      hasFrontDesign: Boolean(frontBlob),
-      hasBackDesign: Boolean(backBlob),
-      createdAt: serverTimestamp(),
+      front_design_url: frontDesignUrl || null,
+      back_design_url: backDesignUrl || null,
+      has_front_design: Boolean(frontBlob),
+      has_back_design: Boolean(backBlob),
     });
-
+    if (error) console.error("Supabase createOrder:", error.message);
     return { orderId };
   }
 
-  // Try filesystem first
-  if (await checkFilesystem()) {
-    return saveOrderToFilesystem(orderId, orderData, frontBlob, backBlob);
-  }
-
-  // In-memory fallback (Vercel serverless)
+  // In-memory fallback
   const order: Order = {
     ...orderData,
     orderId,
@@ -189,91 +183,18 @@ export async function createOrder(
 
 // ── UPDATE status ────────────────────────────────────────────
 export async function updateOrderStatus(id: string, status: string): Promise<void> {
-  if (isFirebaseConfigured && db) {
-    await updateDoc(doc(db, "orders", id), {
-      status,
-      updatedAt: serverTimestamp(),
-    });
+  if (isSupabaseConfigured && supabase) {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("order_id", id);
+    if (error) console.error("Supabase updateStatus:", error.message);
     return;
   }
-
-  if (await checkFilesystem()) {
-    const fs = await import("fs/promises");
-    const p = await import("path");
-    const orderPath = p.default.join(process.cwd(), "orders", id, "order.json");
-    const orderInfo = JSON.parse(await fs.readFile(orderPath, "utf-8"));
-    orderInfo.status = status;
-    orderInfo.updatedAt = new Date().toISOString();
-    await fs.writeFile(orderPath, JSON.stringify(orderInfo, null, 2));
-    return;
-  }
-
   // In-memory fallback
   const order = memoryOrders.get(id);
   if (order) {
     order.status = status;
     order.updatedAt = new Date().toISOString();
   }
-}
-
-// ── FILESYSTEM helpers ───────────────────────────────────────
-async function getOrdersFromFilesystem(): Promise<Order[]> {
-  try {
-    const fs = await import("fs/promises");
-    const p = await import("path");
-    const ordersDir = p.default.join(process.cwd(), "orders");
-    await fs.stat(ordersDir);
-    const dirs = await fs.readdir(ordersDir);
-    const orders: Order[] = [];
-    for (const dir of dirs) {
-      try {
-        const o = await getOrderFromFilesystem(dir);
-        if (o) orders.push(o);
-      } catch { /* skip corrupt */ }
-    }
-    return orders.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  } catch { return []; }
-}
-
-async function getOrderFromFilesystem(id: string): Promise<Order | null> {
-  try {
-    const fs = await import("fs/promises");
-    const p = await import("path");
-    const orderDir = p.default.join(process.cwd(), "orders", id);
-    const orderInfo = JSON.parse(
-      await fs.readFile(p.default.join(orderDir, "order.json"), "utf-8")
-    );
-    const files = await fs.readdir(orderDir);
-    return {
-      ...orderInfo,
-      hasFrontDesign: files.includes("front_design.png"),
-      hasBackDesign: files.includes("back_design.png"),
-    };
-  } catch { return null; }
-}
-
-async function saveOrderToFilesystem(
-  orderId: string,
-  orderData: Omit<Order, "orderId" | "createdAt" | "updatedAt">,
-  frontBlob?: Buffer,
-  backBlob?: Buffer,
-): Promise<{ orderId: string }> {
-  const fs = await import("fs/promises");
-  const p = await import("path");
-  const orderDir = p.default.join(process.cwd(), "orders", orderId);
-  await fs.mkdir(orderDir, { recursive: true });
-  const orderJson: Order = {
-    ...orderData,
-    orderId,
-    status: "pending",
-    hasFrontDesign: Boolean(frontBlob),
-    hasBackDesign: Boolean(backBlob),
-    createdAt: new Date().toISOString(),
-  };
-  await fs.writeFile(p.default.join(orderDir, "order.json"), JSON.stringify(orderJson, null, 2));
-  if (frontBlob) await fs.writeFile(p.default.join(orderDir, "front_design.png"), frontBlob);
-  if (backBlob) await fs.writeFile(p.default.join(orderDir, "back_design.png"), backBlob);
-  return { orderId };
 }

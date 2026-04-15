@@ -100,33 +100,43 @@ function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front"
   const g = parseInt(hex.substring(2, 4), 16) || 255;
   const b = parseInt(hex.substring(4, 6), 16) || 255;
   const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
-  const strokeColor = isLight ? "rgba(0,0,0,0.10)" : "rgba(255,255,255,0.08)";
-  const shadowColor = isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)";
-  const highlightColor = isLight ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)";
-  // Collar is dark contrasting color
-  const collarColor = isLight ? "#222222" : "#f5f5f5";
-  const collarStroke = isLight ? "#111111" : "#dddddd";
-  const trimColor = isLight ? "#e8e0d4" : "rgba(255,255,255,0.3)";
-  const buttonColor = isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.4)";
+  const strokeColor = isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)";
+  const shadowColor = isLight ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.12)";
+  const highlightColor = isLight ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)";
+  // Back collar is dark, front collar same as shirt
+  const backCollarColor = isLight ? "#1a1a1a" : "#e8e8e8";
+  const backCollarStroke = isLight ? "#111111" : "#d0d0d0";
+  const backCollarTrim = isLight ? "#ffffff" : "rgba(255,255,255,0.4)";
+  // Piping/trim on front V-neck  
+  const pipingColor = isLight ? "#f0e8dc" : "rgba(255,255,255,0.35)";
+  const buttonFill = isLight ? `rgba(${Math.max(0, r - 60)},${Math.max(0, g - 60)},${Math.max(0, b - 60)},0.7)` : "rgba(255,255,255,0.3)";
+
+  // Oversized body path
+  const bodyPath = side === "back"
+    ? "M200 38 L148 38 C142 38 137 40 134 44 L95 72 L40 115 C34 120 30 128 32 136 L50 168 C52 174 58 177 64 175 L105 145 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 145 L336 175 C342 177 348 174 350 168 L368 136 C370 128 366 120 360 115 L305 72 L266 44 C263 40 258 38 252 38 L200 38Z"
+    : "M200 42 L148 42 C142 42 137 44 134 48 L95 76 L40 118 C34 123 30 131 32 139 L50 170 C52 176 58 179 64 177 L105 148 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 148 L336 177 C342 179 348 176 350 170 L368 139 C370 131 366 123 360 118 L305 76 L266 48 C263 44 258 42 252 42 L200 42Z";
+
+  const gradId = `polo-${side}-fab`;
+  const filtId = `polo-${side}-shd`;
 
   if (side === "back") {
     return (
       <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
         <defs>
-          <linearGradient id="pback-fabric" x1="0.3" y1="0" x2="0.7" y2="1">
+          <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
             <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
           </linearGradient>
-          <filter id="pback-shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
+          <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
         </defs>
-        <g filter="url(#pback-shadow)">
-          {/* Body — oversized relaxed fit */}
-          <path d="M200 38 L148 38 C142 38 137 40 134 44 L95 72 L40 115 C34 120 30 128 32 136 L50 168 C52 174 58 177 64 175 L105 145 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 145 L336 175 C342 177 348 174 350 168 L368 136 C370 128 366 120 360 115 L305 72 L266 44 C263 40 258 38 252 38 L200 38Z" fill={color} stroke={strokeColor} strokeWidth="1.2" />
-          <path d="M200 38 L148 38 C142 38 137 40 134 44 L95 72 L40 115 C34 120 30 128 32 136 L50 168 C52 174 58 177 64 175 L105 145 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 145 L336 175 C342 177 348 174 350 168 L368 136 C370 128 366 120 360 115 L305 72 L266 44 C263 40 258 38 252 38 L200 38Z" fill="url(#pback-fabric)" />
-
-          {/* Collar band — stands up, dark, prominent */}
-          <path d="M152 38 L152 14 Q155 6 175 3 Q190 1 200 1 Q210 1 225 3 Q245 6 248 14 L248 38" fill={collarColor} stroke={collarStroke} strokeWidth="1.5" />
-          {/* Collar trim stripe */}
-          <path d="M154 36 L154 34 Q155 34 175 32 Q190 31 200 31 Q210 31 225 32 Q245 34 246 34 L246 36" fill={trimColor} />
+        <g filter={`url(#${filtId})`}>
+          {/* Body */}
+          <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.2" />
+          <path d={bodyPath} fill={`url(#${gradId})`} />
+          {/* Dark collar band standing up */}
+          <path d="M152 38 L152 12 Q156 4 176 1 Q190 -1 200 -1 Q210 -1 224 1 Q244 4 248 12 L248 38" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.5" />
+          {/* White trim line at bottom of collar */}
+          <line x1="153" y1="36" x2="247" y2="36" stroke={backCollarTrim} strokeWidth="2" />
+          <line x1="153" y1="33" x2="247" y2="33" stroke={backCollarTrim} strokeWidth="0.8" />
         </g>
       </svg>
     );
@@ -135,36 +145,31 @@ function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front"
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
       <defs>
-        <linearGradient id="pfront-fabric" x1="0.3" y1="0" x2="0.7" y2="1">
+        <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
           <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
         </linearGradient>
-        <filter id="pfront-shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
+        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
       </defs>
-      <g filter="url(#pfront-shadow)">
-        {/* Body — oversized relaxed fit */}
-        <path d="M200 42 L148 42 C142 42 137 44 134 48 L95 76 L40 118 C34 123 30 131 32 139 L50 170 C52 176 58 179 64 177 L105 148 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 148 L336 177 C342 179 348 176 350 170 L368 139 C370 131 366 123 360 118 L305 76 L266 48 C263 44 258 42 252 42 L200 42Z" fill={color} stroke={strokeColor} strokeWidth="1.2" />
-        <path d="M200 42 L148 42 C142 42 137 44 134 48 L95 76 L40 118 C34 123 30 131 32 139 L50 170 C52 176 58 179 64 177 L105 148 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 148 L336 177 C342 179 348 176 350 170 L368 139 C370 131 366 123 360 118 L305 76 L266 48 C263 44 258 42 252 42 L200 42Z" fill="url(#pfront-fabric)" />
+      <g filter={`url(#${filtId})`}>
+        {/* Body */}
+        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.2" />
+        <path d={bodyPath} fill={`url(#${gradId})`} />
 
-        {/* Collar band — dark, stands up tall */}
-        <path d="M155 42 L155 16 Q158 6 178 3 Q190 1 200 1 Q210 1 222 3 Q242 6 245 16 L245 42" fill={collarColor} stroke={collarStroke} strokeWidth="1.5" />
-        {/* Collar trim stripe */}
-        <line x1="156" y1="40" x2="244" y2="40" stroke={trimColor} strokeWidth="2" />
+        {/* Front collar - SAME color as shirt (subtle, short stand) */}
+        <path d="M160 42 Q160 30 172 25 Q186 20 200 20 Q214 20 228 25 Q240 30 240 42" fill={color} stroke={strokeColor} strokeWidth="1" />
 
-        {/* V-neck opening */}
-        <path d="M185 42 L197 120 L200 120 L203 120 L215 42" fill={color} stroke="none" />
+        {/* V-neck opening cutout (shirt color underneath) */}
+        <path d="M190 42 L198 130 L202 130 L210 42" fill="white" fillOpacity="0" stroke="none" />
 
-        {/* Left V-trim piping */}
-        <line x1="185" y1="42" x2="197" y2="120" stroke={trimColor} strokeWidth="2.5" />
-        {/* Right V-trim piping */}
-        <line x1="215" y1="42" x2="203" y2="120" stroke={trimColor} strokeWidth="2.5" />
+        {/* Left piping line */}
+        <line x1="190" y1="42" x2="198" y2="130" stroke={pipingColor} strokeWidth="2.5" />
+        {/* Right piping line */}
+        <line x1="210" y1="42" x2="202" y2="130" stroke={pipingColor} strokeWidth="2.5" />
 
-        {/* Button placket center */}
-        <line x1="200" y1="42" x2="200" y2="120" stroke={trimColor} strokeWidth="2" />
-
-        {/* Buttons */}
-        <circle cx="200" cy="55" r="4" fill={buttonColor} />
-        <circle cx="200" cy="75" r="4" fill={buttonColor} />
-        <circle cx="200" cy="95" r="4" fill={buttonColor} />
+        {/* Buttons - same tone as shirt, slightly darker */}
+        <circle cx="200" cy="60" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+        <circle cx="200" cy="82" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+        <circle cx="200" cy="104" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
       </g>
     </svg>
   );

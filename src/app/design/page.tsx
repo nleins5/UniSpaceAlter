@@ -551,7 +551,7 @@ export default function DesignPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
-  // ─── AI Chat (Gemini Integration) ─────────────────────────────────
+  // ─── AI Chat (Image Generation) ─────────────────────────────────
   const handleSendMessage = useCallback(async (content: string) => {
     const userMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content };
     setMessages((prev) => [...prev, userMsg]);
@@ -957,7 +957,7 @@ export default function DesignPage() {
                       <div className="canva-chat-empty">
                         <div className="canva-chat-empty-icon">🎨</div>
                         <p className="canva-chat-empty-title">Mô tả thiết kế bạn muốn</p>
-                        <p className="canva-chat-empty-sub">Gemini AI sẽ tạo hình ảnh để bạn kéo vào áo</p>
+                        <p className="canva-chat-empty-sub">AI sẽ tạo hình ảnh để bạn kéo vào áo</p>
                         <div className="canva-suggestions">
                           {suggestions.map((s, i) => (
                             <button key={i} onClick={() => handleSendMessage(s)} className="canva-suggestion-btn">{s}</button>

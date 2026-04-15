@@ -3616,7 +3616,7 @@ body {
 
 .adm-stat-icon {
   font-size: 1.6rem;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 /* ─── ROW: CHART + QUICK ─── */
@@ -4194,10 +4194,10 @@ body {
   color: #6b7280;
 }
 
-.adm-empty span {
-  font-size: 3rem;
+.adm-empty svg {
   display: block;
-  margin-bottom: 16px;
+  margin: 0 auto 16px;
+  opacity: 0.3;
 }
 
 .adm-empty h3 {

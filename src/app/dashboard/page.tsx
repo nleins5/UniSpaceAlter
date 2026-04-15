@@ -228,7 +228,7 @@ export default function DashboardPage() {
                 <span className="adm-stat-label">{s.label}</span>
                 <span className="adm-stat-sub">{s.sub}</span>
               </div>
-              <span className="adm-stat-icon" style={{ color: s.accent, opacity: 0.5 }}>{s.svg}</span>
+              <span className="adm-stat-icon">{s.svg}</span>
             </div>
           ))}
         </div>
@@ -303,7 +303,7 @@ export default function DashboardPage() {
           <div className="adm-loading"><div className="adm-spinner" /><p>Đang tải…</p></div>
         ) : filtered.length === 0 ? (
           <div className="adm-empty">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" style={{ opacity: 0.3 }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
               {search
                 ? <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></>
                 : <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></>

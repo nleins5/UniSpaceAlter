@@ -37,14 +37,17 @@ interface ChatMessage {
 }
 
 // ─── Realistic T-Shirt Mockup (Photo-based) ─────────────────
+const TSHIRT_IMG = "/images/mockup/tshirt-front.png";
+const POLO_IMG = "/images/mockup/polo-front.png";
+
 function TShirtSVG({ color }: { color: string }) {
   const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
   return (
     <div className="mockup-shirt-wrapper">
-      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color}}`}</style><div className="mockup-color-layer" /></>}
+      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color};--shirt-mask:url(${TSHIRT_IMG})}`}</style><div className="mockup-color-layer" /></>}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/images/mockup/tshirt-front.png"
+        src={TSHIRT_IMG}
         alt="T-shirt mockup"
         className={`mockup-shirt-img ${!isWhite ? "mockup-blend" : ""}`}
         draggable={false}
@@ -57,10 +60,10 @@ function PoloShirtSVG({ color }: { color: string }) {
   const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
   return (
     <div className="mockup-shirt-wrapper">
-      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color}}`}</style><div className="mockup-color-layer" /></>}
+      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color};--shirt-mask:url(${POLO_IMG})}`}</style><div className="mockup-color-layer" /></>}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/images/mockup/polo-front.png"
+        src={POLO_IMG}
         alt="Polo shirt mockup"
         className={`mockup-shirt-img ${!isWhite ? "mockup-blend" : ""}`}
         draggable={false}

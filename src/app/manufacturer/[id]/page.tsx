@@ -36,54 +36,6 @@ const COLOR_NAMES: Record<string, string> = {
   "#00b894": "Xanh ngọc", "#fdcb6e": "Vàng nhạt", "#f57f17": "Cam",
 };
 
-/* ── Shirt SVG mockup for manufacturer preview ── */
-function ShirtMockup({ color, side, designUrl }: { color: string; side: "front" | "back"; designUrl?: string }) {
-  const darkerColor = color === "#ffffff" ? "#e8e8e8" : color;
-
-  return (
-    <div className="mfr-shirt-mockup">
-      <svg viewBox="0 0 300 360" width="100%" xmlns="http://www.w3.org/2000/svg">
-        {/* Shirt body */}
-        <path
-          d="M75 55 L55 75 L30 65 L15 110 L55 130 L55 340 L245 340 L245 130 L285 110 L270 65 L245 75 L225 55 
-             C210 40 190 35 150 35 C110 35 90 40 75 55Z"
-          fill={color}
-          stroke={darkerColor}
-          strokeWidth="1.5"
-        />
-        {/* Collar - front only */}
-        {side === "front" && (
-          <>
-            <path d="M120 35 L150 70 L180 35" fill="none" stroke={darkerColor} strokeWidth="2" />
-          </>
-        )}
-        {/* Back collar line */}
-        {side === "back" && (
-          <path d="M115 40 Q150 50 185 40" fill="none" stroke={darkerColor} strokeWidth="2" />
-        )}
-        {/* Sleeve lines */}
-        <line x1="55" y1="75" x2="55" y2="130" stroke={darkerColor} strokeWidth="1" opacity="0.3" />
-        <line x1="245" y1="75" x2="245" y2="130" stroke={darkerColor} strokeWidth="1" opacity="0.3" />
-
-        {/* Design overlay area */}
-        {designUrl && (
-          <image
-            href={designUrl}
-            x="90" y="90"
-            width="120" height="140"
-            preserveAspectRatio="xMidYMid meet"
-          />
-        )}
-
-        {/* Side label */}
-        <text x="150" y="355" textAnchor="middle" fill="#9ca3af" fontSize="11" fontFamily="system-ui">
-          {side === "front" ? "Mặt trước" : "Mặt sau"}
-        </text>
-      </svg>
-    </div>
-  );
-}
-
 export default function ManufacturerPage({
   params,
 }: {
@@ -151,8 +103,6 @@ export default function ManufacturerPage({
   }
 
   const st = STATUS_MAP[order.status] || STATUS_MAP.pending;
-  const frontDesignUrl = order.hasFrontDesign ? `/api/orders/${order.orderId}/front_design.png` : undefined;
-  const backDesignUrl = order.hasBackDesign ? `/api/orders/${order.orderId}/back_design.png` : undefined;
 
   return (
     <div className="mfr-page">
@@ -200,10 +150,21 @@ export default function ManufacturerPage({
               Bản thiết kế
             </h3>
 
-            {/* Shirt mockup previews */}
+            {/* Design image previews */}
             <div className="mfr-mockup-grid">
               <div className="mfr-mockup-slot">
-                <ShirtMockup color={order.color} side="front" designUrl={frontDesignUrl} />
+                <span className="mfr-design-label">Mặt trước</span>
+                {order.hasFrontDesign ? (
+                  <div className="mfr-design-preview">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/api/orders/${order.orderId}/front_design.png`} alt="Front design" />
+                  </div>
+                ) : (
+                  <div className="mfr-design-empty">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                    <span>Không có thiết kế</span>
+                  </div>
+                )}
                 {order.hasFrontDesign && (
                   <button onClick={() => handleDownload("front_design.png")} className="mfr-download-btn">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
@@ -212,7 +173,18 @@ export default function ManufacturerPage({
                 )}
               </div>
               <div className="mfr-mockup-slot">
-                <ShirtMockup color={order.color} side="back" designUrl={backDesignUrl} />
+                <span className="mfr-design-label">Mặt sau</span>
+                {order.hasBackDesign ? (
+                  <div className="mfr-design-preview">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/api/orders/${order.orderId}/back_design.png`} alt="Back design" />
+                  </div>
+                ) : (
+                  <div className="mfr-design-empty">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                    <span>Không có thiết kế</span>
+                  </div>
+                )}
                 {order.hasBackDesign && (
                   <button onClick={() => handleDownload("back_design.png")} className="mfr-download-btn">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
@@ -221,29 +193,6 @@ export default function ManufacturerPage({
                 )}
               </div>
             </div>
-
-            {/* Raw design files */}
-            {(order.hasFrontDesign || order.hasBackDesign) && (
-              <div className="mfr-raw-designs">
-                <span className="mfr-raw-title">File thiết kế gốc</span>
-                <div className="mfr-raw-grid">
-                  {order.hasFrontDesign && (
-                    <div className="mfr-raw-item">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/api/orders/${order.orderId}/front_design.png`} alt="Front design" />
-                      <span>Trước</span>
-                    </div>
-                  )}
-                  {order.hasBackDesign && (
-                    <div className="mfr-raw-item">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/api/orders/${order.orderId}/back_design.png`} alt="Back design" />
-                      <span>Sau</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Info cards */}

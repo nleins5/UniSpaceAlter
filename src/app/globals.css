@@ -5965,6 +5965,44 @@ body {
   transform: translateY(-1px);
 }
 
+.mfr-design-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+
+.mfr-design-preview {
+  background: #f8f8f8;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  width: 100%;
+}
+
+.mfr-design-preview img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+.mfr-design-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 12px;
+  color: #ccc;
+  font-size: 12px;
+  background: #fafafa;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  width: 100%;
+}
+
 /* Raw design previews */
 .mfr-raw-designs {
   border-top: 1px solid var(--border);

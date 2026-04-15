@@ -1361,6 +1361,7 @@ body {
   justify-content: center;
   pointer-events: none;
   overflow: hidden;
+  z-index: 0;
 }
 
 .mockup-color-layer {
@@ -1391,6 +1392,21 @@ body {
 
 .mockup-blend {
   mix-blend-mode: multiply;
+}
+
+/* Order page mockup color layer (same technique as design page) */
+.order-mockup-color {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  -webkit-mask-image: var(--shirt-mask);
+  mask-image: var(--shirt-mask);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /* ─── Canvas (T-shirt) ─── */
@@ -1467,6 +1483,7 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 2;
   /* wrapper itself doesn't catch events */
 }
 

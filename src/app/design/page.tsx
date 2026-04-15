@@ -37,18 +37,21 @@ interface ChatMessage {
 }
 
 // ─── Realistic T-Shirt Mockup (Photo-based) ─────────────────
-const TSHIRT_IMG = "/images/mockup/tshirt-front.png";
-const POLO_IMG = "/images/mockup/polo-front.png";
+const TSHIRT_FRONT_IMG = "/images/mockup/tshirt-front.png";
+const TSHIRT_BACK_IMG = "/images/mockup/tshirt-back.png";
+const POLO_FRONT_IMG = "/images/mockup/polo-front.png";
+const POLO_BACK_IMG = "/images/mockup/polo-back.png";
 
-function TShirtSVG({ color }: { color: string }) {
+function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
+  const imgSrc = side === "back" ? TSHIRT_BACK_IMG : TSHIRT_FRONT_IMG;
   return (
     <div className="mockup-shirt-wrapper">
-      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color};--shirt-mask:url(${TSHIRT_IMG})}`}</style><div className="mockup-color-layer" /></>}
+      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color};--shirt-mask:url(${imgSrc})}`}</style><div className="mockup-color-layer" /></>}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={TSHIRT_IMG}
-        alt="T-shirt mockup"
+        src={imgSrc}
+        alt={`T-shirt mockup ${side}`}
         className={`mockup-shirt-img ${!isWhite ? "mockup-blend" : ""}`}
         draggable={false}
       />
@@ -56,15 +59,16 @@ function TShirtSVG({ color }: { color: string }) {
   );
 }
 
-function PoloShirtSVG({ color }: { color: string }) {
+function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
+  const imgSrc = side === "back" ? POLO_BACK_IMG : POLO_FRONT_IMG;
   return (
     <div className="mockup-shirt-wrapper">
-      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color};--shirt-mask:url(${POLO_IMG})}`}</style><div className="mockup-color-layer" /></>}
+      {!isWhite && <><style>{`.mockup-color-layer{background-color:${color};--shirt-mask:url(${imgSrc})}`}</style><div className="mockup-color-layer" /></>}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={POLO_IMG}
-        alt="Polo shirt mockup"
+        src={imgSrc}
+        alt={`Polo shirt mockup ${side}`}
         className={`mockup-shirt-img ${!isWhite ? "mockup-blend" : ""}`}
         draggable={false}
       />
@@ -307,7 +311,7 @@ function DesignCanvas({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {shirtType === "polo" ? <PoloShirtSVG color={tshirtColor} /> : <TShirtSVG color={tshirtColor} />}
+        {shirtType === "polo" ? <PoloShirtSVG color={tshirtColor} side={side} /> : <TShirtSVG color={tshirtColor} side={side} />}
 
         {/* Print area guide */}
         <div className="canva-print-area">
@@ -650,7 +654,7 @@ export default function DesignPage() {
   }, [handleDeleteSelected, handleDuplicateSelected, handleUndo, handleRedo]);
 
   const handleComplete = () => {
-    sessionStorage.setItem("designData", JSON.stringify({ elements, tshirtColor }));
+    sessionStorage.setItem("designData", JSON.stringify({ elements, tshirtColor, shirtType }));
     router.push("/order");
   };
 

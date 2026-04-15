@@ -18,57 +18,51 @@ interface DesignElement {
 interface DesignData {
   elements: DesignElement[];
   tshirtColor: string;
+  shirtType?: "tshirt" | "polo";
 }
 
-function TShirtSVG({ color }: { color: string }) {
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 128;
+const TSHIRT_FRONT_IMG = "/images/mockup/tshirt-front.png";
+const TSHIRT_BACK_IMG = "/images/mockup/tshirt-back.png";
+const POLO_FRONT_IMG = "/images/mockup/polo-front.png";
+const POLO_BACK_IMG = "/images/mockup/polo-back.png";
 
+function ShirtMockup({ color, side = "front", shirtType = "tshirt" }: { color: string; side?: "front" | "back"; shirtType?: "tshirt" | "polo" }) {
+  const isWhite = color.toLowerCase() === "#ffffff" || color === "#fff";
+  const imgSrc = shirtType === "polo"
+    ? (side === "back" ? POLO_BACK_IMG : POLO_FRONT_IMG)
+    : (side === "back" ? TSHIRT_BACK_IMG : TSHIRT_FRONT_IMG);
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id={`pv-fabric-${hex}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={isLight ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)"} />
-          <stop offset="40%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="100%" stopColor={isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)"} />
-        </linearGradient>
-        <filter id="pvShadow" x="-10%" y="-5%" width="120%" height="115%">
-          <feDropShadow dx="0" dy="3" stdDeviation="5" floodOpacity="0.1" />
-        </filter>
-      </defs>
-      <g filter="url(#pvShadow)">
-        <path
-          d="M200 18 L148 18 C142 18 137 20 134 24 L95 62 L45 102 C38 107 36 115 38 122 L58 158 C61 164 68 167 74 164 L112 132 L112 430 C112 440 120 448 130 448 L270 448 C280 448 288 440 288 430 L288 132 L326 164 C332 167 339 164 342 158 L362 122 C364 115 362 107 355 102 L305 62 L266 24 C263 20 258 18 252 18 L200 18Z"
-          fill={color}
-          stroke={isLight ? "#d4d4d4" : "rgba(255,255,255,0.06)"}
-          strokeWidth="1"
-        />
-        <path
-          d="M200 18 L148 18 C142 18 137 20 134 24 L95 62 L45 102 C38 107 36 115 38 122 L58 158 C61 164 68 167 74 164 L112 132 L112 430 C112 440 120 448 130 448 L270 448 C280 448 288 440 288 430 L288 132 L326 164 C332 167 339 164 342 158 L362 122 C364 115 362 107 355 102 L305 62 L266 24 C263 20 258 18 252 18 L200 18Z"
-          fill={`url(#pv-fabric-${hex})`}
-        />
-        <path d="M160 18 C168 42 182 54 200 58 C218 54 232 42 240 18" fill={isLight ? "rgba(0,0,0,0.03)" : "rgba(0,0,0,0.12)"} />
-        <path d="M160 18 C168 42 182 54 200 58 C218 54 232 42 240 18" fill="none" stroke={isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.1)"} strokeWidth="2" strokeLinecap="round" />
-      </g>
-    </svg>
+    <div className="mockup-shirt-wrapper">
+      {!isWhite && (
+        <>
+          <style>{`.order-mockup-color{background-color:${color};--shirt-mask:url(${imgSrc})}`}</style>
+          <div className="order-mockup-color" />
+        </>
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imgSrc}
+        alt={`${shirtType === "polo" ? "Polo" : "T-shirt"} mockup ${side}`}
+        className={`mockup-shirt-img ${!isWhite ? "mockup-blend" : ""}`}
+        draggable={false}
+      />
+    </div>
   );
 }
 
 function PreviewCanvas({
-  elements, side, tshirtColor, canvasRef,
+  elements, side, tshirtColor, shirtType, canvasRef,
 }: {
   elements: DesignElement[];
   side: "front" | "back";
   tshirtColor: string;
+  shirtType: "tshirt" | "polo";
   canvasRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const sideElements = elements.filter((el) => el.side === side);
   return (
     <div ref={canvasRef} className="relative w-full max-w-[300px] aspect-[400/480] mx-auto">
-      <TShirtSVG color={tshirtColor} />
+      <ShirtMockup color={tshirtColor} side={side} shirtType={shirtType} />
       <style>{sideElements.map(el =>
         `.order-el-${el.id.replace(/[^a-z0-9]/gi, '')} { left: ${(el.x / 400) * 100}%; top: ${(el.y / 480) * 100}%; width: ${(el.width / 400) * 100}%; height: ${(el.height / 480) * 100}%; }`
       ).join(' ')}</style>
@@ -84,6 +78,7 @@ function PreviewCanvas({
 
 export default function OrderPage() {
   const [designData, setDesignData] = useState<DesignData | null>(null);
+  const [shirtType, setShirtType] = useState<"tshirt" | "polo">("tshirt");
   const [previewSide, setPreviewSide] = useState<"front" | "back">("front");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -100,7 +95,11 @@ export default function OrderPage() {
 
   useEffect(() => {
     const data = sessionStorage.getItem("designData");
-    if (data) setDesignData(JSON.parse(data));
+    if (data) {
+      const parsed = JSON.parse(data);
+      setDesignData(parsed);
+      if (parsed.shirtType) setShirtType(parsed.shirtType);
+    }
   }, []);
 
   const captureCanvas = useCallback(
@@ -132,6 +131,7 @@ export default function OrderPage() {
       formData.append("color", designData.tshirtColor);
       formData.append("quantity", form.quantity);
       formData.append("notes", form.notes);
+      formData.append("shirtType", shirtType);
 
       setPreviewSide("front");
       await new Promise((r) => setTimeout(r, 200));
@@ -214,12 +214,12 @@ export default function OrderPage() {
           </Link>
           <div className="order-steps">
             <span className="order-step done">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
               Thiết kế
             </span>
             <span className="order-step-arrow">›</span>
             <span className="order-step active">
-              <span className="order-step-dot"/>
+              <span className="order-step-dot" />
               Đặt hàng
             </span>
           </div>
@@ -245,26 +245,30 @@ export default function OrderPage() {
               </div>
 
               <div className="order-preview-canvas-wrap">
-                <PreviewCanvas elements={designData.elements} side={previewSide} tshirtColor={designData.tshirtColor} canvasRef={previewSide === "front" ? frontRef : backRef} />
+                <PreviewCanvas elements={designData.elements} side={previewSide} tshirtColor={designData.tshirtColor} shirtType={shirtType} canvasRef={previewSide === "front" ? frontRef : backRef} />
               </div>
 
               <div className="fixed -left-[9999px] opacity-0 pointer-events-none">
-                {previewSide !== "front" && <PreviewCanvas elements={designData.elements} side="front" tshirtColor={designData.tshirtColor} canvasRef={frontRef} />}
-                {previewSide !== "back" && <PreviewCanvas elements={designData.elements} side="back" tshirtColor={designData.tshirtColor} canvasRef={backRef} />}
+                {previewSide !== "front" && <PreviewCanvas elements={designData.elements} side="front" tshirtColor={designData.tshirtColor} shirtType={shirtType} canvasRef={frontRef} />}
+                {previewSide !== "back" && <PreviewCanvas elements={designData.elements} side="back" tshirtColor={designData.tshirtColor} shirtType={shirtType} canvasRef={backRef} />}
               </div>
 
               <div className="order-preview-meta">
                 <div className="order-meta-chip">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /></svg>
+                  {shirtType === "polo" ? "Áo polo" : "Áo thun"}
+                </div>
+                <div className="order-meta-chip">
                   <style>{`.order-preview-dot { background-color: ${designData.tshirtColor}; border-color: ${designData.tshirtColor === '#ffffff' ? '#ddd' : 'transparent'}; }`}</style>
-                  <span className="order-preview-dot"/>
+                  <span className="order-preview-dot" />
                   Màu áo
                 </div>
                 <div className="order-meta-chip">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><polyline points="21 15 16 10 5 21" /></svg>
                   {designData.elements.filter(e => e.side === 'front').length} mặt trước
                 </div>
                 <div className="order-meta-chip">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><polyline points="21 15 16 10 5 21" /></svg>
                   {designData.elements.filter(e => e.side === 'back').length} mặt sau
                 </div>
               </div>
@@ -314,7 +318,7 @@ export default function OrderPage() {
                 <div className="order-field">
                   <label>Size áo</label>
                   <div className="order-size-chips">
-                    {["XS","S","M","L","XL","XXL"].map(s => (
+                    {["XS", "S", "M", "L", "XL", "XXL"].map(s => (
                       <button key={s} type="button" className={`order-size-chip ${form.size === s ? "active" : ""}`} onClick={() => setForm({ ...form, size: s })}>{s}</button>
                     ))}
                   </div>
@@ -322,9 +326,9 @@ export default function OrderPage() {
                 <div className="order-field order-field-qty">
                   <label htmlFor="ord-qty">Số lượng</label>
                   <div className="order-qty-control">
-                    <button type="button" className="order-qty-btn" onClick={() => setForm({...form, quantity: String(Math.max(1, +form.quantity - 1))})}>−</button>
+                    <button type="button" className="order-qty-btn" onClick={() => setForm({ ...form, quantity: String(Math.max(1, +form.quantity - 1)) })}>−</button>
                     <input id="ord-qty" type="number" min="1" max="100" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
-                    <button type="button" className="order-qty-btn" onClick={() => setForm({...form, quantity: String(Math.min(100, +form.quantity + 1))})}>+</button>
+                    <button type="button" className="order-qty-btn" onClick={() => setForm({ ...form, quantity: String(Math.min(100, +form.quantity + 1)) })}>+</button>
                   </div>
                 </div>
                 <div className="order-field">
@@ -336,7 +340,7 @@ export default function OrderPage() {
               {/* Validation hint */}
               {showErrors && (!form.name || !form.phone || !form.address) && (
                 <div className="order-validation-hint">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                   Vui lòng điền đầy đủ các mục có dấu
                   <span className="order-required">*</span>
                 </div>
@@ -344,7 +348,7 @@ export default function OrderPage() {
 
               <div className={`order-actions ${shaking ? 'order-actions-shake' : ''}`}>
                 <Link href="/design" className="order-btn-back">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
                   Quay lại chỉnh sửa
                 </Link>
                 <button
@@ -365,12 +369,12 @@ export default function OrderPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                      <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
                       Đang gửi đơn...
                     </>
                   ) : (
                     <>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 2 15 22 11 13 2 9 22 2" /></svg>
                       Đặt hàng ngay
                     </>
                   )}

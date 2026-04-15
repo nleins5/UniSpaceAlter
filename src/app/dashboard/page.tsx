@@ -186,13 +186,14 @@ export default function DashboardPage() {
         {/* Stats */}
         <div className="dash-stats">
           {[
-            { label: "Tổng đơn",      value: stats.total,                   color: "purple" },
-            { label: "Hôm nay",        value: stats.today,                   color: "blue"   },
-            { label: "Chờ xử lý",      value: stats.pending,                 color: "orange" },
-            { label: "Tổng áo",         value: stats.totalShirts,             color: "green"  },
-            { label: "Doanh thu (VNĐ)", value: formatMoney(stats.revenue),    color: "teal"   },
+            { label: "Tổng đơn",       value: stats.total,                    icon: "📦", color: "#6c5ce7" },
+            { label: "Hôm nay",         value: stats.today,                    icon: "📅", color: "#3b82f6" },
+            { label: "Chờ xử lý",       value: stats.pending,                  icon: "⏳", color: "#f59e0b" },
+            { label: "Tổng áo",          value: stats.totalShirts,              icon: "👕", color: "#10b981" },
+            { label: "Doanh thu",        value: formatMoney(stats.revenue) + "₫", icon: "💰", color: "#ec4899" },
           ].map(s => (
             <div key={s.label} className="dash-stat-card">
+              <span className="dash-stat-icon">{s.icon}</span>
               <div>
                 <span className="dash-stat-value">{s.value}</span>
                 <span className="dash-stat-label">{s.label}</span>
@@ -327,6 +328,7 @@ export default function DashboardPage() {
                         <div className="dash-order-meta">
                           <span className="admin-size-badge">Size {order.size}</span>
                           <span className="admin-qty-badge">×{order.quantity}</span>
+                          <span className="admin-revenue-tag">{formatMoney(order.quantity * 89000)}₫</span>
                         </div>
                         <div className="admin-order-footer">
                           <span className="dash-order-date">{new Date(order.createdAt).toLocaleDateString("vi-VN")}</span>

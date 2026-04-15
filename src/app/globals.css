@@ -35,8 +35,7 @@
   --canva-workspace-bg: #e8e8e8;
 }
 
-/* stylelint-disable at-rule-no-unknown */
-@theme inline {
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);

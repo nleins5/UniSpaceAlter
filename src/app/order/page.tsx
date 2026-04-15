@@ -71,30 +71,25 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
         )}
         {shirtType === "polo" && side === "front" && (
           <>
-            {/* Collar band */}
-            <path d="M160 45 Q160 22 175 14 Q188 8 200 8 Q212 8 225 14 Q240 22 240 45" fill={collarColor} stroke={collarStroke} strokeWidth="1" />
             {/* Left collar flap */}
-            <path d="M160 45 Q158 28 168 18 L145 52 Q150 58 160 60 Q168 58 175 52 L195 38 Q185 42 175 45 Z" fill={collarColor} stroke={collarStroke} strokeWidth="1" strokeLinejoin="round" />
+            <path d="M168 45 L148 55 Q152 68 165 70 Q175 66 185 58 L197 48 Q185 48 175 46 Z" fill={collarColor} stroke={collarStroke} strokeWidth="1" strokeLinejoin="round" />
             {/* Right collar flap */}
-            <path d="M240 45 Q242 28 232 18 L255 52 Q250 58 240 60 Q232 58 225 52 L205 38 Q215 42 225 45 Z" fill={collarColor} stroke={collarStroke} strokeWidth="1" strokeLinejoin="round" />
-            {/* V-opening shadow */}
-            <path d="M195 38 L200 85 L205 38" fill={shadowColor} stroke="none" />
+            <path d="M232 45 L252 55 Q248 68 235 70 Q225 66 215 58 L203 48 Q215 48 225 46 Z" fill={collarColor} stroke={collarStroke} strokeWidth="1" strokeLinejoin="round" />
+            {/* V-opening */}
+            <path d="M197 48 L200 90 L203 48" fill={shadowColor} stroke="none" />
             {/* Button placket */}
-            <rect x="197" y="45" width="6" height="65" rx="1.5" fill={collarColor} stroke={collarStroke} strokeWidth="0.6" />
+            <rect x="197" y="50" width="6" height="55" rx="1.5" fill={collarColor} stroke={collarStroke} strokeWidth="0.6" />
             {/* Buttons */}
-            <circle cx="200" cy="52" r="2.5" fill="none" stroke={collarStroke} strokeWidth="0.8" />
-            <circle cx="200" cy="67" r="2.5" fill="none" stroke={collarStroke} strokeWidth="0.8" />
-            <circle cx="200" cy="82" r="2.5" fill="none" stroke={collarStroke} strokeWidth="0.8" />
+            <circle cx="200" cy="58" r="2" fill="none" stroke={collarStroke} strokeWidth="0.8" />
+            <circle cx="200" cy="72" r="2" fill="none" stroke={collarStroke} strokeWidth="0.8" />
+            <circle cx="200" cy="86" r="2" fill="none" stroke={collarStroke} strokeWidth="0.8" />
           </>
         )}
         {shirtType === "polo" && side === "back" && (
           <>
-            {/* Collar band (back) */}
-            <path d="M158 40 Q158 20 170 14 Q185 8 200 8 Q215 8 230 14 Q242 20 242 40" fill={collarColor} stroke={collarStroke} strokeWidth="1.2" />
-            {/* Collar fold line */}
-            <path d="M162 32 Q180 26 200 25 Q220 26 238 32" fill="none" stroke={collarStroke} strokeWidth="0.8" strokeDasharray="3 2" />
-            {/* Inner neck shadow */}
-            <path d="M168 40 Q184 34 200 33 Q216 34 232 40" fill={shadowColor} />
+            {/* Back neckline - flat collar band */}
+            <path d="M165 40 Q175 48 200 50 Q225 48 235 40" fill={collarColor} stroke={collarStroke} strokeWidth="1" />
+            <path d="M170 40 Q180 45 200 46 Q220 45 230 40" fill={shadowColor} />
           </>
         )}
       </g>

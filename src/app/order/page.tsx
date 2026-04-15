@@ -133,28 +133,20 @@ function PreviewCanvas({
   return (
     <div ref={canvasRef} className="relative w-full max-w-[300px] aspect-[400/480] mx-auto">
       <OrderShirtSVG color={tshirtColor} side={side} shirtType={shirtType} />
-      <style>{sideElements.map(el =>
-        `.order-el-${el.id.replace(/[^a-z0-9]/gi, '')} { left: ${(el.x / 400) * 100}%; top: ${(el.y / 480) * 100}%; width: ${(el.width / 400) * 100}%; height: ${(el.height / 480) * 100}%; }`
-      ).join(' ')}</style>
+      <style>{sideElements.map(el => {
+        const cls = `.order-el-${el.id.replace(/[^a-z0-9]/gi, '')}`;
+        let css = `${cls} { left: ${(el.x / 400) * 100}%; top: ${(el.y / 480) * 100}%; width: ${(el.width / 400) * 100}%; height: ${(el.height / 480) * 100}%;`;
+        if (el.rotation) css += ` transform: rotate(${el.rotation}deg);`;
+        css += ` }`;
+        if (el.type === "text") {
+          css += ` ${cls} .order-text { width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${((el.fontSize || 24) / 400) * 100}vw;font-family:${el.fontFamily || 'sans-serif'};color:${el.textColor || '#000000'};font-weight:bold;text-align:center;line-height:1.2;white-space:pre-wrap;word-break:break-word; }`;
+        }
+        return css;
+      }).join(' ')}</style>
       {sideElements.map((el) => (
-        <div key={el.id} className={`absolute order-el-${el.id.replace(/[^a-z0-9]/gi, '')}`}
-          style={el.rotation ? { transform: `rotate(${el.rotation}deg)` } : undefined}
-        >
+        <div key={el.id} className={`absolute order-el-${el.id.replace(/[^a-z0-9]/gi, '')}`}>
           {el.type === "text" ? (
-            <div style={{
-              width: '100%', height: '100%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: `${((el.fontSize || 24) / 400) * 100}vw`,
-              fontFamily: el.fontFamily || 'sans-serif',
-              color: el.textColor || '#000000',
-              fontWeight: 'bold',
-              textAlign: 'center',
-              lineHeight: 1.2,
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}>
-              {el.text}
-            </div>
+            <div className="order-text">{el.text}</div>
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={el.url} alt={el.label} className="w-full h-full object-contain" draggable={false} />

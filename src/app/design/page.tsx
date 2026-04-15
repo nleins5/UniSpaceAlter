@@ -94,6 +94,69 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
+// ── Form A1: same-color front collar + V-piping, dark back collar ──
+function PoloA1ShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16) || 255;
+  const g = parseInt(hex.substring(2, 4), 16) || 255;
+  const b = parseInt(hex.substring(4, 6), 16) || 255;
+  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
+  const strokeColor = isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)";
+  const shadowColor = isLight ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.12)";
+  const highlightColor = isLight ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)";
+  const backCollarColor = isLight ? "#1a1a1a" : "#e8e8e8";
+  const backCollarStroke = isLight ? "#111111" : "#d0d0d0";
+  const backCollarTrim = isLight ? "#ffffff" : "rgba(255,255,255,0.4)";
+  const pipingColor = isLight ? "#f0e8dc" : "rgba(255,255,255,0.35)";
+  const buttonFill = isLight ? `rgba(${Math.max(0, r - 60)},${Math.max(0, g - 60)},${Math.max(0, b - 60)},0.7)` : "rgba(255,255,255,0.3)";
+  const bodyPath = side === "back"
+    ? "M200 38 L148 38 C142 38 137 40 134 44 L95 72 L40 115 C34 120 30 128 32 136 L50 168 C52 174 58 177 64 175 L105 145 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 145 L336 175 C342 177 348 174 350 168 L368 136 C370 128 366 120 360 115 L305 72 L266 44 C263 40 258 38 252 38 L200 38Z"
+    : "M200 42 L148 42 C142 42 137 44 134 48 L95 76 L40 118 C34 123 30 131 32 139 L50 170 C52 176 58 179 64 177 L105 148 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 148 L336 177 C342 179 348 176 350 170 L368 139 C370 131 366 123 360 118 L305 76 L266 48 C263 44 258 42 252 42 L200 42Z";
+  const gradId = `poloa1-${side}-fab`;
+  const filtId = `poloa1-${side}-shd`;
+
+  if (side === "back") {
+    return (
+      <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
+        <defs>
+          <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} /></linearGradient>
+          <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
+        </defs>
+        <g filter={`url(#${filtId})`}>
+          <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.2" />
+          <path d={bodyPath} fill={`url(#${gradId})`} />
+          <path d="M152 38 L152 12 Q156 4 176 1 Q190 -1 200 -1 Q210 -1 224 1 Q244 4 248 12 L248 38" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.5" />
+          <line x1="153" y1="36" x2="247" y2="36" stroke={backCollarTrim} strokeWidth="2" />
+          <line x1="153" y1="33" x2="247" y2="33" stroke={backCollarTrim} strokeWidth="0.8" />
+        </g>
+      </svg>
+    );
+  }
+
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
+      <defs>
+        <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} /></linearGradient>
+        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
+      </defs>
+      <g filter={`url(#${filtId})`}>
+        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.2" />
+        <path d={bodyPath} fill={`url(#${gradId})`} />
+        {/* Same-color collar */}
+        <path d="M160 42 Q160 30 172 25 Q186 20 200 20 Q214 20 228 25 Q240 30 240 42" fill={color} stroke={strokeColor} strokeWidth="1" />
+        {/* V-neck piping */}
+        <line x1="190" y1="42" x2="198" y2="130" stroke={pipingColor} strokeWidth="2.5" />
+        <line x1="210" y1="42" x2="202" y2="130" stroke={pipingColor} strokeWidth="2.5" />
+        {/* Buttons */}
+        <circle cx="200" cy="60" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+        <circle cx="200" cy="82" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+        <circle cx="200" cy="104" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+      </g>
+    </svg>
+  );
+}
+
+// ── Form D5: dark front collar with fold-down flaps, dark back collar ──
 function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16) || 255;
@@ -107,8 +170,6 @@ function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front"
   const backCollarColor = isLight ? "#1a1a1a" : "#e8e8e8";
   const backCollarStroke = isLight ? "#111111" : "#d0d0d0";
   const backCollarTrim = isLight ? "#ffffff" : "rgba(255,255,255,0.4)";
-  // Piping/trim on front V-neck  
-  const pipingColor = isLight ? "#f0e8dc" : "rgba(255,255,255,0.35)";
   const buttonFill = isLight ? `rgba(${Math.max(0, r - 60)},${Math.max(0, g - 60)},${Math.max(0, b - 60)},0.7)` : "rgba(255,255,255,0.3)";
 
   // Oversized body path
@@ -204,7 +265,7 @@ function DesignCanvas({
   onDropImage: (image: AIImage, x: number, y: number) => void;
   side: "front" | "back";
   tshirtColor: string;
-  shirtType: "tshirt" | "polo";
+  shirtType: "tshirt" | "polo-a1" | "polo-d5";
   zoom: number;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -414,7 +475,7 @@ function DesignCanvas({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {shirtType === "polo" ? <PoloShirtSVG color={tshirtColor} side={side} /> : <TShirtSVG color={tshirtColor} side={side} />}
+        {shirtType === "polo-d5" ? <PoloShirtSVG color={tshirtColor} side={side} /> : shirtType === "polo-a1" ? <PoloA1ShirtSVG color={tshirtColor} side={side} /> : <TShirtSVG color={tshirtColor} side={side} />}
 
         {/* Print area guide */}
         <div className="canva-print-area">
@@ -472,7 +533,7 @@ export default function DesignPage() {
   const router = useRouter();
   const [side, setSide] = useState<"front" | "back">("front");
   const [tshirtColor, setTshirtColor] = useState("#ffffff");
-  const [shirtType, setShirtType] = useState<"tshirt" | "polo">("tshirt");
+  const [shirtType, setShirtType] = useState<"tshirt" | "polo-a1" | "polo-d5">("tshirt");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -1346,8 +1407,11 @@ export default function DesignPage() {
               <button onClick={() => setShirtType("tshirt")} className={shirtType === "tshirt" ? "active" : ""}>
                 Áo thun
               </button>
-              <button onClick={() => setShirtType("polo")} className={shirtType === "polo" ? "active" : ""}>
-                Áo polo
+              <button onClick={() => setShirtType("polo-a1")} className={shirtType === "polo-a1" ? "active" : ""}>
+                Polo A1
+              </button>
+              <button onClick={() => setShirtType("polo-d5")} className={shirtType === "polo-d5" ? "active" : ""}>
+                Polo D5
               </button>
             </div>
             <div className="canva-side-indicator">
@@ -1396,11 +1460,18 @@ export default function DesignPage() {
           <span>Thun</span>
         </button>
         <button
-          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "polo" ? "active" : ""}`}
-          onClick={() => setShirtType("polo")}
+          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "polo-a1" ? "active" : ""}`}
+          onClick={() => setShirtType("polo-a1")}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /><path d="M9 3l3 4 3-4" /></svg>
-          <span>Polo</span>
+          <span>A1</span>
+        </button>
+        <button
+          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "polo-d5" ? "active" : ""}`}
+          onClick={() => setShirtType("polo-d5")}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /><path d="M9 3l3 4 3-4" /></svg>
+          <span>D5</span>
         </button>
         <div className="canva-mobile-tab-sep" />
         {([

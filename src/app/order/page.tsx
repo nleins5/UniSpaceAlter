@@ -18,10 +18,10 @@ interface DesignElement {
 interface DesignData {
   elements: DesignElement[];
   tshirtColor: string;
-  shirtType?: "tshirt" | "polo";
+  shirtType?: "tshirt" | "polo-a1" | "polo-d5";
 }
 
-function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color: string; side?: "front" | "back"; shirtType?: "tshirt" | "polo" }) {
+function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color: string; side?: "front" | "back"; shirtType?: "tshirt" | "polo-a1" | "polo-d5" }) {
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16) || 255;
   const g = parseInt(hex.substring(2, 4), 16) || 255;
@@ -44,7 +44,8 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
     ? "M200 38 L148 38 C142 38 137 40 134 44 L95 72 L40 115 C34 120 30 128 32 136 L50 168 C52 174 58 177 64 175 L105 145 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 145 L336 175 C342 177 348 174 350 168 L368 136 C370 128 366 120 360 115 L305 72 L266 44 C263 40 258 38 252 38 L200 38Z"
     : "M200 42 L148 42 C142 42 137 44 134 48 L95 76 L40 118 C34 123 30 131 32 139 L50 170 C52 176 58 179 64 177 L105 148 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 148 L336 177 C342 179 348 176 350 170 L368 139 C370 131 366 123 360 118 L305 76 L266 48 C263 44 258 42 252 42 L200 42Z";
 
-  const bodyPath = shirtType === "polo" ? poloPath : tshirtPath;
+  const isPolo = shirtType === "polo-a1" || shirtType === "polo-d5";
+  const bodyPath = isPolo ? poloPath : tshirtPath;
   const gradId = `ord-fab-${shirtType}-${side}`;
   const filtId = `ord-shd-${shirtType}-${side}`;
 
@@ -72,8 +73,19 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
             <path d="M170 30 C178 40 188 44 200 45 C212 44 222 40 230 30" fill="none" stroke={strokeColor} strokeWidth="1.5" />
           </>
         )}
-        {/* Polo collar */}
-        {shirtType === "polo" && side === "front" && (
+        {/* Polo collar - Form A1: same-color collar + V-piping */}
+        {shirtType === "polo-a1" && side === "front" && (
+          <>
+            <path d="M160 42 Q160 30 172 25 Q186 20 200 20 Q214 20 228 25 Q240 30 240 42" fill={color} stroke={strokeColor} strokeWidth="1" />
+            <line x1="190" y1="42" x2="198" y2="130" stroke={pipingColor} strokeWidth="2.5" />
+            <line x1="210" y1="42" x2="202" y2="130" stroke={pipingColor} strokeWidth="2.5" />
+            <circle cx="200" cy="60" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+            <circle cx="200" cy="82" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+            <circle cx="200" cy="104" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
+          </>
+        )}
+        {/* Polo collar - Form D5: dark collar with fold-down flaps */}
+        {shirtType === "polo-d5" && side === "front" && (
           <>
             <rect x="155" y="8" width="90" height="34" rx="3" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1" />
             <path d="M155 42 L155 20 L130 55 Q136 72 152 74 Q166 70 180 60 L193 48 Z" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.2" strokeLinejoin="round" />
@@ -89,7 +101,8 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
             <circle cx="200" cy="98" r="4" fill={buttonFill} />
           </>
         )}
-        {shirtType === "polo" && side === "back" && (
+        {/* Both polo forms: dark back collar */}
+        {isPolo && side === "back" && (
           <>
             <path d="M152 38 L152 12 Q156 4 176 1 Q190 -1 200 -1 Q210 -1 224 1 Q244 4 248 12 L248 38" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.5" />
             <line x1="153" y1="36" x2="247" y2="36" stroke={backCollarTrim} strokeWidth="2" />
@@ -107,7 +120,7 @@ function PreviewCanvas({
   elements: DesignElement[];
   side: "front" | "back";
   tshirtColor: string;
-  shirtType: "tshirt" | "polo";
+  shirtType: "tshirt" | "polo-a1" | "polo-d5";
   canvasRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const sideElements = elements.filter((el) => el.side === side);
@@ -129,7 +142,7 @@ function PreviewCanvas({
 
 export default function OrderPage() {
   const [designData, setDesignData] = useState<DesignData | null>(null);
-  const [shirtType, setShirtType] = useState<"tshirt" | "polo">("tshirt");
+  const [shirtType, setShirtType] = useState<"tshirt" | "polo-a1" | "polo-d5">("tshirt");
   const [previewSide, setPreviewSide] = useState<"front" | "back">("front");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -307,7 +320,7 @@ export default function OrderPage() {
               <div className="order-preview-meta">
                 <div className="order-meta-chip">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /></svg>
-                  {shirtType === "polo" ? "Áo polo" : "Áo thun"}
+                  {shirtType === "polo-d5" ? "Polo D5" : shirtType === "polo-a1" ? "Polo A1" : "Áo thun"}
                 </div>
                 <div className="order-meta-chip">
                   <style>{`.order-preview-dot { background-color: ${designData.tshirtColor}; border-color: ${designData.tshirtColor === '#ffffff' ? '#ddd' : 'transparent'}; }`}</style>

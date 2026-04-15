@@ -38,7 +38,6 @@ interface ChatMessage {
 
 // ─── T-Shirt SVG Component ──────────────────────────────────
 function TShirtSVG({ color }: { color: string }) {
-  // Determine if color is light to adjust shading direction
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
@@ -48,135 +47,133 @@ function TShirtSVG({ color }: { color: string }) {
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        {/* Fabric gradient for 3D depth */}
-        <linearGradient id={`fabric-${color.replace('#','')}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={isLight ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)"} />
-          <stop offset="40%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="100%" stopColor={isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)"} />
+        <linearGradient id={`fab-${hex}`} x1="0.2" y1="0" x2="0.9" y2="1">
+          <stop offset="0%" stopColor={isLight ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.12)"} />
+          <stop offset="45%" stopColor="rgba(0,0,0,0)" />
+          <stop offset="100%" stopColor={isLight ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.2)"} />
         </linearGradient>
-        {/* Vertical body shading */}
-        <linearGradient id={`bodyShade-${color.replace('#','')}`} x1="0.5" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="70%" stopColor="rgba(0,0,0,0.03)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0.07)" />
+        <linearGradient id={`side-${hex}`} x1="0" y1="0.5" x2="1" y2="0.5">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.07)" />
+          <stop offset="20%" stopColor="rgba(0,0,0,0)" />
+          <stop offset="80%" stopColor="rgba(0,0,0,0)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.05)" />
         </linearGradient>
-        {/* Left side shading */}
-        <linearGradient id={`sideShade-${color.replace('#','')}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="rgba(0,0,0,0.05)" />
-          <stop offset="30%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="70%" stopColor="rgba(0,0,0,0)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0.04)" />
-        </linearGradient>
-        {/* Collar inner shadow */}
-        <radialGradient id={`collarShadow-${color.replace('#','')}`} cx="0.5" cy="0" r="0.6">
-          <stop offset="0%" stopColor="rgba(0,0,0,0.08)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
-        </radialGradient>
-        {/* Outer shadow filter */}
-        <filter id="tshirtShadow" x="-10%" y="-5%" width="120%" height="115%">
-          <feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.12" />
-        </filter>
-        {/* Subtle noise for fabric texture */}
-        <filter id="fabricNoise">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise" />
-          <feComposite in="SourceGraphic" in2="noise" operator="in" result="textured" />
-          <feBlend in="SourceGraphic" in2="textured" mode="soft-light"/>
+        <filter id="tshirtShadow" x="-8%" y="-3%" width="116%" height="112%">
+          <feDropShadow dx="0" dy="6" stdDeviation="12" floodOpacity="0.15" />
         </filter>
       </defs>
 
       <g filter="url(#tshirtShadow)">
-        {/* ─── Main T-Shirt Body ─── */}
         <path
-          d="M200 18
-             L148 18 C142 18 137 20 134 24
-             L95 62 L45 102 C38 107 36 115 38 122
-             L58 158 C61 164 68 167 74 164
-             L112 132 L112 430 C112 440 120 448 130 448
-             L270 448 C280 448 288 440 288 430
-             L288 132 L326 164 C332 167 339 164 342 158
-             L362 122 C364 115 362 107 355 102
-             L305 62 L266 24 C263 20 258 18 252 18
-             L200 18Z"
+          d="M200 20 L150 20 C144 20 138 22 135 26 L96 62 L48 100 C40 106 38 116 40 124 L60 158 C63 164 70 168 76 164 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L324 164 C330 168 337 164 340 158 L360 124 C362 116 360 106 352 100 L304 62 L265 26 C262 22 256 20 250 20 L200 20Z"
           fill={color}
-          stroke={isLight ? "#d4d4d4" : "rgba(255,255,255,0.06)"}
-          strokeWidth="1"
+          stroke={isLight ? "#ddd" : "rgba(255,255,255,0.08)"}
+          strokeWidth="1.2"
         />
-
-        {/* Fabric gradient overlay */}
         <path
-          d="M200 18 L148 18 C142 18 137 20 134 24 L95 62 L45 102 C38 107 36 115 38 122 L58 158 C61 164 68 167 74 164 L112 132 L112 430 C112 440 120 448 130 448 L270 448 C280 448 288 440 288 430 L288 132 L326 164 C332 167 339 164 342 158 L362 122 C364 115 362 107 355 102 L305 62 L266 24 C263 20 258 18 252 18 L200 18Z"
-          fill={`url(#fabric-${color.replace('#','')})`}
+          d="M200 20 L150 20 C144 20 138 22 135 26 L96 62 L48 100 C40 106 38 116 40 124 L60 158 C63 164 70 168 76 164 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L324 164 C330 168 337 164 340 158 L360 124 C362 116 360 106 352 100 L304 62 L265 26 C262 22 256 20 250 20 L200 20Z"
+          fill={`url(#fab-${hex})`}
         />
+        <rect x="114" y="134" width="172" height="318" fill={`url(#side-${hex})`} />
 
-        {/* Body vertical shading */}
-        <rect x="112" y="130" width="176" height="318" rx="0" fill={`url(#bodyShade-${color.replace('#','')})`} clipPath="inset(0)" />
+        <path d="M162 20 C170 44 184 56 200 60 C216 56 230 44 238 20" fill={isLight ? "rgba(0,0,0,0.04)" : "rgba(0,0,0,0.15)"} />
+        <path d="M162 20 C170 44 184 56 200 60 C216 56 230 44 238 20" fill="none" stroke={isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.12)"} strokeWidth="2.5" strokeLinecap="round" />
 
-        {/* Side shading */}
-        <rect x="112" y="130" width="176" height="318" rx="0" fill={`url(#sideShade-${color.replace('#','')})`} />
-
-        {/* ─── Collar ─── */}
-        {/* Collar opening (neck area) */}
-        <path
-          d="M160 18 C168 42 182 54 200 58 C218 54 232 42 240 18"
-          fill={isLight ? "rgba(0,0,0,0.03)" : "rgba(0,0,0,0.12)"}
-        />
-        {/* Collar rib outline */}
-        <path
-          d="M160 18 C168 42 182 54 200 58 C218 54 232 42 240 18"
-          fill="none"
-          stroke={isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.1)"}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        {/* Inner collar ring for depth */}
-        <path
-          d="M164 20 C171 40 184 50 200 53 C216 50 229 40 236 20"
-          fill="none"
-          stroke={isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)"}
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
-
-        {/* ─── Wrinkle / Fold Details ─── */}
-        {/* Left chest area fold */}
-        <path d="M135 90 Q145 110 140 140" fill="none" stroke={isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)"} strokeWidth="0.8" />
-        <path d="M150 75 Q155 100 148 130" fill="none" stroke={isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.02)"} strokeWidth="0.6" />
-
-        {/* Right chest area fold */}
-        <path d="M265 90 Q255 110 260 140" fill="none" stroke={isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)"} strokeWidth="0.8" />
-        <path d="M250 75 Q245 100 252 130" fill="none" stroke={isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.02)"} strokeWidth="0.6" />
-
-        {/* Center vertical fold hint */}
-        <path d="M200 65 L200 280" fill="none" stroke={isLight ? "rgba(0,0,0,0.015)" : "rgba(255,255,255,0.01)"} strokeWidth="0.5" />
-
-        {/* Lower body wrinkles */}
-        <path d="M145 350 Q170 345 195 355" fill="none" stroke={isLight ? "rgba(0,0,0,0.025)" : "rgba(255,255,255,0.02)"} strokeWidth="0.6" />
-        <path d="M205 360 Q230 350 260 355" fill="none" stroke={isLight ? "rgba(0,0,0,0.025)" : "rgba(255,255,255,0.02)"} strokeWidth="0.6" />
-
-        {/* Left sleeve fold */}
-        <path d="M112 85 Q115 105 112 130" fill="none" stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)"} strokeWidth="0.7" />
-
-        {/* Right sleeve fold */}
-        <path d="M288 85 Q285 105 288 130" fill="none" stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)"} strokeWidth="0.7" />
-
-        {/* ─── Stitching Details ─── */}
-        {/* Left sleeve hem stitch */}
-        <path d="M74 162 L112 132" fill="none" stroke={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.05)"} strokeWidth="0.5" strokeDasharray="3 2" />
-
-        {/* Right sleeve hem stitch */}
-        <path d="M326 162 L288 132" fill="none" stroke={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.05)"} strokeWidth="0.5" strokeDasharray="3 2" />
-
-        {/* Bottom hem stitch */}
-        <path d="M130 443 L270 443" fill="none" stroke={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.04)"} strokeWidth="0.5" strokeDasharray="4 3" />
-        <path d="M130 446 L270 446" fill="none" stroke={isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)"} strokeWidth="0.5" strokeDasharray="4 3" />
-
-        {/* Side seam stitches */}
-        <path d="M112 132 L112 430" fill="none" stroke={isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.02)"} strokeWidth="0.4" strokeDasharray="5 4" />
-        <path d="M288 132 L288 430" fill="none" stroke={isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.02)"} strokeWidth="0.4" strokeDasharray="5 4" />
+        <path d="M76 162 L114 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
+        <path d="M324 162 L286 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
+        <path d="M128 448 L272 448" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="1" />
       </g>
     </svg>
   );
 }
+
+function PoloShirtSVG({ color }: { color: string }) {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 128;
+
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id={`pfab-${hex}`} x1="0.2" y1="0" x2="0.9" y2="1">
+          <stop offset="0%" stopColor={isLight ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.12)"} />
+          <stop offset="45%" stopColor="rgba(0,0,0,0)" />
+          <stop offset="100%" stopColor={isLight ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.2)"} />
+        </linearGradient>
+        <linearGradient id={`pside-${hex}`} x1="0" y1="0.5" x2="1" y2="0.5">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.07)" />
+          <stop offset="20%" stopColor="rgba(0,0,0,0)" />
+          <stop offset="80%" stopColor="rgba(0,0,0,0)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.05)" />
+        </linearGradient>
+        <filter id="poloShadow" x="-8%" y="-3%" width="116%" height="112%">
+          <feDropShadow dx="0" dy="6" stdDeviation="12" floodOpacity="0.15" />
+        </filter>
+      </defs>
+
+      <g filter="url(#poloShadow)">
+        {/* Body — short sleeves */}
+        <path
+          d="M200 28 L148 28 C142 28 136 30 133 34 L96 68 L58 100 C50 106 48 116 50 124 L68 152 C71 158 78 162 84 158 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L316 158 C322 162 329 158 332 152 L350 124 C352 116 350 106 342 100 L304 68 L267 34 C264 30 258 28 252 28 L200 28Z"
+          fill={color}
+          stroke={isLight ? "#ddd" : "rgba(255,255,255,0.08)"}
+          strokeWidth="1.2"
+        />
+        <path
+          d="M200 28 L148 28 C142 28 136 30 133 34 L96 68 L58 100 C50 106 48 116 50 124 L68 152 C71 158 78 162 84 158 L114 134 L114 438 C114 446 120 452 128 452 L272 452 C280 452 286 446 286 438 L286 134 L316 158 C322 162 329 158 332 152 L350 124 C352 116 350 106 342 100 L304 68 L267 34 C264 30 258 28 252 28 L200 28Z"
+          fill={`url(#pfab-${hex})`}
+        />
+        <rect x="114" y="134" width="172" height="318" fill={`url(#pside-${hex})`} />
+
+        {/* Collar band — raised ring around neck */}
+        <path d="M150 28 C162 16 180 10 200 10 C220 10 238 16 250 28"
+          fill={color} />
+        <path d="M150 28 C162 16 180 10 200 10 C220 10 238 16 250 28"
+          fill={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.12)"} />
+        {/* Collar band top edge */}
+        <path d="M148 30 C160 14 178 6 200 6 C222 6 240 14 252 30"
+          fill="none" stroke={isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.25)"} strokeWidth="2" strokeLinecap="round" />
+
+        {/* Left collar flap — large pointed lapel */}
+        <path d="M150 30 L144 34 L120 62 L158 82 L194 58 L194 38 L170 30 Z"
+          fill={color} stroke={isLight ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"} strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M150 30 L144 34 L120 62 L158 82 L194 58 L194 38 L170 30 Z"
+          fill={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)"} />
+        {/* Left collar fold shadow */}
+        <path d="M150 30 L170 30 L194 38 L194 46 L168 38 L150 34 Z"
+          fill={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.06)"} />
+
+        {/* Right collar flap — large pointed lapel */}
+        <path d="M250 30 L256 34 L280 62 L242 82 L206 58 L206 38 L230 30 Z"
+          fill={color} stroke={isLight ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"} strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M250 30 L256 34 L280 62 L242 82 L206 58 L206 38 L230 30 Z"
+          fill={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)"} />
+        {/* Right collar fold shadow */}
+        <path d="M250 30 L230 30 L206 38 L206 46 L232 38 L250 34 Z"
+          fill={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.06)"} />
+
+        {/* Button placket strip */}
+        <rect x="194" y="38" width="12" height="125" rx="1"
+          fill={color} stroke={isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)"} strokeWidth="1" />
+        <rect x="194" y="38" width="12" height="125" rx="1"
+          fill={isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.06)"} />
+
+        {/* Buttons */}
+        <circle cx="200" cy="68" r="3" fill={isLight ? "#e8e8e8" : "rgba(255,255,255,0.35)"} stroke={isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.2)"} strokeWidth="0.8" />
+        <circle cx="200" cy="96" r="3" fill={isLight ? "#e8e8e8" : "rgba(255,255,255,0.35)"} stroke={isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.2)"} strokeWidth="0.8" />
+
+        {/* Sleeve seam lines */}
+        <path d="M84 156 L114 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
+        <path d="M316 156 L286 134" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="0.8" />
+        {/* Hem line */}
+        <path d="M128 448 L272 448" fill="none" stroke={isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)"} strokeWidth="1" />
+      </g>
+    </svg>
+  );
+}
+
 
 // ─── Canva-style Design Canvas ──────────────────────────────
 function DesignCanvas({
@@ -189,6 +186,7 @@ function DesignCanvas({
   onDropImage,
   side,
   tshirtColor,
+  shirtType,
   zoom,
 }: {
   elements: DesignElement[];
@@ -200,6 +198,7 @@ function DesignCanvas({
   onDropImage: (image: AIImage, x: number, y: number) => void;
   side: "front" | "back";
   tshirtColor: string;
+  shirtType: "tshirt" | "polo";
   zoom: number;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -237,7 +236,7 @@ function DesignCanvas({
   );
 
   const handleResizeMouseDown = useCallback(
-    (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'tl'|'tr'|'bl'|'br' = 'br') => {
+    (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'tl' | 'tr' | 'bl' | 'br' = 'br') => {
       // e.stopPropagation and preventDefault are called at the call site on handle divs
       setIsResizing(true);
       onSelectElement(el.id);
@@ -402,7 +401,7 @@ function DesignCanvas({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <TShirtSVG color={tshirtColor} />
+        {shirtType === "polo" ? <PoloShirtSVG color={tshirtColor} /> : <TShirtSVG color={tshirtColor} />}
 
         {/* Print area guide */}
         <div className="canva-print-area">
@@ -418,7 +417,7 @@ function DesignCanvas({
             >
               {el.type === "image" && el.url && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={el.url} alt={el.label} className="w-full h-full object-contain pointer-events-none" draggable={false} />
+                <img src={el.url} alt={el.label} className="w-full h-full object-contain pointer-events-none canva-element-img-blend" draggable={false} />
               )}
               {el.type === "text" && (
                 <div className={`canva-text-element el-text-${el.id}`}>
@@ -437,20 +436,20 @@ function DesignCanvas({
           </div>
         ))}
 
-      {sideElements.length === 0 && !isDropTarget && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none canva-drop-hint">
-          <div className="text-center opacity-40">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto mb-3 opacity-40">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
-            </svg>
-            <p className="text-sm font-medium">Kéo hình vào đây</p>
-            <p className="text-xs mt-1">hoặc dùng công cụ bên trái</p>
+        {elements.length === 0 && !isDropTarget && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none canva-drop-hint">
+            <div className="text-center opacity-40">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto mb-3 opacity-40">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              <p className="text-sm font-medium">Kéo hình vào đây</p>
+              <p className="text-xs mt-1">hoặc dùng công cụ bên trái</p>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </>
   );
 }
@@ -460,6 +459,7 @@ export default function DesignPage() {
   const router = useRouter();
   const [side, setSide] = useState<"front" | "back">("front");
   const [tshirtColor, setTshirtColor] = useState("#ffffff");
+  const [shirtType, setShirtType] = useState<"tshirt" | "polo">("tshirt");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -536,7 +536,7 @@ export default function DesignPage() {
         ? { ...el, textColor, fontFamily: textFont, fontSize: textSize }
         : el
     ));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textColor, textFont, textSize]);
 
   // ─── Sync selected text element → panel (when user clicks text) ───
@@ -548,7 +548,7 @@ export default function DesignPage() {
       if (el.fontFamily) setTextFont(el.fontFamily);
       if (el.fontSize) setTextSize(el.fontSize);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
   // ─── AI Chat (Gemini Integration) ─────────────────────────────────
@@ -568,19 +568,15 @@ export default function DesignPage() {
         signal: controller.signal,
       });
       clearTimeout(timeout);
-      
+
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      const methodLabel = data.method === "imagen"
-        ? "🖼️ Imagen AI"
-        : data.method === "native" 
-          ? "🤖 Gemini AI" 
-          : data.method === "svg"
-            ? "✨ Gemini AI"
-            : data.method === "smart"
-              ? "🎨 Mẫu thông minh"
-              : "📦 Mẫu demo";
+      const methodLabel = data.method === "ai"
+        ? "🎨 AI Design"
+        : data.method === "smart"
+          ? "🎨 Mẫu thông minh"
+          : "📦 Mẫu demo";
 
       const aiMsg: ChatMessage = {
         id: `msg-${Date.now()}-ai`,
@@ -590,7 +586,7 @@ export default function DesignPage() {
       };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err) {
-      const errorMsg = (err as Error).name === "AbortError" 
+      const errorMsg = (err as Error).name === "AbortError"
         ? "⏱️ AI đang quá tải, vui lòng thử lại sau vài giây!"
         : "⚠️ Có lỗi xảy ra. Vui lòng thử lại! 🙏";
       setMessages((prev) => [
@@ -602,29 +598,40 @@ export default function DesignPage() {
     }
   }, []);
 
-  // Refresh images IN-PLACE on existing AI message (no scroll needed)
-  const handleRefreshMessage = useCallback(async (msgId: string, prompt: string) => {
+  // Generate MORE designs — appends a new AI message with fresh results
+  const handleRefreshMessage = useCallback(async (_msgId: string, prompt: string) => {
     setIsLoading(true);
-    // Show spinner by temporarily clearing images
-    setMessages((prev) => prev.map(m => m.id === msgId ? { ...m, content: '⏳ Đang tạo mẫu mới...' } : m));
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000);
+
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
+
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      const methodLabel = data.method === "svg" ? "✨ Gemini AI" : data.method === "smart" ? "🎨 Mẫu thông minh" : "🖼️ AI";
-      setMessages((prev) => prev.map(m => m.id === msgId
-        ? { ...m, content: `${methodLabel} — Đã tạo ${data.images.length} mẫu mới! 👇`, images: data.images }
-        : m
-      ));
-    } catch {
-      setMessages((prev) => prev.map(m => m.id === msgId
-        ? { ...m, content: '⚠️ Có lỗi xảy ra. Thử lại nhé!' }
-        : m
-      ));
+      const methodLabel = data.method === "ai" ? "🎨 AI Design" : data.method === "smart" ? "🎨 Mẫu thông minh" : "🖼️ AI";
+      const newMsg: ChatMessage = {
+        id: `msg-${Date.now()}-refresh`,
+        role: "ai",
+        content: `${methodLabel} — Thêm ${data.images.length} mẫu mới! 👇`,
+        images: data.images,
+      };
+      setMessages((prev) => [...prev, newMsg]);
+    } catch (err) {
+      const errorMsg = (err as Error).name === "AbortError"
+        ? "⏱️ AI đang quá tải, vui lòng thử lại!"
+        : "⚠️ Có lỗi xảy ra. Thử lại nhé!";
+      setMessages((prev) => [...prev, {
+        id: `msg-${Date.now()}-err`,
+        role: "ai",
+        content: errorMsg,
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -786,14 +793,14 @@ export default function DesignPage() {
   const selectedElement = elements.find((el) => el.id === selectedId);
 
   const suggestions = [
-    "Logo lớp 12A1 phong cách vintage 🏫",
-    "Trái tim galaxy 💜",
-    "Ngôi sao retro ⭐",
-    "Hình rồng phong cách Nhật 🐉",
-    "Logo đội bóng đá ⚽",
-    "Biểu tượng vô cực ♾️",
-    "Hoa anh đào sakura 🌸",
-    "Wolf howling at moon 🐺",
+    "Galaxy heart with stars",
+    "Vintage class logo 2026",
+    "Japanese dragon tattoo",
+    "Wolf howling at moon",
+    "Cherry blossom sakura",
+    "Retro football badge",
+    "Infinity symbol neon",
+    "Cute cat astronaut",
   ];
 
   return (
@@ -816,7 +823,7 @@ export default function DesignPage() {
             onClick={handleUndo}
             disabled={historyStack.length === 0}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
           </button>
           <button
             className="canva-topbar-btn"
@@ -825,7 +832,7 @@ export default function DesignPage() {
             onClick={handleRedo}
             disabled={redoStack.length === 0}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
           </button>
         </div>
 
@@ -838,7 +845,7 @@ export default function DesignPage() {
                 onTouchEnd={(e) => { e.preventDefault(); handleDuplicateSelected(); }}
                 className="canva-topbar-btn" title="Nhân bản (Ctrl+D)" aria-label="Nhân bản"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
               </button>
               <button
                 onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
@@ -846,7 +853,7 @@ export default function DesignPage() {
                 onTouchEnd={(e) => { e.preventDefault(); handleDeleteSelected(); }}
                 className="canva-topbar-btn canva-topbar-btn-danger" title="Xóa (Delete)" aria-label="Xóa"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
               </button>
               <div className="canva-topbar-divider" />
             </>
@@ -854,7 +861,7 @@ export default function DesignPage() {
           <button onClick={handleComplete} className="canva-btn-complete" disabled={elements.length === 0}>
             <span className="canva-complete-full">Hoàn thành thiết kế</span>
             <span className="canva-complete-short">Đặt hàng</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
           </button>
         </div>
       </header>
@@ -868,7 +875,7 @@ export default function DesignPage() {
             title="AI Design"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+              <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
             </svg>
             <span>AI</span>
           </button>
@@ -878,8 +885,8 @@ export default function DesignPage() {
             title="Tải ảnh lên"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/><path d="M16 5l2 2 4-4"/>
+              <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" /><path d="M16 5l2 2 4-4" />
             </svg>
             <span>Ảnh</span>
           </button>
@@ -889,7 +896,7 @@ export default function DesignPage() {
             title="Thêm chữ"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
+              <polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" />
             </svg>
             <span>Chữ</span>
           </button>
@@ -899,8 +906,8 @@ export default function DesignPage() {
             title="Màu áo"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/>
-              <circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>
+              <circle cx="13.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="10.5" r="2.5" /><circle cx="8.5" cy="7.5" r="2.5" />
+              <circle cx="6.5" cy="12.5" r="2.5" /><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" />
             </svg>
             <span>Màu</span>
           </button>
@@ -910,7 +917,7 @@ export default function DesignPage() {
             title="Layers"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="2" y="7" width="15" height="15" rx="2" ry="2"/><path d="M17 2h2a2 2 0 0 1 2 2v2"/><path d="M17 22h2a2 2 0 0 0 2-2v-2"/><path d="M7 2h-2a2 2 0 0 0-2 2v2"/>
+              <rect x="2" y="7" width="15" height="15" rx="2" ry="2" /><path d="M17 2h2a2 2 0 0 1 2 2v2" /><path d="M17 22h2a2 2 0 0 0 2-2v-2" /><path d="M7 2h-2a2 2 0 0 0-2 2v2" />
             </svg>
             <span>Layers</span>
           </button>
@@ -924,8 +931,8 @@ export default function DesignPage() {
             title={`Chuyển sang mặt ${side === "front" ? "sau" : "trước"}`}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-              <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+              <polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" />
+              <polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 0 1-4 4H3" />
             </svg>
             <span>{side === "front" ? "Trước" : "Sau"}</span>
           </button>
@@ -937,33 +944,32 @@ export default function DesignPage() {
             {/* Mobile tap-outside overlay — closes panel when tapping canvas */}
             <div className="canva-panel-overlay" onClick={() => setActivePanel(null)} />
             <div className="canva-panel">
-            {/* AI Panel */}
-            {activePanel === "ai" && (
-              <div className="canva-panel-content">
-                <div className="canva-panel-header">
-                  <h3>Gemini AI Design</h3>
-                  <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
-                </div>
+              {/* AI Panel */}
+              {activePanel === "ai" && (
+                <div className="canva-panel-content">
+                  <div className="canva-panel-header">
+                    <h3>AI Design</h3>
+                    <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
+                  </div>
 
-                <div className="canva-chat-messages">
-                  {messages.length === 0 && (
-                    <div className="canva-chat-empty">
-                      <div className="canva-chat-empty-icon">🎨</div>
-                      <p className="canva-chat-empty-title">Mô tả thiết kế bạn muốn</p>
-                      <p className="canva-chat-empty-sub">Gemini AI sẽ tạo hình ảnh để bạn kéo vào áo</p>
-                      <div className="canva-suggestions">
-                        {suggestions.map((s, i) => (
-                          <button key={i} onClick={() => handleSendMessage(s)} className="canva-suggestion-btn">{s}</button>
-                        ))}
+                  <div className="canva-chat-messages">
+                    {messages.length === 0 && (
+                      <div className="canva-chat-empty">
+                        <div className="canva-chat-empty-icon">🎨</div>
+                        <p className="canva-chat-empty-title">Mô tả thiết kế bạn muốn</p>
+                        <p className="canva-chat-empty-sub">Gemini AI sẽ tạo hình ảnh để bạn kéo vào áo</p>
+                        <div className="canva-suggestions">
+                          {suggestions.map((s, i) => (
+                            <button key={i} onClick={() => handleSendMessage(s)} className="canva-suggestion-btn">{s}</button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {messages.map((msg) => (
-                    <div key={msg.id} className={`canva-chat-msg ${msg.role}`}>
-                      <p>{msg.content}</p>
-                      {msg.images && msg.images.length > 0 && (
-                        <>
+                    {messages.map((msg, msgIndex) => (
+                      <div key={msg.id} className={`canva-chat-msg ${msg.role}`}>
+                        <p>{msg.content}</p>
+                        {msg.images && msg.images.length > 0 && (
                           <div className="canva-ai-grid">
                             {msg.images.map((img) => (
                               <div key={img.id} className="canva-ai-item" draggable onDragStart={(e) => handleDragStart(e, img)} onClick={() => {
@@ -983,306 +989,304 @@ export default function DesignPage() {
                               </div>
                             ))}
                           </div>
-                          {msg.role === "ai" && !isLoading && (
-                            <button
-                              className="canva-btn-more"
-                              onClick={() => handleRefreshMessage(
-                                msg.id,
-                                messages.filter(m => m.role === "user").pop()?.content || "thiết kế"
-                              )}
-                            >
-                              ↻ Tạo thêm mẫu
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  ))}
-
-                  {isLoading && (
-                    <div className="canva-typing">
-                      <div className="canva-typing-dot" /><div className="canva-typing-dot" /><div className="canva-typing-dot" />
-                      <span className="canva-typing-label">Gemini đang tạo thiết kế...</span>
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                <form onSubmit={handleChatSubmit} className="canva-chat-input">
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Mô tả hình ảnh bạn muốn..."
-                    disabled={isLoading}
-                  />
-                  <button type="submit" disabled={!chatInput.trim() || isLoading} aria-label="Gửi">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* Upload Panel */}
-            {activePanel === "upload" && (
-              <div className="canva-panel-content">
-                <div className="canva-panel-header">
-                  <h3>Tải ảnh lên</h3>
-                  <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
-                </div>
-                <div className="canva-panel-body">
-                  {/* Hidden file input */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="upload-file-input"
-                    onChange={handleUploadFileChange}
-                    aria-label="Chọn ảnh từ máy tính"
-                  />
-
-                  {/* Drop zone */}
-                  <div
-                    className={`upload-dropzone ${uploadDragOver ? "active" : ""}`}
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => { e.preventDefault(); setUploadDragOver(true); }}
-                    onDragLeave={() => setUploadDragOver(false)}
-                    onDrop={handleUploadDrop}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
-                    aria-label="Kéo thả ảnh hoặc nhấp để chọn"
-                  >
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="upload-dropzone-icon">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    <p className="upload-dropzone-title">Kéo ảnh vào đây</p>
-                    <p className="upload-dropzone-sub">hoặc <strong>nhấp để chọn file</strong></p>
-                    <p className="upload-dropzone-hint">PNG, JPG, SVG, WEBP</p>
-                  </div>
-
-                  {/* Uploaded gallery */}
-                  {uploadedImages.length > 0 && (
-                    <>
-                      <div className="upload-gallery-header">
-                        <span className="canva-label upload-count-label">{uploadedImages.length} ẢNH ĐÃ TẢI</span>
-                        <button
-                          className="upload-clear-btn"
-                          onClick={() => setUploadedImages([])}
-                        >
-                          Xóa tất cả
-                        </button>
-                      </div>
-                      <div className="canva-ai-grid">
-                        {uploadedImages.map((img) => (
-                          <div
-                            key={img.id}
-                            className="canva-ai-item"
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, img)}
-                            onClick={() => addUploadedImageToCanvas(img)}
-                            title={img.label}
+                        )}
+                        {msg.role === "ai" && !isLoading && msgIndex === messages.length - 1 && (
+                          <button
+                            className="canva-btn-more"
+                            onClick={() => handleRefreshMessage(
+                              msg.id,
+                              messages.filter(m => m.role === "user").pop()?.content || "thiết kế"
+                            )}
                           >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={img.url} alt={img.label} />
-                            <div className="canva-ai-item-overlay">
-                              <span>Nhấn hoặc kéo</span>
-                            </div>
-                            <button
-                              className="upload-delete-img"
-                              onMouseDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setUploadedImages(prev => prev.filter(i => i.id !== img.id));
-                              }}
-                              aria-label="Xóa ảnh"
-                            >×</button>
-                            <span className="canva-ai-item-label">{img.label}</span>
-                          </div>
-                        ))}
+                            ↻ Tạo thêm mẫu
+                          </button>
+                        )}
                       </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Text Panel */}
-            {activePanel === "text" && (
-              <div className="canva-panel-content">
-                <div className="canva-panel-header">
-                  <h3>Thêm chữ</h3>
-                  <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
-                </div>
-                <div className="canva-panel-body">
-                  <label className="canva-label">Nội dung</label>
-                  <input
-                    type="text"
-                    value={textInput}
-                    onChange={(e) => setTextInput(e.target.value)}
-                    placeholder="Nhập chữ muốn thêm..."
-                    className="canva-input"
-                    onKeyDown={(e) => { if (e.key === "Enter" && textInput.trim()) handleAddText(); }}
-                  />
-
-                  <label className="canva-label">Font chữ</label>
-                  <style>{fonts.map((f, i) => `.font-btn-${i} { font-family: "${f}", sans-serif; }`).join(' ')}</style>
-                  <div className="canva-font-picker">
-                    {fonts.map((f, i) => (
-                      <button
-                        key={f}
-                        className={`canva-font-item font-btn-${i} ${textFont === f ? "active" : ""}`}
-                        onClick={() => setTextFont(f)}
-                      >
-                        {f}
-                      </button>
                     ))}
+
+                    {isLoading && (
+                      <div className="canva-typing">
+                        <div className="canva-typing-dot" /><div className="canva-typing-dot" /><div className="canva-typing-dot" />
+                        <span className="canva-typing-label">AI đang tạo thiết kế...</span>
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
                   </div>
 
-                  <div className="canva-row">
-                    <div className="canva-half">
-                      <label className="canva-label">Cỡ chữ</label>
-                      <input type="number" value={textSize} onChange={(e) => setTextSize(Number(e.target.value))} className="canva-input" min={10} max={120} placeholder="28" />
+                  <form onSubmit={handleChatSubmit} className="canva-chat-input">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="Mô tả hình ảnh bạn muốn..."
+                      disabled={isLoading}
+                    />
+                    <button type="submit" disabled={!chatInput.trim() || isLoading} aria-label="Gửi">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Upload Panel */}
+              {activePanel === "upload" && (
+                <div className="canva-panel-content">
+                  <div className="canva-panel-header">
+                    <h3>Tải ảnh lên</h3>
+                    <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
+                  </div>
+                  <div className="canva-panel-body">
+                    {/* Hidden file input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="upload-file-input"
+                      onChange={handleUploadFileChange}
+                      aria-label="Chọn ảnh từ máy tính"
+                    />
+
+                    {/* Drop zone */}
+                    <div
+                      className={`upload-dropzone ${uploadDragOver ? "active" : ""}`}
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => { e.preventDefault(); setUploadDragOver(true); }}
+                      onDragLeave={() => setUploadDragOver(false)}
+                      onDrop={handleUploadDrop}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+                      aria-label="Kéo thả ảnh hoặc nhấp để chọn"
+                    >
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="upload-dropzone-icon">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                      <p className="upload-dropzone-title">Kéo ảnh vào đây</p>
+                      <p className="upload-dropzone-sub">hoặc <strong>nhấp để chọn file</strong></p>
+                      <p className="upload-dropzone-hint">PNG, JPG, SVG, WEBP</p>
                     </div>
-                    <div className="canva-half">
-                      <label className="canva-label">Màu chữ</label>
-                      <div className="canva-color-preview">
-                        <style>{`.cdot{background:${textColor}}`}</style>
-                        <div className="canva-color-dot cdot" />
-                        <span className="canva-color-hex">{textColor}</span>
+
+                    {/* Uploaded gallery */}
+                    {uploadedImages.length > 0 && (
+                      <>
+                        <div className="upload-gallery-header">
+                          <span className="canva-label upload-count-label">{uploadedImages.length} ẢNH ĐÃ TẢI</span>
+                          <button
+                            className="upload-clear-btn"
+                            onClick={() => setUploadedImages([])}
+                          >
+                            Xóa tất cả
+                          </button>
+                        </div>
+                        <div className="canva-ai-grid">
+                          {uploadedImages.map((img) => (
+                            <div
+                              key={img.id}
+                              className="canva-ai-item"
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, img)}
+                              onClick={() => addUploadedImageToCanvas(img)}
+                              title={img.label}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={img.url} alt={img.label} />
+                              <div className="canva-ai-item-overlay">
+                                <span>Nhấn hoặc kéo</span>
+                              </div>
+                              <button
+                                className="upload-delete-img"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  setUploadedImages(prev => prev.filter(i => i.id !== img.id));
+                                }}
+                                aria-label="Xóa ảnh"
+                              >×</button>
+                              <span className="canva-ai-item-label">{img.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Text Panel */}
+              {activePanel === "text" && (
+                <div className="canva-panel-content">
+                  <div className="canva-panel-header">
+                    <h3>Thêm chữ</h3>
+                    <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
+                  </div>
+                  <div className="canva-panel-body">
+                    <label className="canva-label">Nội dung</label>
+                    <input
+                      type="text"
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      placeholder="Nhập chữ muốn thêm..."
+                      className="canva-input"
+                      onKeyDown={(e) => { if (e.key === "Enter" && textInput.trim()) handleAddText(); }}
+                    />
+
+                    <label className="canva-label">Font chữ</label>
+                    <style>{fonts.map((f, i) => `.font-btn-${i} { font-family: "${f}", sans-serif; }`).join(' ')}</style>
+                    <div className="canva-font-picker">
+                      {fonts.map((f, i) => (
+                        <button
+                          key={f}
+                          className={`canva-font-item font-btn-${i} ${textFont === f ? "active" : ""}`}
+                          onClick={() => setTextFont(f)}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="canva-row">
+                      <div className="canva-half">
+                        <label className="canva-label">Cỡ chữ</label>
+                        <input type="number" value={textSize} onChange={(e) => setTextSize(Number(e.target.value))} className="canva-input" min={10} max={120} placeholder="28" />
+                      </div>
+                      <div className="canva-half">
+                        <label className="canva-label">Màu chữ</label>
+                        <div className="canva-color-preview">
+                          <style>{`.cdot{background:${textColor}}`}</style>
+                          <div className="canva-color-dot cdot" />
+                          <span className="canva-color-hex">{textColor}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="canva-quick-colors">
-                    <label className="canva-label">Bảng màu</label>
+                    <div className="canva-quick-colors">
+                      <label className="canva-label">Bảng màu</label>
+                      {(() => {
+                        const palette = [
+                          ['#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#b3b3b3', '#cccccc', '#ffffff'],
+                          ['#ff0000', '#e60000', '#cc0000', '#b30000', '#ff4d4d', '#ff8080', '#ff9999', '#ffb3b3', '#ffcccc', '#ffe5e5'],
+                          ['#ff6600', '#ff8c00', '#ffa500', '#ffbf00', '#ffd700', '#ffe066', '#fff0a0', '#f1c40f', '#fdcb6e', '#fff9c4'],
+                          ['#00b894', '#00a381', '#27ae60', '#2ecc71', '#a8e063', '#00c853', '#69f0ae', '#b9f6ca', '#c8e6c9', '#e8f5e9'],
+                          ['#0984e3', '#1565c0', '#1976d2', '#2196f3', '#42a5f5', '#64b5f6', '#74b9ff', '#90caf9', '#bbdefb', '#e3f2fd'],
+                          ['#6c5ce7', '#7c4dff', '#673ab7', '#9c27b0', '#ab47bc', '#ba68c8', '#a29bfe', '#ce93d8', '#e1bee7', '#ede7f6'],
+                          ['#e84393', '#e91e63', '#f06292', '#f48fb1', '#fd79a8', '#ff80ab', '#ffb3d1', '#fce4ec', '#d63031', '#e17055'],
+                        ];
+                        const allColors = palette.flat();
+                        return (
+                          <>
+                            <style>{allColors.map((c, i) => `.csw-${i}{background:${c}}`).join('')}</style>
+                            <div className="canva-palette-grid">
+                              {allColors.map((c, i) => (
+                                <button
+                                  key={c + i}
+                                  title={c}
+                                  onClick={() => setTextColor(c)}
+                                  className={`canva-palette-cell csw-${i}${textColor === c ? ' canva-swatch-active' : ''}`}
+                                />
+                              ))}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    <button onClick={handleAddText} className="canva-btn-add" disabled={!textInput.trim()}>
+                      Thêm chữ vào áo
+                    </button>
+
+                    <div className="canva-text-presets">
+                      <p className="canva-label">Mẫu nhanh</p>
+                      {["CLASS OF 2026", "12A1 ❤️", "TOGETHER WE ARE ONE", "KỶ NIỆM", "FRIENDSHIP"].map((t) => (
+                        <button key={t} className="canva-preset-btn" onClick={() => { setTextInput(t); }}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Color Panel */}
+              {activePanel === "elements" && (
+                <div className="canva-panel-content">
+                  <div className="canva-panel-header">
+                    <h3>Màu áo</h3>
+                    <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
+                  </div>
+                  <div className="canva-panel-body">
+                    <div className="canva-color-preview canva-color-preview--mb">
+                      <style>{`.scdot{background:${tshirtColor}}`}</style>
+                      <div className="canva-color-dot scdot" />
+                    </div>
                     {(() => {
                       const palette = [
-                        ['#000000','#1a1a1a','#333333','#4d4d4d','#666666','#808080','#999999','#b3b3b3','#cccccc','#ffffff'],
-                        ['#ff0000','#e60000','#cc0000','#b30000','#ff4d4d','#ff8080','#ff9999','#ffb3b3','#ffcccc','#ffe5e5'],
-                        ['#ff6600','#ff8c00','#ffa500','#ffbf00','#ffd700','#ffe066','#fff0a0','#f1c40f','#fdcb6e','#fff9c4'],
-                        ['#00b894','#00a381','#27ae60','#2ecc71','#a8e063','#00c853','#69f0ae','#b9f6ca','#c8e6c9','#e8f5e9'],
-                        ['#0984e3','#1565c0','#1976d2','#2196f3','#42a5f5','#64b5f6','#74b9ff','#90caf9','#bbdefb','#e3f2fd'],
-                        ['#6c5ce7','#7c4dff','#673ab7','#9c27b0','#ab47bc','#ba68c8','#a29bfe','#ce93d8','#e1bee7','#ede7f6'],
-                        ['#e84393','#e91e63','#f06292','#f48fb1','#fd79a8','#ff80ab','#ffb3d1','#fce4ec','#d63031','#e17055'],
+                        ['#ffffff', '#f5f5f5', '#e0e0e0', '#bdbdbd', '#9e9e9e', '#757575', '#616161', '#424242', '#212121', '#000000'],
+                        ['#ffebee', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#f44336', '#e53935', '#d32f2f', '#c62828', '#b71c1c'],
+                        ['#fff3e0', '#ffe0b2', '#ffcc80', '#ffa726', '#ff9800', '#fb8c00', '#f57c00', '#e65100', '#bf360c', '#8d3c00'],
+                        ['#fffff9', '#fff9c4', '#fff176', '#ffee58', '#ffeb3b', '#fdd835', '#f9a825', '#f57f17', '#e65100', '#ff6f00'],
+                        ['#e8f5e9', '#c8e6c9', '#a5d6a7', '#81c784', '#66bb6a', '#4caf50', '#43a047', '#388e3c', '#2e7d32', '#1b5e20'],
+                        ['#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1e88e5', '#1976d2', '#1565c0', '#0d47a1'],
+                        ['#ede7f6', '#d1c4e9', '#b39ddb', '#9575cd', '#7e57c2', '#673ab7', '#5e35b1', '#4527a0', '#311b92', '#1a237e'],
+                        ['#fce4ec', '#f8bbd0', '#f48fb1', '#f06292', '#ec407a', '#e91e63', '#d81b60', '#c2185b', '#ad1457', '#880e4f'],
                       ];
                       const allColors = palette.flat();
                       return (
                         <>
-                          <style>{allColors.map((c, i) => `.csw-${i}{background:${c}}`).join('')}</style>
+                          <style>{allColors.map((c, i) => `.sc-${i}{background:${c}; border-color:${c === '#ffffff' || c === '#fffff9' ? '#ddd' : 'transparent'}}`).join('')}</style>
                           <div className="canva-palette-grid">
                             {allColors.map((c, i) => (
                               <button
                                 key={c + i}
                                 title={c}
-                                onClick={() => setTextColor(c)}
-                                className={`canva-palette-cell csw-${i}${textColor === c ? ' canva-swatch-active' : ''}`}
-                              />
+                                onClick={() => setTshirtColor(c)}
+                                className={`canva-palette-cell sc-${i}${tshirtColor === c ? ' canva-swatch-active' : ''}`}
+                              >
+                                {tshirtColor === c && (
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={['#ffffff', '#fffff9', '#ffebee', '#fff3e0', '#fffff9', '#e8f5e9', '#e3f2fd', '#ede7f6', '#fce4ec', '#f5f5f5'].includes(c) ? '#333' : '#fff'} strokeWidth="4">
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                )}
+                              </button>
                             ))}
                           </div>
                         </>
                       );
                     })()}
                   </div>
+                </div>
+              )}
 
-                  <button onClick={handleAddText} className="canva-btn-add" disabled={!textInput.trim()}>
-                    Thêm chữ vào áo
-                  </button>
-
-                  <div className="canva-text-presets">
-                    <p className="canva-label">Mẫu nhanh</p>
-                    {["CLASS OF 2026", "12A1 ❤️", "TOGETHER WE ARE ONE", "KỶ NIỆM", "FRIENDSHIP"].map((t) => (
-                      <button key={t} className="canva-preset-btn" onClick={() => { setTextInput(t); }}>{t}</button>
-                    ))}
+              {/* Layers Panel */}
+              {activePanel === "layers" && (
+                <div className="canva-panel-content">
+                  <div className="canva-panel-header">
+                    <h3>Layers</h3>
+                    <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Color Panel */}
-            {activePanel === "elements" && (
-              <div className="canva-panel-content">
-                <div className="canva-panel-header">
-                  <h3>Màu áo</h3>
-                  <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
-                </div>
-                <div className="canva-panel-body">
-                  <div className="canva-color-preview canva-color-preview--mb">
-                    <style>{`.scdot{background:${tshirtColor}}`}</style>
-                    <div className="canva-color-dot scdot" />
-                    <span className="canva-color-hex">{tshirtColor}</span>
-                  </div>
-                  {(() => {
-                    const palette = [
-                      ['#ffffff','#f5f5f5','#e0e0e0','#bdbdbd','#9e9e9e','#757575','#616161','#424242','#212121','#000000'],
-                      ['#ffebee','#ffcdd2','#ef9a9a','#e57373','#ef5350','#f44336','#e53935','#d32f2f','#c62828','#b71c1c'],
-                      ['#fff3e0','#ffe0b2','#ffcc80','#ffa726','#ff9800','#fb8c00','#f57c00','#e65100','#bf360c','#8d3c00'],
-                      ['#fffff9','#fff9c4','#fff176','#ffee58','#ffeb3b','#fdd835','#f9a825','#f57f17','#e65100','#ff6f00'],
-                      ['#e8f5e9','#c8e6c9','#a5d6a7','#81c784','#66bb6a','#4caf50','#43a047','#388e3c','#2e7d32','#1b5e20'],
-                      ['#e3f2fd','#bbdefb','#90caf9','#64b5f6','#42a5f5','#2196f3','#1e88e5','#1976d2','#1565c0','#0d47a1'],
-                      ['#ede7f6','#d1c4e9','#b39ddb','#9575cd','#7e57c2','#673ab7','#5e35b1','#4527a0','#311b92','#1a237e'],
-                      ['#fce4ec','#f8bbd0','#f48fb1','#f06292','#ec407a','#e91e63','#d81b60','#c2185b','#ad1457','#880e4f'],
-                    ];
-                    const allColors = palette.flat();
-                    return (
-                      <>
-                        <style>{allColors.map((c, i) => `.sc-${i}{background:${c}; border-color:${c === '#ffffff' || c === '#fffff9' ? '#ddd' : 'transparent'}}`).join('')}</style>
-                        <div className="canva-palette-grid">
-                          {allColors.map((c, i) => (
-                            <button
-                              key={c + i}
-                              title={c}
-                              onClick={() => setTshirtColor(c)}
-                              className={`canva-palette-cell sc-${i}${tshirtColor === c ? ' canva-swatch-active' : ''}`}
-                            >
-                              {tshirtColor === c && (
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={['#ffffff','#fffff9','#ffebee','#fff3e0','#fffff9','#e8f5e9','#e3f2fd','#ede7f6','#fce4ec','#f5f5f5'].includes(c) ? '#333' : '#fff'} strokeWidth="4">
-                                  <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* Layers Panel */}
-            {activePanel === "layers" && (
-              <div className="canva-panel-content">
-                <div className="canva-panel-header">
-                  <h3>Layers</h3>
-                  <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
-                </div>
-                <div className="canva-panel-body">
-                  <div className="canva-layers-side">
-                    <button className={side === "front" ? "active" : ""} onClick={() => setSide("front")}>Mặt trước ({frontCount})</button>
-                    <button className={side === "back" ? "active" : ""} onClick={() => setSide("back")}>Mặt sau ({backCount})</button>
-                  </div>
-                  {elements.filter((el) => el.side === side).length === 0 ? (
-                    <p className="canva-layers-empty">Chưa có element nào</p>
-                  ) : (
-                    <div className="canva-layers-list">
-                      {elements.filter((el) => el.side === side).map((el, i) => (
-                        <div key={el.id} className={`canva-layer-item ${selectedId === el.id ? "active" : ""}`} onClick={() => setSelectedId(el.id)}>
-                          <span className="canva-layer-idx">{i + 1}</span>
-                          <span className="canva-layer-icon">{el.type === "text" ? "T" : "🖼"}</span>
-                          <span className="canva-layer-name">{el.label}</span>
-                          <button onClick={(e) => { e.stopPropagation(); setElements((prev) => { pushHistory(prev); return prev.filter((p) => p.id !== el.id); }); if (selectedId === el.id) setSelectedId(null); }} className="canva-layer-delete" aria-label="Xóa layer">×</button>
-                        </div>
-                      ))}
+                  <div className="canva-panel-body">
+                    <div className="canva-layers-side">
+                      <button className={side === "front" ? "active" : ""} onClick={() => setSide("front")}>Mặt trước ({frontCount})</button>
+                      <button className={side === "back" ? "active" : ""} onClick={() => setSide("back")}>Mặt sau ({backCount})</button>
                     </div>
-                  )}
+                    {elements.filter((el) => el.side === side).length === 0 ? (
+                      <p className="canva-layers-empty">Chưa có element nào</p>
+                    ) : (
+                      <div className="canva-layers-list">
+                        {elements.filter((el) => el.side === side).map((el, i) => (
+                          <div key={el.id} className={`canva-layer-item ${selectedId === el.id ? "active" : ""}`} onClick={() => setSelectedId(el.id)}>
+                            <span className="canva-layer-idx">{i + 1}</span>
+                            <span className="canva-layer-icon">{el.type === "text" ? "T" : "🖼"}</span>
+                            <span className="canva-layer-name">{el.label}</span>
+                            <button onClick={(e) => { e.stopPropagation(); setElements((prev) => { pushHistory(prev); return prev.filter((p) => p.id !== el.id); }); if (selectedId === el.id) setSelectedId(null); }} className="canva-layer-delete" aria-label="Xóa layer">×</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
           </>
         )}
 
@@ -1306,6 +1310,7 @@ export default function DesignPage() {
               onDropImage={handleDropImage}
               side={side}
               tshirtColor={tshirtColor}
+              shirtType={shirtType}
               zoom={zoom}
             />
           </div>
@@ -1316,6 +1321,14 @@ export default function DesignPage() {
               <button onClick={() => setZoom((z) => Math.max(50, z - 10))} className="canva-zoom-btn" aria-label="Thu nhỏ">−</button>
               <span className="canva-zoom-val">{zoom}%</span>
               <button onClick={() => setZoom((z) => Math.min(200, z + 10))} className="canva-zoom-btn" aria-label="Phóng to">+</button>
+            </div>
+            <div className="canva-side-indicator">
+              <button onClick={() => setShirtType("tshirt")} className={shirtType === "tshirt" ? "active" : ""}>
+                Áo thun
+              </button>
+              <button onClick={() => setShirtType("polo")} className={shirtType === "polo" ? "active" : ""}>
+                Áo polo
+              </button>
             </div>
             <div className="canva-side-indicator">
               <button onClick={() => setSide("front")} className={side === "front" ? "active" : ""}>
@@ -1343,23 +1356,39 @@ export default function DesignPage() {
           className={`canva-mobile-tab canva-mobile-side-tab ${side === "front" ? "active" : ""}`}
           onClick={() => setSide("front")}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="3" x2="9" y2="21" /></svg>
           <span>Trước{frontCount > 0 && ` (${frontCount})`}</span>
         </button>
         <button
           className={`canva-mobile-tab canva-mobile-side-tab ${side === "back" ? "active" : ""}`}
           onClick={() => setSide("back")}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="15" y1="3" x2="15" y2="21" /></svg>
           <span>Sau{backCount > 0 && ` (${backCount})`}</span>
         </button>
         <div className="canva-mobile-tab-sep" />
+        {/* Shirt type toggle */}
+        <button
+          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "tshirt" ? "active" : ""}`}
+          onClick={() => setShirtType("tshirt")}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /></svg>
+          <span>Thun</span>
+        </button>
+        <button
+          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "polo" ? "active" : ""}`}
+          onClick={() => setShirtType("polo")}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /><path d="M9 3l3 4 3-4" /></svg>
+          <span>Polo</span>
+        </button>
+        <div className="canva-mobile-tab-sep" />
         {([
-          { id: "ai",       label: "AI",    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> },
-          { id: "upload",   label: "Ảnh",  icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
-          { id: "text",     label: "Chữ",  icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> },
-          { id: "elements", label: "Màu",  icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> },
-          { id: "layers",   label: "Layer",icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> },
+          { id: "ai", label: "AI", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg> },
+          { id: "upload", label: "Ảnh", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
+          { id: "text", label: "Chữ", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg> },
+          { id: "elements", label: "Màu", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="13.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="10.5" r="2.5" /><circle cx="8.5" cy="7.5" r="2.5" /><circle cx="6.5" cy="12.5" r="2.5" /><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg> },
+          { id: "layers", label: "Layer", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg> },
         ] as const).map(tab => (
           <button
             key={tab.id}

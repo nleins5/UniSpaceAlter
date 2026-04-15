@@ -65,7 +65,7 @@ export default function HomePage() {
         <div className="hero-content">
           <div className="hero-badge scroll-reveal">
             <span className="hero-badge-dot" />
-            34.000+ lượt thích trên Facebook
+            12.000+ lượt thích trên Facebook
           </div>
 
           <h1 className="hero-title scroll-reveal">
@@ -91,7 +91,7 @@ export default function HomePage() {
 
           <div className="hero-stats scroll-reveal">
             <div className="hero-stat">
-              <span className="hero-stat-num">34K+</span>
+              <span className="hero-stat-num">12K+</span>
               <span className="hero-stat-label">Lượt thích</span>
             </div>
             <div className="hero-stat-sep" />
@@ -257,7 +257,7 @@ export default function HomePage() {
                 <Logo scale={0.7} />
               </Link>
               <p>Trạm In Áo — Chuyên áo lớp, áo nhóm, áo công ty. Biến ý tưởng thành chiếc áo độc nhất.</p>
-              <p className="footer-address">📍 TP. Hồ Chí Minh</p>
+              <a href="https://www.google.com/maps/search/?api=1&query=647+T%E1%BA%A1+Quang+B%E1%BB%ADu,+Ph%C6%B0%E1%BB%9Dng+5,+Qu%E1%BA%ADn+8,+TP.+H%E1%BB%93+Ch%C3%AD+Minh" target="_blank" rel="noopener noreferrer" className="footer-address">647 Tạ Quang Bửu, P.5, Q.8, TP. Hồ Chí Minh</a>
               <div className="footer-social">
                 <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" title="Facebook">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>

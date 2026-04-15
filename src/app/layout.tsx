@@ -1,10 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Nunito, JetBrains_Mono, Quicksand, Permanent_Marker } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const nunito = Nunito({
   subsets: ["latin", "vietnamese"],
-  variable: "--font-inter",
+  variable: "--font-nunito",
+  display: "swap",
+});
+
+const quicksand = Quicksand({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-quicksand",
+  display: "swap",
+});
+
+const permanentMarker = Permanent_Marker({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-marker",
   display: "swap",
 });
 
@@ -34,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" data-scroll-behavior="smooth" className={`h-full antialiased ${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="vi" data-scroll-behavior="smooth" className={`h-full antialiased ${nunito.variable} ${quicksand.variable} ${permanentMarker.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Google Fonts for Design Studio */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

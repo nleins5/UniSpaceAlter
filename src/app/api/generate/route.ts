@@ -1,40 +1,127 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID || "";
+const CF_API_TOKEN = process.env.CF_API_TOKEN || "";
+const CF_MODEL = "@cf/black-forest-labs/flux-1-schnell";
+
+// ── Vietnamese → English for AI image model ──────
+const VI_EN: Record<string, string> = {
+  "con bò": "cow", "con mèo": "cat", "con chó": "dog", "con gà": "chicken",
+  "con cá": "fish", "con hổ": "tiger", "con rồng": "dragon", "con rắn": "snake",
+  "con thỏ": "rabbit", "con ngựa": "horse", "con voi": "elephant", "con khỉ": "monkey",
+  "con ong": "bee", "con bướm": "butterfly", "con cú": "owl", "con sói": "wolf",
+  "con gấu": "bear", "con sư tử": "lion", "con đại bàng": "eagle", "con cáo": "fox",
+  "con heo": "pig", "con lợn": "pig", "con dê": "goat", "con cừu": "sheep",
+  "trái tim": "heart", "ngôi sao": "star", "mặt trăng": "moon", "mặt trời": "sun",
+  "bông hoa": "flower", "hoa hồng": "rose", "hoa sen": "lotus", "hoa anh đào": "cherry blossom",
+  "cây": "tree", "núi": "mountain", "biển": "ocean", "sóng": "wave",
+  "lửa": "fire", "nước": "water", "mây": "cloud", "cầu vồng": "rainbow",
+  "vương miện": "crown", "kiếm": "sword", "kim cương": "diamond", "cánh": "wings",
+  "vô cực": "infinity symbol", "trái banh": "ball", "quả bóng": "ball",
+  "galaxy": "galaxy cosmic nebula", "thiên hà": "galaxy cosmic",
+  "vũ trụ": "space universe", "đầu lâu": "skull", "thiên thần": "angel",
+  "phượng hoàng": "phoenix", "kỳ lân": "unicorn", "cướp biển": "pirate",
+  "dễ thương": "cute adorable", "đẹp": "beautiful", "ngầu": "cool badass",
+  "đáng yêu": "lovely cute", "cổ điển": "vintage", "neon": "neon glowing",
+};
+
+function translatePrompt(prompt: string): string {
+  let r = prompt.toLowerCase().trim();
+  const sorted = Object.entries(VI_EN).sort((a, b) => b[0].length - a[0].length);
+  for (const [vi, en] of sorted) { r = r.replaceAll(vi, en); }
+  return r;
+}
+
+async function generateWithCloudflare(prompt: string) {
+  const enPrompt = translatePrompt(prompt);
+  console.log(`🔤 "${prompt}" → "${enPrompt}"`);
+
+  const styles = [
+    { label: "Original", suffix: ", high quality, detailed, vibrant colors" },
+    { label: "Minimal", suffix: ", minimalist flat vector, clean simple shapes" },
+    { label: "Cartoon", suffix: ", cartoon illustration, cute colorful, playful" },
+    { label: "Streetwear", suffix: ", streetwear graphic art, bold urban, high contrast" },
+  ];
+
+  const results = await Promise.allSettled(
+    styles.map(async (style) => {
+      const res = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/run/${CF_MODEL}`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${CF_API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: `${enPrompt}, t-shirt graphic design, isolated on white background, centered${style.suffix}`,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (!data.result?.image) throw new Error("No image");
+      return {
+        id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        label: style.label,
+        url: `data:image/jpeg;base64,${data.result.image}`,
+      };
+    })
+  );
+
+  return results
+    .filter((r): r is PromiseFulfilledResult<{id:string;label:string;url:string}> => r.status === "fulfilled")
+    .map((r) => r.value);
+}
+// Rate limiter: max 20 generates per minute per IP
+const genLimiter = new Map<string, { count: number; resetAt: number }>();
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt } = await req.json();
+    // Rate limiting
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+    const now = Date.now();
+    const entry = genLimiter.get(ip);
+    if (entry && now < entry.resetAt && entry.count >= 20) {
+      return NextResponse.json({ error: "Quá nhiều yêu cầu. Vui lòng đợi 1 phút." }, { status: 429 });
+    }
+    if (!entry || now > (entry?.resetAt ?? 0)) {
+      genLimiter.set(ip, { count: 1, resetAt: now + 60_000 });
+    } else {
+      entry.count++;
+    }
 
+    const { prompt } = await req.json();
     if (!prompt || typeof prompt !== "string") {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === "your_gemini_api_key_here") {
+    // Sanitize: strip HTML, limit length
+    const cleanPrompt = prompt.replace(/<[^>]*>/g, "").trim().slice(0, 200);
+    if (!cleanPrompt) {
+      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+    }
+
+    // Check Cloudflare credentials
+    if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
       return NextResponse.json({
-        images: getSmartSVG(prompt),
+        images: getSmartSVG(cleanPrompt),
         isDemo: false,
         method: "smart",
       });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-
-    // Hard timeout: if Gemini takes > 7s, immediately return smart SVG
-    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 7000));
-
-    const geminiResult = await Promise.race([
-      generateSVGDesigns(genAI, prompt).catch(() => null),
-      timeout,
-    ]);
-
-    if (geminiResult && (geminiResult as {length:number}).length > 0) {
-      return NextResponse.json({ images: geminiResult, isDemo: false, method: "svg" });
+    try {
+      const images = await generateWithCloudflare(cleanPrompt);
+      if (images.length > 0) {
+        console.log(`✅ Cloudflare AI: ${images.length} images for "${cleanPrompt}"`);
+        return NextResponse.json({ images, isDemo: false, method: "ai" });
+      }
+    } catch (e) {
+      console.log("Cloudflare AI failed:", (e as Error).message?.slice(0, 100));
     }
 
-    // Timeout or all models failed → instant smart SVG fallback
     return NextResponse.json({
-      images: getSmartSVG(prompt),
+      images: getSmartSVG(cleanPrompt),
       isDemo: false,
       method: "smart",
     });
@@ -45,83 +132,13 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Gemini SVG — Text-based, reliable, free-tier friendly
-// ═══════════════════════════════════════════════════════════════
-async function generateSVGDesigns(genAI: GoogleGenerativeAI, prompt: string) {
-  // Fastest first: flash-lite (free tier) → flash → flash-001
-  const modelsToTry = ["gemini-2.0-flash-lite", "gemini-2.5-flash", "gemini-2.5-flash-001"];
-
-  const svgPrompt = `You are a world-class t-shirt graphic designer specialising in SVG art.
-
-Customer request: "${prompt}"
-
-Create 4 STUNNING SVG t-shirt designs, each in a DIFFERENT style. The designs must actually depict "${prompt}" — not generic shapes.
-
-Style 1 — "Gradient Bold": Vibrant radial/linear gradients, thick outlines, bold colours. Use <defs> with <linearGradient> or <radialGradient>.
-Style 2 — "Neon Glow": Dark background optional OR transparent, glowing neon stroke effect using <filter><feGaussianBlur/><feMerge/>. Accent colours: electric blue, hot pink, or lime.
-Style 3 — "Vintage Badge": Shield/circle/hexagon frame, distressed texture via <feTurbulence>, muted earthy tones, serif-style label text.
-Style 4 — "Minimal Line": Clean single-weight strokes on white/transparent bg, geometric simplification of the subject, black or a single accent colour.
-
-SVG rules (STRICT):
-- viewBox="0 0 200 200", xmlns="http://www.w3.org/2000/svg"
-- Use <defs> for gradients and filters — they MUST have unique IDs per design (prefix with s1_, s2_, s3_, s4_)
-- All artwork must fit within the 200×200 viewBox
-- Transparent background unless the design specifically needs a dark bg
-- Print-ready: high contrast, works on white AND dark fabric
-- NO external images, NO <image> tags, pure SVG paths/shapes only
-- Make it look PROFESSIONAL, like something from a real t-shirt brand
-
-Return ONLY a JSON array (no markdown, no extra text):
-[
-  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"},
-  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"},
-  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"},
-  {"label":"Short Vietnamese name","svg":"<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>...</svg>"}
-]`;
-
-  for (const modelName of modelsToTry) {
-    try {
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-          generationConfig: {
-            temperature: 1,
-            // @ts-expect-error - thinkingConfig not in types yet
-            thinkingConfig: { thinkingBudget: 0 },
-          },
-        });
-
-        const result = await model.generateContent(svgPrompt);
-        let text = result.response.text().trim();
-        if (text.startsWith("```json")) text = text.slice(7);
-        else if (text.startsWith("```")) text = text.slice(3);
-        if (text.endsWith("```")) text = text.slice(0, -3);
-
-        const designs = JSON.parse(text.trim());
-        if (!Array.isArray(designs) || designs.length === 0) continue;
-
-        console.log(`✅ ${modelName}: ${designs.length} designs`);
-        return designs.map((d: { label: string; svg: string }, i: number) => ({
-          id: `svg-${Date.now()}-${i}`,
-          label: d.label || `Mẫu ${i + 1}`,
-          url: `data:image/svg+xml,${encodeURIComponent(d.svg)}`,
-        }));
-      } catch (e) {
-        const msg = (e as Error).message || "";
-        console.log(`${modelName}: ${msg.slice(0, 80)}`);
-        if (msg.includes("404") || msg.includes("429")) continue;
-      }
-    }
-  throw new Error("All SVG models failed");
-}
-
 
 // ═══════════════════════════════════════════════════════════════
 // Smart SVG Fallback — Keyword-based, draws actual shapes
 // ═══════════════════════════════════════════════════════════════
 function getSmartSVG(prompt: string) {
   const p = prompt.toLowerCase();
-  const t = "";
+  const t = prompt.length > 12 ? prompt.slice(0, 12) : prompt;
 
   const seed = Date.now();
 
@@ -218,6 +235,12 @@ function getSmartSVG(prompt: string) {
     return makeSVGs(seed, [
       { label: "Sun Burst", shape: `${Array.from({length:16},(_,i)=>{const a=i*22.5;const x1=100+45*Math.cos(a*Math.PI/180),y1=100+45*Math.sin(a*Math.PI/180),x2=100+80*Math.cos(a*Math.PI/180),y2=100+80*Math.sin(a*Math.PI/180);return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f1c40f" stroke-width="${i%2===0?4:2}" stroke-linecap="round"/>`}).join('')}<circle cx="100" cy="100" r="42" fill="#f39c12"/><circle cx="100" cy="100" r="35" fill="#f1c40f"/>` },
       { label: "Sun Smile", shape: `${Array.from({length:12},(_,i)=>{const a=i*30;const x1=100+48*Math.cos(a*Math.PI/180),y1=100+48*Math.sin(a*Math.PI/180),x2=100+75*Math.cos(a*Math.PI/180),y2=100+75*Math.sin(a*Math.PI/180);return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#fdcb6e" stroke-width="3" stroke-linecap="round"/>`}).join('')}<circle cx="100" cy="100" r="45" fill="#f1c40f"/><circle cx="88" cy="92" r="6" fill="#e17055"/><circle cx="112" cy="92" r="6" fill="#e17055"/><path d="M82 114 Q100 128 118 114" fill="none" stroke="#e17055" stroke-width="4" stroke-linecap="round"/>` },
+      { label: "Sun Neon", shape: `<defs><filter id="sn"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>${Array.from({length:12},(_,i)=>{const a=i*30;const x1=100+50*Math.cos(a*Math.PI/180),y1=100+50*Math.sin(a*Math.PI/180),x2=100+85*Math.cos(a*Math.PI/180),y2=100+85*Math.sin(a*Math.PI/180);return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ff6b00" stroke-width="3" stroke-linecap="round" filter="url(#sn)"/>`}).join('')}<circle cx="100" cy="100" r="38" fill="none" stroke="#ff9500" stroke-width="3" filter="url(#sn)"/>` },
+      { label: "Sun Gradient", shape: `<defs><radialGradient id="sg2"><stop offset="0%" stop-color="#fff7ae"/><stop offset="40%" stop-color="#f1c40f"/><stop offset="100%" stop-color="#e67e22"/></radialGradient></defs>${Array.from({length:8},(_,i)=>{const a=i*45;const x=100+68*Math.cos(a*Math.PI/180),y=100+68*Math.sin(a*Math.PI/180);return `<polygon points="${x},${y-16} ${x+10},${y+8} ${x-10},${y+8}" fill="#f39c12" transform="rotate(${a} ${x} ${y})"/>`}).join('')}<circle cx="100" cy="100" r="45" fill="url(#sg2)"/>` },
+      { label: "Sun Badge", shape: `<circle cx="100" cy="100" r="88" fill="#fff9e6"/><circle cx="100" cy="100" r="88" fill="none" stroke="#f39c12" stroke-width="4"/>${Array.from({length:16},(_,i)=>{const a=i*22.5;const x1=100+60*Math.cos(a*Math.PI/180),y1=100+60*Math.sin(a*Math.PI/180),x2=100+82*Math.cos(a*Math.PI/180),y2=100+82*Math.sin(a*Math.PI/180);return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f39c12" stroke-width="3" stroke-linecap="round"/>`}).join('')}<circle cx="100" cy="100" r="40" fill="#f1c40f"/><text x="100" y="106" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold" font-size="16">SUN</text>` },
+      { label: "Sunrise", shape: `<defs><linearGradient id="srg" x1="0.5" y1="1" x2="0.5" y2="0"><stop offset="0%" stop-color="#e74c3c"/><stop offset="50%" stop-color="#f39c12"/><stop offset="100%" stop-color="#f1c40f"/></linearGradient></defs><rect x="10" y="100" width="180" height="80" rx="4" fill="#2d3436" opacity="0.15"/><path d="M10 100 Q100 20 190 100" fill="url(#srg)"/>${Array.from({length:9},(_,i)=>{const a=-180+i*22.5;const x1=100+60*Math.cos(a*Math.PI/180),y1=100+60*Math.sin(a*Math.PI/180);return `<line x1="100" y1="100" x2="${x1}" y2="${y1}" stroke="#f1c40f" stroke-width="2" stroke-linecap="round" opacity="0.6"/>`}).join('')}<circle cx="100" cy="100" r="28" fill="#f1c40f"/>` },
+      { label: "Sun Vintage", shape: `<defs><filter id="sv"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter></defs><circle cx="100" cy="100" r="85" fill="none" stroke="#e67e22" stroke-width="4" stroke-dasharray="5 3" filter="url(#sv)"/><circle cx="100" cy="100" r="76" fill="none" stroke="#e67e22" stroke-width="1.5"/>${Array.from({length:12},(_,i)=>{const a=i*30;const x1=100+42*Math.cos(a*Math.PI/180),y1=100+42*Math.sin(a*Math.PI/180),x2=100+65*Math.cos(a*Math.PI/180),y2=100+65*Math.sin(a*Math.PI/180);return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#e67e22" stroke-width="2" stroke-linecap="round"/>`}).join('')}<circle cx="100" cy="100" r="32" fill="#f39c12"/>` },
+      { label: "Sun Kawaii", shape: `${Array.from({length:10},(_,i)=>{const a=i*36;const x=100+62*Math.cos(a*Math.PI/180),y=100+62*Math.sin(a*Math.PI/180);return `<circle cx="${x}" cy="${y}" r="14" fill="#fdcb6e"/>`}).join('')}<circle cx="100" cy="100" r="48" fill="#f1c40f"/><circle cx="85" cy="92" r="8" fill="white"/><circle cx="115" cy="92" r="8" fill="white"/><circle cx="85" cy="94" r="4" fill="#2d3436"/><circle cx="115" cy="94" r="4" fill="#2d3436"/><circle cx="87" cy="91" r="2" fill="white"/><circle cx="117" cy="91" r="2" fill="white"/><path d="M88 110 Q100 122 112 110" fill="#e17055" opacity="0.8"/><circle cx="74" cy="108" r="8" fill="#fdcb6e" opacity="0.5"/>` },
     ]);
   }
 
@@ -292,6 +315,46 @@ function getSmartSVG(prompt: string) {
     ]);
   }
 
+  if (is(["vô cực", "infinity", "∞", "biểu tượng vô cực", "infinite"])) {
+    return makeSVGs(seed, [
+      { label: "∞ Gradient", shape: `<defs><linearGradient id="ig1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6c5ce7"/><stop offset="50%" stop-color="#e84393"/><stop offset="100%" stop-color="#fd79a8"/></linearGradient></defs><path d="M100 100 C100 65 145 40 160 70 C175 100 145 130 100 100 C55 70 25 100 40 130 C55 160 100 135 100 100Z" fill="none" stroke="url(#ig1)" stroke-width="8" stroke-linecap="round"/>` },
+      { label: "∞ Neon", shape: `<defs><filter id="inf"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M100 100 C100 60 155 35 170 72 C185 110 150 140 100 100 C50 60 15 110 30 128 C50 165 100 140 100 100Z" fill="none" stroke="#00fff0" stroke-width="5" stroke-linecap="round" filter="url(#inf)"/>` },
+      { label: "∞ Bold", shape: `<defs><linearGradient id="ig2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f39c12"/><stop offset="100%" stop-color="#e74c3c"/></linearGradient></defs><path d="M100 100 C100 58 158 30 175 70 C192 110 155 145 100 100 C45 55 8 110 25 130 C42 165 100 142 100 100Z" fill="url(#ig2)"/>` },
+      { label: "∞ Outline", shape: `<path d="M100 100 C100 62 150 38 168 70 C186 102 155 138 100 100 C45 62 14 102 32 130 C50 162 100 138 100 100Z" fill="none" stroke="#2d3436" stroke-width="6" stroke-linecap="round"/><path d="M100 100 C100 68 142 48 158 72 C174 96 148 128 100 100 C52 72 26 96 42 120 C58 148 100 132 100 100Z" fill="none" stroke="#6c5ce7" stroke-width="3" stroke-linecap="round" opacity="0.5"/>` },
+      { label: "∞ Galaxy", shape: `<defs><radialGradient id="ig3"><stop offset="0%" stop-color="#6c5ce7"/><stop offset="100%" stop-color="#0a0a14"/></radialGradient></defs><circle cx="100" cy="100" r="90" fill="url(#ig3)"/>${Array.from({length:20},(_,i)=>{const x=20+Math.sin(i*3.1)*75+Math.cos(i*1.7)*55,y=20+Math.cos(i*2.3)*75+Math.sin(i*1.9)*55;return `<circle cx="${100+x-50}" cy="${100+y-50}" r="${i%4===0?2:1}" fill="white" opacity="${0.4+Math.random()*0.5}"/>`}).join('')}<path d="M100 100 C100 62 150 40 165 70 C180 100 150 135 100 100 C50 65 20 100 35 130 C50 160 100 138 100 100Z" fill="none" stroke="#a29bfe" stroke-width="4" stroke-linecap="round"/>` },
+      { label: "∞ Fire", shape: `<defs><linearGradient id="ig4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f1c40f"/><stop offset="50%" stop-color="#e67e22"/><stop offset="100%" stop-color="#e74c3c"/></linearGradient><filter id="ifg"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M100 100 C100 58 158 30 175 70 C192 110 155 145 100 100 C45 55 8 110 25 130 C42 165 100 142 100 100Z" fill="none" stroke="url(#ig4)" stroke-width="8" stroke-linecap="round" filter="url(#ifg)"/>` },
+      { label: "∞ Minimal", shape: `<path d="M100 100 C100 65 148 42 163 70 C178 98 150 130 100 100 C50 70 22 98 37 130 C52 158 100 135 100 100Z" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>` },
+      { label: "∞ Double", shape: `<path d="M100 90 C100 55 148 35 163 60 C178 85 150 115 100 90 C50 65 22 85 37 115 C52 140 100 125 100 90Z" fill="none" stroke="#e84393" stroke-width="5" stroke-linecap="round"/><path d="M100 110 C100 75 148 55 163 80 C178 105 150 135 100 110 C50 85 22 105 37 135 C52 160 100 145 100 110Z" fill="none" stroke="#6c5ce7" stroke-width="5" stroke-linecap="round"/>` },
+    ]);
+  }
+
+  if (is(["vương miện", "crown", "king", "queen", "hoàng gia"])) {
+    return makeSVGs(seed, [
+      { label: "Crown Gold", shape: `<defs><linearGradient id="cg1" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#f1c40f"/><stop offset="100%" stop-color="#e67e22"/></linearGradient></defs><path d="M30 130 L30 80 L60 105 L100 60 L140 105 L170 80 L170 130Z" fill="url(#cg1)"/><rect x="30" y="130" width="140" height="20" rx="4" fill="#e67e22"/><circle cx="60" cy="78" r="6" fill="#e74c3c"/><circle cx="100" cy="55" r="8" fill="#e74c3c"/><circle cx="140" cy="78" r="6" fill="#e74c3c"/>` },
+      { label: "Crown Neon", shape: `<defs><filter id="cn"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M30 130 L30 80 L60 105 L100 55 L140 105 L170 80 L170 130Z" fill="none" stroke="#f1c40f" stroke-width="4" stroke-linejoin="round" filter="url(#cn)"/><line x1="30" y1="135" x2="170" y2="135" stroke="#f1c40f" stroke-width="4" filter="url(#cn)"/>` },
+      { label: "Crown Minimal", shape: `<path d="M35 125 L35 82 L62 100 L100 60 L138 100 L165 82 L165 125Z" fill="none" stroke="#2d3436" stroke-width="4" stroke-linejoin="round"/><line x1="35" y1="130" x2="165" y2="130" stroke="#2d3436" stroke-width="4"/>` },
+      { label: "Crown Badge", shape: `<circle cx="100" cy="100" r="85" fill="#0a0a14"/><path d="M45 118 L45 78 L68 95 L100 60 L132 95 L155 78 L155 118Z" fill="#f1c40f"/><rect x="45" y="118" width="110" height="14" rx="3" fill="#e67e22"/><text x="100" y="155" text-anchor="middle" fill="#f1c40f" font-family="Arial" font-weight="bold" font-size="12" letter-spacing="2">KING</text>` },
+    ]);
+  }
+
+  if (is(["sóng", "wave", "biển", "ocean", "sea", "nước", "water"])) {
+    return makeSVGs(seed, [
+      { label: "Wave", shape: `<defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0984e3"/><stop offset="100%" stop-color="#00cec9"/></linearGradient></defs><path d="M0 120 Q25 90 50 110 Q75 130 100 110 Q125 90 150 110 Q175 130 200 110 L200 200 L0 200Z" fill="url(#wg)" opacity="0.9"/><path d="M0 140 Q25 115 50 130 Q75 145 100 130 Q125 115 150 130 Q175 145 200 130 L200 200 L0 200Z" fill="#00b894" opacity="0.6"/>` },
+      { label: "Wave Neon", shape: `<defs><filter id="wn"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M10 100 Q35 60 60 100 Q85 140 110 100 Q135 60 160 100 Q185 140 200 100" fill="none" stroke="#00fff0" stroke-width="4" filter="url(#wn)"/><path d="M5 120 Q30 85 60 120 Q90 155 120 120 Q150 85 180 120" fill="none" stroke="#7b61ff" stroke-width="3" filter="url(#wn)"/>` },
+      { label: "Wave Minimal", shape: `<path d="M10 90 Q40 50 70 90 Q100 130 130 90 Q160 50 190 90" fill="none" stroke="#0984e3" stroke-width="4" stroke-linecap="round"/><path d="M10 110 Q40 70 70 110 Q100 150 130 110 Q160 70 190 110" fill="none" stroke="#0984e3" stroke-width="2" stroke-linecap="round" opacity="0.5"/>` },
+      { label: "Wave Badge", shape: `<circle cx="100" cy="100" r="85" fill="#dfe6e9"/><circle cx="100" cy="100" r="85" fill="none" stroke="#0984e3" stroke-width="3"/><path d="M25 100 Q50 70 75 100 Q100 130 125 100 Q150 70 175 100" fill="none" stroke="#0984e3" stroke-width="5" stroke-linecap="round"/><text x="100" y="140" text-anchor="middle" fill="#0984e3" font-family="Arial" font-weight="bold" font-size="12" letter-spacing="2">WAVE</text>` },
+    ]);
+  }
+
+  if (is(["kim cương", "diamond", "đá quý", "gem", "jewel"])) {
+    return makeSVGs(seed, [
+      { label: "Diamond", shape: `<defs><linearGradient id="dg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#dfe6e9"/><stop offset="40%" stop-color="#74b9ff"/><stop offset="100%" stop-color="#0984e3"/></linearGradient></defs><polygon points="100,15 155,75 100,185 45,75" fill="url(#dg1)"/><polygon points="100,15 130,75 100,55 70,75" fill="rgba(255,255,255,0.3)"/><line x1="45" y1="75" x2="155" y2="75" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>` },
+      { label: "Diamond Neon", shape: `<defs><filter id="dn"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><polygon points="100,18 152,78 100,182 48,78" fill="none" stroke="#74b9ff" stroke-width="3" filter="url(#dn)"/><line x1="48" y1="78" x2="152" y2="78" stroke="#74b9ff" stroke-width="2" filter="url(#dn)"/>` },
+      { label: "Diamond Minimal", shape: `<polygon points="100,20 150,78 100,180 50,78" fill="none" stroke="#2d3436" stroke-width="4" stroke-linejoin="round"/><line x1="50" y1="78" x2="150" y2="78" stroke="#2d3436" stroke-width="2"/>` },
+      { label: "Diamond Badge", shape: `<circle cx="100" cy="100" r="85" fill="#0a0a14"/><polygon points="100,30 145,80 100,170 55,80" fill="#74b9ff" opacity="0.8"/><polygon points="100,30 125,80 100,60 75,80" fill="rgba(255,255,255,0.3)"/><text x="100" y="155" text-anchor="middle" fill="#74b9ff" font-family="Arial" font-weight="bold" font-size="10" letter-spacing="3">DIAMOND</text>` },
+    ]);
+  }
+
   // ── Generic fallback: premium quality designs ───────────
   return makeSVGs(seed, [
     // 1. Gradient crest / shield
@@ -315,9 +378,41 @@ function getSmartSVG(prompt: string) {
 }
 
 function makeSVGs(seed: number, items: { label: string; shape: string }[]) {
-  return items.map((item, i) => ({
-    id: `smart-${seed}-${i}`,
-    label: item.label,
-    url: `data:image/svg+xml,${encodeURIComponent(`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${item.shape}</svg>`)}`,
-  }));
+  // Shuffle items so each call returns different order
+  const shuffled = [...items].sort(() => Math.random() - 0.5);
+  
+  // Random hue rotation (0-360°) to generate different color variants each time
+  const hueShift = Math.floor(Math.random() * 360);
+
+  // If pool is too small, pad with generic shapes for variety
+  const genericPadding: { label: string; shape: string }[] = [
+    { label: "Huy hiệu", shape: `<defs><linearGradient id="gp0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a29bfe"/><stop offset="100%" stop-color="#6c5ce7"/></linearGradient></defs><path d="M100 12 L175 48 L175 112 Q175 165 100 192 Q25 165 25 112 L25 48Z" fill="url(#gp0)"/><circle cx="100" cy="100" r="30" fill="rgba(255,255,255,0.15)"/>` },
+    { label: "Neon Ring", shape: `<defs><filter id="gpn"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="100" cy="100" r="78" fill="none" stroke="#00fff0" stroke-width="3" filter="url(#gpn)"/><circle cx="100" cy="100" r="60" fill="none" stroke="#7b61ff" stroke-width="2" filter="url(#gpn)"/>` },
+    { label: "Geometric", shape: `<defs><linearGradient id="gp4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f953c6"/><stop offset="100%" stop-color="#b91d73"/></linearGradient></defs><polygon points="100,8 192,55 192,145 100,192 8,145 8,55" fill="url(#gp4)"/><polygon points="100,40 160,72 160,128 100,160 40,128 40,72" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>` },
+    { label: "Retro Badge", shape: `<defs><filter id="gpr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter></defs><circle cx="100" cy="100" r="85" fill="none" stroke="#c0392b" stroke-width="5" stroke-dasharray="5 3" filter="url(#gpr)"/><circle cx="100" cy="100" r="72" fill="none" stroke="#c0392b" stroke-width="1.5"/><text x="100" y="105" text-anchor="middle" fill="#c0392b" font-family="Georgia" font-weight="bold" font-size="18">★</text>` },
+  ];
+
+  let pool = [...shuffled];
+  if (pool.length < 6) {
+    const padded = genericPadding.sort(() => Math.random() - 0.5).slice(0, 6 - pool.length);
+    pool = [...pool, ...padded];
+  }
+  
+  // Pick 4-6 items randomly
+  const count = Math.min(pool.length, 4 + Math.floor(Math.random() * 3));
+  const selected = pool.sort(() => Math.random() - 0.5).slice(0, count);
+  
+  return selected.map((item, i) => {
+    // Apply different hue rotation to each item for max variety
+    const itemHue = (hueShift + i * 60) % 360;
+    const svgContent = itemHue > 30
+      ? `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><g style="filter: hue-rotate(${itemHue}deg)">${item.shape}</g></svg>`
+      : `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${item.shape}</svg>`;
+    
+    return {
+      id: `smart-${seed}-${i}-${Math.random().toString(36).slice(2, 6)}`,
+      label: item.label,
+      url: `data:image/svg+xml,${encodeURIComponent(svgContent)}`,
+    };
+  });
 }

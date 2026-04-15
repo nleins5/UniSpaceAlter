@@ -579,8 +579,8 @@ export default function DesignPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      const methodLabel = data.method === "ai"
-        ? "🎨 AI Design"
+      const methodLabel = data.method === "t8star" || data.method === "ai" || data.method === "cloudflare"
+        ? "🖼️ AI"
         : data.method === "smart"
           ? "🎨 Mẫu thông minh"
           : "📦 Mẫu demo";
@@ -588,7 +588,7 @@ export default function DesignPage() {
       const aiMsg: ChatMessage = {
         id: `msg-${Date.now()}-ai`,
         role: "ai",
-        content: `${methodLabel} — Đã tạo ${data.images.length} mẫu! Kéo hình vào áo để sử dụng 👇`,
+        content: `${methodLabel} — Thêm ${data.images.length} mẫu mới! 👇`,
         images: data.images,
       };
       setMessages((prev) => [...prev, aiMsg]);
@@ -622,7 +622,7 @@ export default function DesignPage() {
 
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      const methodLabel = data.method === "ai" ? "🎨 AI Design" : data.method === "smart" ? "🎨 Mẫu thông minh" : "🖼️ AI";
+      const methodLabel = data.method === "t8star" || data.method === "ai" || data.method === "cloudflare" ? "🖼️ AI" : data.method === "smart" ? "🎨 Mẫu thông minh" : "📦 Mẫu demo";
       const newMsg: ChatMessage = {
         id: `msg-${Date.now()}-refresh`,
         role: "ai",

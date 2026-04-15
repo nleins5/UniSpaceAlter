@@ -34,7 +34,7 @@ function translatePrompt(prompt: string): string {
 }
 
 // ── T8star AI Gateway (primary — unlimited Flux) ─────────────
-async function generateWithT8star(prompt: string) {
+async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: string; label: string; url: string }[]> {
   const enPrompt = translatePrompt(prompt);
   console.log(`🔤 T8star: "${prompt}" → "${enPrompt}"`);
 
@@ -43,39 +43,56 @@ async function generateWithT8star(prompt: string) {
 
   const fullPrompt = `${enPrompt}, t-shirt graphic design, isolated on white background, centered, high quality, detailed, vibrant colors`;
 
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-    const res = await fetch(T8STAR_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${t8Key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: T8STAR_MODEL,
-        prompt: fullPrompt,
-        n: 1,
-        size: "512x512",
-      }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    const data = await res.json();
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      if (attempt > 0) console.log(`🔄 T8star retry ${attempt}...`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      const res = await fetch(T8STAR_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${t8Key}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: T8STAR_MODEL,
+          prompt: fullPrompt,
+          n: 1,
+          size: "512x512",
+          response_format: "b64_json",
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
 
-    if (data.data && data.data.length > 0) {
-      const images = data.data.map((img: { url?: string; b64_json?: string }, i: number) => ({
-        id: `t8-${Date.now()}-${i}`,
-        label: "AI Design",
-        url: img.url || (img.b64_json ? `data:image/png;base64,${img.b64_json}` : ""),
-      })).filter((img: { url: string }) => img.url);
-      console.log(`✅ T8star: ${images.length} images`);
-      return images;
-    } else {
-      console.log(`❌ T8star error:`, JSON.stringify(data).slice(0, 200));
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        console.log(`❌ T8star HTTP ${res.status}: ${text.slice(0, 200)}`);
+        if (attempt < retries) continue;
+        return [];
+      }
+
+      const data = await res.json();
+
+      if (data.data && data.data.length > 0) {
+        const images = data.data.map((img: { url?: string; b64_json?: string }, i: number) => ({
+          id: `t8-${Date.now()}-${i}`,
+          label: "AI Design",
+          url: img.b64_json
+            ? `data:image/png;base64,${img.b64_json}`
+            : img.url || "",
+        })).filter((img: { url: string }) => img.url);
+        console.log(`✅ T8star: ${images.length} images (attempt ${attempt + 1})`);
+        return images;
+      } else {
+        console.log(`❌ T8star no images:`, JSON.stringify(data).slice(0, 200));
+        if (attempt < retries) continue;
+      }
+    } catch (err) {
+      const msg = (err as Error).message?.slice(0, 100) || "unknown";
+      console.log(`❌ T8star attempt ${attempt + 1} failed: ${msg}`);
+      if (attempt < retries) continue;
     }
-  } catch (err) {
-    console.log(`❌ T8star failed:`, (err as Error).message?.slice(0, 100));
   }
   return [];
 }

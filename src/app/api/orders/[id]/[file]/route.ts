@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, stat } from "fs/promises";
-import path from "path";
+import { getDesignFile } from "../../../../../lib/orderService";
 
 export async function GET(
   req: NextRequest,
@@ -14,20 +13,22 @@ export async function GET(
       return NextResponse.json({ error: "Invalid file" }, { status: 400 });
     }
 
-    const filePath = path.join(process.cwd(), "orders", id, file);
+    const fileBuffer = await getDesignFile(id, file);
 
-    try {
-      await stat(filePath);
-    } catch {
+    if (!fileBuffer) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    const fileBuffer = await readFile(filePath);
+    // Check if download requested or inline display
+    const isDownload = req.nextUrl.searchParams.get("dl") === "1";
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       headers: {
         "Content-Type": "image/png",
-        "Content-Disposition": `attachment; filename="${id}_${file}"`,
+        "Cache-Control": "public, max-age=3600",
+        ...(isDownload
+          ? { "Content-Disposition": `attachment; filename="${id}_${file}"` }
+          : { "Content-Disposition": "inline" }),
       },
     });
   } catch (error) {

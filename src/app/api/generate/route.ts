@@ -105,6 +105,7 @@ export async function POST(req: NextRequest) {
     // Check Cloudflare credentials
     const accountId = process.env.CF_ACCOUNT_ID;
     const apiToken = process.env.CF_API_TOKEN;
+    console.log(`🔑 CF env: accountId=${accountId ? accountId.slice(0,8) + '...' : 'MISSING'}, token=${apiToken ? apiToken.slice(0,8) + '...' : 'MISSING'}`);
     if (!accountId || !apiToken) {
       console.log("⚠️ Missing CF env vars, falling back to smart SVG");
       return NextResponse.json({

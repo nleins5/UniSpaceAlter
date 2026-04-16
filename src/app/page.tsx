@@ -12,6 +12,16 @@ const sliderImages = [
   "/images/slider/4.jpeg",
 ];
 
+// UniSpace product catalog images
+const productImages = [
+  { src: "/images/products/p1.png", label: "Phong cách Đen - Đỏ" },
+  { src: "/images/products/p2.png", label: "Phong cách Trắng - Navy" },
+  { src: "/images/products/p3.png", label: "Phong cách Cam" },
+  { src: "/images/products/p4.png", label: "Phong cách Xanh - Vàng" },
+  { src: "/images/products/p5.png", label: "Phong cách Xanh dương" },
+  { src: "/images/products/p6.png", label: "Phong cách Hồng" },
+];
+
 // Product section images (downloaded from tramdongphuc.com → public/images/home/)
 const sectionImages = {
   home1: "/images/home/1.jpg",
@@ -19,9 +29,6 @@ const sectionImages = {
   home3: "/images/home/3.jpg",
   home4: "/images/home/4.jpg",
   home5: "/images/home/5.jpg",
-  home6: "/images/home/4.jpg",
-  home7: "/images/home/3.jpg",
-  home8: "/images/home/2.jpg",
 };
 
 export default function HomePage() {
@@ -245,11 +252,11 @@ export default function HomePage() {
             <Link href="/design">Sản phẩm</Link>
           </div>
           <div className="tdp-product-carousel">
-            {[sectionImages.home4, sectionImages.home5, sectionImages.home6, sectionImages.home7, sectionImages.home8, sectionImages.home4].map((src, i) => (
+            {productImages.map((p, i) => (
               <div key={i} className="tdp-product-item">
                 <Link href="/design">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`Sản phẩm ${i + 1}`} />
+                  <img src={p.src} alt={p.label} />
                 </Link>
               </div>
             ))}
@@ -264,12 +271,12 @@ export default function HomePage() {
             <span className="tdp-dot-icon">●</span> Mẫu thiết kế <span className="tdp-dot-icon">●</span>
           </div>
           <div className="tdp-design-grid">
-            {[sectionImages.home3, sectionImages.home3, sectionImages.home3, sectionImages.home3,
-            sectionImages.home3, sectionImages.home3, sectionImages.home3, sectionImages.home3].map((src, i) => (
+            {productImages.map((p, i) => (
               <div key={i} className="tdp-design-item">
                 <Link href="/design">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`Mẫu ${i + 1}`} />
+                  <img src={p.src} alt={p.label} />
+                  <div className="tdp-design-label">{p.label}</div>
                 </Link>
               </div>
             ))}

@@ -1,289 +1,380 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Logo } from "../components/Logo";
 
+// Slider images from tramdongphuc.com
+const sliderImages = [
+  "https://tramdongphuc.com/images/slider/1.jpeg",
+  "https://tramdongphuc.com/images/slider/2.jpeg",
+  "https://tramdongphuc.com/images/slider/3.jpeg",
+  "https://tramdongphuc.com/images/slider/4.jpeg",
+];
+
+// Product section images
+const sectionImages = {
+  home1: "https://tramdongphuc.com/images/home/1.jpg",
+  home2: "https://tramdongphuc.com/images/home/2.jpg",
+  home3: "https://tramdongphuc.com/images/home/3.jpg",
+  home4: "https://tramdongphuc.com/images/home/4.jpg",
+  home5: "https://tramdongphuc.com/images/home/5.jpg",
+  home6: "https://tramdongphuc.com/images/home/6.jpg",
+  home7: "https://tramdongphuc.com/images/home/7.jpg",
+  home8: "https://tramdongphuc.com/images/home/8.jpg",
+};
+
 export default function HomePage() {
-  const heroRef = useRef<HTMLElement>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState<string | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Auto slide
   useEffect(() => {
-    const handleScroll = () => {
-      if (!heroRef.current) return;
-      const scrollY = window.scrollY;
-      const bg = heroRef.current.querySelector(".hero-bg") as HTMLElement;
-      if (bg) bg.style.transform = `translateY(${scrollY * 0.3}px) scale(1.1)`;
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("animate-in");
-        });
-      },
-      { threshold: 0.15 }
-    );
-    document.querySelectorAll(".scroll-reveal").forEach((el) => observer.observe(el));
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      observer.disconnect();
-    };
+    intervalRef.current = setInterval(() => {
+      setCurrentSlide((s) => (s + 1) % sliderImages.length);
+    }, 4000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
 
+  const goSlide = (idx: number) => {
+    setCurrentSlide(idx);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setCurrentSlide((s) => (s + 1) % sliderImages.length);
+    }, 4000);
+  };
+
   return (
-    <div className="home-page">
-      {/* ═══ Navbar ═══ */}
-      <nav className="home-nav">
-        <div className="home-nav-inner">
-          <Link href="/" className="home-nav-logo-link" style={{ textDecoration: 'none' }}>
+    <div className="tdp-page">
+
+      {/* ═══ HEADER TOP (White) ═══ */}
+      <div className="tdp-header-top">
+        <div className="tdp-container tdp-header-top-inner">
+          <Link href="/" className="tdp-logo-link">
             <Logo scale={0.5} />
           </Link>
-          <div className="home-nav-links">
-            <a href="#products">Sản phẩm</a>
-            <a href="#why">Vì sao chọn chúng tôi</a>
-            <a href="#pricing">Bảng giá</a>
-            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Facebook</a>
-            <Link href="/login" className="home-nav-login">Đăng nhập</Link>
+
+          <div className="tdp-search-box">
+            <span className="tdp-search-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
+            <input type="text" placeholder="Tìm kiếm..." className="tdp-search-input" />
           </div>
-          <Link href="/design" className="home-nav-cta">
-            Đặt áo ngay
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+
+          <div className="tdp-top-links">
+            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Bản tin Unispace</a>
+            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Tuyển dụng</a>
+            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Liên hệ</a>
+          </div>
+
+          <button
+            className="tdp-mobile-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* ═══ HEADER MENU (Black) ═══ */}
+      <div className="tdp-header-menu">
+        <div className="tdp-container">
+          <nav className={`tdp-nav ${mobileMenuOpen ? "open" : ""}`}>
+            {/* left nav */}
+            <ul className="tdp-nav-left">
+              <li className="tdp-nav-dropdown">
+                <a
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); setMobileSubMenuOpen(mobileSubMenuOpen === "tram" ? null : "tram"); }}
+                >
+                  Trạm đồng phục <span className="tdp-caret">▼</span>
+                </a>
+                <ul className={`tdp-dropdown-menu ${mobileSubMenuOpen === "tram" ? "open" : ""}`}>
+                  <li><Link href="/design">Thiết kế</Link></li>
+                  <li><a href="#pricing">Bảng giá</a></li>
+                  <li><a href="#products">Bảng size</a></li>
+                  <li><a href="#products">Bảng màu</a></li>
+                  <li><a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Feedback</a></li>
+                </ul>
+              </li>
+              <li className="tdp-nav-dropdown">
+                <a
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); setMobileSubMenuOpen(mobileSubMenuOpen === "design" ? null : "design"); }}
+                >
+                  Thiết kế <span className="tdp-caret">▼</span>
+                </a>
+                <ul className={`tdp-dropdown-menu ${mobileSubMenuOpen === "design" ? "open" : ""}`}>
+                  <li><Link href="/design">Tự thiết kế online</Link></li>
+                  <li><a href="#pricing">Bảng giá</a></li>
+                  <li><a href="#products">Bảng size</a></li>
+                  <li><a href="#products">Bảng màu</a></li>
+                  <li><a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Feedback</a></li>
+                </ul>
+              </li>
+            </ul>
+
+            {/* right nav */}
+            <ul className="tdp-nav-right">
+              <li><a href="#pricing">Khuyến mãi &amp; Quà tặng</a></li>
+              <li><a href="#why">Giao hàng &amp; Thanh toán</a></li>
+              <li><a href="#why">FAQ</a></li>
+              <li>
+                <Link href="/login" className="tdp-nav-login">Đăng nhập</Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      {/* ═══ HERO SLIDER ═══ */}
+      <div className="tdp-slider">
+        <div className="tdp-carousel">
+          <div className="tdp-carousel-inner">
+            {sliderImages.map((src, i) => (
+              <div
+                key={i}
+                className={`tdp-carousel-item ${i === currentSlide ? "active" : ""}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={`Banner ${i + 1}`} />
+              </div>
+            ))}
+          </div>
+
+          {/* Dots */}
+          <div className="tdp-carousel-dots">
+            {sliderImages.map((_, i) => (
+              <button
+                key={i}
+                className={`tdp-dot ${i === currentSlide ? "active" : ""}`}
+                onClick={() => goSlide(i)}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Prev / Next */}
+          <button
+            className="tdp-carousel-btn tdp-carousel-prev"
+            onClick={() => goSlide((currentSlide - 1 + sliderImages.length) % sliderImages.length)}
+            aria-label="Trước"
+          >
+            ‹
+          </button>
+          <button
+            className="tdp-carousel-btn tdp-carousel-next"
+            onClick={() => goSlide((currentSlide + 1) % sliderImages.length)}
+            aria-label="Tiếp"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+
+      {/* ═══ MARQUEE AD LINE ═══ */}
+      <div className="tdp-marquee-bar">
+        <div className="tdp-container">
+          <div className="tdp-marquee-track">
+            <span>
+              🎨 Thiết kế áo lớp, áo nhóm, áo công ty ⚡ In DTG chất lượng cao ✈️ Giao hàng toàn quốc &nbsp;&nbsp;&nbsp; 🎨 Thiết kế áo lớp, áo nhóm, áo công ty ⚡ In DTG chất lượng cao ✈️ Giao hàng toàn quốc &nbsp;&nbsp;&nbsp;
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ SẢN PHẨM BÁN LẺ ═══ */}
+      <div className="tdp-section" id="products">
+        <div className="tdp-container">
+          <div className="tdp-section-title">
+            <span className="tdp-dot-icon">●</span> Sản phẩm bán lẻ
+          </div>
+          <div className="tdp-two-col">
+            <div className="tdp-col-big">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={sectionImages.home1} alt="Áo thể thao" />
+            </div>
+            <div className="tdp-col-small">
+              <div className="tdp-small-grid">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={sectionImages.home2} alt="Áo lớp" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={sectionImages.home3} alt="Áo đồng phục" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ COLLECTION & TREND ═══ */}
+      <div className="tdp-section tdp-section-gray">
+        <div className="tdp-container">
+          <div className="tdp-section-title">
+            <span className="tdp-dot-icon">●</span>
+            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Collection &amp; trend</a>
+          </div>
+          <div className="tdp-two-col">
+            <div className="tdp-col-big">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={sectionImages.home1} alt="Collection" />
+            </div>
+            <div className="tdp-col-small">
+              <div className="tdp-small-grid">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={sectionImages.home2} alt="Trend 1" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={sectionImages.home3} alt="Trend 2" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ SẢN PHẨM carousel ═══ */}
+      <div className="tdp-section">
+        <div className="tdp-container">
+          <div className="tdp-section-title">
+            <span className="tdp-dot-icon">●</span>
+            <Link href="/design">Sản phẩm</Link>
+          </div>
+          <div className="tdp-product-carousel">
+            {[sectionImages.home4, sectionImages.home5, sectionImages.home6, sectionImages.home7, sectionImages.home8, sectionImages.home4].map((src, i) => (
+              <div key={i} className="tdp-product-item">
+                <Link href="/design">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={`Sản phẩm ${i + 1}`} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ MẪU THIẾT KẾ ═══ */}
+      <div className="tdp-section tdp-section-gray">
+        <div className="tdp-container">
+          <div className="tdp-section-title center">
+            <span className="tdp-dot-icon">●</span> Mẫu thiết kế <span className="tdp-dot-icon">●</span>
+          </div>
+          <div className="tdp-design-grid">
+            {[sectionImages.home3, sectionImages.home3, sectionImages.home3, sectionImages.home3,
+            sectionImages.home3, sectionImages.home3, sectionImages.home3, sectionImages.home3].map((src, i) => (
+              <div key={i} className="tdp-design-item">
+                <Link href="/design">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={`Mẫu ${i + 1}`} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ BANNER ═══ */}
+      <div className="tdp-section">
+        <div className="tdp-container">
+          <Link href="/design">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={sectionImages.home5} alt="Banner UniSpace" className="tdp-banner-full" />
           </Link>
         </div>
-      </nav>
+      </div>
 
-      {/* ═══ Hero — giới thiệu shop ═══ */}
-      <section className="home-hero" ref={heroRef}>
-        <div className="hero-bg">
-          <div className="hero-gradient" />
-          <div className="hero-grid" />
-        </div>
-
-        <div className="hero-content">
-          <div className="hero-badge scroll-reveal">
-            <span className="hero-badge-dot" />
-            12.000+ lượt thích trên Facebook
+      {/* ═══ CÁC BƯỚC ═══ */}
+      <div className="tdp-section tdp-section-dark" id="why">
+        <div className="tdp-container">
+          <div className="tdp-section-title white">
+            <span className="tdp-dot-icon">●</span> Các bước đặt hàng
           </div>
-
-          <h1 className="hero-title scroll-reveal">
-            <span className="hero-title-line1">Trạm In Áo</span>
-            <span className="hero-title-line2"><em>UniSpace</em></span>
-          </h1>
-
-          <p className="hero-desc scroll-reveal">
-            Chuyên áo lớp, áo nhóm, áo công ty — thiết kế theo ý bạn. 
-            Biến ý tưởng thành chiếc áo độc nhất, in sắc nét, giao tận nơi tại TP. Hồ Chí Minh và toàn quốc.
-          </p>
-
-          <div className="hero-actions scroll-reveal">
-            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" className="hero-btn-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-              Nhắn tin đặt hàng
-            </a>
-            <Link href="/design" className="hero-btn-ghost">
-              Tự thiết kế online
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-            </Link>
-          </div>
-
-          <div className="hero-stats scroll-reveal">
-            <div className="hero-stat">
-              <span className="hero-stat-num">12K+</span>
-              <span className="hero-stat-label">Lượt thích</span>
-            </div>
-            <div className="hero-stat-sep" />
-            <div className="hero-stat">
-              <span className="hero-stat-num">5000+</span>
-              <span className="hero-stat-label">Đơn hàng</span>
-            </div>
-            <div className="hero-stat-sep" />
-            <div className="hero-stat">
-              <span className="hero-stat-num">98%</span>
-              <span className="hero-stat-label">Hài lòng</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero image — real product photo */}
-        <div className="hero-image scroll-reveal">
-          <Image
-            src="/images/hero-shirts.png"
-            alt="UniSpace - Áo lớp đồng phục đa dạng mẫu mã và màu sắc"
-            width={560}
-            height={520}
-            priority
-            className="hero-image-img"
-          />
-        </div>
-      </section>
-
-      {/* ═══ Sản phẩm ═══ */}
-      <section className="home-section" id="products">
-        <div className="home-container">
-          <div className="section-header scroll-reveal">
-            <span className="section-tag">Sản phẩm</span>
-            <h2 className="section-title">Áo đồng phục cho <em>mọi dịp</em></h2>
-            <p className="section-desc">Từ áo lớp, áo khoa, áo công ty đến áo sự kiện — UniSpace đều làm được.</p>
-          </div>
-
-          <div className="features-grid">
-            <div className="feature-card scroll-reveal">
-              <h3>Áo lớp</h3>
-              <p>Thiết kế riêng cho từng lớp. In tên, logo, slogan, năm học — tạo kỷ niệm đáng nhớ cho cả lớp.</p>
-            </div>
-            <div className="feature-card scroll-reveal">
-              <h3>Áo công ty</h3>
-              <p>Đồng phục chuyên nghiệp cho doanh nghiệp. Thêu logo, in thương hiệu, vải cao cấp.</p>
-            </div>
-            <div className="feature-card scroll-reveal">
-              <h3>Áo sự kiện</h3>
-              <p>Áo team building, áo CLB, áo chạy bộ, áo nhóm bạn — đặt nhanh, giao sớm.</p>
-            </div>
-            <div className="feature-card scroll-reveal">
-              <h3>Thiết kế miễn phí</h3>
-              <p>Đội ngũ designer hỗ trợ thiết kế miễn phí. Hoặc tự thiết kế online với công cụ AI.</p>
-            </div>
-            <div className="feature-card scroll-reveal">
-              <h3>In chất lượng cao</h3>
-              <p>Công nghệ in DTG, in lụa, in chuyển nhiệt — màu sắc bền đẹp, giặt không phai.</p>
-            </div>
-            <div className="feature-card scroll-reveal">
-              <h3>Giao hàng toàn quốc</h3>
-              <p>Miễn phí giao hàng nội thành HCM. Ship toàn quốc trong 3-5 ngày làm việc.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ Vì sao chọn UniSpace ═══ */}
-      <section className="home-section home-section-dark" id="why">
-        <div className="home-container">
-          <div className="section-header scroll-reveal">
-            <span className="section-tag">Vì sao chọn chúng tôi</span>
-            <h2 className="section-title">Quy trình đơn giản, <em>chất lượng thật</em></h2>
-          </div>
-
-          <div className="steps-grid">
-            <div className="step-card scroll-reveal">
-              <div className="step-num">01</div>
-              <div className="step-content">
-                <h3>Gửi ý tưởng</h3>
-                <p>Inbox Facebook hoặc tự thiết kế online. Gửi logo, slogan, tên lớp — chúng tôi tư vấn miễn phí.</p>
+          <div className="tdp-steps-grid">
+            {[
+              { num: "01", title: "Gửi ý tưởng", desc: "Inbox Facebook hoặc tự thiết kế online. Gửi logo, slogan, tên lớp — chúng tôi tư vấn miễn phí." },
+              { num: "02", title: "Duyệt mẫu & đặt hàng", desc: "Xem trước mockup trên áo thật. Chốt mẫu, chọn size, số lượng — thanh toán linh hoạt." },
+              { num: "03", title: "Nhận áo tận nơi", desc: "In xong trong 3–5 ngày. Giao tận trường, công ty hoặc nhà — kiểm tra trước khi nhận." },
+            ].map((step, i) => (
+              <div key={i} className="tdp-step-card">
+                <div className="tdp-step-num">{step.num}</div>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
               </div>
-              <div className="step-line" />
-            </div>
-            <div className="step-card scroll-reveal">
-              <div className="step-num">02</div>
-              <div className="step-content">
-                <h3>Duyệt mẫu & đặt hàng</h3>
-                <p>Xem trước mockup trên áo thật. Chốt mẫu, chọn size, số lượng — thanh toán linh hoạt.</p>
-              </div>
-              <div className="step-line" />
-            </div>
-            <div className="step-card scroll-reveal">
-              <div className="step-num">03</div>
-              <div className="step-content">
-                <h3>Nhận áo tận nơi</h3>
-                <p>In xong trong 3-5 ngày. Giao tận trường, công ty hoặc nhà — kiểm tra hàng trước khi nhận.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ═══ Bảng giá ═══ */}
-      <section className="home-section" id="pricing">
-        <div className="home-container">
-          <div className="section-header scroll-reveal">
-            <span className="section-tag">Bảng giá</span>
-            <h2 className="section-title">Giá tốt nhất cho <em>áo đồng phục</em></h2>
-            <p className="section-desc">Giá đã bao gồm thiết kế + in ấn. Đặt càng nhiều giá càng tốt.</p>
+      {/* ═══ ĐĂNG KÝ TƯ VẤN ═══ */}
+      <div className="tdp-section" id="pricing">
+        <div className="tdp-container tdp-consult-area">
+          <div className="tdp-consult-left">
+            <h2>Đăng ký tư vấn</h2>
+            <p>Để lại thông tin, đội ngũ UniSpace sẽ liên hệ hỗ trợ bạn trong thời gian sớm nhất.</p>
           </div>
-
-          <div className="pricing-grid">
-            <div className="pricing-card scroll-reveal">
-              <div className="pricing-name">Cơ bản</div>
-              <div className="pricing-price">89K<span>/áo</span></div>
-              <p className="pricing-desc">Từ 10 áo trở lên</p>
-              <ul className="pricing-features">
-                <li>✓ In 1 mặt</li>
-                <li>✓ 1 màu in</li>
-                <li>✓ Vải cotton 65/35</li>
-                <li>✓ Thiết kế miễn phí</li>
-              </ul>
-              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" className="pricing-btn">Nhắn tin đặt hàng</a>
-            </div>
-
-            <div className="pricing-card pricing-card-pop scroll-reveal">
-              <div className="pricing-badge">Phổ biến nhất</div>
-              <div className="pricing-name">Premium</div>
-              <div className="pricing-price">119K<span>/áo</span></div>
-              <p className="pricing-desc">Từ 20 áo trở lên</p>
-              <ul className="pricing-features">
-                <li>✓ In 2 mặt full màu</li>
-                <li>✓ Công nghệ DTG</li>
-                <li>✓ Vải cotton 100%</li>
-                <li>✓ Giao hàng miễn phí toàn quốc</li>
-                <li>✓ Thiết kế riêng miễn phí</li>
-              </ul>
-              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" className="pricing-btn-pop">Nhắn tin đặt hàng</a>
-            </div>
-
-            <div className="pricing-card scroll-reveal">
-              <div className="pricing-name">Số lượng lớn</div>
-              <div className="pricing-price">Liên hệ</div>
-              <p className="pricing-desc">Từ 100 áo trở lên</p>
-              <ul className="pricing-features">
-                <li>✓ Tất cả tính năng Premium</li>
-                <li>✓ In thêu cao cấp</li>
-                <li>✓ Nhân viên tư vấn riêng</li>
-                <li>✓ Form áo riêng theo yêu cầu</li>
-              </ul>
-              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" className="pricing-btn">Liên hệ báo giá</a>
-            </div>
-          </div>
+          <form className="tdp-consult-form" onSubmit={(e) => e.preventDefault()}>
+            <input type="text" placeholder="Họ và tên" required />
+            <input type="tel" placeholder="Số điện thoại" required />
+            <input type="text" placeholder="Tên trường / Lớp / Công ty" />
+            <textarea placeholder="Yêu cầu thiết kế..." rows={3} />
+            <button type="submit" className="tdp-consult-btn">
+              OK — Gửi yêu cầu
+            </button>
+          </form>
         </div>
-      </section>
+      </div>
 
-      {/* ═══ Footer ═══ */}
-      <footer className="home-footer">
-        <div className="home-container">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <Link href="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '1rem' }}>
-                <Logo scale={0.7} />
-              </Link>
-              <p>Trạm In Áo — Chuyên áo lớp, áo nhóm, áo công ty. Biến ý tưởng thành chiếc áo độc nhất.</p>
-              <a href="https://www.google.com/maps/search/?api=1&query=647+T%E1%BA%A1+Quang+B%E1%BB%ADu,+Ph%C6%B0%E1%BB%9Dng+5,+Qu%E1%BA%ADn+8,+TP.+H%E1%BB%93+Ch%C3%AD+Minh" target="_blank" rel="noopener noreferrer" className="footer-address">647 Tạ Quang Bửu, P.5, Q.8, TP. Hồ Chí Minh</a>
-              <div className="footer-social">
-                <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" title="Facebook">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                </a>
-              </div>
+      {/* ═══ FOOTER ═══ */}
+      <footer className="tdp-footer">
+        <div className="tdp-container">
+          <div className="tdp-footer-grid">
+            <div className="tdp-footer-brand">
+              <Logo scale={0.6} />
+              <p>Trạm In Áo — Chuyên áo lớp, áo nhóm, áo công ty.<br />647 Tạ Quang Bửu, P.5, Q.8, TP. Hồ Chí Minh</p>
+              <a
+                href="https://www.facebook.com/UniSpace.TramInAo"
+                target="_blank" rel="noopener noreferrer"
+                className="tdp-footer-fb"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
+                Facebook
+              </a>
             </div>
-            <div className="footer-col">
-              <h4>Dịch vụ</h4>
-              <a href="#products">Áo lớp</a>
-              <a href="#products">Áo công ty</a>
-              <a href="#products">Áo sự kiện</a>
+
+            <div className="tdp-footer-col">
+              <h4>Trạm đồng phục</h4>
+              <Link href="/design">Thiết kế</Link>
               <a href="#pricing">Bảng giá</a>
+              <a href="#products">Bảng size</a>
+              <a href="#products">Bảng màu</a>
+              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Feedback</a>
             </div>
-            <div className="footer-col">
+
+            <div className="tdp-footer-col">
               <h4>Hỗ trợ</h4>
-              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Nhắn tin Facebook</a>
-              <Link href="/design">Tự thiết kế online</Link>
+              <a href="#why">Giao hàng &amp; Thanh toán</a>
+              <a href="#pricing">Khuyến mãi &amp; Quà tặng</a>
+              <a href="#why">FAQ</a>
               <Link href="/login">Đăng nhập quản lý</Link>
             </div>
+
+            <div className="tdp-footer-col">
+              <h4>Liên kết nhanh</h4>
+              <Link href="/design">🎨 Tự thiết kế online</Link>
+              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">💬 Nhắn tin Facebook</a>
+              <a href="tel:+84000000000">📞 Hotline</a>
+            </div>
           </div>
 
-          <div className="footer-bottom">
-            <p>&copy; 2026 UniSpace — Trạm In Áo. All rights reserved.</p>
-            <div className="footer-status">
-              <span className="footer-status-dot" />
-              <span className="footer-status-text">System Operational</span>
+          <div className="tdp-footer-bottom">
+            <p>© 2026 UniSpace — Trạm In Áo. All rights reserved.</p>
+            <div className="tdp-footer-status">
+              <span className="tdp-status-dot" />
+              <span>System Operational</span>
             </div>
           </div>
         </div>

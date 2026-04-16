@@ -918,25 +918,44 @@ export default function DesignPage() {
   // ─── Canvas Actions ──────────────────────────
   const handleDropImage = useCallback(
     (image: AIImage, x: number, y: number) => {
-      const el: DesignElement = {
-        id: `el-${Date.now()}`,
-        type: "image",
-        url: image.url,
-        label: image.label,
-        x: Math.max(0, x),
-        y: Math.max(0, y),
-        width: 80,
-        height: 80,
-        rotation: 0,
-        side,
-        slot: activeSlot,
-        locked: true, // Fix position for AI results
-      };
       setElements((prev) => {
         pushHistory(prev);
-        return [...prev, el];
+
+        // Fixed slot replacement logic for drag-drop too
+        const existingIdx = prev.findIndex(el =>
+          el.type === "image" &&
+          el.side === side &&
+          el.slot === activeSlot &&
+          el.locked === true
+        );
+
+        if (existingIdx !== -1) {
+          const newElements = [...prev];
+          newElements[existingIdx] = {
+            ...newElements[existingIdx],
+            url: image.url,
+            label: image.label
+          };
+          return newElements;
+        }
+
+        const isLogo = image.label.toLowerCase().includes("logo") || image.label.toLowerCase().includes("icon");
+        return [...prev, {
+          id: `fixed-el-${Date.now()}`,
+          type: "image",
+          label: image.label,
+          url: image.url,
+          x: isLogo ? 225 : 100,
+          y: isLogo ? 115 : 110,
+          width: isLogo ? 60 : 200,
+          height: isLogo ? 60 : 200,
+          rotation: 0,
+          side,
+          slot: activeSlot,
+          locked: true,
+        }];
       });
-      setSelectedId(el.id);
+      // Optionally select the element (redundant if replaced but fine for new)
     },
     [side, activeSlot, pushHistory]
   );

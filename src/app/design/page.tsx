@@ -22,6 +22,7 @@ interface DesignElement {
   rotation: number;
   side: "front" | "back";
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
+  locked?: boolean;
 }
 
 interface AIImage {
@@ -44,52 +45,50 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   const g = parseInt(hex.substring(2, 4), 16) || 255;
   const b = parseInt(hex.substring(4, 6), 16) || 255;
   const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
-  const strokeColor = isLight ? "rgba(0,0,0,0.10)" : "rgba(255,255,255,0.08)";
-  const shadowColor = isLight ? "rgba(0,0,0,0.04)" : "rgba(0,0,0,0.12)";
-  const highlightColor = isLight ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)";
+  const strokeColor = isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.12)";
+  const shadowColor = isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)";
+  const highlightColor = isLight ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)";
 
-  if (side === "back") {
-    return (
-      <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-        <defs>
-          <linearGradient id="tback-fabric" x1="0.2" y1="0" x2="0.8" y2="1">
-            <stop offset="0%" stopColor={highlightColor} /><stop offset="50%" stopColor="transparent" /><stop offset="100%" stopColor={shadowColor} />
-          </linearGradient>
-          <filter id="tback-shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
-        </defs>
-        <g filter="url(#tback-shadow)">
-          {/* Body + sleeves */}
-          <path d="M200 30 L155 30 C150 30 145 32 142 35 L105 62 L52 100 C46 104 43 112 45 119 L62 152 C64 157 70 160 76 158 L112 132 L112 430 C112 438 118 444 126 444 L274 444 C282 444 288 438 288 430 L288 132 L324 158 C330 160 336 157 338 152 L355 119 C357 112 354 104 348 100 L295 62 L258 35 C255 32 250 30 245 30 L200 30Z" fill={color} stroke={strokeColor} strokeWidth="1.2" />
-          <path d="M200 30 L155 30 C150 30 145 32 142 35 L105 62 L52 100 C46 104 43 112 45 119 L62 152 C64 157 70 160 76 158 L112 132 L112 430 C112 438 118 444 126 444 L274 444 C282 444 288 438 288 430 L288 132 L324 158 C330 160 336 157 338 152 L355 119 C357 112 354 104 348 100 L295 62 L258 35 C255 32 250 30 245 30 L200 30Z" fill="url(#tback-fabric)" />
-          {/* Back neckline */}
-          <path d="M170 30 C178 40 188 44 200 45 C212 44 222 40 230 30" fill={shadowColor} />
-          <path d="M170 30 C178 40 188 44 200 45 C212 44 222 40 230 30" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-          {/* Shoulder seams */}
-          <line x1="142" y1="35" x2="112" y2="132" stroke={shadowColor} strokeWidth="0.8" />
-          <line x1="258" y1="35" x2="288" y2="132" stroke={shadowColor} strokeWidth="0.8" />
-        </g>
-      </svg>
-    );
-  }
+  const gradId = `tshirt-${side}-fab`;
+  const filtId = `tshirt-${side}-shd`;
+
+  // Technical Boxy Silhouette
+  const baseBody = "M 105,455 L 105,140 L 40,170 L 25,75 L 115,35 L 165,25 Q 200,23 235,25 L 285,35 L 375,75 L 360,170 L 295,140 L 295,455 Z";
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
       <defs>
-        <linearGradient id="tfront-fabric" x1="0.2" y1="0" x2="0.8" y2="1">
-          <stop offset="0%" stopColor={highlightColor} /><stop offset="50%" stopColor="transparent" /><stop offset="100%" stopColor={shadowColor} />
+        <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
+          <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
         </linearGradient>
-        <filter id="tfront-shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
+        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.12" /></filter>
       </defs>
-      <g filter="url(#tfront-shadow)">
-        {/* Body + sleeves */}
-        <path d="M200 22 L155 22 C150 22 145 24 142 27 L105 55 L52 93 C46 97 43 105 45 112 L62 145 C64 150 70 153 76 151 L112 125 L112 430 C112 438 118 444 126 444 L274 444 C282 444 288 438 288 430 L288 125 L324 151 C330 153 336 150 338 145 L355 112 C357 105 354 97 348 93 L295 55 L258 27 C255 24 250 22 245 22 L200 22Z" fill={color} stroke={strokeColor} strokeWidth="1.2" />
-        <path d="M200 22 L155 22 C150 22 145 24 142 27 L105 55 L52 93 C46 97 43 105 45 112 L62 145 C64 150 70 153 76 151 L112 125 L112 430 C112 438 118 444 126 444 L274 444 C282 444 288 438 288 430 L288 125 L324 151 C330 153 336 150 338 145 L355 112 C357 105 354 97 348 93 L295 55 L258 27 C255 24 250 22 245 22 L200 22Z" fill="url(#tfront-fabric)" />
-        {/* Collar / neckline */}
-        <path d="M163 22 C170 48 184 58 200 62 C216 58 230 48 237 22" fill={shadowColor} />
-        <path d="M163 22 C170 48 184 58 200 62 C216 58 230 48 237 22" fill="none" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" />
-        {/* Sleeve hems */}
-        <line x1="52" y1="93" x2="76" y2="151" stroke={shadowColor} strokeWidth="0.8" />
-        <line x1="348" y1="93" x2="324" y2="151" stroke={shadowColor} strokeWidth="0.8" />
+      <g filter={`url(#${filtId})`}>
+        {/* Main Fabric */}
+        <path d={baseBody} fill={color} stroke={strokeColor} strokeWidth="1.5" />
+        <path d={baseBody} fill={`url(#${gradId})`} />
+
+        {/* Neckline */}
+        {side === "front" ? (
+          <>
+            <path d="M 165,25 Q 200,65 235,25" fill={shadowColor} stroke={strokeColor} strokeWidth="1.2" />
+            <path d="M 165,25 Q 200,60 235,25" fill="none" stroke={strokeColor} strokeWidth="2.5" />
+          </>
+        ) : (
+          <path d="M 165,25 Q 200,35 235,25" fill={shadowColor} stroke={strokeColor} strokeWidth="1.2" />
+        )}
+
+        {/* Drop Shoulder Seams */}
+        <path d="M 115,35 L 105,140" stroke={strokeColor} strokeWidth="1.2" opacity="0.6" />
+        <path d="M 285,35 L 295,140" stroke={strokeColor} strokeWidth="1.2" opacity="0.6" />
+
+        {/* Stitching Lines (Hem & Sleeves) */}
+        <path d="M 105,445 L 295,445" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
+        <path d="M 105,448 L 295,448" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
+
+        {/* Sleeve stitching */}
+        <path d="M 40,158 L 105,130" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="2 2" />
+        <path d="M 360,158 L 295,130" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="2 2" />
       </g>
     </svg>
   );
@@ -164,45 +163,17 @@ function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front"
   const g = parseInt(hex.substring(2, 4), 16) || 255;
   const b = parseInt(hex.substring(4, 6), 16) || 255;
   const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
-  const strokeColor = isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)";
-  const shadowColor = isLight ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.12)";
-  const highlightColor = isLight ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)";
-  // Back collar is dark, front collar same as shirt
-  const backCollarColor = isLight ? "#1a1a1a" : "#e8e8e8";
-  const backCollarStroke = isLight ? "#111111" : "#d0d0d0";
-  const backCollarTrim = isLight ? "#ffffff" : "rgba(255,255,255,0.4)";
-  const buttonFill = isLight ? `rgba(${Math.max(0, r - 60)},${Math.max(0, g - 60)},${Math.max(0, b - 60)},0.7)` : "rgba(255,255,255,0.3)";
-
-  // Oversized body path
-  const bodyPath = side === "back"
-    ? "M200 38 L148 38 C142 38 137 40 134 44 L95 72 L40 115 C34 120 30 128 32 136 L50 168 C52 174 58 177 64 175 L105 145 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 145 L336 175 C342 177 348 174 350 168 L368 136 C370 128 366 120 360 115 L305 72 L266 44 C263 40 258 38 252 38 L200 38Z"
-    : "M200 42 L148 42 C142 42 137 44 134 48 L95 76 L40 118 C34 123 30 131 32 139 L50 170 C52 176 58 179 64 177 L105 148 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 148 L336 177 C342 179 348 176 350 170 L368 139 C370 131 366 123 360 118 L305 76 L266 48 C263 44 258 42 252 42 L200 42Z";
+  const strokeColor = isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.12)";
+  const shadowColor = isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.18)";
+  const highlightColor = isLight ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.06)";
+  const collarColor = isLight ? "#ffffff" : color;
+  const buttonFill = isLight ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.3)";
 
   const gradId = `polo-${side}-fab`;
   const filtId = `polo-${side}-shd`;
 
-  if (side === "back") {
-    return (
-      <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-        <defs>
-          <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
-            <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
-          </linearGradient>
-          <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
-        </defs>
-        <g filter={`url(#${filtId})`}>
-          {/* Body */}
-          <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.2" />
-          <path d={bodyPath} fill={`url(#${gradId})`} />
-          {/* Dark collar band standing up */}
-          <path d="M152 38 L152 12 Q156 4 176 1 Q190 -1 200 -1 Q210 -1 224 1 Q244 4 248 12 L248 38" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.5" />
-          {/* White trim line at bottom of collar */}
-          <line x1="153" y1="36" x2="247" y2="36" stroke={backCollarTrim} strokeWidth="2" />
-          <line x1="153" y1="33" x2="247" y2="33" stroke={backCollarTrim} strokeWidth="0.8" />
-        </g>
-      </svg>
-    );
-  }
+  // Same Boxy Silhouette
+  const baseBody = "M 105,455 L 105,145 L 40,175 L 25,80 L 115,45 L 165,35 Q 200,33 235,35 L 285,45 L 375,80 L 360,175 L 295,145 L 295,455 Z";
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
@@ -210,32 +181,35 @@ function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front"
         <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
           <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
         </linearGradient>
-        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.10" /></filter>
+        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.12" /></filter>
       </defs>
       <g filter={`url(#${filtId})`}>
-        {/* Body */}
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.2" />
-        <path d={bodyPath} fill={`url(#${gradId})`} />
+        <path d={baseBody} fill={color} stroke={strokeColor} strokeWidth="1.5" />
+        <path d={baseBody} fill={`url(#${gradId})`} />
 
-        {/* Dark collar band (behind flaps) */}
-        <rect x="155" y="8" width="90" height="34" rx="3" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1" />
-        {/* Left collar flap folding down */}
-        <path d="M155 42 L155 20 L130 55 Q136 72 152 74 Q166 70 180 60 L193 48 Z" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.2" strokeLinejoin="round" />
-        <path d="M155 22 L133 52" stroke={backCollarTrim} strokeWidth="2" opacity="0.7" />
-        {/* Right collar flap folding down */}
-        <path d="M245 42 L245 20 L270 55 Q264 72 248 74 Q234 70 220 60 L207 48 Z" fill={backCollarColor} stroke={backCollarStroke} strokeWidth="1.2" strokeLinejoin="round" />
-        <path d="M245 22 L267 52" stroke={backCollarTrim} strokeWidth="2" opacity="0.7" />
-        {/* Collar top stripes */}
-        <line x1="156" y1="12" x2="244" y2="12" stroke={backCollarTrim} strokeWidth="2" opacity="0.6" />
-        <line x1="156" y1="16" x2="244" y2="16" stroke={backCollarTrim} strokeWidth="1" opacity="0.3" />
-        {/* V-opening showing shirt color */}
-        <path d="M193 48 L200 120 L207 48" fill={color} stroke="none" />
-        {/* Center placket */}
-        <rect x="197" y="48" width="6" height="72" rx="1" fill={color} stroke={strokeColor} strokeWidth="0.5" />
-        {/* Buttons */}
-        <circle cx="200" cy="58" r="4" fill={buttonFill} />
-        <circle cx="200" cy="78" r="4" fill={buttonFill} />
-        <circle cx="200" cy="98" r="4" fill={buttonFill} />
+        {/* Collar Details */}
+        {side === "front" ? (
+          <>
+            {/* The V-opening */}
+            <path d="M 190,45 L 200,120 L 210,45" fill={shadowColor} opacity="0.3" />
+            <path d="M 195,45 L 205,45 L 205,115 L 195,115 Z" fill={color} stroke={strokeColor} strokeWidth="0.5" />
+            {/* Collar Flaps */}
+            <path d="M 165,35 L 135,70 Q 145,85 165,85 L 195,50 L 200,35 Z" fill={collarColor} stroke={strokeColor} strokeWidth="1" />
+            <path d="M 235,35 L 265,70 Q 255,85 235,85 L 205,50 L 200,35 Z" fill={collarColor} stroke={strokeColor} strokeWidth="1" />
+            {/* Buttons */}
+            <circle cx="200" cy="65" r="3.5" fill={buttonFill} />
+            <circle cx="200" cy="85" r="3.5" fill={buttonFill} />
+            <circle cx="200" cy="105" r="3.5" fill={buttonFill} />
+          </>
+        ) : (
+          <path d="M 165,35 Q 200,45 235,35 L 235,20 Q 200,15 165,20 Z" fill={collarColor} stroke={strokeColor} strokeWidth="1" />
+        )}
+
+        {/* Technical details */}
+        <path d="M 115,45 L 105,145" stroke={strokeColor} strokeWidth="1" opacity="0.4" />
+        <path d="M 285,45 L 295,145" stroke={strokeColor} strokeWidth="1" opacity="0.4" />
+        <path d="M 105,445 L 295,445" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
+        <path d="M 105,448 L 295,448" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
       </g>
     </svg>
   );
@@ -248,12 +222,17 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
   const g = parseInt(hex.substring(2, 4), 16) || 255;
   const b = parseInt(hex.substring(4, 6), 16) || 255;
   const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
-  const strokeColor = isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.10)";
+  const strokeColor = isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.12)";
   const shadowColor = isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)";
-  const highlightColor = isLight ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.08)";
+  const highlightColor = isLight ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)";
 
   const gradId = `raglan-${side}-fab`;
   const filtId = `raglan-${side}-shd`;
+
+  // Boxy Silhouette Base
+  const bodyPath = "M 110,460 L 110,140 L 165,30 Q 200,28 235,30 L 290,140 L 290,460 Z";
+  const leftSleeve = "M 165,30 L 110,140 L 40,170 L 25,75 L 115,35 Z";
+  const rightSleeve = "M 235,30 L 290,140 L 360,170 L 375,75 L 285,35 Z";
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
@@ -261,29 +240,27 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
         <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
           <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
         </linearGradient>
-        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.12" /></filter>
+        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.12" /></filter>
       </defs>
       <g filter={`url(#${filtId})`}>
-        {/* Back neck inner visible from front */}
-        {side === "front" && (
-          <path d="M 160 25 C 180 32, 220 32, 240 25 C 220 42, 180 42, 160 25 Z" fill={shadowColor} stroke={strokeColor} strokeWidth="1" />
+        {/* Sleeves First */}
+        <path d={leftSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" />
+        <path d={rightSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" />
+
+        {/* Body */}
+        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" />
+        <path d={bodyPath} fill={`url(#${gradId})`} />
+
+        {/* Neckline */}
+        {side === "front" ? (
+          <path d="M 165,30 Q 200,60 235,30" fill="none" stroke={strokeColor} strokeWidth="2" />
+        ) : (
+          <path d="M 165,30 Q 200,38 235,30" fill="none" stroke={strokeColor} strokeWidth="2" />
         )}
 
-        {/* MAIN BODY */}
-        <path d="M 160 25 C 180 55, 220 55, 240 25 L 290 120 L 290 450 C 240 465, 160 465, 110 450 L 110 120 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" />
-        <path d="M 160 25 C 180 55, 220 55, 240 25 L 290 120 L 290 450 C 240 465, 160 465, 110 450 L 110 120 Z" fill={`url(#${gradId})`} />
-
-        {/* LEFT SLEEVE (Raglan) */}
-        <path d="M 160 25 C 130 20, 100 25, 75 45 L 15 135 L 65 185 L 110 120 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.2" />
-
-        {/* RIGHT SLEEVE (Raglan) */}
-        <path d="M 240 25 C 270 20, 300 25, 325 45 L 385 135 L 335 185 L 290 120 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.2" />
-
-        {/* COLLAR RIBBING */}
-        <path d="M 160 25 C 175 55, 225 55, 240 25 C 225 48, 175 48, 160 25 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" />
-
-        {/* Stitching details (Oversized look) */}
-        <path d="M 112 440 C 160 452, 240 452, 288 440" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3,2" />
+        {/* Stitching */}
+        <path d="M 110,450 L 290,450" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" opacity="0.5" />
+        <path d="M 110,453 L 290,453" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" opacity="0.5" />
       </g>
     </svg>
   );
@@ -347,8 +324,9 @@ function DesignCanvas({
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
       e.stopPropagation();
       e.preventDefault();
-      hasMovedRef.current = false;
       onSelectElement(el.id);
+      if (el.locked) return; // Prevent dragging locked elements
+      hasMovedRef.current = false;
       const rect = canvasRef.current!.getBoundingClientRect();
       const scale = zoom / 100;
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -364,7 +342,7 @@ function DesignCanvas({
 
   const handleResizeMouseDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'tl' | 'tr' | 'bl' | 'br' = 'br') => {
-      // e.stopPropagation and preventDefault are called at the call site on handle divs
+      if (el.locked) return;
       setIsResizing(true);
       onSelectElement(el.id);
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -510,6 +488,10 @@ function DesignCanvas({
             font-family: "${el.fontFamily || 'Inter'}", sans-serif;
             color: ${el.textColor || '#000'};
           }
+          .el-${el.id}.canva-element-locked {
+            cursor: default !important;
+            border: 1px dashed rgba(139, 61, 255, 0.5);
+          }
         `).join('')}
       `}</style>
 
@@ -565,7 +547,7 @@ function DesignCanvas({
         {sideElements.map((el) => (
           <div key={el.id} className="canva-element-wrapper">
             <div
-              className={`canva-element el-${el.id} ${selectedId === el.id ? "canva-element-selected" : ""}`}
+              className={`canva-element el-${el.id} ${selectedId === el.id ? "canva-element-selected" : ""} ${el.locked ? "canva-element-locked" : ""}`}
               onMouseDown={(e) => handleElementMouseDown(e, el)}
               onTouchStart={(e) => handleElementMouseDown(e, el)}
             >
@@ -576,6 +558,11 @@ function DesignCanvas({
               {el.type === "text" && (
                 <div className={`canva-text-element el-text-${el.id}`}>
                   {el.text}
+                </div>
+              )}
+              {el.locked && (
+                <div className="absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow-sm pointer-events-none">
+                  <span className="text-[10px]">🔒</span>
                 </div>
               )}
             </div>
@@ -661,15 +648,32 @@ export default function DesignPage() {
     };
   }, []);
 
-  // Non-passive wheel: Ctrl/Cmd + scroll = zoom, plain scroll = pan
+  // Non-passive wheel: Ctrl/Cmd + scroll/pinch = zoom, plain two-finger scroll = pan
   useEffect(() => {
     const el = workspaceRef.current;
     if (!el) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (e.ctrlKey || e.metaKey) {
-        setZoom(z => Math.min(300, Math.max(10, z - e.deltaY * 0.5)));
+        // Pinch-to-zoom or Ctrl+Scroll
+        setZoom(z => {
+          const newZ = Math.min(400, Math.max(10, z - e.deltaY * 0.8));
+          if (newZ === z) return z;
+          const scaleDelta = newZ / z;
+
+          const rect = el.getBoundingClientRect();
+          // Coordinates relative to the center of the workspace
+          const px = e.clientX - rect.left - rect.width / 2;
+          const py = e.clientY - rect.top - rect.height / 2;
+
+          setPan(p => ({
+            x: p.x - (px - p.x) * (scaleDelta - 1),
+            y: p.y - (py - p.y) * (scaleDelta - 1)
+          }));
+          return newZ;
+        });
       } else {
+        // Trackpad 2-finger pan
         setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
       }
     };
@@ -926,6 +930,7 @@ export default function DesignPage() {
         rotation: 0,
         side,
         slot: activeSlot,
+        locked: true, // Fix position for AI results
       };
       setElements((prev) => {
         pushHistory(prev);
@@ -1332,9 +1337,24 @@ export default function DesignPage() {
                       <div className="canva-ai-grid mt-4">
                         {messages.filter(m => m.role === "ai").slice().reverse().map(m => m.images && m.images.map((img) => (
                           <div key={img.id} className="canva-ai-item" draggable onDragStart={(e) => handleDragStart(e, img)} onClick={() => {
+                            // Professional Placement Logic for AI images
+                            const isLogo = img.label.toLowerCase().includes("logo") || img.label.toLowerCase().includes("icon");
+
+                            // Default to center-chest for graphics, left-chest for logos
                             const el: DesignElement = {
-                              id: `el-${Date.now()}`, type: "image", label: img.label, url: img.url,
-                              x: 100, y: 120, width: 140, height: 140, rotation: 0, side, slot: activeSlot,
+                              id: `el-${Date.now()}`,
+                              type: "image",
+                              label: img.label,
+                              url: img.url,
+                              // Wearer's Left Chest (Screen Right) approx center of chest panel is x=235
+                              x: isLogo ? 220 : 100,
+                              y: isLogo ? 110 : 100,
+                              width: isLogo ? 65 : 200,
+                              height: isLogo ? 65 : 200,
+                              rotation: 0,
+                              side: "front",
+                              slot: activeSlot,
+                              locked: true, // Fix the position as requested
                             };
                             setElements((prev) => [...prev, el]);
                             setSelectedId(el.id);
@@ -1618,7 +1638,19 @@ export default function DesignPage() {
                             <span className="canva-layer-idx">{i + 1}</span>
                             <span className="canva-layer-icon">{el.type === "text" ? "T" : "🖼"}</span>
                             <span className="canva-layer-name">{el.label}</span>
-                            <button onClick={(e) => { e.stopPropagation(); setElements((prev) => { pushHistory(prev); return prev.filter((p) => p.id !== el.id); }); if (selectedId === el.id) setSelectedId(null); }} className="canva-layer-delete" aria-label="Xóa layer">×</button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setElements(prev => prev.map(p => p.id === el.id ? { ...p, locked: !p.locked } : p));
+                                }}
+                                className={`canva-layer-lock ${el.locked ? "locked" : ""}`}
+                                title={el.locked ? "Mở khoá" : "Khoá vị trí"}
+                              >
+                                {el.locked ? "🔒" : "🔓"}
+                              </button>
+                              <button onClick={(e) => { e.stopPropagation(); setElements((prev) => { pushHistory(prev); return prev.filter((p) => p.id !== el.id); }); if (selectedId === el.id) setSelectedId(null); }} className="canva-layer-delete" aria-label="Xóa layer">×</button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1874,16 +1906,13 @@ export default function DesignPage() {
             </div>
             <div className="canva-side-indicator">
               <button onClick={() => setShirtType("tshirt")} className={shirtType === "tshirt" ? "active" : ""}>
-                Áo thun
-              </button>
-              <button onClick={() => setShirtType("polo-a1")} className={shirtType === "polo-a1" ? "active" : ""}>
-                Polo A1
-              </button>
-              <button onClick={() => setShirtType("polo-d5")} className={shirtType === "polo-d5" ? "active" : ""}>
-                Polo D5
+                Áo T-Shirt
               </button>
               <button onClick={() => setShirtType("raglan")} className={shirtType === "raglan" ? "active" : ""}>
-                Raglan
+                Áo Raglan
+              </button>
+              <button onClick={() => setShirtType("polo-d5")} className={shirtType.startsWith("polo") ? "active" : ""}>
+                Áo Polo
               </button>
             </div>
             <div className="canva-side-indicator">
@@ -1929,21 +1958,21 @@ export default function DesignPage() {
           onClick={() => setShirtType("tshirt")}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /></svg>
-          <span>Thun</span>
+          <span>T-Shirt</span>
         </button>
         <button
-          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "polo-a1" ? "active" : ""}`}
-          onClick={() => setShirtType("polo-a1")}
+          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "raglan" ? "active" : ""}`}
+          onClick={() => setShirtType("raglan")}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /><path d="M9 3l3 4 3-4" /></svg>
-          <span>A1</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /><path d="M8 3l4 4 4-4" /></svg>
+          <span>Raglan</span>
         </button>
         <button
-          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType === "polo-d5" ? "active" : ""}`}
+          className={`canva-mobile-tab canva-mobile-side-tab ${shirtType.startsWith("polo") ? "active" : ""}`}
           onClick={() => setShirtType("polo-d5")}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L4 7v2l3-1v11h10V8l3 1V7l-8-4z" /><path d="M9 3l3 4 3-4" /></svg>
-          <span>D5</span>
+          <span>Polo</span>
         </button>
         <div className="canva-mobile-tab-sep" />
         {([

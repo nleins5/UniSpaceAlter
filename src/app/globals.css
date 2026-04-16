@@ -848,88 +848,149 @@ body {
   color: var(--danger);
 }
 
-/* ─── AI Chat (inside panel) ─── */
-.canva-chat-messages {
+/* ─── Canva Magic Media AI Panel ─── */
+.ai-magic-media-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ai-magic-scroll-area {
   flex: 1;
   overflow-y: auto;
   padding: 16px;
-}
-
-.canva-chat-empty {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 16px;
+}
+
+.ai-magic-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.ai-magic-input-wrapper {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  border-bottom-color: var(--accent);
+  border-bottom-width: 2px;
+  padding: 1px;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-magic-input-wrapper:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.15);
+  background: #fff;
+}
+
+.ai-magic-textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  color: var(--foreground);
+}
+
+.ai-magic-textarea::placeholder {
+  color: #adb5bd;
+}
+
+.ai-magic-generate-btn {
+  margin: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  display: flex;
   justify-content: center;
-  height: 100%;
+  align-items: center;
+}
+
+.ai-magic-generate-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+}
+
+.ai-magic-generate-btn:disabled {
+  background: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.ai-btn-loading {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.ai-suggestions-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ai-suggestion-chip {
+  padding: 6px 12px;
+  border-radius: 16px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ai-suggestion-chip:hover {
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--accent);
+  border-color: rgba(108, 92, 231, 0.3);
+}
+
+.ai-magic-results {
+  margin-top: 8px;
+  border-top: 1px dashed var(--border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-loading-placeholder {
   text-align: center;
   padding: 20px;
 }
 
-.canva-chat-empty-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
+.ai-pulse-box {
+  background: var(--border-light);
+  height: 100px;
+  border-radius: 12px;
+  animation: pulse 1.5s infinite ease-in-out;
+  margin-bottom: 8px;
 }
 
-.canva-chat-empty-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.canva-chat-empty-sub {
+.ai-magic-footer {
+  margin-top: 16px;
+  text-align: center;
   font-size: 12px;
   color: var(--muted);
-  margin-bottom: 16px;
 }
 
-.canva-suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-
-.canva-suggestion-btn {
-  padding: 6px 14px;
-  border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 20px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  color: var(--muted);
-}
-
-.canva-suggestion-btn:hover {
-  background: var(--accent-glow);
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: translateY(-1px);
-}
-
-.canva-chat-msg {
-  margin-bottom: 12px;
-}
-
-.canva-chat-msg p {
-  font-size: 13px;
-  line-height: 1.5;
-  padding: 10px 14px;
-  border-radius: 16px;
-  max-width: 90%;
-}
-
-.canva-chat-msg.user p {
-  background: var(--accent);
-  color: #fff;
-  margin-left: auto;
-  border-bottom-right-radius: 4px;
-}
-
-.canva-chat-msg.ai p {
-  background: var(--surface-hover);
-  border-bottom-left-radius: 4px;
-}
 
 .canva-ai-grid {
   display: grid;
@@ -1276,55 +1337,7 @@ body {
   height: var(--el-h);
 }
 
-.canva-chat-input {
-  display: flex;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid var(--border-light);
-  flex-shrink: 0;
-}
 
-.canva-chat-input input {
-  flex: 1;
-  padding: 10px 16px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  font-size: 13px;
-  background: var(--surface-hover);
-  outline: none;
-  transition: all var(--transition-fast);
-}
-
-.canva-chat-input input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-  background: #fff;
-}
-
-.canva-chat-input button {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: var(--accent);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
-}
-
-.canva-chat-input button:hover {
-  background: #5b4bd4;
-  transform: scale(1.05);
-}
-
-.canva-chat-input button:disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
 
 /* ─── Workspace (Canvas Area) ─── */
 .canva-workspace {

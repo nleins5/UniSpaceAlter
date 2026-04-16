@@ -672,51 +672,7 @@ export default function DesignPage() {
     }
   }, []);
 
-  // Generate MORE designs — appends a new AI message with fresh results
-  const handleRefreshMessage = useCallback(async (_msgId: string, prompt: string) => {
-    setIsLoading(true);
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000);
 
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      const methodLabel = data.method === "t8star" || data.method === "ai" || data.method === "cloudflare" ? "🖼️ AI" : data.method === "smart" ? "🎨 Mẫu thông minh" : "📦 Mẫu demo";
-      const newMsg: ChatMessage = {
-        id: `msg-${Date.now()}-refresh`,
-        role: "ai",
-        content: `${methodLabel} — Thêm ${data.images.length} mẫu mới! 👇`,
-        images: data.images,
-      };
-      setMessages((prev) => [...prev, newMsg]);
-    } catch (err) {
-      const errorMsg = (err as Error).name === "AbortError"
-        ? "⏱️ AI đang quá tải, vui lòng thử lại!"
-        : "⚠️ Có lỗi xảy ra. Thử lại nhé!";
-      setMessages((prev) => [...prev, {
-        id: `msg-${Date.now()}-err`,
-        role: "ai",
-        content: errorMsg,
-      }]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleChatSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim() || isLoading) return;
-    handleSendMessage(chatInput.trim());
-    setChatInput("");
-  };
 
   const handleDragStart = (e: React.DragEvent, image: AIImage) => {
     e.dataTransfer.setData("application/json", JSON.stringify(image));
@@ -1020,85 +976,83 @@ export default function DesignPage() {
             <div className="canva-panel">
               {/* AI Panel */}
               {activePanel === "ai" && (
-                <div className="canva-panel-content">
+                <div className="canva-panel-content ai-magic-media-panel">
                   <div className="canva-panel-header">
-                    <h3>AI Design</h3>
+                    <h3>Magic Media AI</h3>
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
 
-                  <div className="canva-chat-messages">
-                    {messages.length === 0 && (
-                      <div className="canva-chat-empty">
-                        <div className="canva-chat-empty-icon">🎨</div>
-                        <p className="canva-chat-empty-title">Mô tả thiết kế bạn muốn</p>
-                        <p className="canva-chat-empty-sub">AI sẽ tạo hình ảnh để bạn kéo vào áo</p>
-                        <div className="canva-suggestions">
-                          {suggestions.map((s, i) => (
-                            <button key={i} onClick={() => handleSendMessage(s)} className="canva-suggestion-btn">{s}</button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                  <div className="ai-magic-scroll-area">
+                    <p className="ai-magic-desc">Mô tả hình ảnh bạn muốn tạo. AI sẽ biến ý tưởng của bạn thành hình ảnh tuyệt đẹp.</p>
 
-                    {messages.map((msg, msgIndex) => (
-                      <div key={msg.id} className={`canva-chat-msg ${msg.role}`}>
-                        <p>{msg.content}</p>
-                        {msg.images && msg.images.length > 0 && (
-                          <div className="canva-ai-grid">
-                            {msg.images.map((img) => (
-                              <div key={img.id} className="canva-ai-item" draggable onDragStart={(e) => handleDragStart(e, img)} onClick={() => {
-                                const el: DesignElement = {
-                                  id: `el-${Date.now()}`, type: "image", label: img.label, url: img.url,
-                                  x: 100, y: 120, width: 140, height: 140, rotation: 0, side,
-                                };
-                                setElements((prev) => [...prev, el]);
-                                setSelectedId(el.id);
-                              }}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={img.url} alt={img.label} />
-                                <div className="canva-ai-item-overlay">
-                                  <span>Nhấn hoặc kéo</span>
-                                </div>
-                                <span className="canva-ai-item-label">{img.label}</span>
-                              </div>
-                            ))}
+                    <div className="ai-magic-input-wrapper">
+                      <textarea
+                        className="ai-magic-textarea"
+                        placeholder="Ví dụ: Một chú mèo mặc đồ phi hành gia..."
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            if (chatInput.trim() && !isLoading) {
+                              handleSendMessage(chatInput.trim());
+                              setChatInput("");
+                            }
+                          }
+                        }}
+                        rows={4}
+                      />
+                      <button
+                        className="ai-magic-generate-btn"
+                        disabled={isLoading || !chatInput.trim()}
+                        onClick={() => {
+                          if (chatInput.trim() && !isLoading) {
+                            handleSendMessage(chatInput.trim());
+                            setChatInput("");
+                          }
+                        }}
+                      >
+                        {isLoading ? (
+                          <div className="ai-btn-loading">
+                            <div className="canva-typing-dot" /><div className="canva-typing-dot" /><div className="canva-typing-dot" />
                           </div>
-                        )}
-                        {msg.role === "ai" && !isLoading && msgIndex === messages.length - 1 && (
-                          <button
-                            className="canva-btn-more"
-                            onClick={() => handleRefreshMessage(
-                              msg.id,
-                              messages.filter(m => m.role === "user").pop()?.content || "thiết kế"
-                            )}
-                          >
-                            ↻ Tạo thêm mẫu
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                        ) : "✨ Tạo hình ảnh"}
+                      </button>
+                    </div>
 
-                    {isLoading && (
-                      <div className="canva-typing">
-                        <div className="canva-typing-dot" /><div className="canva-typing-dot" /><div className="canva-typing-dot" />
-                        <span className="canva-typing-label">AI đang tạo thiết kế...</span>
+                    <div className="ai-suggestions-chips">
+                      {suggestions.map((s, i) => (
+                        <button key={i} onClick={() => setChatInput(s)} className="ai-suggestion-chip">{s}</button>
+                      ))}
+                    </div>
+
+                    <div className="ai-magic-results text-center">
+                      {isLoading && (
+                        <div className="ai-loading-placeholder p-4">
+                          <p className="text-sm text-[#8b3dff] font-medium animate-pulse">AI đang vẽ tác phẩm của bạn...</p>
+                        </div>
+                      )}
+
+                      <div className="canva-ai-grid mt-4">
+                        {messages.filter(m => m.role === "ai").slice().reverse().map(m => m.images && m.images.map((img) => (
+                          <div key={img.id} className="canva-ai-item" draggable onDragStart={(e) => handleDragStart(e, img)} onClick={() => {
+                            const el: DesignElement = {
+                              id: `el-${Date.now()}`, type: "image", label: img.label, url: img.url,
+                              x: 100, y: 120, width: 140, height: 140, rotation: 0, side,
+                            };
+                            setElements((prev) => [...prev, el]);
+                            setSelectedId(el.id);
+                          }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={img.url} alt={img.label} />
+                            <div className="canva-ai-item-overlay">
+                              <span>+ Thêm</span>
+                            </div>
+                          </div>
+                        )))}
                       </div>
-                    )}
-                    <div ref={messagesEndRef} />
+                    </div>
                   </div>
-
-                  <form onSubmit={handleChatSubmit} className="canva-chat-input">
-                    <input
-                      type="text"
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      placeholder="Mô tả hình ảnh bạn muốn..."
-                      disabled={isLoading}
-                    />
-                    <button type="submit" disabled={!chatInput.trim() || isLoading} aria-label="Gửi">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
-                    </button>
-                  </form>
                 </div>
               )}
 

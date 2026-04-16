@@ -777,36 +777,39 @@ export default function DesignPage() {
       return prev.map((el) => {
         if (el.id !== selectedId) return el;
         const newEl = { ...el };
+
+        // Canvas is 400x480. Shirt body is approx x=[105, 295], center x=200.
         if (preset === "left-chest") {
           newEl.side = "front";
-          newEl.width = 15;
-          newEl.height = (el.height / el.width) * 15;
-          newEl.x = 68; // percentage from left
-          newEl.y = 25; // percentage from top
-        } else if (preset === "center-chest") {
-          newEl.side = "front";
-          newEl.width = 25;
-          newEl.height = (el.height / el.width) * 25;
-          newEl.x = 50 - 12.5;
-          newEl.y = 25;
-        } else if (preset === "full-front") {
-          newEl.side = "front";
-          newEl.width = 60;
-          newEl.height = (el.height / el.width) * 60;
-          newEl.x = 20;
-          newEl.y = 30;
-        } else if (preset === "back-neck") {
-          newEl.side = "back";
-          newEl.width = 12;
-          newEl.height = (el.height / el.width) * 12;
-          newEl.x = 50 - 6;
-          newEl.y = 15;
-        } else if (preset === "full-back") {
-          newEl.side = "back";
           newEl.width = 65;
           newEl.height = (el.height / el.width) * 65;
-          newEl.x = 17.5;
-          newEl.y = 25;
+          // Wearer's Left = Screen Right
+          newEl.x = 225 - (newEl.width / 2);
+          newEl.y = 110;
+        } else if (preset === "center-chest") {
+          newEl.side = "front";
+          newEl.width = 120;
+          newEl.height = (el.height / el.width) * 120;
+          newEl.x = 200 - (newEl.width / 2);
+          newEl.y = 110;
+        } else if (preset === "full-front") {
+          newEl.side = "front";
+          newEl.width = 240;
+          newEl.height = (el.height / el.width) * 240;
+          newEl.x = 200 - (newEl.width / 2);
+          newEl.y = 130;
+        } else if (preset === "back-neck") {
+          newEl.side = "back";
+          newEl.width = 50;
+          newEl.height = (el.height / el.width) * 50;
+          newEl.x = 200 - (newEl.width / 2);
+          newEl.y = 60;
+        } else if (preset === "full-back") {
+          newEl.side = "back";
+          newEl.width = 250;
+          newEl.height = (el.height / el.width) * 250;
+          newEl.x = 200 - (newEl.width / 2);
+          newEl.y = 120;
         }
 
         if (preset === "back-neck" || preset === "full-back") setSide("back");

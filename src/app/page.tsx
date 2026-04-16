@@ -4,24 +4,24 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Logo } from "../components/Logo";
 
-// Slider images from tramdongphuc.com
+// Slider images (downloaded from tramdongphuc.com → public/images/slider/)
 const sliderImages = [
-  "https://tramdongphuc.com/images/slider/1.jpeg",
-  "https://tramdongphuc.com/images/slider/2.jpeg",
-  "https://tramdongphuc.com/images/slider/3.jpeg",
-  "https://tramdongphuc.com/images/slider/4.jpeg",
+  "/images/slider/1.jpeg",
+  "/images/slider/2.jpeg",
+  "/images/slider/3.jpeg",
+  "/images/slider/4.jpeg",
 ];
 
-// Product section images
+// Product section images (downloaded from tramdongphuc.com → public/images/home/)
 const sectionImages = {
-  home1: "https://tramdongphuc.com/images/home/1.jpg",
-  home2: "https://tramdongphuc.com/images/home/2.jpg",
-  home3: "https://tramdongphuc.com/images/home/3.jpg",
-  home4: "https://tramdongphuc.com/images/home/4.jpg",
-  home5: "https://tramdongphuc.com/images/home/5.jpg",
-  home6: "https://tramdongphuc.com/images/home/6.jpg",
-  home7: "https://tramdongphuc.com/images/home/7.jpg",
-  home8: "https://tramdongphuc.com/images/home/8.jpg",
+  home1: "/images/home/1.jpg",
+  home2: "/images/home/2.jpg",
+  home3: "/images/home/3.jpg",
+  home4: "/images/home/4.jpg",
+  home5: "/images/home/5.jpg",
+  home6: "/images/home/4.jpg",
+  home7: "/images/home/3.jpg",
+  home8: "/images/home/2.jpg",
 };
 
 export default function HomePage() {

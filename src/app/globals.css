@@ -1523,6 +1523,7 @@ body::after {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
   background:
     linear-gradient(45deg, #ddd 25%, transparent 25%),
     linear-gradient(-45deg, #ddd 25%, transparent 25%),
@@ -1535,6 +1536,50 @@ body::after {
   /* let JS handle all touch gestures */
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* Print Placement Snap Toolbar */
+.canva-snap-toolbar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 100;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.canva-snap-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.canva-snap-btn {
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.canva-snap-btn:hover {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
 .canva-canvas-wrapper {
@@ -3180,11 +3225,89 @@ body::after {
 }
 
 /* ─── Banner full ─── */
+/* ─── Catalog Grid (clean 2x3) ─── */
+.tdp-catalog-desc {
+  text-align: center;
+  color: #666;
+  font-size: 15px;
+  margin: -12px 0 28px;
+}
+
+.tdp-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.tdp-catalog-item {
+  position: relative;
+  display: block;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+  background: #f8f8f8;
+  text-decoration: none;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tdp-catalog-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.tdp-catalog-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+
+.tdp-catalog-item:hover img {
+  transform: scale(1.03);
+}
+
+.tdp-catalog-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(139, 61, 255, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 16px;
+}
+
+.tdp-catalog-item:hover .tdp-catalog-overlay {
+  opacity: 1;
+}
+
+.tdp-catalog-overlay span {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 900px) {
+  .tdp-catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .tdp-catalog-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Banner full ─── */
 .tdp-banner-full {
   width: 100%;
   border-radius: 12px;
   display: block;
 }
+
 
 /* ─── Steps ─── */
 .tdp-steps-grid {

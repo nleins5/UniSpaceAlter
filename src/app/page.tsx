@@ -22,15 +22,6 @@ const productImages = [
   { src: "/images/products/p6.png", label: "Phong cách Hồng" },
 ];
 
-// Product section images (downloaded from tramdongphuc.com → public/images/home/)
-const sectionImages = {
-  home1: "/images/home/1.jpg",
-  home2: "/images/home/2.jpg",
-  home3: "/images/home/3.jpg",
-  home4: "/images/home/4.jpg",
-  home5: "/images/home/5.jpg",
-};
-
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -197,102 +188,27 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══ SẢN PHẨM BÁN LẺ ═══ */}
+      {/* ═══ BỘ SƯU TẬP ÁO ═══ */}
       <div className="tdp-section" id="products">
         <div className="tdp-container">
-          <div className="tdp-section-title">
-            <span className="tdp-dot-icon">●</span> Sản phẩm bán lẻ
-          </div>
-          <div className="tdp-two-col">
-            <div className="tdp-col-big">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={sectionImages.home1} alt="Áo thể thao" />
-            </div>
-            <div className="tdp-col-small">
-              <div className="tdp-small-grid">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={sectionImages.home2} alt="Áo lớp" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={sectionImages.home3} alt="Áo đồng phục" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ COLLECTION & TREND ═══ */}
-      <div className="tdp-section tdp-section-gray">
-        <div className="tdp-container">
-          <div className="tdp-section-title">
-            <span className="tdp-dot-icon">●</span>
-            <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Collection &amp; trend</a>
-          </div>
-          <div className="tdp-two-col">
-            <div className="tdp-col-big">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={sectionImages.home1} alt="Collection" />
-            </div>
-            <div className="tdp-col-small">
-              <div className="tdp-small-grid">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={sectionImages.home2} alt="Trend 1" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={sectionImages.home3} alt="Trend 2" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ SẢN PHẨM carousel ═══ */}
-      <div className="tdp-section">
-        <div className="tdp-container">
-          <div className="tdp-section-title">
-            <span className="tdp-dot-icon">●</span>
-            <Link href="/design">Sản phẩm</Link>
-          </div>
-          <div className="tdp-product-carousel">
-            {productImages.map((p, i) => (
-              <div key={i} className="tdp-product-item">
-                <Link href="/design">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.src} alt={p.label} />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ MẪU THIẾT KẾ ═══ */}
-      <div className="tdp-section tdp-section-gray">
-        <div className="tdp-container">
           <div className="tdp-section-title center">
-            <span className="tdp-dot-icon">●</span> Mẫu thiết kế <span className="tdp-dot-icon">●</span>
+            <span className="tdp-dot-icon">●</span>&nbsp; Bộ sưu tập áo lớp UniSpace &nbsp;<span className="tdp-dot-icon">●</span>
           </div>
-          <div className="tdp-design-grid">
+          <p className="tdp-catalog-desc">Hàng trăm mẫu thiết kế độc quyền. Nhấn vào mẫu bất kỳ để bắt đầu thiết kế online.</p>
+          <div className="tdp-catalog-grid">
             {productImages.map((p, i) => (
-              <div key={i} className="tdp-design-item">
-                <Link href="/design">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.src} alt={p.label} />
-                  <div className="tdp-design-label">{p.label}</div>
-                </Link>
-              </div>
+              <Link key={i} href="/design" className="tdp-catalog-item">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.src} alt={p.label} />
+                <div className="tdp-catalog-overlay">
+                  <span>🎨 Thiết kế ngay</span>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ═══ BANNER ═══ */}
-      <div className="tdp-section">
-        <div className="tdp-container">
-          <Link href="/design">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={sectionImages.home5} alt="Banner UniSpace" className="tdp-banner-full" />
-          </Link>
-        </div>
-      </div>
 
       {/* ═══ CÁC BƯỚC ═══ */}
       <div className="tdp-section tdp-section-dark" id="why">

@@ -685,6 +685,53 @@ export default function DesignPage() {
     });
   }, [elements]);
 
+  const handleSnapToPosition = (preset: "left-chest" | "center-chest" | "full-front" | "back-neck" | "full-back") => {
+    if (!selectedId) return;
+    setElements((prev) => {
+      pushHistory(prev);
+      return prev.map((el) => {
+        if (el.id !== selectedId) return el;
+        const newEl = { ...el };
+        if (preset === "left-chest") {
+          newEl.side = "front";
+          newEl.width = 15;
+          newEl.height = (el.height / el.width) * 15;
+          newEl.x = 68; // percentage from left
+          newEl.y = 25; // percentage from top
+        } else if (preset === "center-chest") {
+          newEl.side = "front";
+          newEl.width = 25;
+          newEl.height = (el.height / el.width) * 25;
+          newEl.x = 50 - 12.5;
+          newEl.y = 25;
+        } else if (preset === "full-front") {
+          newEl.side = "front";
+          newEl.width = 60;
+          newEl.height = (el.height / el.width) * 60;
+          newEl.x = 20;
+          newEl.y = 30;
+        } else if (preset === "back-neck") {
+          newEl.side = "back";
+          newEl.width = 12;
+          newEl.height = (el.height / el.width) * 12;
+          newEl.x = 50 - 6;
+          newEl.y = 15;
+        } else if (preset === "full-back") {
+          newEl.side = "back";
+          newEl.width = 65;
+          newEl.height = (el.height / el.width) * 65;
+          newEl.x = 17.5;
+          newEl.y = 25;
+        }
+
+        if (preset === "back-neck" || preset === "full-back") setSide("back");
+        if (preset === "left-chest" || preset === "center-chest" || preset === "full-front") setSide("front");
+
+        return newEl;
+      });
+    });
+  };
+
 
 
   const fonts = [
@@ -1474,6 +1521,18 @@ export default function DesignPage() {
             if (e.target === e.currentTarget) setSelectedId(null);
           }}
         >
+          {/* SNAP PLACEMENT TOOLBAR */}
+          {selectedId && (
+            <div className="canva-snap-toolbar">
+              <span className="canva-snap-label">Vị trí in chuẩn</span>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("left-chest")} title="Ngực trái">Ngực trái</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("center-chest")} title="Giữa ngực">Giữa ngực</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-front")} title="Lớn trước ngực">Lớn trước ngực</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("back-neck")} title="Sau gáy">Sau gáy</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-back")} title="Lớn sau lưng">Lớn sau lưng</button>
+            </div>
+          )}
+
           {/* Canvas area with checkerboard bg */}
           <div
             className={`canva-canvas-wrapper ${isPanningWrapper ? "cursor-grabbing" : isSpacePressed ? "cursor-grab" : ""

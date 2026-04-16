@@ -1062,14 +1062,17 @@ export default function DesignPage() {
   const backCount = elements.filter((e) => e.side === "back").length;
   const selectedElement = elements.find((el) => el.id === selectedId);
 
-  // Technical Header Data (mockup)
+  // Technical Header Data (Human Made style)
   const techPackInfo = {
-    collection: "Nº.1 / 2025",
-    name: "UNISPACE_TECH_PACK",
-    brand: "UNISPACE",
-    size: "M / L / XL / 2XL",
-    fabric: "100% COTTON PREMIUM",
-    color: tshirtColor.toUpperCase()
+    season: "2025 SS / FW",
+    styleNo: "UN2404-TP",
+    category: activeSlot === "shirt" ? "TOP" : activeSlot.toUpperCase(),
+    name: "Layered Graphic Tee",
+    fabric: "100% COTTON 250GSM",
+    factory: "UNISPACE_LAB",
+    input: "04 / 16 / 2026",
+    output: "04 / 30 / 2026",
+    pantone: tshirtColor.toUpperCase()
   };
 
   const suggestions = [
@@ -1658,39 +1661,29 @@ export default function DesignPage() {
           >
             {/* ═══ TECHNICAL SPECIFICATION SHEET (Tech Pack Wrapper) ═══ */}
             <div className="tech-pack-frame">
-              {/* HEADER SPEC TABLE */}
-              <div className="tech-pack-header">
-                <div className="tech-pack-header-row">
-                  <div className="tech-pack-header-cell">
-                    <div className="tech-pack-label">COLLECTION :</div>
-                    <div className="tech-pack-val">{techPackInfo.collection}</div>
-                  </div>
-                  <div className="tech-pack-header-cell">
-                    <div className="tech-pack-label">SIZE :</div>
-                    <div className="tech-pack-val">{techPackInfo.size}</div>
-                  </div>
+              {/* ═══ HUMAN MADE STYLE HEADER ═══ */}
+              <div className="tech-pack-header-v2">
+                <div className="tech-header-left-logo">
+                  <Logo />
+                  <div className="tech-logo-sub">TECH PACK</div>
                 </div>
-                <div className="tech-pack-header-row">
-                  <div className="tech-pack-header-cell">
-                    <div className="tech-pack-label">NAME :</div>
-                    <div className="tech-pack-val">{techPackInfo.name}</div>
+                <div className="tech-header-grid">
+                  <div className="tech-row">
+                    <div className="tech-cell"><div className="t-label">SEASON</div><div className="t-val">{techPackInfo.season}</div></div>
+                    <div className="tech-cell"><div className="t-label">CATEGORY</div><div className="t-val">{techPackInfo.category}</div></div>
+                    <div className="tech-cell"><div className="t-label">FABRIC</div><div className="t-val">{techPackInfo.fabric}</div></div>
+                    <div className="tech-cell"><div className="t-label">FACTORY</div><div className="t-val">{techPackInfo.factory}</div></div>
                   </div>
-                  <div className="tech-pack-header-cell">
-                    <div className="tech-pack-label">FABRIC :</div>
-                    <div className="tech-pack-val">{techPackInfo.fabric}</div>
-                  </div>
-                </div>
-                <div className="tech-pack-header-row">
-                  <div className="tech-pack-header-cell">
-                    <div className="tech-pack-label">BRAND :</div>
-                    <div className="tech-pack-val">{techPackInfo.brand}</div>
-                  </div>
-                  <div className="tech-pack-header-cell">
-                    <div className="tech-pack-label">COLOR :</div>
-                    <div className="tech-pack-val">{techPackInfo.color}</div>
+                  <div className="tech-row">
+                    <div className="tech-cell"><div className="t-label">STYLE NO</div><div className="t-val">{techPackInfo.styleNo}</div></div>
+                    <div className="tech-cell"><div className="t-label">NAME</div><div className="t-val">{techPackInfo.name}</div></div>
+                    <div className="tech-cell"><div className="t-label">INPUT</div><div className="t-val">{techPackInfo.input}</div></div>
+                    <div className="tech-cell"><div className="t-label">OUTPUT</div><div className="t-val">{techPackInfo.output}</div></div>
                   </div>
                 </div>
               </div>
+
+              <div className="tech-pack-divider">FRONT & BACK DETAILS</div>
 
               {/* THREE-COLUMN TECHNICAL LAYOUT */}
               <div className="spec-slots-container">
@@ -1742,33 +1735,56 @@ export default function DesignPage() {
                   </div>
                 </div>
 
-                {/* MAIN SHIRT MOCKUP (Fixed in Center) */}
-                <div
-                  className={`spec-main-shirt ${activeSlot === "shirt" ? "active" : ""}`}
-                  onClick={() => setActiveSlot("shirt")}
-                >
-                  <DesignCanvas
-                    elements={elements}
-                    selectedId={selectedId}
-                    onSelectElement={setSelectedId}
-                    onMoveElement={handleMoveElement}
-                    onResizeElement={handleResizeElement}
-                    onPushHistory={() => pushHistory(elements)}
-                    onDropImage={handleDropImage}
-                    side={side}
-                    tshirtColor={tshirtColor}
-                    sleeveColor={sleeveColor}
-                    shirtType={shirtType}
-                    zoom={zoom}
-                    pan={pan}
-                    slot="shirt"
-                  />
+                {/* MAIN SHIRT MOCKUP (Front & Back side-by-side) */}
+                <div className={`spec-main-shirt-v2 ${activeSlot === "shirt" ? "active" : ""}`}>
+                  <div className="tech-views-row">
+                    <div className={`tech-view-col ${side === 'front' ? 'view-active' : ''}`} onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
+                      <div className="tech-view-label">FRONT VIEW</div>
+                      <DesignCanvas
+                        elements={elements}
+                        selectedId={selectedId}
+                        onSelectElement={setSelectedId}
+                        onMoveElement={handleMoveElement}
+                        onResizeElement={handleResizeElement}
+                        onPushHistory={() => pushHistory(elements)}
+                        onDropImage={handleDropImage}
+                        side="front"
+                        tshirtColor={tshirtColor}
+                        sleeveColor={sleeveColor}
+                        shirtType={shirtType}
+                        zoom={zoom}
+                        pan={{ x: 0, y: 0 }}
+                        slot="shirt"
+                      />
+                      <div className="measure-lines">
+                        <div className="m-line" />
+                        <div className="m-label m-top">Center Front <span className="text-red-500">4.5cm Down</span></div>
+                      </div>
+                    </div>
 
-                  {/* Annotation Lines (Visual decoration to look like Tech Pack) */}
-                  <div className="tech-pack-annotations">
-                    <div className="anno-line-l1"><span>Bo cổ 3cm</span></div>
-                    <div className="anno-line-l2"><span>Gấu áo 2cm</span></div>
-                    <div className="anno-line-r1"><span>Lai tay 1 inch</span></div>
+                    <div className={`tech-view-col ${side === 'back' ? 'view-active' : ''}`} onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
+                      <div className="tech-view-label">BACK VIEW</div>
+                      <DesignCanvas
+                        elements={elements}
+                        selectedId={selectedId}
+                        onSelectElement={setSelectedId}
+                        onMoveElement={handleMoveElement}
+                        onResizeElement={handleResizeElement}
+                        onPushHistory={() => pushHistory(elements)}
+                        onDropImage={handleDropImage}
+                        side="back"
+                        tshirtColor={tshirtColor}
+                        sleeveColor={sleeveColor}
+                        shirtType={shirtType}
+                        zoom={zoom}
+                        pan={{ x: 0, y: 0 }}
+                        slot="shirt"
+                      />
+                      <div className="measure-lines">
+                        <div className="m-line" />
+                        <div className="m-label m-b-label">Center Back <span className="text-red-500">18cm Down</span></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1792,7 +1808,7 @@ export default function DesignPage() {
                       sleeveColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
-                      pan={{ x: 0, y: 0 }}
+                      pan={pan}
                       slot="logo-detail"
                     />
                   </div>
@@ -1814,18 +1830,30 @@ export default function DesignPage() {
                       sleeveColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
-                      pan={{ x: 0, y: 0 }}
+                      pan={pan}
                       slot="packaging"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* FOOTER SPECS */}
-              <div className="tech-pack-footer">
-                <div className="tech-pack-footer-cell">DESIGNER : NULEK</div>
-                <div className="tech-pack-footer-cell">MANUFACTURER : UNISPACE</div>
-                <div className="tech-pack-footer-cell">COLOR WAY : {tshirtColor}</div>
+              {/* FOOTER SPECS & PANTONE */}
+              <div className="tech-pack-footer-v2">
+                <div className="tech-footer-legend">
+                  <div className="legend-item">Single needle Chain Stitch</div>
+                  <div className="legend-item text-red-500 font-bold">ALL MEASUREMENTS IN CM</div>
+                </div>
+
+                <div className="pantone-block">
+                  <div className="p-label">FABRIC</div>
+                  <div className="p-swatch-wrap">
+                    <div className="p-swatch" style={{ backgroundColor: tshirtColor }} />
+                    <div className="p-info">
+                      <div className="p-name">PANTONE</div>
+                      <div className="p-code">{techPackInfo.pantone}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

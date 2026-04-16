@@ -1611,25 +1611,48 @@ body {
   gap: 4px;
 }
 
-.canva-zoom-btn {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.canva-zoom-slider {
+  width: 100px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  accent-color: var(--accent);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted);
-  transition: all var(--transition-fast);
 }
 
-.canva-zoom-btn:hover {
-  background: var(--surface-hover);
-  color: var(--foreground);
+.canva-zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.canva-zoom-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.canva-zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.canva-zoom-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
 }
 
 .canva-zoom-val {

@@ -1367,9 +1367,16 @@ export default function DesignPage() {
           {/* Bottom bar */}
           <div className="canva-bottombar">
             <div className="canva-zoom">
-              <button onClick={() => setZoom((z) => Math.max(50, z - 10))} className="canva-zoom-btn" aria-label="Thu nhỏ">−</button>
+              <input
+                type="range"
+                className="canva-zoom-slider"
+                min="20"
+                max="200"
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                aria-label="Điều chỉnh thu phóng"
+              />
               <span className="canva-zoom-val">{zoom}%</span>
-              <button onClick={() => setZoom((z) => Math.min(200, z + 10))} className="canva-zoom-btn" aria-label="Phóng to">+</button>
             </div>
             <div className="canva-side-indicator">
               <button onClick={() => setShirtType("tshirt")} className={shirtType === "tshirt" ? "active" : ""}>

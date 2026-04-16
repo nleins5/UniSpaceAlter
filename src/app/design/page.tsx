@@ -558,6 +558,7 @@ export default function DesignPage() {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isPanningWrapper, setIsPanningWrapper] = useState(false);
+  const workspaceRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -579,6 +580,26 @@ export default function DesignPage() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
+  }, []);
+
+  // Non-passive wheel listener for zoom and pan
+  useEffect(() => {
+    const el = workspaceRef.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault(); // Prevent native browser zoom or scroll
+      if (e.ctrlKey || e.metaKey) {
+        // Pinch-to-zoom
+        setZoom((z) => Math.min(200, Math.max(20, z - e.deltaY / 2)));
+      } else {
+        // Two-finger pan
+        setPan((p) => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+      }
+    };
+
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
   }, []);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
@@ -1361,18 +1382,11 @@ export default function DesignPage() {
 
         {/* ═══ CENTER CANVAS ═══ */}
         <main
+          ref={workspaceRef}
           className="canva-workspace"
           onTouchStart={(e) => {
             // Tap on workspace background (outside elements) → deselect on mobile
             if (e.target === e.currentTarget) setSelectedId(null);
-          }}
-          onWheel={(e) => {
-            if (e.ctrlKey) {
-              e.preventDefault();
-              setZoom((z) => Math.min(200, Math.max(20, z - e.deltaY / 2)));
-            } else {
-              setPan((p) => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
-            }
           }}
         >
           {/* Canvas area with checkerboard bg */}

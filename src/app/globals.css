@@ -1400,7 +1400,7 @@ body::after {
   align-items: center;
   justify-content: center;
   padding: 32px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 /* ─── Mockup Styles ─── */

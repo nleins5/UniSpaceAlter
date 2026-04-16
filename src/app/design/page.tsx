@@ -883,64 +883,93 @@ export default function DesignPage() {
 
   return (
     <div className="canva-layout">
-      {/* ═══ TOP BAR ═══ */}
-      <header className="canva-topbar">
-        <div className="canva-topbar-left">
-          <Link href="/" className="canva-logo" style={{ textDecoration: 'none' }}>
-            <Logo scale={0.4} />
-          </Link>
-          <div className="canva-topbar-divider" />
-          <span className="canva-file-name">Thiết kế áo lớp</span>
+      {/* ═══ TRAM DONG PHUC DOUBLE HEADER ═══ */}
+      <header className="tram-header">
+        <div className="section-header-top">
+          <div className="container-fluid tram-container clearfix">
+            <Link href="/" className="tram-logo">
+              <Logo scale={0.4} />
+            </Link>
+
+            <div className="tram-search">
+              <div className="tram-search-inner">
+                <span className="tram-search-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                </span>
+                <input type="text" placeholder="Tìm kiếm..." />
+              </div>
+            </div>
+
+            <div className="tram-top-links ms-auto">
+              <a href="#">Bản tin Unispace</a>
+              <a href="#">Tuyển dụng</a>
+              <a href="#">Liên hệ</a>
+            </div>
+          </div>
         </div>
 
-        <div className="canva-topbar-center">
-          <button
-            className="canva-topbar-btn"
-            title="Hoàn tác (Ctrl+Z)"
-            aria-label="Hoàn tác"
-            onClick={handleUndo}
-            disabled={historyStack.length === 0}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
-          </button>
-          <button
-            className="canva-topbar-btn"
-            title="Làm lại (Ctrl+Shift+Z)"
-            aria-label="Làm lại"
-            onClick={handleRedo}
-            disabled={redoStack.length === 0}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
-          </button>
+        <div className="section-header-menu">
+          <div className="container-fluid tram-container">
+            <nav className="tram-nav">
+              <ul className="tram-nav-left">
+                <li><a href="#">Trạm đồng phục <small>▼</small></a></li>
+                <li><a href="#" className="active">Thiết kế</a></li>
+              </ul>
+
+              <ul className="tram-nav-right ms-auto">
+                <li><a href="#">Khuyến mãi & Quà tặng</a></li>
+                <li><a href="#">Giao hàng & Thanh toán</a></li>
+                <li><a href="#">FAQ</a></li>
+              </ul>
+            </nav>
+          </div>
         </div>
 
-        <div className="canva-topbar-right">
-          {selectedId && (
-            <>
-              <button
-                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                onClick={handleDuplicateSelected}
-                onTouchEnd={(e) => { e.preventDefault(); handleDuplicateSelected(); }}
-                className="canva-topbar-btn" title="Nhân bản (Ctrl+D)" aria-label="Nhân bản"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
-              </button>
-              <button
-                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                onClick={handleDeleteSelected}
-                onTouchEnd={(e) => { e.preventDefault(); handleDeleteSelected(); }}
-                className="canva-topbar-btn canva-topbar-btn-danger" title="Xóa (Delete)" aria-label="Xóa"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
-              </button>
-              <div className="canva-topbar-divider" />
-            </>
-          )}
-          <button onClick={handleComplete} className="canva-btn-complete" disabled={elements.length === 0}>
-            <span className="canva-complete-full">Hoàn thành thiết kế</span>
-            <span className="canva-complete-short">Đặt hàng</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
-          </button>
+        {/* Floating actions for the canvas, since we replaced topbar */}
+        <div className="tram-canvas-actions">
+          <div className="canva-topbar-center">
+            <button
+              className="canva-topbar-btn" title="Hoàn tác (Ctrl+Z)"
+              onClick={handleUndo} disabled={historyStack.length === 0}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
+            </button>
+            <button
+              className="canva-topbar-btn" title="Làm lại (Ctrl+Shift+Z)"
+              onClick={handleRedo} disabled={redoStack.length === 0}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+            </button>
+          </div>
+
+          <div className="canva-topbar-right">
+            {selectedId && (
+              <>
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onClick={handleDuplicateSelected}
+                  onTouchEnd={(e) => { e.preventDefault(); handleDuplicateSelected(); }}
+                  className="canva-topbar-btn" title="Nhân bản (Ctrl+D)"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+                </button>
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onClick={handleDeleteSelected}
+                  onTouchEnd={(e) => { e.preventDefault(); handleDeleteSelected(); }}
+                  className="canva-topbar-btn canva-topbar-btn-danger" title="Xóa (Delete)"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                </button>
+                <div className="canva-topbar-divider" />
+              </>
+            )}
+            <button onClick={handleComplete} className="canva-btn-complete" disabled={elements.length === 0}>
+              <span className="canva-complete-full">Hoàn thành thiết kế</span>
+              <span className="canva-complete-short">Đặt hàng</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+          </div>
         </div>
       </header>
 

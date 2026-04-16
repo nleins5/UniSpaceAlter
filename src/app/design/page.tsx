@@ -559,20 +559,18 @@ export default function DesignPage() {
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isPanningWrapper, setIsPanningWrapper] = useState(false);
   const workspaceRef = useRef<HTMLElement>(null);
+  const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const touchDistRef = useRef<number | null>(null);
+  const touchZoomStartRef = useRef<number>(100);
 
+  // Space key for drag-pan cursor
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
-      if (e.code === "Space") {
-        e.preventDefault();
-        setIsSpacePressed(true);
-      }
+      if (e.code === "Space") { e.preventDefault(); setIsSpacePressed(true); }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        setIsSpacePressed(false);
-        setIsPanningWrapper(false);
-      }
+      if (e.code === "Space") { setIsSpacePressed(false); setIsPanningWrapper(false); }
     };
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -582,25 +580,83 @@ export default function DesignPage() {
     };
   }, []);
 
-  // Non-passive wheel listener for zoom and pan
+  // Non-passive wheel: Ctrl/Cmd + scroll = zoom, plain scroll = pan
   useEffect(() => {
     const el = workspaceRef.current;
     if (!el) return;
-
     const handleWheel = (e: WheelEvent) => {
-      e.preventDefault(); // Prevent native browser zoom or scroll
+      e.preventDefault();
       if (e.ctrlKey || e.metaKey) {
-        // Pinch-to-zoom
-        setZoom((z) => Math.min(200, Math.max(20, z - e.deltaY / 2)));
+        setZoom(z => Math.min(300, Math.max(10, z - e.deltaY * 0.5)));
       } else {
-        // Two-finger pan
-        setPan((p) => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+        setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
       }
     };
-
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
   }, []);
+
+  // Middle-mouse drag and Space+LMB drag
+  useEffect(() => {
+    const el = workspaceRef.current;
+    if (!el) return;
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button === 1 || isSpacePressed) {
+        e.preventDefault();
+        panStartRef.current = { x: e.clientX, y: e.clientY, panX: 0, panY: 0 };
+        // Capture current pan without stale closure — read from DOM attr
+        setIsPanningWrapper(true);
+      }
+    };
+    const onMouseMove = (e: MouseEvent) => {
+      if (e.buttons === 4 || (e.buttons === 1 && isSpacePressed)) {
+        setPan(p => ({ x: p.x + e.movementX, y: p.y + e.movementY }));
+      }
+    };
+    const onMouseUp = () => setIsPanningWrapper(false);
+
+    el.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => {
+      el.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [isSpacePressed]);
+
+  // Touch: 2-finger pinch = zoom, 2-finger pan
+  useEffect(() => {
+    const el = workspaceRef.current;
+    if (!el) return;
+    const getTouchDist = (e: TouchEvent) => {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        touchDistRef.current = getTouchDist(e);
+        touchZoomStartRef.current = zoom;
+      }
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = getTouchDist(e);
+        if (touchDistRef.current) {
+          const scale = dist / touchDistRef.current;
+          setZoom(Math.min(300, Math.max(10, touchZoomStartRef.current * scale)));
+        }
+      }
+    };
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [zoom]);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -1420,25 +1476,14 @@ export default function DesignPage() {
         >
           {/* Canvas area with checkerboard bg */}
           <div
-            className={`canva-canvas-wrapper ${isSpacePressed ? (isPanningWrapper ? "cursor-grabbing" : "cursor-grab") : ""}`}
+            className={`canva-canvas-wrapper ${isPanningWrapper ? "cursor-grabbing" : isSpacePressed ? "cursor-grab" : ""
+              }`}
             onMouseDown={(e) => {
-              if (isSpacePressed) {
-                setIsPanningWrapper(true);
-                return;
-              }
-              // Click on checkered background (outside t-shirt canvas) → deselect
-              if (e.target === e.currentTarget) setSelectedId(null);
+              // Space+LMB already handled via DOM listener above
+              if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
-            onMouseMove={(e) => {
-              if (isPanningWrapper) {
-                setPan(p => ({ x: p.x + e.movementX, y: p.y + e.movementY }));
-              }
-            }}
-            onMouseUp={() => setIsPanningWrapper(false)}
-            onMouseLeave={() => setIsPanningWrapper(false)}
             onTouchStart={(e) => {
-              // Tap on checkered background → deselect on mobile
-              if (e.target === e.currentTarget) setSelectedId(null);
+              if (e.touches.length === 1 && e.target === e.currentTarget) setSelectedId(null);
             }}
           >
             <DesignCanvas

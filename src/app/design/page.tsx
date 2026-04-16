@@ -982,43 +982,57 @@ export default function DesignPage() {
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
 
-                  <div className="ai-magic-scroll-area">
-                    <p className="ai-magic-desc">Mô tả hình ảnh bạn muốn tạo. AI sẽ biến ý tưởng của bạn thành hình ảnh tuyệt đẹp.</p>
-
-                    <div className="ai-magic-input-wrapper">
-                      <textarea
-                        className="ai-magic-textarea"
-                        placeholder="Ví dụ: Một chú mèo mặc đồ phi hành gia..."
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            if (chatInput.trim() && !isLoading) {
-                              handleSendMessage(chatInput.trim());
-                              setChatInput("");
+                  <div className="ai-magic-scroll-area pt-2">
+                    <div className="ai-canva-card">
+                      <label className="ai-canva-label">Mô tả thiết kế lý tưởng của bạn</label>
+                      <div className="ai-canva-input-row">
+                        <button className="ai-icon-btn" aria-label="Tải lên hình ảnh">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>
+                        </button>
+                        <textarea
+                          className="ai-canva-textarea"
+                          aria-label="Mô tả thiết kế lý tưởng của bạn"
+                          placeholder="Mô tả thiết kế lý tưởng của bạn..."
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              if (chatInput.trim() && !isLoading) {
+                                handleSendMessage(chatInput.trim());
+                                setChatInput("");
+                              }
                             }
-                          }
-                        }}
-                        rows={4}
-                      />
-                      <button
-                        className="ai-magic-generate-btn"
-                        disabled={isLoading || !chatInput.trim()}
-                        onClick={() => {
-                          if (chatInput.trim() && !isLoading) {
-                            handleSendMessage(chatInput.trim());
-                            setChatInput("");
-                          }
-                        }}
-                      >
-                        {isLoading ? (
-                          <div className="ai-btn-loading">
-                            <div className="canva-typing-dot" /><div className="canva-typing-dot" /><div className="canva-typing-dot" />
-                          </div>
-                        ) : "✨ Tạo hình ảnh"}
-                      </button>
+                          }}
+                          rows={3}
+                        />
+                        <button className="ai-icon-btn" aria-label="Nhập bằng giọng nói">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="22" /></svg>
+                        </button>
+                      </div>
                     </div>
+
+                    <button
+                      className="ai-canva-generate-btn"
+                      disabled={isLoading || !chatInput.trim()}
+                      onClick={() => {
+                        if (chatInput.trim() && !isLoading) {
+                          handleSendMessage(chatInput.trim());
+                          setChatInput("");
+                        }
+                      }}
+                    >
+                      {isLoading ? (
+                        <div className="ai-btn-loading">
+                          <div className="canva-typing-dot" /><div className="canva-typing-dot" /><div className="canva-typing-dot" />
+                        </div>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+                          <span>Tạo thiết kế</span>
+                        </>
+                      )}
+                    </button>
 
                     <div className="ai-suggestions-chips">
                       {suggestions.map((s, i) => (

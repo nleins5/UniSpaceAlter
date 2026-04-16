@@ -1333,10 +1333,19 @@ export default function DesignPage() {
         )}
 
         {/* ═══ CENTER CANVAS ═══ */}
-        <main className="canva-workspace" onTouchStart={(e) => {
-          // Tap on workspace background (outside elements) → deselect on mobile
-          if (e.target === e.currentTarget) setSelectedId(null);
-        }}>
+        <main
+          className="canva-workspace"
+          onTouchStart={(e) => {
+            // Tap on workspace background (outside elements) → deselect on mobile
+            if (e.target === e.currentTarget) setSelectedId(null);
+          }}
+          onWheel={(e) => {
+            if (e.ctrlKey) {
+              e.preventDefault();
+              setZoom((z) => Math.min(200, Math.max(20, z - e.deltaY / 2)));
+            }
+          }}
+        >
           {/* Canvas area with checkerboard bg */}
           <div
             className="canva-canvas-wrapper"

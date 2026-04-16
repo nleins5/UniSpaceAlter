@@ -1032,6 +1032,16 @@ export default function DesignPage() {
   const backCount = elements.filter((e) => e.side === "back").length;
   const selectedElement = elements.find((el) => el.id === selectedId);
 
+  // Technical Header Data (mockup)
+  const techPackInfo = {
+    collection: "Nº.1 / 2025",
+    name: "UNISPACE_TECH_PACK",
+    brand: "UNISPACE",
+    size: "M / L / XL / 2XL",
+    fabric: "100% COTTON PREMIUM",
+    color: tshirtColor.toUpperCase()
+  };
+
   const suggestions = [
     "Galaxy heart with stars",
     "Vintage class logo 2026",
@@ -1613,28 +1623,113 @@ export default function DesignPage() {
             className={`canva-canvas-wrapper ${isPanningWrapper ? "cursor-grabbing" : isSpacePressed ? "cursor-grab" : ""
               }`}
             onMouseDown={(e) => {
-              // Space+LMB already handled via DOM listener above
               if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
-            onTouchStart={(e) => {
-              if (e.touches.length === 1 && e.target === e.currentTarget) setSelectedId(null);
-            }}
           >
-            <DesignCanvas
-              elements={elements}
-              selectedId={selectedId}
-              onSelectElement={setSelectedId}
-              onMoveElement={handleMoveElement}
-              onResizeElement={handleResizeElement}
-              onPushHistory={() => pushHistory(elements)}
-              onDropImage={handleDropImage}
-              side={side}
-              tshirtColor={tshirtColor}
-              sleeveColor={sleeveColor}
-              shirtType={shirtType}
-              zoom={zoom}
-              pan={pan}
-            />
+            {/* ═══ TECHNICAL SPECIFICATION SHEET (Tech Pack Wrapper) ═══ */}
+            <div className="tech-pack-frame">
+              {/* HEADER SPEC TABLE */}
+              <div className="tech-pack-header">
+                <div className="tech-pack-header-row">
+                  <div className="tech-pack-header-cell">
+                    <div className="tech-pack-label">COLLECTION :</div>
+                    <div className="tech-pack-val">{techPackInfo.collection}</div>
+                  </div>
+                  <div className="tech-pack-header-cell">
+                    <div className="tech-pack-label">SIZE :</div>
+                    <div className="tech-pack-val">{techPackInfo.size}</div>
+                  </div>
+                </div>
+                <div className="tech-pack-header-row">
+                  <div className="tech-pack-header-cell">
+                    <div className="tech-pack-label">NAME :</div>
+                    <div className="tech-pack-val">{techPackInfo.name}</div>
+                  </div>
+                  <div className="tech-pack-header-cell">
+                    <div className="tech-pack-label">FABRIC :</div>
+                    <div className="tech-pack-val">{techPackInfo.fabric}</div>
+                  </div>
+                </div>
+                <div className="tech-pack-header-row">
+                  <div className="tech-pack-header-cell">
+                    <div className="tech-pack-label">BRAND :</div>
+                    <div className="tech-pack-val">{techPackInfo.brand}</div>
+                  </div>
+                  <div className="tech-pack-header-cell">
+                    <div className="tech-pack-label">COLOR :</div>
+                    <div className="tech-pack-val">{techPackInfo.color}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* THREE-COLUMN TECHNICAL LAYOUT */}
+              <div className="spec-slots-container">
+                {/* LEFT SIDEBAR SLOTS */}
+                <div className="spec-sidebar">
+                  <div className="spec-slot">
+                    <span className="spec-slot-title">PÁY CỔ / NECK LABEL</span>
+                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M7 12h10M12 7v10" /></svg>
+                    </div>
+                  </div>
+                  <div className="spec-slot">
+                    <span className="spec-slot-title">PÁY THẺ / HANG TAG</span>
+                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* MAIN SHIRT MOCKUP (Fixed in Center) */}
+                <div className="spec-main-shirt">
+                  <DesignCanvas
+                    elements={elements}
+                    selectedId={selectedId}
+                    onSelectElement={setSelectedId}
+                    onMoveElement={handleMoveElement}
+                    onResizeElement={handleResizeElement}
+                    onPushHistory={() => pushHistory(elements)}
+                    onDropImage={handleDropImage}
+                    side={side}
+                    tshirtColor={tshirtColor}
+                    sleeveColor={sleeveColor}
+                    shirtType={shirtType}
+                    zoom={zoom}
+                    pan={pan}
+                  />
+
+                  {/* Annotation Lines (Visual decoration to look like Tech Pack) */}
+                  <div className="tech-pack-annotations">
+                    <div className="anno-line-l1"><span>Bo cổ 3cm</span></div>
+                    <div className="anno-line-l2"><span>Gấu áo 2cm</span></div>
+                    <div className="anno-line-r1"><span>Lai tay 1 inch</span></div>
+                  </div>
+                </div>
+
+                {/* RIGHT SIDEBAR SLOTS */}
+                <div className="spec-sidebar">
+                  <div className="spec-slot">
+                    <span className="spec-slot-title">LOGO DETAIL</span>
+                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                    </div>
+                  </div>
+                  <div className="spec-slot">
+                    <span className="spec-slot-title">PACKAGING</span>
+                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M21 8V20.9932C21 21.5501 20.5552 22 20.0066 22H3.9934 C3.44476 22 3 21.5501 3 20.9932V8L1 6L11 3L21 6L23 8Z" /><path d="M3 8L12 11L21 8" /><path d="M12 11V22" /></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* FOOTER SPECS */}
+              <div className="tech-pack-footer">
+                <div className="tech-pack-footer-cell">DESIGNER : NULEK</div>
+                <div className="tech-pack-footer-cell">MANUFACTURER : UNISPACE</div>
+                <div className="tech-pack-footer-cell">COLOR WAY : {tshirtColor}</div>
+              </div>
+            </div>
           </div>
 
           {/* Bottom bar */}

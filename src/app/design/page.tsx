@@ -21,6 +21,7 @@ interface DesignElement {
   height: number;
   rotation: number;
   side: "front" | "back";
+  slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
 }
 
 interface AIImage {
@@ -302,6 +303,7 @@ interface DesignCanvasProps {
   shirtType: "tshirt" | "polo-a1" | "polo-d5" | "raglan";
   zoom: number;
   pan: { x: number; y: number };
+  slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
 }
 
 function DesignCanvas({
@@ -318,6 +320,7 @@ function DesignCanvas({
   shirtType,
   zoom,
   pan,
+  slot = "shirt",
 }: DesignCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -325,14 +328,20 @@ function DesignCanvas({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDropTarget, setIsDropTarget] = useState(false);
 
+  // Filter elements by side AND slot (if shirt) OR just slot
+  const sideElements = elements.filter((el) => {
+    if (slot === "shirt") return el.side === side && (el.slot === "shirt" || !el.slot);
+    return el.slot === slot;
+  });
+
+  const neckLabelElement = elements.find(el => el.slot === "neck-label");
+
   // Stable ref — updated after every render so event handlers always see latest value
   const pushHistoryRef = useRef(onPushHistory);
   useEffect(() => { pushHistoryRef.current = onPushHistory; });
 
   // Track whether mouse actually moved during drag — prevents post-drag click from deselecting
   const hasMovedRef = useRef(false);
-
-  const sideElements = elements.filter((el) => el.side === side);
 
   const handleElementMouseDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
@@ -536,6 +545,18 @@ function DesignCanvas({
           <TShirtSVG color={tshirtColor} side={side} />
         )}
 
+        {/* Neck Label Synchronized Preview (Visible only on front, shirt slot) */}
+        {slot === "shirt" && side === "front" && neckLabelElement && (
+          <div className="neck-label-preview">
+            {neckLabelElement.type === "image" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={neckLabelElement.url} alt="" className="w-full h-full object-contain" />
+            ) : (
+              <span className="neck-label-text">{neckLabelElement.text}</span>
+            )}
+          </div>
+        )}
+
         {/* Print area guide */}
         <div className="canva-print-area">
           <span className="canva-print-label">Vùng in {side === "front" ? "mặt trước" : "mặt sau"}</span>
@@ -595,6 +616,7 @@ export default function DesignPage() {
   const [sleeveColor, setSleeveColor] = useState("#333333");
   const [shirtType, setShirtType] = useState<"tshirt" | "polo-a1" | "polo-d5" | "raglan">("tshirt");
   const [activeColorTarget, setActiveColorTarget] = useState<"body" | "sleeve">("body");
+  const [activeSlot, setActiveSlot] = useState<"shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging">("shirt");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -903,6 +925,7 @@ export default function DesignPage() {
         height: 80,
         rotation: 0,
         side,
+        slot: activeSlot,
       };
       setElements((prev) => {
         pushHistory(prev);
@@ -910,25 +933,26 @@ export default function DesignPage() {
       });
       setSelectedId(el.id);
     },
-    [side, pushHistory]
+    [side, activeSlot, pushHistory]
   );
 
   const handleAddText = () => {
     if (!textInput.trim()) return;
     const el: DesignElement = {
-      id: `el-${Date.now()}`,
+      id: `text-${Date.now()}`,
       type: "text",
+      label: `Text ${elements.length + 1}`,
       text: textInput,
+      x: activeSlot === "shirt" ? 120 : 10,
+      y: activeSlot === "shirt" ? 150 : 10,
+      width: activeSlot === "shirt" ? 160 : 60,
+      height: activeSlot === "shirt" ? 40 : 20,
+      rotation: 0,
+      side,
+      slot: activeSlot,
       fontSize: textSize,
       fontFamily: textFont,
       textColor: textColor,
-      label: textInput,
-      x: 130,
-      y: 200,
-      width: 140,
-      height: 50,
-      rotation: 0,
-      side,
     };
     setElements((prev) => {
       pushHistory(prev);
@@ -1022,7 +1046,13 @@ export default function DesignPage() {
       type: "image",
       label: img.label,
       url: img.url,
-      x: 110, y: 130, width: 140, height: 140, rotation: 0, side,
+      x: activeSlot === "shirt" ? 110 : 10,
+      y: activeSlot === "shirt" ? 130 : 10,
+      width: activeSlot === "shirt" ? 140 : 60,
+      height: activeSlot === "shirt" ? 140 : 60,
+      rotation: 0,
+      side,
+      slot: activeSlot,
     };
     setElements(prev => [...prev, el]);
     setSelectedId(el.id);
@@ -1301,7 +1331,7 @@ export default function DesignPage() {
                           <div key={img.id} className="canva-ai-item" draggable onDragStart={(e) => handleDragStart(e, img)} onClick={() => {
                             const el: DesignElement = {
                               id: `el-${Date.now()}`, type: "image", label: img.label, url: img.url,
-                              x: 100, y: 120, width: 140, height: 140, rotation: 0, side,
+                              x: 100, y: 120, width: 140, height: 140, rotation: 0, side, slot: activeSlot,
                             };
                             setElements((prev) => [...prev, el]);
                             setSelectedId(el.id);
@@ -1666,22 +1696,57 @@ export default function DesignPage() {
               <div className="spec-slots-container">
                 {/* LEFT SIDEBAR SLOTS */}
                 <div className="spec-sidebar">
-                  <div className="spec-slot">
+                  <div
+                    className={`spec-slot ${activeSlot === "neck-label" ? "active" : ""}`}
+                    onClick={() => setActiveSlot("neck-label")}
+                  >
                     <span className="spec-slot-title">PÁY CỔ / NECK LABEL</span>
-                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M7 12h10M12 7v10" /></svg>
-                    </div>
+                    <DesignCanvas
+                      elements={elements}
+                      selectedId={selectedId}
+                      onSelectElement={setSelectedId}
+                      onMoveElement={handleMoveElement}
+                      onResizeElement={handleResizeElement}
+                      onPushHistory={() => pushHistory(elements)}
+                      onDropImage={handleDropImage}
+                      side={side}
+                      tshirtColor="#fff"
+                      sleeveColor="#fff"
+                      shirtType="tshirt"
+                      zoom={50}
+                      pan={{ x: 0, y: 0 }}
+                      slot="neck-label"
+                    />
                   </div>
-                  <div className="spec-slot">
+                  <div
+                    className={`spec-slot ${activeSlot === "hang-tag" ? "active" : ""}`}
+                    onClick={() => setActiveSlot("hang-tag")}
+                  >
                     <span className="spec-slot-title">PÁY THẺ / HANG TAG</span>
-                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>
-                    </div>
+                    <DesignCanvas
+                      elements={elements}
+                      selectedId={selectedId}
+                      onSelectElement={setSelectedId}
+                      onMoveElement={handleMoveElement}
+                      onResizeElement={handleResizeElement}
+                      onPushHistory={() => pushHistory(elements)}
+                      onDropImage={handleDropImage}
+                      side={side}
+                      tshirtColor="#fff"
+                      sleeveColor="#fff"
+                      shirtType="tshirt"
+                      zoom={50}
+                      pan={{ x: 0, y: 0 }}
+                      slot="hang-tag"
+                    />
                   </div>
                 </div>
 
                 {/* MAIN SHIRT MOCKUP (Fixed in Center) */}
-                <div className="spec-main-shirt">
+                <div
+                  className={`spec-main-shirt ${activeSlot === "shirt" ? "active" : ""}`}
+                  onClick={() => setActiveSlot("shirt")}
+                >
                   <DesignCanvas
                     elements={elements}
                     selectedId={selectedId}
@@ -1696,6 +1761,7 @@ export default function DesignPage() {
                     shirtType={shirtType}
                     zoom={zoom}
                     pan={pan}
+                    slot="shirt"
                   />
 
                   {/* Annotation Lines (Visual decoration to look like Tech Pack) */}
@@ -1708,17 +1774,49 @@ export default function DesignPage() {
 
                 {/* RIGHT SIDEBAR SLOTS */}
                 <div className="spec-sidebar">
-                  <div className="spec-slot">
+                  <div
+                    className={`spec-slot ${activeSlot === "logo-detail" ? "active" : ""}`}
+                    onClick={() => setActiveSlot("logo-detail")}
+                  >
                     <span className="spec-slot-title">LOGO DETAIL</span>
-                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
-                    </div>
+                    <DesignCanvas
+                      elements={elements}
+                      selectedId={selectedId}
+                      onSelectElement={setSelectedId}
+                      onMoveElement={handleMoveElement}
+                      onResizeElement={handleResizeElement}
+                      onPushHistory={() => pushHistory(elements)}
+                      onDropImage={handleDropImage}
+                      side={side}
+                      tshirtColor="#fff"
+                      sleeveColor="#fff"
+                      shirtType="tshirt"
+                      zoom={50}
+                      pan={{ x: 0, y: 0 }}
+                      slot="logo-detail"
+                    />
                   </div>
-                  <div className="spec-slot">
+                  <div
+                    className={`spec-slot ${activeSlot === "packaging" ? "active" : ""}`}
+                    onClick={() => setActiveSlot("packaging")}
+                  >
                     <span className="spec-slot-title">PACKAGING</span>
-                    <div className="spec-slot-inner flex items-center justify-center opacity-30">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M21 8V20.9932C21 21.5501 20.5552 22 20.0066 22H3.9934 C3.44476 22 3 21.5501 3 20.9932V8L1 6L11 3L21 6L23 8Z" /><path d="M3 8L12 11L21 8" /><path d="M12 11V22" /></svg>
-                    </div>
+                    <DesignCanvas
+                      elements={elements}
+                      selectedId={selectedId}
+                      onSelectElement={setSelectedId}
+                      onMoveElement={handleMoveElement}
+                      onResizeElement={handleResizeElement}
+                      onPushHistory={() => pushHistory(elements)}
+                      onDropImage={handleDropImage}
+                      side={side}
+                      tshirtColor="#fff"
+                      sleeveColor="#fff"
+                      shirtType="tshirt"
+                      zoom={50}
+                      pan={{ x: 0, y: 0 }}
+                      slot="packaging"
+                    />
                   </div>
                 </div>
               </div>

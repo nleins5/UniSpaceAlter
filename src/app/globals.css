@@ -1716,6 +1716,47 @@ body::after {
 }
 
 /* Annotation Lines for Tech Pack look */
+.spec-slot.active,
+.spec-main-shirt.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  background: #fff;
+}
+
+.spec-slot .canva-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  background: transparent !important;
+  cursor: crosshair;
+}
+
+.spec-slot .canva-print-area {
+  display: none;
+}
+
+.neck-label-preview {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 20px;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.neck-label-text {
+  font-size: 4px;
+  text-align: center;
+  color: #333;
+  line-height: 1;
+}
+
 .tech-pack-annotations {
   position: absolute;
   inset: 0;

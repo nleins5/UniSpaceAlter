@@ -240,9 +240,22 @@ function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front"
   );
 }
 
-
-
 // ─── Canva-style Design Canvas ──────────────────────────────
+interface DesignCanvasProps {
+  elements: DesignElement[];
+  selectedId: string | null;
+  onSelectElement: (id: string | null) => void;
+  onMoveElement: (id: string, x: number, y: number) => void;
+  onResizeElement: (id: string, width: number, height: number, x?: number, y?: number) => void;
+  onPushHistory: () => void;
+  onDropImage: (image: AIImage, x: number, y: number) => void;
+  side: "front" | "back";
+  tshirtColor: string;
+  shirtType: "tshirt" | "polo-a1" | "polo-d5";
+  zoom: number;
+  pan: { x: number; y: number };
+}
+
 function DesignCanvas({
   elements,
   selectedId,
@@ -255,19 +268,8 @@ function DesignCanvas({
   tshirtColor,
   shirtType,
   zoom,
-}: {
-  elements: DesignElement[];
-  selectedId: string | null;
-  onSelectElement: (id: string | null) => void;
-  onMoveElement: (id: string, x: number, y: number) => void;
-  onResizeElement: (id: string, width: number, height: number, x?: number, y?: number) => void;
-  onPushHistory: () => void;
-  onDropImage: (image: AIImage, x: number, y: number) => void;
-  side: "front" | "back";
-  tshirtColor: string;
-  shirtType: "tshirt" | "polo-a1" | "polo-d5";
-  zoom: number;
-}) {
+  pan,
+}: DesignCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -432,8 +434,8 @@ function DesignCanvas({
       <style>{`
         .canva-canvas { 
           --canvas-scale: ${zoom / 100}; 
-          transform: scale(var(--canvas-scale, 1));
-          transform-origin: top left;
+          transform: translate(${pan.x}px, ${pan.y}px) scale(var(--canvas-scale, 1));
+          transform-origin: center center;
         }
         ${sideElements.map(el => `
           .el-${el.id} {
@@ -553,6 +555,31 @@ export default function DesignPage() {
   // Undo / Redo
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const [isPanningWrapper, setIsPanningWrapper] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
+      if (e.code === "Space") {
+        e.preventDefault();
+        setIsSpacePressed(true);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        setIsSpacePressed(false);
+        setIsPanningWrapper(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -1343,16 +1370,29 @@ export default function DesignPage() {
             if (e.ctrlKey) {
               e.preventDefault();
               setZoom((z) => Math.min(200, Math.max(20, z - e.deltaY / 2)));
+            } else {
+              setPan((p) => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
             }
           }}
         >
           {/* Canvas area with checkerboard bg */}
           <div
-            className="canva-canvas-wrapper"
+            className={`canva-canvas-wrapper ${isSpacePressed ? (isPanningWrapper ? "cursor-grabbing" : "cursor-grab") : ""}`}
             onMouseDown={(e) => {
+              if (isSpacePressed) {
+                setIsPanningWrapper(true);
+                return;
+              }
               // Click on checkered background (outside t-shirt canvas) → deselect
               if (e.target === e.currentTarget) setSelectedId(null);
             }}
+            onMouseMove={(e) => {
+              if (isPanningWrapper) {
+                setPan(p => ({ x: p.x + e.movementX, y: p.y + e.movementY }));
+              }
+            }}
+            onMouseUp={() => setIsPanningWrapper(false)}
+            onMouseLeave={() => setIsPanningWrapper(false)}
             onTouchStart={(e) => {
               // Tap on checkered background → deselect on mobile
               if (e.target === e.currentTarget) setSelectedId(null);
@@ -1370,6 +1410,7 @@ export default function DesignPage() {
               tshirtColor={tshirtColor}
               shirtType={shirtType}
               zoom={zoom}
+              pan={pan}
             />
           </div>
 

@@ -1336,33 +1336,59 @@ export default function DesignPage() {
 
                       <div className="canva-ai-grid mt-4">
                         {messages.filter(m => m.role === "ai").slice().reverse().map(m => m.images && m.images.map((img) => (
-                          <div key={img.id} className="canva-ai-item" draggable onDragStart={(e) => handleDragStart(e, img)} onClick={() => {
-                            // Professional Placement Logic for AI images
-                            const isLogo = img.label.toLowerCase().includes("logo") || img.label.toLowerCase().includes("icon");
+                          <div key={img.id} className="canva-ai-grid-item-wrapper group">
+                            <div className="canva-ai-item" onClick={() => {
+                              // Professional Fixed Placement Logic
+                              // Instead of adding multiple, we update/replace the primary graphic in the fixed spot
+                              setElements((prev) => {
+                                pushHistory(prev);
 
-                            // Default to center-chest for graphics, left-chest for logos
-                            const el: DesignElement = {
-                              id: `el-${Date.now()}`,
-                              type: "image",
-                              label: img.label,
-                              url: img.url,
-                              // Wearer's Left Chest (Screen Right) approx center of chest panel is x=235
-                              x: isLogo ? 220 : 100,
-                              y: isLogo ? 110 : 100,
-                              width: isLogo ? 65 : 200,
-                              height: isLogo ? 65 : 200,
-                              rotation: 0,
-                              side: "front",
-                              slot: activeSlot,
-                              locked: true, // Fix the position as requested
-                            };
-                            setElements((prev) => [...prev, el]);
-                            setSelectedId(el.id);
-                          }}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={img.url} alt={img.label} />
-                            <div className="canva-ai-item-overlay">
-                              <span>+ Thêm</span>
+                                // Check if there's already a locked AI image on this side/slot
+                                const existingIdx = prev.findIndex(el =>
+                                  el.type === "image" &&
+                                  el.side === side &&
+                                  el.slot === activeSlot &&
+                                  el.locked === true
+                                );
+
+                                if (existingIdx !== -1) {
+                                  // Replace existing
+                                  const newElements = [...prev];
+                                  newElements[existingIdx] = {
+                                    ...newElements[existingIdx],
+                                    url: img.url,
+                                    label: img.label
+                                  };
+                                  return newElements;
+                                }
+
+                                // Create new fixed element if none exists
+                                const isLogo = img.label.toLowerCase().includes("logo") || img.label.toLowerCase().includes("icon");
+                                return [...prev, {
+                                  id: `fixed-el-${Date.now()}`,
+                                  type: "image",
+                                  label: img.label,
+                                  url: img.url,
+                                  // Perfectly centered in the technical print area
+                                  x: isLogo ? 225 : 100,
+                                  y: isLogo ? 115 : 110,
+                                  width: isLogo ? 60 : 200,
+                                  height: isLogo ? 60 : 200,
+                                  rotation: 0,
+                                  side,
+                                  slot: activeSlot,
+                                  locked: true,
+                                }];
+                              });
+                            }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
+                              <div className="canva-ai-item-overlay">
+                                <span>Dùng mẫu này</span>
+                              </div>
+                            </div>
+                            <div className="canva-ai-item-label truncate text-[10px] mt-1 opacity-60 text-center px-1">
+                              {img.label}
                             </div>
                           </div>
                         )))}
@@ -1992,6 +2018,6 @@ export default function DesignPage() {
           </button>
         ))}
       </nav>
-    </div>
+    </div >
   );
 }

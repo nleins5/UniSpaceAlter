@@ -241,6 +241,53 @@ function PoloShirtSVG({ color, side = "front" }: { color: string; side?: "front"
 }
 
 // ─── Canva-style Design Canvas ──────────────────────────────
+function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16) || 255;
+  const g = parseInt(hex.substring(2, 4), 16) || 255;
+  const b = parseInt(hex.substring(4, 6), 16) || 255;
+  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
+  const strokeColor = isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.10)";
+  const shadowColor = isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)";
+  const highlightColor = isLight ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.08)";
+
+  const gradId = `raglan-${side}-fab`;
+  const filtId = `raglan-${side}-shd`;
+
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
+      <defs>
+        <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
+          <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
+        </linearGradient>
+        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.12" /></filter>
+      </defs>
+      <g filter={`url(#${filtId})`}>
+        {/* Back neck inner visible from front */}
+        {side === "front" && (
+          <path d="M 160 25 C 180 32, 220 32, 240 25 C 220 42, 180 42, 160 25 Z" fill={shadowColor} stroke={strokeColor} strokeWidth="1" />
+        )}
+
+        {/* MAIN BODY */}
+        <path d="M 160 25 C 180 55, 220 55, 240 25 L 290 120 L 290 450 C 240 465, 160 465, 110 450 L 110 120 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" />
+        <path d="M 160 25 C 180 55, 220 55, 240 25 L 290 120 L 290 450 C 240 465, 160 465, 110 450 L 110 120 Z" fill={`url(#${gradId})`} />
+
+        {/* LEFT SLEEVE (Raglan) */}
+        <path d="M 160 25 C 130 20, 100 25, 75 45 L 15 135 L 65 185 L 110 120 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.2" />
+
+        {/* RIGHT SLEEVE (Raglan) */}
+        <path d="M 240 25 C 270 20, 300 25, 325 45 L 385 135 L 335 185 L 290 120 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.2" />
+
+        {/* COLLAR RIBBING */}
+        <path d="M 160 25 C 175 55, 225 55, 240 25 C 225 48, 175 48, 160 25 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" />
+
+        {/* Stitching details (Oversized look) */}
+        <path d="M 112 440 C 160 452, 240 452, 288 440" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3,2" />
+      </g>
+    </svg>
+  );
+}
+
 interface DesignCanvasProps {
   elements: DesignElement[];
   selectedId: string | null;
@@ -251,7 +298,8 @@ interface DesignCanvasProps {
   onDropImage: (image: AIImage, x: number, y: number) => void;
   side: "front" | "back";
   tshirtColor: string;
-  shirtType: "tshirt" | "polo-a1" | "polo-d5";
+  sleeveColor: string;
+  shirtType: "tshirt" | "polo-a1" | "polo-d5" | "raglan";
   zoom: number;
   pan: { x: number; y: number };
 }
@@ -266,6 +314,7 @@ function DesignCanvas({
   onDropImage,
   side,
   tshirtColor,
+  sleeveColor,
   shirtType,
   zoom,
   pan,
@@ -477,7 +526,15 @@ function DesignCanvas({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {shirtType === "polo-d5" ? <PoloShirtSVG color={tshirtColor} side={side} /> : shirtType === "polo-a1" ? <PoloA1ShirtSVG color={tshirtColor} side={side} /> : <TShirtSVG color={tshirtColor} side={side} />}
+        {shirtType === "raglan" ? (
+          <RaglanShirtSVG color={tshirtColor} sleeveColor={sleeveColor} side={side} />
+        ) : shirtType === "polo-d5" ? (
+          <PoloShirtSVG color={tshirtColor} side={side} />
+        ) : shirtType === "polo-a1" ? (
+          <PoloA1ShirtSVG color={tshirtColor} side={side} />
+        ) : (
+          <TShirtSVG color={tshirtColor} side={side} />
+        )}
 
         {/* Print area guide */}
         <div className="canva-print-area">
@@ -535,7 +592,9 @@ export default function DesignPage() {
   const router = useRouter();
   const [side, setSide] = useState<"front" | "back">("front");
   const [tshirtColor, setTshirtColor] = useState("#ffffff");
-  const [shirtType, setShirtType] = useState<"tshirt" | "polo-a1" | "polo-d5">("tshirt");
+  const [sleeveColor, setSleeveColor] = useState("#333333");
+  const [shirtType, setShirtType] = useState<"tshirt" | "polo-a1" | "polo-d5" | "raglan">("tshirt");
+  const [activeColorTarget, setActiveColorTarget] = useState<"body" | "sleeve">("body");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -1437,8 +1496,24 @@ export default function DesignPage() {
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
                   <div className="canva-panel-body">
+                    {shirtType === "raglan" && (
+                      <div className="canva-layer-toggle mb-4">
+                        <button
+                          className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all ${activeColorTarget === "body" ? "bg-black text-white" : "bg-gray-100"}`}
+                          onClick={() => setActiveColorTarget("body")}
+                        >
+                          Màu thân
+                        </button>
+                        <button
+                          className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all ${activeColorTarget === "sleeve" ? "bg-black text-white" : "bg-gray-100"}`}
+                          onClick={() => setActiveColorTarget("sleeve")}
+                        >
+                          Màu tay
+                        </button>
+                      </div>
+                    )}
                     <div className="canva-color-preview canva-color-preview--mb">
-                      <style>{`.scdot{background:${tshirtColor}}`}</style>
+                      <style>{`.scdot{background:${activeColorTarget === "body" ? tshirtColor : sleeveColor}}`}</style>
                       <div className="canva-color-dot scdot" />
                     </div>
                     {(() => {
@@ -1461,10 +1536,10 @@ export default function DesignPage() {
                               <button
                                 key={c + i}
                                 title={c}
-                                onClick={() => setTshirtColor(c)}
-                                className={`canva-palette-cell sc-${i}${tshirtColor === c ? ' canva-swatch-active' : ''}`}
+                                onClick={() => activeColorTarget === "body" ? setTshirtColor(c) : setSleeveColor(c)}
+                                className={`canva-palette-cell sc-${i}${(activeColorTarget === "body" ? tshirtColor : sleeveColor) === c ? ' canva-swatch-active' : ''}`}
                               >
-                                {tshirtColor === c && (
+                                {(activeColorTarget === "body" ? tshirtColor : sleeveColor) === c && (
                                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={['#ffffff', '#fffff9', '#ffebee', '#fff3e0', '#fffff9', '#e8f5e9', '#e3f2fd', '#ede7f6', '#fce4ec', '#f5f5f5'].includes(c) ? '#333' : '#fff'} strokeWidth="4">
                                     <polyline points="20 6 9 17 4 12" />
                                   </svg>
@@ -1555,6 +1630,7 @@ export default function DesignPage() {
               onDropImage={handleDropImage}
               side={side}
               tshirtColor={tshirtColor}
+              sleeveColor={sleeveColor}
               shirtType={shirtType}
               zoom={zoom}
               pan={pan}
@@ -1584,6 +1660,9 @@ export default function DesignPage() {
               </button>
               <button onClick={() => setShirtType("polo-d5")} className={shirtType === "polo-d5" ? "active" : ""}>
                 Polo D5
+              </button>
+              <button onClick={() => setShirtType("raglan")} className={shirtType === "raglan" ? "active" : ""}>
+                Raglan
               </button>
             </div>
             <div className="canva-side-indicator">

@@ -1545,6 +1545,7 @@ body::after {
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   padding: 8px 16px;
   border-radius: 30px;
@@ -1554,6 +1555,14 @@ body::after {
   gap: 12px;
   z-index: 100;
   border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.canva-layer-toggle {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 100px;
+  gap: 4px;
 }
 
 .canva-snap-label {

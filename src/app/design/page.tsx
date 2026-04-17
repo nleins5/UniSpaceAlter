@@ -62,8 +62,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
       L 95, 175
       L 35, 120
       L 105, 52
-      L 155, 35
-      Q 200, 30 245, 35
+      L 145, 23
+      Q 200, 18 255, 23
       L 295, 52
       L 365, 120
       L 305, 175
@@ -112,14 +112,12 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
             {/* Front neck rim (bottom curve of the hole) */}
             <path d="M 145,23 Q 200,65 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" opacity="0.6" />
 
-            {/* Back Thick Collar Ribbing */}
-            <path d="M 155,35 Q 200,30 245,35 L 255,23 Q 200,18 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            {/* Collar inner stitch line */}
-            <path d="M 152,31 Q 200,26 248,31" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+            {/* Thin Back Collar Ribbing Seam */}
+            <path d="M 143,26 Q 200,21 257,26" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
 
             {/* Back inner tag stitch marks */}
-            <path d="M 188,38 L 188,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
-            <path d="M 212,38 L 212,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 188,29 L 188,39" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 212,29 L 212,39" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
           </>
         )}
 

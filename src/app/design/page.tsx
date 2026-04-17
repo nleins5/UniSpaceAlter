@@ -34,7 +34,7 @@ interface ChatMessage {
   images?: AIImage[];
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const imageUrl = "/mockups/tshirt_oversize.png";
+  const imageUrl = "/mockups/technical_sheet.png";
   const id = useId().replace(/:/g, "");
 
   return (
@@ -43,7 +43,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         .tshirt-instance-${id} .mockup-layer-color { background-color: ${color}; }
         .tshirt-instance-${id} .mockup-layer-image { 
           background-image: url(${imageUrl}); 
-          background-position: ${side === "front" ? '0% 50%' : '100% 50%'}; 
+          background-size: 300% 200%;
+          background-position: ${side === "front" ? '0% 0%' : '50% 0%'}; 
         }
       `}</style>
       <div className="mockup-layer-color" />
@@ -53,7 +54,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
 }
 
 function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const imageUrl = "/mockups/raglan_classic.png";
+  const imageUrl = "/mockups/technical_sheet.png";
   const id = useId().replace(/:/g, "");
 
   return (
@@ -62,7 +63,8 @@ function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "fron
         .raglan-instance-${id} .mockup-layer-color { background-color: ${color}; }
         .raglan-instance-${id} .mockup-layer-image { 
           background-image: url(${imageUrl}); 
-          background-position: ${side === "front" ? '0% 50%' : '100% 50%'}; 
+          background-size: 300% 200%;
+          background-position: ${side === "front" ? '0% 100%' : '50% 100%'}; 
         }
       `}</style>
       <div className="mockup-layer-color" />

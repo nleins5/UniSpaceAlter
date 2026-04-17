@@ -52,7 +52,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   const gradId = `tshirt-${side}-fab`;
   const filtId = `tshirt-${side}-shd`;
 
-  // Fashion-forward Technical Silhouette (Angled sleeves, flared bottom as per Image)
+  // Fashion-forward Technical Silhouette (Angled sleeves, flared bottom)
   const bodyPath = "M 80,460 Q 200,475 320,460 L 312,142 L 390,175 L 400,85 L 295,45 L 235,30 Q 200,28 165,30 L 105,45 L 0,85 L 10,175 L 88,142 Z";
 
   return (
@@ -68,17 +68,23 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" />
         <path d={bodyPath} fill={`url(#${gradId})`} />
 
+        {/* Technical Center Line (as seen in Image 896) */}
+        <path d="M 200,32 L 200,465" stroke={strokeColor} strokeWidth="1" opacity="0.15" strokeDasharray="4 4" />
+
         {/* Technical Neckline Details */}
         {side === "front" ? (
           <>
-            {/* Inner neck opening shadow */}
             <path d="M 165,30 Q 200,68 235,30 Q 200,88 165,30 Z" fill="rgba(0,0,0,0.1)" fillRule="evenodd" />
-            {/* Front ribbing construction */}
             <path d="M 165,30 Q 200,80 235,30 L 235,22 Q 200,18 165,22 Z" fill={color} stroke={strokeColor} strokeWidth="1.4" />
             <path d="M 165,22 Q 200,72 235,22" fill="none" stroke={strokeColor} strokeWidth="2.8" strokeLinecap="round" />
           </>
         ) : (
-          <path d="M 165,22 Q 200,42 235,22 L 235,12 Q 200,10 165,12 Z" fill={color} stroke={strokeColor} strokeWidth="1.4" />
+          <>
+            {/* Back high neckline rib */}
+            <path d="M 165,22 Q 200,45 235,22 L 235,15 Q 200,12 165,15 Z" fill={color} stroke={strokeColor} strokeWidth="1.4" />
+            {/* Visible inner front collar rim */}
+            <path d="M 165,22 Q 200,28 235,22" fill="none" stroke={strokeColor} strokeWidth="1" opacity="0.4" />
+          </>
         )}
 
         {/* Stitching Lines (Technical Reference) */}

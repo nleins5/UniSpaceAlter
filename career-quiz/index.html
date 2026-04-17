@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Định Hướng Nghề Nghiệp</title>
+    <meta name="description"
+        content="Khám phá định hướng nghề nghiệp phù hợp với bản thân qua 35 câu hỏi trắc nghiệm khoa học.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --accent: #ec4899;
+            --accent2: #f59e0b;
+            --surface: #ffffff;
+            --surface2: #f8faff;
+            --border: #e0e7ff;
+            --text: #1e1b4b;
+            --text-secondary: #6b7280;
+            --radius: 2rem;
+            --shadow: 0 20px 60px rgba(99, 102, 241, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 70%, #701a75 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px 60px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #6366f1, transparent);
+            top: -200px;
+            left: -200px;
+            animation: floatBlob 8s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ec4899, transparent);
+            bottom: -150px;
+            right: -150px;
+            animation: floatBlob 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes floatBlob {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(40px, 30px) scale(1.1);
+            }
+        }
+
+        .card {
+            width: 100%;
+            max-width: 760px;
+            background: rgba(255, 255, 255, 0.94);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(20px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            padding: 32px 36px 28px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 100px;
+            padding: 4px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .header h1 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 8px;
+        }
+
+        .progress-wrap {
+            padding: 16px 36px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #e0e7ff;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #ec4899);
+            border-radius: 100px;
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .question-area {
+            padding: 32px 36px;
+            min-height: 420px;
+        }
+
+        .q-item {
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadeUp 0.4s forwards;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .opt-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e0e7ff;
+            border-radius: 1rem;
+            cursor: pointer;
+            margin-top: 8px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .opt-label:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 26px;
+            border-radius: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #noise-filter-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0.05;
+            filter: url(#noise);
+        }
+    </style>
+</head>
+
+<body>
+    <svg style="display:none">
+        <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
+        </filter>
+    </svg>
+    <div id="noise-filter-layer"></div>
+
+    <div class="card">
+        <div class="header">
+            <div class="header-badge">✨ Career Discovery</div>
+            <h1>Khám Phá Nghề Nghiệp</h1>
+        </div>
+        <div class="progress-wrap">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="question-area" id="questionArea"></div>
+        <div class="footer"
+            style="padding: 20px 36px; display:flex; justify-content: space-between; align-items: center; background: #f8faff;">
+            <button class="btn" id="prevBtn" onclick="goPage(-1)" style="background:#eef2ff;">Trước</button>
+            <button class="btn" id="nextBtn" onclick="goPage(1)"
+                style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color:white;">Tiếp</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { text: "Tôi thích dành thời gian để thiết kế ứng dụng, đồ họa, video hoặc tạo nội dung sáng tạo.", group: "creative" },
+            { text: "Tôi cảm thấy hào hứng khi thử nghiệm những ý tưởng mới dù chưa chắc chắn sẽ thành công.", group: "creative" },
+            { text: "Tôi thích viết lách, vẽ tranh, chụp ảnh hoặc sáng tác theo phong cách riêng của mình.", group: "creative" },
+            { text: "Tôi thích dẫn dắt nhóm và thuyết phục mọi người thực hiện ý tưởng của mình.", group: "leader" },
+            { text: "Tôi cảm thấy động lực khi đạt được thành tích cao và được người khác công nhận.", group: "leader" },
+            { text: "Tôi thích tổ chức sự kiện, gây quỹ hoặc bán hàng.", group: "leader" },
+            { text: "Tôi cảm thấy thoải mái khi làm việc theo quy trình rõ ràng và ổn định.", group: "order" },
+            { text: "Tôi thường kiểm tra lỗi cẩn thận và hoàn thành công việc đúng hạn.", group: "order" },
+            { text: "Tôi thích làm bảng tính chi tiết, lập kế hoạch và quản lý dữ liệu.", group: "order" },
+            { text: "Tôi thường dừng lại để lắng nghe và hỗ trợ bạn bè khi họ gặp khó khăn.", group: "social" },
+            { text: "Tôi thích tham gia tình nguyện hoặc hoạt động giúp đỡ cộng đồng.", group: "social" },
+            { text: "Tôi cảm thấy ý nghĩa khi làm việc giúp đỡ nhiều người hoặc cải thiện xã hội.", group: "social" },
+            { text: "Tôi thích sửa chữa máy móc, lắp ráp đồ dùng hoặc làm việc với tay chân.", group: "technical" },
+            { text: "Tôi thích làm việc ngoài trời với dụng cụ hoặc máy móc.", group: "technical" },
+            { text: "Tôi thích phân tích dữ liệu hoặc tìm hiểu nguyên nhân gốc rễ của vấn đề.", group: "analyst" },
+            { text: "Tôi thích đọc sách hoặc nghiên cứu vấn đề phức tạp.", group: "analyst" },
+            { text: "Tôi thích học những kiến thức hoặc kỹ năng hoàn toàn mới lạ.", group: "analyst" },
+            { text: "Tôi coi trọng việc được tự do quyết định cách làm việc theo ý mình.", group: "creative" },
+            { text: "Tôi muốn công việc mang lại thu nhập tốt và cơ hội thăng tiến rõ ràng.", group: "leader" },
+            { text: "Tôi coi trọng sự ổn định và an ninh lâu dài trong công việc.", group: "order" },
+            { text: "Tôi quan tâm đến việc giữ gìn truyền thống gia đình và tuân thủ quy tắc xã hội.", group: "order" },
+            { text: "Tôi muốn công việc của mình đóng góp cho cộng đồng hoặc đất nước.", group: "social" },
+            { text: "Tôi là người năng động và thích gặp gỡ, nói chuyện với nhiều người.", group: "leader" },
+            { text: "Tôi hay lo lắng và dễ stress khi có thay đổi lớn.", group: "order" },
+            { text: "Tôi thường hy sinh thời gian cá nhân để giúp đỡ đồng nghiệp hoặc bạn bè.", group: "social" },
+            { text: "Tôi thích thử thách bản thân và trải nghiệm phiêu lưu.", group: "creative" },
+            { text: "Tôi thường quên thời gian khi làm việc sáng tạo hoặc giúp đỡ người khác.", group: "creative" },
+            { text: "Tôi tự tin nhất ở kỹ năng sáng tạo, thiết kế hoặc viết lách.", group: "creative" },
+            { text: "Tôi muốn đóng góp cho lĩnh vực giáo dục, môi trường hoặc công nghệ hỗ trợ xã hội.", group: "social" },
+            { text: "Tôi sẵn sàng học thêm kỹ năng để kiếm tiền từ những điều mình đam mê.", group: "creative" },
+            { text: "Tôi thích công việc cho phép thể hiện ý tưởng cá nhân một cách tự do.", group: "creative" },
+            { text: "Tôi thấy hạnh phúc khi thấy người khác tiến bộ nhờ sự giúp đỡ của mình.", group: "social" },
+            { text: "Tôi thích công việc có cơ hội cạnh tranh và thăng tiến nhanh.", group: "leader" },
+            { text: "Tôi cảm thấy thoải mái nhất khi mọi thứ diễn ra theo kế hoạch rõ ràng.", group: "order" },
+            { text: "Tôi mong muốn sự nghiệp tương lai của mình mang lại cả ý nghĩa cá nhân lẫn lợi ích cho xã hội.", group: "social" }
+        ];
+
+        let currentPage = 0;
+        let answers = new Array(35).fill(null);
+
+        function renderPage() {
+            const area = document.getElementById('questionArea');
+            const start = currentPage * 5;
+            const end = Math.min(start + 5, 35);
+            let html = '';
+            for (let i = start; i < end; i++) {
+                html += `
+          <div class="q-item">
+            <p><strong>\${i+1}. \${questions[i].text}</strong></p>
+            <div style="display:flex; flex-direction:column; gap:5px; margin-top:10px;">
+              \${[4,3,2,1].map(s => `
+                    < label class="opt-label" >
+                        <input type="radio" name="q\${i}" value="\${s}" \ ${answers[i] === s ? 'checked' : ''} onchange="saveAnswer(\${i},\${s})">
+                            <span>\${s === 4 ? 'Rất đúng' : s === 3 ? 'Khá đúng' : s === 2 ? 'Hơi đúng' : 'Không đúng'}</span>
+                        </label>
+                `).join('')}
+            </div>
+          </div>
+        `;
+            }
+            area.innerHTML = html;
+            updateUI();
+        }
+
+        function saveAnswer(i, s) {
+            answers[i] = s;
+            const pct = Math.round((answers.filter(a => a !== null).length / 35) * 100);
+            document.getElementById('progressFill').style.width = pct + '%';
+        }
+
+        function updateUI() {
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').textContent = currentPage === 6 ? 'KẾT QUẢ' : 'TIẾP THEO';
+        }
+
+        function goPage(dir) {
+            currentPage += dir;
+            if (currentPage > 6) alert("Kết quả đang được tính toán...");
+            else renderPage();
+        }
+
+        renderPage();
+    </script>
+</body>
+
+</html>

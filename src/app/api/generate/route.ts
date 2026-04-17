@@ -22,8 +22,11 @@ const VI_EN: Record<string, string> = {
   "galaxy": "galaxy cosmic nebula", "thiên hà": "galaxy cosmic",
   "vũ trụ": "space universe", "đầu lâu": "skull", "thiên thần": "angel",
   "phượng hoàng": "phoenix", "kỳ lân": "unicorn", "cướp biển": "pirate",
-  "dễ thương": "cute adorable", "đẹp": "beautiful", "ngầu": "cool badass",
-  "đáng yêu": "lovely cute", "cổ điển": "vintage", "neon": "neon glowing",
+  "dễ thương": "cute adorable kawai", "đẹp": "beautiful high quality", "ngầu": "cool badass sigma", "đáng yêu": "lovely cute", "cổ điển": "vintage retro", "neon": "neon glowing cinematic",
+  "cháy": "fire aesthetic, vibrant, explosive colors, streetwear vibe",
+  "áo lớp": "school class uniform logo, student mascot, illustrative style",
+  "y2k": "y2k aesthetic, chrome, futuristic, 2000s style",
+  "vẽ tay": "hand-drawn illustration, sketch style",
 };
 
 function translatePrompt(prompt: string): string {
@@ -41,7 +44,7 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
   const t8Key = process.env.T8STAR_API_KEY;
   if (!t8Key) return [];
 
-  const fullPrompt = `${enPrompt}, t-shirt graphic design, isolated on transparent background, no background, PNG with alpha transparency, centered, high quality, detailed, vibrant colors`;
+  const fullPrompt = `${enPrompt}, high-fidelity t-shirt graphic design, professional streetwear brand aesthetic, bold vibrant colors, y2k illustrative style, fire and explosive effects, student class shirt mascot design, highly detailed vector illustration, isolated on white background, no background, high resolution 8k, professional apparel merchandise design`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {

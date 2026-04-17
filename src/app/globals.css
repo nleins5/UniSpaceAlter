@@ -1625,9 +1625,9 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding: 60px 40px;
-  overflow-y: auto;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
   background: #f0f0f0;
   touch-action: pan-y;
   -webkit-user-select: none;
@@ -1648,6 +1648,8 @@ body::after {
   position: relative;
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.12);
   margin-bottom: 100px;
+  transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)) scale(var(--tech-zoom, 1));
+  transform-origin: center center;
 }
 
 .tech-pack-header {
@@ -1690,6 +1692,22 @@ body::after {
   color: #333;
 }
 
+.t-label {
+  font-size: 10px;
+  font-weight: 900;
+  color: #111;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+.t-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+}
+
 /* Three-Column Specification Layout */
 .spec-slots-container {
   display: flex;
@@ -1698,7 +1716,7 @@ body::after {
 }
 
 .spec-sidebar {
-  width: 180px;
+  width: 220px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -1709,17 +1727,69 @@ body::after {
   aspect-ratio: 1;
   border: 1.5px solid #111;
   position: relative;
-  background: #fbfbfb;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.spec-slot:hover {
+  border-color: #8b3dff;
+}
+
+.spec-slot.active {
+  border-color: #8b3dff;
+  border-width: 2px;
+  box-shadow: 0 4px 20px rgba(139, 61, 255, 0.1);
+}
+
+.spec-slot.active .spec-slot-title {
+  color: #8b3dff;
+}
+
+/* Tag Slot Technical Styling */
+.tag-slot-mesh {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.tag-slot-grid {
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.tag-slot-border {
+  position: absolute;
+  inset: 15px;
+  border: 1px dashed rgba(139, 61, 255, 0.2);
+}
+
+.tag-shape-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.02));
 }
 
 .spec-slot-title {
   position: absolute;
-  top: -20px;
+  top: -24px;
   left: 0;
-  font-size: 8px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   white-space: nowrap;
+  color: #111;
 }
 
 .spec-slot-inner {
@@ -1921,7 +1991,6 @@ body::after {
   border-radius: 16px;
   overflow: hidden;
   filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12));
-  transition: transform 0.3s ease;
 }
 
 .canva-canvas-drop-active {
@@ -7559,6 +7628,7 @@ body::after {
     text-align: left;
   }
 }
+
 /* ─── Tech Pack Specification Sheet V2 ─── */
 .tech-pack-frame {
   background: white !important;
@@ -7571,7 +7641,7 @@ body::after {
   flex-direction: column !important;
   gap: 0 !important;
   position: relative !important;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.12);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.12);
   margin-bottom: 100px;
   color: #000 !important;
 }
@@ -7616,7 +7686,9 @@ body::after {
   border-bottom: 3px solid #111;
 }
 
-.tech-row:last-child { border-bottom: none; }
+.tech-row:last-child {
+  border-bottom: none;
+}
 
 .tech-cell {
   flex: 1;
@@ -7627,7 +7699,9 @@ body::after {
   justify-content: center;
 }
 
-.tech-cell:last-child { border-right: none; }
+.tech-cell:last-child {
+  border-right: none;
+}
 
 .t-label {
   font-size: 9px;
@@ -7708,7 +7782,7 @@ body::after {
 
 .m-line {
   position: absolute;
-  background: #ef4444; 
+  background: #ef4444;
   left: 50%;
   top: 10%;
   height: 80%;
@@ -7718,18 +7792,28 @@ body::after {
 
 .m-label {
   position: absolute;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 900;
   color: #111;
   background: white;
-  padding: 3px 6px;
+  padding: 4px 8px;
   border: 1.5px solid #111;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   white-space: nowrap;
   z-index: 10;
 }
 
-.m-top { top: 120px; transform: translateX(-50%); left: 50%; }
-.m-b-label { top: 180px; transform: translateX(-50%); left: 50%; }
+.m-top {
+  top: 120px;
+  transform: translateX(-50%);
+  left: 50%;
+}
+
+.m-b-label {
+  top: 180px;
+  transform: translateX(-50%);
+  left: 50%;
+}
 
 .tech-pack-footer-v2 {
   display: flex;
@@ -7760,8 +7844,30 @@ body::after {
   margin-bottom: 12px;
 }
 
-.p-swatch-wrap { display: flex; gap: 12px; align-items: center; }
-.p-swatch { width: 50px; height: 60px; border: 2px solid #000; }
-.p-info { font-size: 9px; font-weight: 800; }
-.p-name { color: #555; }
-.p-code { font-size: 11px; font-weight: 900; margin-top: 4px; }
+.p-swatch-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.p-swatch {
+  width: 50px;
+  height: 60px;
+  border: 2px solid #000;
+  background-color: var(--swatch-bg, transparent);
+}
+
+.p-info {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.p-name {
+  color: #555;
+}
+
+.p-code {
+  font-size: 11px;
+  font-weight: 900;
+  margin-top: 4px;
+}

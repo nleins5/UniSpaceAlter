@@ -51,21 +51,23 @@ function MockupViewport({ side, type, color, sleeveColor }: {
           opacity: 0.03;
         }
 
-        /* 
-         * ISOLATED BLENDING MODEL
-         */
-
-        .instance-${id} .mockup-blend-container {
-          position: absolute;
-          inset: 0;
-          isolation: isolate;        /* nhốt blend modes bên trong */
-        }
-
         .instance-${id} .mockup-base-color {
           position: absolute;
           inset: 0;
           background-color: ${color};
-          mix-blend-mode: multiply;
+          
+          mask-image: url(${imageUrl});
+          mask-size: contain;
+          mask-position: center;
+          mask-repeat: no-repeat;
+          mask-mode: luminance;
+
+          -webkit-mask-image: url(${imageUrl});
+          -webkit-mask-size: contain;
+          -webkit-mask-position: center;
+          -webkit-mask-repeat: no-repeat;
+          -webkit-mask-mode: luminance;
+          
           transition: background-color 500ms;
         }
 
@@ -83,13 +85,11 @@ function MockupViewport({ side, type, color, sleeveColor }: {
       {/* Background lưới */}
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
 
-      {/* Container blend isolated */}
-      <div className="mockup-blend-container">
-        {/* Lớp màu nhuộm */}
-        <div className="mockup-base-color" />
-        {/* Lớp shadow/fold của vải */}
-        <div className="mockup-image-layer pointer-events-none" />
-      </div>
+      {/* 1. Nhuộm màu dùng Luminance Mask */}
+      <div className="mockup-base-color" />
+      
+      {/* 2. Lớp shadow/fold của vải */}
+      <div className="mockup-image-layer pointer-events-none" />
 
       <div className="absolute bottom-6 right-6 font-mono text-[10px] text-gray-400 font-bold opacity-30 uppercase tracking-[0.2em]">
         UNI / {type} / {side}
@@ -105,6 +105,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   return <MockupViewport side={side} type="raglan" color={color} sleeveColor={sleeveColor} />;
 }
+
 
 
 

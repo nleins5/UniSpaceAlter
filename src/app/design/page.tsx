@@ -38,7 +38,7 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
   const imageUrl = `/mockups/${type}_${side}.png`;
 
   return (
-    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-white instance-${id}`}>
+    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#fafafa] instance-${id}`}>
       <style>{`
         .instance-${id} .blueprint-grid {
           background-image: radial-gradient(#000 1px, transparent 1px);
@@ -53,13 +53,26 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
           background-position: center;
           background-repeat: no-repeat;
         }
+        .instance-${id} .mockup-color-layer {
+          position: absolute;
+          inset: 0;
+          background-color: ${color};
+          mask-image: url(${imageUrl});
+          mask-size: contain;
+          mask-position: center;
+          mask-repeat: no-repeat;
+          mix-blend-mode: multiply;
+        }
       `}</style>
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
-      <div className="mockup-background-tint absolute inset-0 transition-colors duration-500" style={{ backgroundColor: color }} />
+      
+      {/* Target Shirt Image (Shadows/Lines) */}
+      <div className="mockup-base pointer-events-none opacity-100 contrast-[1.05] brightness-[1.05]" />
+      
+      {/* Color Layer masked to shirt shape */}
+      <div className="mockup-color-layer transition-colors duration-500" />
 
-      <div className="mockup-base pointer-events-none contrast-[1.05] brightness-[1.1]" style={{ mixBlendMode: 'multiply' }} />
-
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.015)]" />
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.01)]" />
 
       <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
         UNI / {type.toUpperCase()} / {side.toUpperCase()}

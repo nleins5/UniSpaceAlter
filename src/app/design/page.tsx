@@ -107,8 +107,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         {/* Back View specific details */}
         {side === "back" && (
           <>
-            <path d="M 145,23 Q 200,60 255,23 Q 200,30 145,23 Z" fill="rgba(0,0,0,0.06)" />
-            <path d="M 145,23 Q 200,60 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" opacity="0.6" />
+
 
             <path d="M 152,43 Q 200,50 248,43 L 255,23 Q 200,30 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
             <path d="M 149,38 Q 200,45 251,38" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
@@ -327,8 +326,7 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
         {/* Back View specific details */}
         {side === "back" && (
           <>
-            <path d="M 145,23 Q 200,60 255,23 Q 200,30 145,23 Z" fill="rgba(0,0,0,0.06)" />
-            <path d="M 145,23 Q 200,60 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" opacity="0.6" />
+
 
             <path d="M 152,43 Q 200,50 248,43 L 255,23 Q 200,30 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
             <path d="M 149,38 Q 200,45 251,38" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />

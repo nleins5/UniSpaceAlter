@@ -209,50 +209,106 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
 
 // ─── Canva-style Design Canvas ──────────────────────────────
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16) || 255;
-  const g = parseInt(hex.substring(2, 4), 16) || 255;
-  const b = parseInt(hex.substring(4, 6), 16) || 255;
-  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
-  const strokeColor = isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.2)";
-  const shadowColor = isLight ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.2)";
-  const highlightColor = isLight ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)";
+  const strokeColor = "#000000";
+  const shadowColor = "rgba(0,0,0,0.4)";
 
-  const gradId = `raglan-${side}-fab`;
-  const filtId = `raglan-${side}-shd`;
+  // Base paths optimized for tech-flat raglan
+  const bodyPath = side === "front"
+    ? `
+      M 92, 450
+      L 95, 175
+      Q 120, 100 152, 43
+      Q 200, 80 248, 43
+      Q 280, 100 305, 175
+      L 308, 450
+      Z
+    `
+    : `
+      M 92, 450
+      L 95, 175
+      Q 120, 100 152, 43
+      Q 200, 30 248, 43
+      Q 280, 100 305, 175
+      L 308, 450
+      Z
+    `;
 
-  // Professional Technical Raglan Silhouette
-  const bodyPath = "M 90,460 L 90,140 L 165,35 Q 200,33 235,35 L 310,140 L 310,460 Z";
-  const leftSleeve = "M 165,35 L 90,140 L 10,170 L 0,70 L 110,40 Z";
-  const rightSleeve = "M 235,35 L 310,140 L 390,170 L 400,70 L 290,40 Z";
+  const leftSleeve = `
+    M 145, 23
+    Q 80, 20 33, 115
+    L 95, 175
+    Q 120, 100 152, 43
+    L 145, 23
+    Z
+  `;
+
+  const rightSleeve = `
+    M 255, 23
+    Q 320, 20 367, 115
+    L 305, 175
+    Q 280, 100 248, 43
+    L 255, 23
+    Z
+  `;
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <defs>
-        <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
-          <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
-        </linearGradient>
-        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.12" /></filter>
-      </defs>
-      <g filter={`url(#${filtId})`}>
-        {/* Sleeves First */}
-        <path d={leftSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" />
-        <path d={rightSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" />
+      {/* Base White Layer to ensure no transparency through the lineart */}
+      <path d={bodyPath} fill="#FFFFFF" />
+      <path d={leftSleeve} fill="#FFFFFF" />
+      <path d={rightSleeve} fill="#FFFFFF" />
 
-        {/* Body */}
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" />
-        <path d={bodyPath} fill={`url(#${gradId})`} />
+      <g>
+        {/* Raglan Sleeves */}
+        <path d={leftSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+        <path d={rightSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
 
-        {/* Neckline */}
-        {side === "front" ? (
-          <path d="M 165,30 Q 200,60 235,30" fill="none" stroke={strokeColor} strokeWidth="2.5" />
-        ) : (
-          <path d="M 165,30 Q 200,38 235,30" fill="none" stroke={strokeColor} strokeWidth="2.5" />
+        {/* Main Body Fill and Outline */}
+        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+
+        {/* Technical Center Alignment Line */}
+        <path d="M 200,20 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
+
+        {/* Top Sleeve Fold Lines (Shoulder flow) */}
+        <path d="M 145,23 Q 80,20 33,115" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+        <path d="M 255,23 Q 320,20 367,115" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+
+        {/* Front View specific details */}
+        {side === "front" && (
+          <>
+            <path d="M 145,23 Q 200,35 255,23 Q 200,65 145,23 Z" fill="rgba(0,0,0,0.06)" />
+            <path d="M 145,23 Q 200,35 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+            <rect x="180" y="32" width="40" height="16" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+
+            <path d="M 152,43 Q 200,80 248,43 L 255,23 Q 200,65 145,23 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 150,38 Q 200,75 250,38" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+          </>
         )}
 
-        {/* Technical Stitching */}
-        <path d="M 100,450 L 300,450" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
-        <path d="M 100,454 L 300,454" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
+        {/* Back View specific details */}
+        {side === "back" && (
+          <>
+            <path d="M 145,23 Q 200,65 255,23 Q 200,18 145,23 Z" fill="rgba(0,0,0,0.06)" />
+            <path d="M 145,23 Q 200,65 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" opacity="0.6" />
+
+            <path d="M 152,43 Q 200,30 248,43 L 255,23 Q 200,18 145,23 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 149,38 Q 200,26 251,38" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+
+            <path d="M 188,38 L 188,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 212,38 L 212,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+          </>
+        )}
+
+        {/* Bottom Hem Stitching */}
+        <path d="M 93,438 L 307,438" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 92,442 L 308,442" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
+
+        {/* Sleeve Hems Stitching */}
+        <path d="M 42,117 L 98,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 45,114 L 101,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+
+        <path d="M 358,117 L 302,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 355,114 L 299,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
       </g>
     </svg>
   );

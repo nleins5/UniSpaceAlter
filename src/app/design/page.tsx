@@ -40,12 +40,12 @@ function MockupViewport({ imageUrl, side, type, color }: { imageUrl: string, sid
   const yOffset = type === "tshirt" ? 0 : 50;
 
   return (
-    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#fafafa] instance-${id}`}>
+    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-white instance-${id}`}>
       <style>{`
         .instance-${id} .blueprint-grid {
           background-image: radial-gradient(#000 1px, transparent 1px);
-          background-size: 15px 15px;
-          opacity: 0.04;
+          background-size: 20px 20px;
+          opacity: 0.03;
         }
         .instance-${id} .mockup-container {
           position: absolute;
@@ -53,12 +53,14 @@ function MockupViewport({ imageUrl, side, type, color }: { imageUrl: string, sid
           height: 200%;
           left: -${xOffset * 3}%;
           top: -${yOffset * 2}%;
+          transform: scale(0.92); /* Breathing room for full view */
+          transform-origin: center;
         }
         .instance-${id} .mockup-base {
           position: absolute;
           inset: 0;
           background-image: url(${imageUrl});
-          background-size: cover;
+          background-size: 100% 100%;
           background-repeat: no-repeat;
         }
       `}</style>
@@ -66,13 +68,13 @@ function MockupViewport({ imageUrl, side, type, color }: { imageUrl: string, sid
       <div className="mockup-background-tint absolute inset-0 transition-colors duration-500" style={{ backgroundColor: color }} />
 
       <div className="mockup-container pointer-events-none">
-        <div className="mockup-base contrast-110 brightness-110" style={{ mixBlendMode: 'multiply' }} />
+        <div className="mockup-base contrast-[1.05] brightness-[1.05]" style={{ mixBlendMode: 'multiply' }} />
       </div>
 
-      <div className="absolute inset-0 border-[40px] border-white pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.02)]" />
 
-      <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-300 tracking-[0.2em] font-bold">
-        UNISPACE / TECH-SPEC / v2.2
+      <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
+        UNI / {type.toUpperCase()} / {side.toUpperCase()}
       </div>
     </div>
   );

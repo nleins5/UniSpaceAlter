@@ -45,8 +45,8 @@ function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "b
           background-size: 20px 20px;
           opacity: 0.03;
         }
-        /* SOLID COLOR BASE (Using the solidified user asset as mask) */
-        .instance-${id} .mockup-color-fill {
+        /* 1. SOLID VECTOR COLOR FILL */
+        .instance-${id} .mockup-base-fill {
           position: absolute;
           inset: 0;
           background-color: ${color};
@@ -59,9 +59,9 @@ function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "b
           -webkit-mask-position: center;
           -webkit-mask-repeat: no-repeat;
         }
-        /* RAGLAN SLEEVE COLOR (Conditional Overlay) */
+        /* 2. RAGLAN SLEEVE VECTOR FILL */
         ${type === "raglan" && sleeveColor ? `
-        .instance-${id} .mockup-sleeve-overlay {
+        .instance-${id} .mockup-sleeve-fill {
           position: absolute;
           inset: 0;
           background-color: ${sleeveColor};
@@ -72,8 +72,8 @@ function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "b
           -webkit-mask-image: url(/mockups/raglan_sleeves_mask.png);
         }
         ` : ''}
-        /* REALISTIC TEXTURE (Multiply on top) */
-        .instance-${id} .mockup-details {
+        /* 3. TECHNICAL LINE ART (Shadows converted to lines) */
+        .instance-${id} .mockup-linework {
           position: absolute;
           inset: 0;
           background-image: url(${imageUrl});
@@ -81,17 +81,39 @@ function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "b
           background-position: center;
           background-repeat: no-repeat;
           mix-blend-mode: multiply;
-          opacity: 0.95;
+          filter: grayscale(1) contrast(2.5) brightness(1.2);
+          opacity: 0.8;
+        }
+        /* 4. VECTOR OUTLINE (Sharp border) */
+        .instance-${id} .mockup-outline {
+          position: absolute;
+          inset: 0;
+          background-image: url(${imageUrl});
+          background-size: contain;
+          background-position: center;
+          background-repeat: no-repeat;
+          mix-blend-mode: multiply;
+          filter: brightness(0.1) contrast(100) opacity(0.3);
+          pointer-events: none;
         }
       `}</style>
       
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
-      <div className="mockup-color-fill transition-colors duration-500" />
-      {type === "raglan" && <div className="mockup-sleeve-overlay transition-colors duration-500" />}
-      <div className="mockup-details pointer-events-none" />
+      
+      {/* Layer 1: Flat Body Color */}
+      <div className="mockup-base-fill transition-colors duration-500" />
+      
+      {/* Layer 2: Flat Sleeve Color (For Raglan) */}
+      {type === "raglan" && <div className="mockup-sleeve-fill transition-colors duration-500" />}
+      
+      {/* Layer 3: Clean Technical Fold Lines */}
+      <div className="mockup-linework pointer-events-none" />
 
-      <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
-        UNI / {type.toUpperCase()} / {side.toUpperCase()}
+      {/* Layer 4: Sharpened Outline */}
+      <div className="mockup-outline pointer-events-none" />
+
+      <div className="absolute bottom-6 right-6 font-mono text-[10px] text-gray-400 font-bold opacity-30 uppercase tracking-[0.2em]">
+        UNI / {type} / {side}
       </div>
     </div>
   );
@@ -104,6 +126,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   return <MockupViewport side={side} type="raglan" color={color} sleeveColor={sleeveColor} />;
 }
+
 
 
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {

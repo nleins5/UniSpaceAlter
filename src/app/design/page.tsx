@@ -38,14 +38,14 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
   const imageUrl = `/mockups/${type}_${side}.png`;
 
   return (
-    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#fafafa] instance-${id}`}>
+    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#ededed] instance-${id}`}>
       <style>{`
         .instance-${id} .blueprint-grid {
           background-image: radial-gradient(#000 1px, transparent 1px);
-          background-size: 20px 20px;
-          opacity: 0.03;
+          background-size: 30px 30px;
+          opacity: 0.05;
         }
-        .instance-${id} .mockup-color-layer {
+        .instance-${id} .mockup-base-color {
           position: absolute;
           inset: 0;
           background-color: ${color};
@@ -54,7 +54,8 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
           mask-position: center;
           mask-repeat: no-repeat;
         }
-        .instance-${id} .mockup-topography {
+        /* HIGH CONTRAST SHADOWS (MULTIPLY) */
+        .instance-${id} .mockup-shadows {
           position: absolute;
           inset: 0;
           background-image: url(${imageUrl});
@@ -62,24 +63,53 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
           background-position: center;
           background-repeat: no-repeat;
           mix-blend-mode: multiply;
-          filter: brightness(1.1) contrast(1.1);
+          filter: contrast(1.5) brightness(0.9) grayscale(1);
+          opacity: 0.9;
+        }
+        /* FABRIC SHEEN / HIGHLIGHTS (SCREEN) */
+        .instance-${id} .mockup-highlights {
+          position: absolute;
+          inset: 0;
+          background-image: url(${imageUrl});
+          background-size: contain;
+          background-position: center;
+          background-repeat: no-repeat;
+          mix-blend-mode: screen;
+          filter: contrast(1.8) brightness(0.5) grayscale(1);
+          opacity: 0.35;
+        }
+        /* FABRIC TEXTURE GRAIN */
+        .instance-${id} .mockup-textile-grain {
+          position: absolute;
+          inset: 0;
+          background-image: url(${imageUrl});
+          background-size: contain;
+          background-position: center;
+          background-repeat: no-repeat;
+          mix-blend-mode: overlay;
+          filter: contrast(1.2) brightness(1.2);
+          opacity: 0.12;
         }
       `}</style>
       
-      {/* 1. Industrial Background */}
+      {/* 1. Studio Background */}
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
       
-      {/* 2. Realistic Base Color (Masked to garment shape) */}
-      <div className="mockup-color-layer transition-colors duration-500" />
+      {/* 2. Saturated Base Color */}
+      <div className="mockup-base-color transition-colors duration-500" />
       
-      {/* 3. Physical Topography (Shadows, ripples, stitches) - Placed OVER the color */}
-      <div className="mockup-topography pointer-events-none" />
+      {/* 3. Deep Cinematic Shadows */}
+      <div className="mockup-shadows pointer-events-none" />
 
-      {/* 4. Technical Finishing */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.01)]" />
+      {/* 4. Fabric Professional Highlights */}
+      <div className="mockup-highlights pointer-events-none" />
 
-      <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
-        UNI / {type.toUpperCase()} / {side.toUpperCase()}
+      {/* 5. Textile Grain Detail */}
+      <div className="mockup-textile-grain pointer-events-none" />
+
+      {/* 6. Technical Labeling */}
+      <div className="absolute bottom-6 right-6 font-mono text-[10px] text-gray-400 tracking-[0.3em] font-bold opacity-40 uppercase">
+        UNI / {type} / {side}
       </div>
     </div>
   );

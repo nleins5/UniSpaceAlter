@@ -33,83 +33,82 @@ interface ChatMessage {
   content: string;
   images?: AIImage[];
 }
-function MockupViewport({ side, type, color }: { side: "front" | "back", type: "tshirt" | "raglan", color: string }) {
-  const id = useId().replace(/:/g, "");
-  const imageUrl = `/mockups/${type}_${side}.png`;
-  const maskUrl = `/mockups/${type}_${side}_mask.png`;
+function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
+  const strokeColor = "#333333";
+  const shadowColor = "rgba(0,0,0,0.06)";
+  
+  const bodyPath = side === "front"
+    ? `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 42 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`
+    : `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 25 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`;
 
   return (
-    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#fafafa] instance-${id}`}>
-      <style>{`
-        .instance-${id} .blueprint-grid {
-          background-image: radial-gradient(#000 1px, transparent 1px);
-          background-size: 20px 20px;
-          opacity: 0.03;
-        }
-        /* SOLID COLOR LAYER (Using the silhouette mask) */
-        .instance-${id} .mockup-color-fill {
-          position: absolute;
-          inset: 0;
-          background-color: ${color};
-          mask-image: url(${maskUrl});
-          mask-size: contain;
-          mask-position: center;
-          mask-repeat: no-repeat;
-          -webkit-mask-image: url(${maskUrl});
-          -webkit-mask-size: contain;
-          -webkit-mask-position: center;
-          -webkit-mask-repeat: no-repeat;
-        }
-        /* FABRIC DETAIL LAYER (Multiply) */
-        .instance-${id} .mockup-details {
-          position: absolute;
-          inset: 0;
-          background-image: url(${imageUrl});
-          background-size: contain;
-          background-position: center;
-          background-repeat: no-repeat;
-          mix-blend-mode: multiply;
-          filter: brightness(1.05) contrast(1.05);
-        }
-      `}</style>
-      
-      {/* 1. Industrial Background */}
-      <div className="blueprint-grid absolute inset-0 pointer-events-none" />
-      
-      {/* 2. Full Color Fill (Solid Silhouette) */}
-      <div className="mockup-color-fill transition-colors duration-500" />
-      
-      {/* 3. Realistic Shadows/Lines Over the color */}
-      <div className="mockup-details pointer-events-none" />
+    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
+      <defs>
+        <filter id="shirt-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.08" /></filter>
+      </defs>
+      <g filter="url(#shirt-shadow)">
+        <path d={bodyPath} fill="#FFFFFF" />
+        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+        
+        {/* Collar Detail */}
+        {side === "front" ? (
+          <path d="M 155,35 Q 200,65 245,35 Q 200,55 155,35 Z" fill="rgba(0,0,0,0.05)" stroke={strokeColor} strokeWidth="1.2" />
+        ) : (
+          <path d="M 155,35 Q 200,45 245,35 Q 200,25 155,35 Z" fill="rgba(0,0,0,0.05)" stroke={strokeColor} strokeWidth="1.2" />
+        )}
 
-      {/* 4. Lighting Polish */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.02)]" />
-
-      <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
-        UNI / {type.toUpperCase()} / {side.toUpperCase()}
-      </div>
-    </div>
+        {/* Shading/Seams */}
+        <path d="M 105,52 Q 130,110 95,175" fill="none" stroke={strokeColor} strokeWidth="1.2" opacity="0.6" />
+        <path d="M 295,52 Q 270,110 305,175" fill="none" stroke={strokeColor} strokeWidth="1.2" opacity="0.6" />
+        <path d="M 200,35 L 200,450" stroke={strokeColor} strokeWidth="0.8" opacity="0.1" strokeDasharray="4 4" />
+      </g>
+    </svg>
   );
 }
 
-function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  return <MockupViewport side={side} type="tshirt" color={color} />;
+function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
+  const strokeColor = "#333333";
+  const shadowColor = "rgba(0,0,0,0.08)";
+
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
+      <defs>
+        <filter id="raglan-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.1" /></filter>
+      </defs>
+      <g filter="url(#raglan-shadow)">
+        {/* BODY */}
+        <path d="M 160,25 C 180,55 220,55 240,25 L 290,120 L 290,450 C 240,465 160,465 110,450 L 110,120 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" />
+        
+        {/* SLEEVES */}
+        <path d="M 160,25 C 130,20 100,25 75,45 L 15,135 L 65,185 L 110,120 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" />
+        <path d="M 240,25 C 270,20 300,25 325,45 L 385,135 L 335,185 L 290,120 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" />
+
+        {/* COLLAR */}
+        <path d="M 160,25 C 175,55 225,55 240,25 C 225,48 175,48 160,25 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" />
+        
+        {side === "back" && (
+           <path d="M 160,25 C 180,15 220,15 240,25" stroke={strokeColor} strokeWidth="1.5" fill="none" />
+        )}
+      </g>
+    </svg>
+  );
 }
 
-function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  return <MockupViewport side={side} type="raglan" color={color} />;
-}
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
-  const strokeColor = "#000000";
-  const shadowColor = "rgba(0,0,0,0.4)";
+  const strokeColor = "#333333";
   const effectiveCollarColor = collarColor || color;
   const bodyPath = side === "front"
     ? `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 42 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`
     : `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 25 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`;
+
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <path d={bodyPath} fill="#FFFFFF" />
-      <g>
+      <defs>
+        <filter id="polo-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.1" /></filter>
+      </defs>
+      <g filter="url(#polo-shadow)">
+        <path d={bodyPath} fill="#FFFFFF" />
+        {/* COLLAR BACKGROUND (Back view) */}
         {side === "back" && (
           <>
             <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
@@ -117,16 +116,12 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
           </>
         )}
         <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M 200,32 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
-        <path d="M 105,52 Q 130,110 95,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-        <path d="M 295,52 Q 270,110 305,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
         {side === "front" && (
           <>
             <path d="M 188,28 L 212,28 L 200,55 Z" fill="rgba(0,0,0,0.06)" />
             <rect x="192" y="32" width="16" height="8" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
             <path d="M 145,23 Q 200,8 255,23 L 212,28 Q 200,18 188,28 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
             <rect x="188" y="55" width="24" height="95" fill={color} stroke={strokeColor} strokeWidth="1.5" />
-            <path d="M 188,145 L 212,145" stroke={strokeColor} strokeWidth="1.5" />
             <circle cx="200" cy="80" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
             <circle cx="200" cy="120" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
             <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
@@ -136,14 +131,11 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
         {side === "back" && (
           <path d="M 145,23 Q 200,12 255,23 L 260,45 Q 200,35 140,45 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
         )}
-        <path d="M 93,438 L 307,438" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
-        <path d="M 92,442 L 308,442" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
-        <path d="M 42,117 L 98,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
-        <path d="M 358,117 L 302,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
       </g>
     </svg>
   );
 }
+
 interface DesignCanvasProps {
   elements: DesignElement[];
   selectedId: string | null;

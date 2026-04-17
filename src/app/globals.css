@@ -1668,32 +1668,29 @@ body::after {
 }
 
 /* ─── Tech Pack Specification Sheet ─── */
+/* ─── Unified Tech Pack Specification Sheet ─── */
 .tech-pack-frame {
   background: white;
   width: 100%;
-  max-width: 1000px;
-  min-height: 1400px;
-  border: 2px solid #111;
-  padding: 30px;
+  max-width: 1200px;
+  min-height: 1600px;
+  border: 5px solid #111;
+  padding: 40px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 0;
   position: relative;
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.12);
   margin-bottom: 100px;
   transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)) scale(var(--tech-zoom, 1));
   transform-origin: center center;
+  color: #000;
 }
 
-.tech-pack-header {
-  border: 2px solid #111;
+.tech-pack-header-v2 {
   display: flex;
-  flex-direction: column;
-}
-
-.tech-pack-header-row {
-  display: flex;
-  border-bottom: 2px solid #111;
+  border: 3px solid #111;
+  margin-bottom: 20px;
 }
 
 .tech-pack-header-row:last-child {
@@ -7662,21 +7659,27 @@ body::after {
   }
 }
 
-/* ─── Tech Pack Specification Sheet V2 ─── */
-.tech-pack-frame {
-  background: white !important;
-  width: 100% !important;
-  max-width: 1200px !important;
-  min-height: 1600px !important;
-  border: 5px solid #111 !important;
-  padding: 40px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
-  position: relative !important;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.12);
-  margin-bottom: 100px;
-  color: #000 !important;
+/* Technical Callouts */
+.tech-callout-box {
+  border: 2px solid #111;
+  padding: 10px;
+  background: #fdfdfd;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: absolute;
+  z-index: 10;
+}
+
+.tech-callout-line {
+  position: absolute;
+  height: 1px;
+  background: #111;
+  transform-origin: left center;
+  pointer-events: none;
+  z-index: 5;
 }
 
 .tech-pack-header-v2 {

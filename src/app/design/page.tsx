@@ -33,77 +33,57 @@ interface ChatMessage {
   content: string;
   images?: AIImage[];
 }
-function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const imageUrl = "/mockups/technical_sheet.png";
+function MockupViewport({ imageUrl, side, type, color }: { imageUrl: string, side: "front" | "back", type: "tshirt" | "raglan", color: string }) {
   const id = useId().replace(/:/g, "");
+  // Matrix coordinates for 3x3 layout (3 views wide, 2 rows used)
+  const xOffset = side === "front" ? 0 : 33.33;
+  const yOffset = type === "tshirt" ? 0 : 50;
 
   return (
-    <div className={`relative w-full h-full overflow-hidden bg-[#f8f8f8] mockup-svg shadow-2xl border border-gray-200 tshirt-instance-${id}`}>
-      {/* Drafting Grid Background */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mockup-grid" />
-
+    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#fafafa] instance-${id}`}>
       <style>{`
-        .tshirt-instance-${id} .mockup-grid { 
-          background-image: radial-gradient(#000 1px, transparent 1px); 
-          background-size: 20px 20px; 
+        .instance-${id} .blueprint-grid {
+          background-image: radial-gradient(#000 1px, transparent 1px);
+          background-size: 15px 15px;
+          opacity: 0.04;
         }
-        .tshirt-instance-${id} .mockup-layer-color { 
-          background-color: ${color};
-          clip-path: ${side === "front" ? 'path("M25 60 L120 40 L380 40 L475 60 L475 180 L420 180 L420 480 L80 480 L80 180 L25 180 Z")' : 'path("M25 60 L120 40 L380 40 L475 60 L475 180 L420 180 L420 480 L80 480 L80 180 L25 180 Z")'};
-          transform: scale(0.85);
-          transform-origin: center;
+        .instance-${id} .mockup-container {
+          position: absolute;
+          width: 300%;
+          height: 200%;
+          left: -${xOffset * 3}%;
+          top: -${yOffset * 2}%;
         }
-        .tshirt-instance-${id} .mockup-layer-image { 
-          background-image: url(${imageUrl}); 
-          background-size: 300% 200%;
-          background-position: ${side === "front" ? '0% 0%' : '50% 0%'}; 
-          transform: scale(1.1);
+        .instance-${id} .mockup-base {
+          position: absolute;
+          inset: 0;
+          background-image: url(${imageUrl});
+          background-size: cover;
+          background-repeat: no-repeat;
         }
       `}</style>
-      <div className="mockup-layer-color" />
-      <div className="mockup-layer-image mockup-tshirt-target opacity-90" />
+      <div className="blueprint-grid absolute inset-0 pointer-events-none" />
+      <div className="mockup-background-tint absolute inset-0 transition-colors duration-500" style={{ backgroundColor: color }} />
 
-      {/* Tech Pack Labels */}
-      <div className="absolute bottom-4 left-4 font-mono text-[10px] text-gray-400 uppercase tracking-widest">
-        Model: Oversize / View: {side}
+      <div className="mockup-container pointer-events-none">
+        <div className="mockup-base contrast-110 brightness-110" style={{ mixBlendMode: 'multiply' }} />
+      </div>
+
+      <div className="absolute inset-0 border-[40px] border-white pointer-events-none" />
+
+      <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-300 tracking-[0.2em] font-bold">
+        UNISPACE / TECH-SPEC / v2.2
       </div>
     </div>
   );
 }
 
+function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
+  return <MockupViewport imageUrl="/mockups/technical_sheet.png" side={side} type="tshirt" color={color} />;
+}
+
 function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const imageUrl = "/mockups/technical_sheet.png";
-  const id = useId().replace(/:/g, "");
-
-  return (
-    <div className={`relative w-full h-full overflow-hidden bg-[#f8f8f8] mockup-svg shadow-2xl border border-gray-200 raglan-instance-${id}`}>
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mockup-grid" />
-
-      <style>{`
-        .raglan-instance-${id} .mockup-grid { 
-          background-image: radial-gradient(#000 1px, transparent 1px); 
-          background-size: 20px 20px; 
-        }
-        .raglan-instance-${id} .mockup-layer-color { 
-          background-color: ${color};
-          transform: scale(0.85);
-          transform-origin: center;
-        }
-        .raglan-instance-${id} .mockup-layer-image { 
-          background-image: url(${imageUrl}); 
-          background-size: 300% 200%;
-          background-position: ${side === "front" ? '0% 100%' : '50% 100%'}; 
-          transform: scale(1.1);
-        }
-      `}</style>
-      <div className="mockup-layer-color" />
-      <div className="mockup-layer-image mockup-raglan-target opacity-90" />
-
-      <div className="absolute bottom-4 left-4 font-mono text-[10px] text-gray-400 uppercase tracking-widest">
-        Model: Raglan / View: {side}
-      </div>
-    </div>
-  );
+  return <MockupViewport imageUrl="/mockups/technical_sheet.png" side={side} type="raglan" color={color} />;
 }
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
   const strokeColor = "#000000";

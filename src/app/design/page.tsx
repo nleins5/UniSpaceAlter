@@ -39,83 +39,31 @@ interface ChatMessage {
 }
 
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const strokeColor = "#000000";
-  const shadowColor = "rgba(0,0,0,0.4)";
-
-  // Oversize Drop Shoulder Technical Paths
-  const bodyPath = side === "front"
-    ? `
-      M 95, 450
-      L 95, 220
-      L 25, 175
-      L 85, 80
-      L 150, 45
-      Q 200, 100 250, 45
-      L 315, 80
-      L 375, 175
-      L 305, 220
-      L 305, 450
-      Z
-    `
-    : `
-      M 95, 450
-      L 95, 220
-      L 25, 175
-      L 85, 80
-      L 150, 45
-      Q 200, 55 250, 45
-      L 315, 80
-      L 375, 175
-      L 305, 220
-      L 305, 450
-      Z
-    `;
+  // Use the exact PNG provided by the user for 1:1 realism
+  const imageUrl = "/mockups/tshirt_oversize.png";
 
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      {/* Base White Layer */}
-      <path d={bodyPath} fill="#FFFFFF" />
+    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg">
+      {/* Background color layer */}
+      <div
+        className="absolute inset-0 transition-colors duration-300"
+        style={{ backgroundColor: color }}
+      />
 
-      <g>
-        {/* Main Body Fill and Outline */}
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-
-        {/* Technical Center Alignment Line */}
-        <path d="M 200,20 L 200,460" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
-
-        {/* Drop Shoulder Seam Lines */}
-        <path d="M 85,80 Q 95,150 95,220" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-        <path d="M 315,80 Q 305,150 305,220" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-
-        {/* Neckline Details */}
-        {side === "front" ? (
-          <>
-            {/* Back inner collar area */}
-            <path d="M 152,43 Q 200,55 248,43 Q 200,65 152,43 Z" fill="rgba(0,0,0,0.06)" />
-            {/* Front Collar Ribbing */}
-            <path d="M 150,45 Q 200,100 250,45 L 255,30 Q 200,85 145,30 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 155,50 Q 200,92 245,50" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-            <rect x="180" y="52" width="40" height="16" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-          </>
-        ) : (
-          <>
-            {/* Back Collar Ribbing */}
-            <path d="M 150,45 Q 200,55 250,45 L 255,30 Q 200,40 145,30 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 153,42 Q 200,52 247,42" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-          </>
-        )}
-
-        {/* Bottom Hem */}
-        <path d="M 95,435 L 305,435" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
-        <path d="M 95,439 L 305,439" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
-
-        {/* Sleeve Hems */}
-        <path d="M 25,175 L 95,220" stroke={strokeColor} strokeWidth="1" />
-        <path d="M 28,172 L 92,213" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-        <path d="M 375,175 L 305,220" stroke={strokeColor} strokeWidth="1" />
-        <path d="M 372,172 L 308,213" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-      </g>
-    </svg>
+      {/* The Technical Image with Multiply blend mode to show the color underneath */}
+      <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
+        <img
+          src={imageUrl}
+          alt={`T-Shirt ${side}`}
+          className="h-full w-auto object-cover"
+          style={{
+            mixBlendMode: 'multiply',
+            transform: side === "back" ? "translateX(-25%)" : "translateX(25%)",
+            scale: "1.95"
+          }}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -234,83 +182,31 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
 
 // ─── Canva-style Design Canvas ──────────────────────────────
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
-  const strokeColor = "#111111";
-  const shadowColor = "rgba(0,0,0,0.3)";
-
-  // PIXEL-PERFECT TRACING OF CLASSIC RAGLAN SKETCH
-  const bodyPath = side === "front"
-    ? `
-      M 95, 455
-      L 95, 190
-      C 130, 100 150, 80 155, 62
-      Q 200, 105 245, 62
-      C 250, 80 270, 100 305, 190
-      L 305, 455
-      Z
-    `
-    : `
-      M 95, 455
-      L 95, 190
-      C 130, 100 150, 80 155, 62
-      Q 200, 75 245, 62
-      C 250, 80 270, 100 305, 190
-      L 305, 455
-      Z
-    `;
-
-  const leftSleeve = `
-    M 155, 62
-    C 115, 35 105, 35 35, 115
-    L 95, 190
-    C 130, 100 150, 80 155, 62
-    Z
-  `;
-
-  const rightSleeve = `
-    M 245, 62
-    C 285, 35 295, 35 365, 115
-    L 305, 190
-    C 250, 80 270, 100 245, 62
-    Z
-  `;
+  // Use the exact PNG provided by the user for 1:1 realism
+  const imageUrl = "/mockups/raglan_classic.png";
 
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <path d={bodyPath} fill="#FFFFFF" />
-      <path d={leftSleeve} fill="#FFFFFF" />
-      <path d={rightSleeve} fill="#FFFFFF" />
-      <g>
-        <path d={leftSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-        <path d={rightSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M 200,20 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.2" strokeDasharray="5 5" />
+    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg">
+      {/* Background color layer */}
+      <div
+        className="absolute inset-0 transition-colors duration-300"
+        style={{ backgroundColor: color }}
+      />
 
-        {/* Raglan detail creases */}
-        <path d="M 115,145 L 130,140" stroke={strokeColor} strokeWidth="0.8" opacity="0.3" />
-        <path d="M 285,145 L 270,140" stroke={strokeColor} strokeWidth="0.8" opacity="0.3" />
-
-        {side === "front" ? (
-          <>
-            <path d="M 152,60 Q 200,75 248,60 Q 200,85 152,60 Z" fill="rgba(0,0,0,0.06)" />
-            <path d="M 155,62 Q 200,105 245,62 L 255,48 Q 200,90 145,48 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 158,68 Q 200,98 242,68" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-            <rect x="180" y="70" width="40" height="15" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-          </>
-        ) : (
-          <>
-            <path d="M 155,62 Q 200,75 245,62 L 255,48 Q 200,60 145,48 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 158,58 Q 200,68 242,58" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-          </>
-        )}
-
-        <path d="M 95,442 L 305,442" stroke={strokeColor} strokeWidth="1.2" />
-        <path d="M 95,446 L 305,446" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" />
-        <path d="M 35,115 L 95,190" stroke={strokeColor} strokeWidth="1.2" />
-        <path d="M 38,112 L 98,187" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
-        <path d="M 365,115 L 305,190" stroke={strokeColor} strokeWidth="1.2" />
-        <path d="M 362,112 L 302,187" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
-      </g>
-    </svg>
+      {/* The Technical Image with Multiply blend mode */}
+      <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
+        <img
+          src={imageUrl}
+          alt={`Raglan ${side}`}
+          className="h-full w-auto object-cover"
+          style={{
+            mixBlendMode: 'multiply',
+            transform: side === "back" ? "translateX(-25%)" : "translateX(25%)",
+            scale: "1.95"
+          }}
+        />
+      </div>
+    </div>
   );
 }
 

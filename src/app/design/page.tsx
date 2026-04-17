@@ -33,11 +33,9 @@ interface ChatMessage {
   content: string;
   images?: AIImage[];
 }
-function MockupViewport({ imageUrl, side, type, color }: { imageUrl: string, side: "front" | "back", type: "tshirt" | "raglan", color: string }) {
+function MockupViewport({ side, type, color }: { side: "front" | "back", type: "tshirt" | "raglan", color: string }) {
   const id = useId().replace(/:/g, "");
-  // Matrix coordinates for 3x3 layout (3 views wide, 2 rows used)
-  const xOffset = side === "front" ? 0 : 33.33;
-  const yOffset = type === "tshirt" ? 0 : 50;
+  const imageUrl = `/mockups/${type}_${side}.png`;
 
   return (
     <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-white instance-${id}`}>
@@ -47,31 +45,21 @@ function MockupViewport({ imageUrl, side, type, color }: { imageUrl: string, sid
           background-size: 20px 20px;
           opacity: 0.03;
         }
-        .instance-${id} .mockup-container {
-          position: absolute;
-          width: 300%;
-          height: 200%;
-          left: -${xOffset * 3}%;
-          top: -${yOffset * 2}%;
-          transform: scale(0.92); /* Breathing room for full view */
-          transform-origin: center;
-        }
         .instance-${id} .mockup-base {
           position: absolute;
           inset: 0;
           background-image: url(${imageUrl});
-          background-size: 100% 100%;
+          background-size: contain;
+          background-position: center;
           background-repeat: no-repeat;
         }
       `}</style>
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
       <div className="mockup-background-tint absolute inset-0 transition-colors duration-500" style={{ backgroundColor: color }} />
 
-      <div className="mockup-container pointer-events-none">
-        <div className="mockup-base contrast-[1.05] brightness-[1.05]" style={{ mixBlendMode: 'multiply' }} />
-      </div>
+      <div className="mockup-base pointer-events-none contrast-[1.05] brightness-[1.1]" style={{ mixBlendMode: 'multiply' }} />
 
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.02)]" />
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.015)]" />
 
       <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
         UNI / {type.toUpperCase()} / {side.toUpperCase()}
@@ -81,11 +69,11 @@ function MockupViewport({ imageUrl, side, type, color }: { imageUrl: string, sid
 }
 
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  return <MockupViewport imageUrl="/mockups/technical_sheet.png" side={side} type="tshirt" color={color} />;
+  return <MockupViewport side={side} type="tshirt" color={color} />;
 }
 
 function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  return <MockupViewport imageUrl="/mockups/technical_sheet.png" side={side} type="raglan" color={color} />;
+  return <MockupViewport side={side} type="raglan" color={color} />;
 }
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
   const strokeColor = "#000000";

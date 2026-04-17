@@ -1,10 +1,8 @@
 "use client";
-
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "../../components/Logo";
-
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
   id: string;
@@ -24,80 +22,60 @@ interface DesignElement {
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
   locked?: boolean;
 }
-
 interface AIImage {
   id: string;
   label: string;
   url: string;
 }
-
 interface ChatMessage {
   id: string;
   role: "user" | "ai";
   content: string;
   images?: AIImage[];
 }
-
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imageUrl = "/mockups/tshirt_oversize.png";
-
   return (
     <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100">
-      {/* 1. Underlying Color Layer */}
       <div
-        className="absolute inset-0 transition-colors duration-500"
-        style={{ backgroundColor: color }}
+        className="mockup-layer-color"
+        style={{ "--shirt-color": color } as React.CSSProperties}
       />
-
-      {/* 2. Professional Image Overlay with Exact Cropping */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="mockup-layer-image mockup-tshirt-target"
         style={{
           backgroundImage: `url(${imageUrl})`,
-          backgroundSize: '200% auto', // Exactly 2 shirts side-by-side
           backgroundPosition: side === "front" ? '0% 50%' : '100% 50%',
-          backgroundRepeat: 'no-repeat',
-          mixBlendMode: 'multiply',
-          filter: 'contrast(1.1) brightness(1.1)', // Push off-white to pure white for better blending
-        }}
+        } as React.CSSProperties}
       />
     </div>
   );
 }
-
-function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
+function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imageUrl = "/mockups/raglan_classic.png";
-
   return (
     <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100">
       <div
-        className="absolute inset-0 transition-colors duration-500"
-        style={{ backgroundColor: color }}
+        className="mockup-layer-color"
+        style={{ "--shirt-color": color } as React.CSSProperties}
       />
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="mockup-layer-image mockup-raglan-target"
         style={{
           backgroundImage: `url(${imageUrl})`,
-          backgroundSize: '200% auto',
           backgroundPosition: side === "front" ? '0% 50%' : '100% 50%',
-          backgroundRepeat: 'no-repeat',
-          mixBlendMode: 'multiply',
-          filter: 'contrast(1.1) brightness(1.1)',
-        }}
+        } as React.CSSProperties}
       />
     </div>
   );
 }
-
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
   const strokeColor = "#000000";
   const shadowColor = "rgba(0,0,0,0.4)";
   const effectiveCollarColor = collarColor || color;
-
   const bodyPath = side === "front"
     ? `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 42 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`
     : `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 25 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`;
-
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
       <path d={bodyPath} fill="#FFFFFF" />
@@ -136,7 +114,6 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
     </svg>
   );
 }
-
 interface DesignCanvasProps {
   elements: DesignElement[];
   selectedId: string | null;
@@ -147,7 +124,6 @@ interface DesignCanvasProps {
   onDropImage: (image: AIImage, x: number, y: number) => void;
   side: "front" | "back";
   tshirtColor: string;
-  sleeveColor: string;
   collarColor: string;
   shirtType: "tshirt" | "polo" | "raglan";
   zoom: number;
@@ -155,7 +131,6 @@ interface DesignCanvasProps {
   isPositionMode?: boolean;
   activeLocation?: string;
 }
-
 function DesignCanvas({
   elements,
   selectedId,
@@ -166,7 +141,6 @@ function DesignCanvas({
   onDropImage,
   side,
   tshirtColor,
-  sleeveColor,
   collarColor,
   shirtType,
   zoom,
@@ -179,22 +153,17 @@ function DesignCanvas({
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDropTarget, setIsDropTarget] = useState(false);
-
   // Filter elements by side AND slot (if shirt) OR just slot
   const sideElements = elements.filter((el) => {
     if (slot === "shirt") return el.side === side && (el.slot === "shirt" || !el.slot);
     return el.slot === slot;
   });
-
   const neckLabelElement = elements.find(el => el.slot === "neck-label");
-
   // Stable ref — updated after every render so event handlers always see latest value
   const pushHistoryRef = useRef(onPushHistory);
   useEffect(() => { pushHistoryRef.current = onPushHistory; });
-
   // Track whether mouse actually moved during drag — prevents post-drag click from deselecting
   const hasMovedRef = useRef(false);
-
   const handleElementMouseDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
       e.stopPropagation();
@@ -214,7 +183,6 @@ function DesignCanvas({
     },
     [onSelectElement, zoom]
   );
-
   const handleResizeMouseDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'tl' | 'tr' | 'bl' | 'br' = 'br') => {
       if (el.locked) return;
@@ -229,7 +197,6 @@ function DesignCanvas({
       const startElX = el.x;
       const startElY = el.y;
       const scale = zoom / 100;
-
       const handleMouseMove = (moveE: MouseEvent) => {
         const dx = (moveE.clientX - startX) / scale;
         const dy = (moveE.clientY - startY) / scale;
@@ -237,15 +204,12 @@ function DesignCanvas({
         let newHeight = startHeight;
         let newX = startElX;
         let newY = startElY;
-
         if (corner === 'br') { newWidth = Math.max(20, startWidth + dx); newHeight = Math.max(20, startHeight + dy); }
         if (corner === 'bl') { newWidth = Math.max(20, startWidth - dx); newHeight = Math.max(20, startHeight + dy); newX = startElX + dx; }
         if (corner === 'tr') { newWidth = Math.max(20, startWidth + dx); newHeight = Math.max(20, startHeight - dy); newY = startElY + dy; }
         if (corner === 'tl') { newWidth = Math.max(20, startWidth - dx); newHeight = Math.max(20, startHeight - dy); newX = startElX + dx; newY = startElY + dy; }
-
         onResizeElement(el.id, newWidth, newHeight, newX, newY);
       };
-
       const handleMouseUp = () => {
         pushHistoryRef.current();
         setIsResizing(false);
@@ -272,11 +236,9 @@ function DesignCanvas({
     },
     [onSelectElement, onResizeElement, zoom]
   );
-
   useEffect(() => {
     if (!isDragging || !selectedId) return;
     const scale = zoom / 100;
-
     const handleMouseMove = (e: MouseEvent) => {
       if (!canvasRef.current) return;
       hasMovedRef.current = true;
@@ -309,16 +271,12 @@ function DesignCanvas({
       document.removeEventListener("touchend", handleMouseUp);
     };
   }, [isDragging, selectedId, dragOffset, onMoveElement, zoom]); // no onPushHistory in deps
-
-
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
     setIsDropTarget(true);
   }, []);
-
   const handleDragLeave = useCallback(() => setIsDropTarget(false), []);
-
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
@@ -338,7 +296,6 @@ function DesignCanvas({
     },
     [onDropImage, zoom]
   );
-
   return (
     <>
       {/* Dynamic CSS — no inline styles needed */}
@@ -369,7 +326,6 @@ function DesignCanvas({
           }
         `).join('')}
       `}</style>
-
       <div
         ref={canvasRef}
         className={`canva-canvas ${isDropTarget ? "canva-canvas-drop-active" : ""}`}
@@ -394,7 +350,7 @@ function DesignCanvas({
       >
         {slot === "shirt" ? (
           shirtType === "raglan" ? (
-            <RaglanShirtSVG color={tshirtColor} sleeveColor={sleeveColor} side={side} />
+            <RaglanShirtSVG color={tshirtColor} side={side} />
           ) : shirtType === "polo" ? (
             <PoloShirtSVG color={tshirtColor} collarColor={collarColor} side={side} />
           ) : (
@@ -404,7 +360,6 @@ function DesignCanvas({
           <div className="tag-slot-mesh">
             <div className="tag-slot-grid" />
             <div className="tag-slot-border" />
-
             {/* Contextual Shape Overlays */}
             {slot === "hang-tag" && (
               <svg className="tag-shape-overlay" viewBox="0 0 200 300" preserveAspectRatio="xMidYMid meet">
@@ -422,7 +377,6 @@ function DesignCanvas({
             )}
           </div>
         )}
-
         {/* Neck Label Synchronized Preview (Visible only on front, shirt slot) */}
         {slot === "shirt" && side === "front" && neckLabelElement && (
           <div className="neck-label-preview">
@@ -434,12 +388,10 @@ function DesignCanvas({
             )}
           </div>
         )}
-
         {/* Print area guide */}
         <div className="canva-print-area">
           <span className="canva-print-label">Vùng in {side === "front" ? "mặt trước" : "mặt sau"}</span>
         </div>
-
         {/* Print Position Technical Guides */}
         {slot === "shirt" && isPositionMode && (
           <div className="technical-print-guides pointer-events-none">
@@ -453,7 +405,6 @@ function DesignCanvas({
             <div className={`print-guide-box pg-sleeve ${activeLocation === 'sleeve' ? 'active' : ''}`} />
           </div>
         )}
-
         {sideElements.map((el) => (
           <div key={el.id} className="canva-element-wrapper">
             <div
@@ -486,7 +437,6 @@ function DesignCanvas({
             )}
           </div>
         ))}
-
         {elements.length === 0 && !isDropTarget && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none canva-drop-hint">
             <div className="text-center opacity-40">
@@ -504,7 +454,6 @@ function DesignCanvas({
     </>
   );
 }
-
 // ─── Main Design Page (Canva-like) ──────────────────────────
 export default function DesignPage() {
   const router = useRouter();
@@ -531,7 +480,6 @@ export default function DesignPage() {
   const [uploadDragOver, setUploadDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   // Undo / Redo
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
@@ -542,7 +490,6 @@ export default function DesignPage() {
   const isPanningRef = useRef(false);
   const touchDistRef = useRef<number | null>(null);
   const touchZoomStartRef = useRef<number>(100);
-
   // Space key for drag-pan cursor
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -559,7 +506,6 @@ export default function DesignPage() {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
-
   // ─── Auto-fit Tech Pack to screen width/height ───
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -568,18 +514,15 @@ export default function DesignPage() {
       const rect = el.getBoundingClientRect();
       const frameWidth = 1000;
       const frameHeight = 1400;
-
       // Fit with 40px padding
       const scaleX = (rect.width - 80) / frameWidth;
       const scaleY = (rect.height - 80) / frameHeight;
       const fitZoom = Math.min(scaleX, scaleY) * 100;
-
       setZoom(Math.min(100, Math.floor(fitZoom)));
       setPan({ x: 0, y: 0 });
     }, 100);
     return () => clearTimeout(timer);
   }, []);
-
   // Non-passive wheel: Ctrl/Cmd + scroll/pinch = zoom, plain two-finger scroll = pan
   useEffect(() => {
     const el = workspaceRef.current;
@@ -592,14 +535,11 @@ export default function DesignPage() {
           const zoomSpeed = 0.005; // Weighted zoom speed
           const factor = Math.exp(-e.deltaY * zoomSpeed);
           const newZ = Math.min(400, Math.max(10, z * factor));
-
           if (newZ === z) return z;
           const scaleDelta = newZ / z;
-
           const rect = el.getBoundingClientRect();
           const px = e.clientX - rect.left - rect.width / 2;
           const py = e.clientY - rect.top - rect.height / 2;
-
           setPan(p => ({
             x: p.x - (px - p.x) * (scaleDelta - 1),
             y: p.y - (py - p.y) * (scaleDelta - 1)
@@ -614,7 +554,6 @@ export default function DesignPage() {
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
   }, []);
-
   // Middle-mouse drag and Space+LMB drag or plain drag on background
   useEffect(() => {
     const el = workspaceRef.current;
@@ -636,7 +575,6 @@ export default function DesignPage() {
       isPanningRef.current = false;
       setIsPanningWrapper(false);
     };
-
     el.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
@@ -646,7 +584,6 @@ export default function DesignPage() {
       window.removeEventListener("mouseup", onMouseUp);
     };
   }, [isSpacePressed]);
-
   // Touch: 2-finger pinch = zoom, 2-finger pan
   useEffect(() => {
     const el = workspaceRef.current;
@@ -679,12 +616,10 @@ export default function DesignPage() {
       el.removeEventListener("touchmove", onTouchMove);
     };
   }, [zoom]);
-
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
     setRedoStack([]);
   }, []);
-
   const handleUndo = useCallback(() => {
     setHistoryStack(h => {
       if (h.length === 0) return h;
@@ -695,7 +630,6 @@ export default function DesignPage() {
       return newHistory;
     });
   }, [elements]);
-
   const handleRedo = useCallback(() => {
     setRedoStack(r => {
       if (r.length === 0) return r;
@@ -706,7 +640,6 @@ export default function DesignPage() {
       return newRedo;
     });
   }, [elements]);
-
   const handleSnapToPosition = (preset: "left-chest" | "center-chest" | "full-front" | "back-neck" | "full-back") => {
     if (!selectedId) return;
     setElements((prev) => {
@@ -714,7 +647,6 @@ export default function DesignPage() {
       return prev.map((el) => {
         if (el.id !== selectedId) return el;
         const newEl = { ...el };
-
         // Canvas is 400x480. Shirt body is approx x=[105, 295], center x=200.
         if (preset === "left-chest") {
           newEl.side = "front";
@@ -748,17 +680,12 @@ export default function DesignPage() {
           newEl.x = 200 - (newEl.width / 2);
           newEl.y = 120;
         }
-
         if (preset === "back-neck" || preset === "full-back") setSide("back");
         if (preset === "left-chest" || preset === "center-chest" || preset === "full-front") setSide("front");
-
         return newEl;
       });
     });
   };
-
-
-
   const fonts = [
     // Sans Serif
     "Inter", "Roboto", "Open Sans", "Montserrat", "Poppins", "Nunito", "Raleway", "Oswald", "Ubuntu", "Quicksand",
@@ -773,11 +700,9 @@ export default function DesignPage() {
     // System fallbacks
     "Arial", "Georgia", "Impact", "Courier New", "Verdana",
   ];
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
   // ─── Sync panel → selected text element (live update on canvas) ───
   useEffect(() => {
     if (!selectedId) return;
@@ -788,7 +713,6 @@ export default function DesignPage() {
     ));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textColor, textFont, textSize]);
-
   // ─── Sync selected text element → panel (when user clicks text) ───
   useEffect(() => {
     if (!selectedId) return;
@@ -800,17 +724,14 @@ export default function DesignPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
-
   // ─── AI Chat (Image Generation) ─────────────────────────────────
   const handleSendMessage = useCallback(async (content: string) => {
     const userMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
-
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 90000);
-
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -818,16 +739,13 @@ export default function DesignPage() {
         signal: controller.signal,
       });
       clearTimeout(timeout);
-
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-
       const methodLabel = data.method === "t8star" || data.method === "ai" || data.method === "cloudflare"
         ? "🖼️ AI"
         : data.method === "smart"
           ? "🎨 Mẫu thông minh"
           : "📦 Mẫu demo";
-
       const aiMsg: ChatMessage = {
         id: `msg-${Date.now()}-ai`,
         role: "ai",
@@ -847,20 +765,15 @@ export default function DesignPage() {
       setIsLoading(false);
     }
   }, []);
-
-
-
   const handleDragStart = (e: React.DragEvent, image: AIImage) => {
     e.dataTransfer.setData("application/json", JSON.stringify(image));
     e.dataTransfer.effectAllowed = "copy";
   };
-
   // ─── Canvas Actions ──────────────────────────
   const handleDropImage = useCallback(
     (image: AIImage) => {
       setElements((prev) => {
         pushHistory(prev);
-
         // Fixed slot replacement logic for drag-drop too
         const existingIdx = prev.findIndex(el =>
           el.type === "image" &&
@@ -868,7 +781,6 @@ export default function DesignPage() {
           el.slot === activeSlot &&
           el.locked === true
         );
-
         if (existingIdx !== -1) {
           const newElements = [...prev];
           newElements[existingIdx] = {
@@ -878,7 +790,6 @@ export default function DesignPage() {
           };
           return newElements;
         }
-
         const isLogo = image.label.toLowerCase().includes("logo") || image.label.toLowerCase().includes("icon");
         return [...prev, {
           id: `fixed-el-${Date.now()}`,
@@ -899,7 +810,6 @@ export default function DesignPage() {
     },
     [side, activeSlot, pushHistory]
   );
-
   const handleAddText = () => {
     if (!textInput.trim()) return;
     const el: DesignElement = {
@@ -925,17 +835,14 @@ export default function DesignPage() {
     setSelectedId(el.id);
     setTextInput("");
   };
-
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
     setElements((prev) => prev.map((el) => (el.id === id ? { ...el, x, y } : el)));
   }, []);
-
   const handleResizeElement = useCallback((id: string, width: number, height: number, x?: number, y?: number) => {
     setElements((prev) => prev.map((el) => (
       el.id === id ? { ...el, width, height, ...(x !== undefined ? { x } : {}), ...(y !== undefined ? { y } : {}) } : el
     )));
   }, []);
-
   const handleDeleteSelected = useCallback(() => {
     if (!selectedId) return;
     setElements((prev) => {
@@ -944,7 +851,6 @@ export default function DesignPage() {
     });
     setSelectedId(null);
   }, [selectedId, pushHistory]);
-
   const handleDuplicateSelected = useCallback(() => {
     if (!selectedId) return;
     const original = elements.find((el) => el.id === selectedId);
@@ -956,7 +862,6 @@ export default function DesignPage() {
     });
     setSelectedId(dup.id);
   }, [selectedId, elements, pushHistory]);
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -970,12 +875,10 @@ export default function DesignPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleDeleteSelected, handleDuplicateSelected, handleUndo, handleRedo]);
-
   const handleComplete = () => {
     sessionStorage.setItem("designData", JSON.stringify({ elements, tshirtColor, shirtType }));
     router.push("/order");
   };
-
   const handleUpload = useCallback((files: FileList | File[]) => {
     const fileArr = Array.from(files).filter(f => f.type.startsWith("image/"));
     fileArr.forEach(file => {
@@ -992,18 +895,15 @@ export default function DesignPage() {
       reader.readAsDataURL(file);
     });
   }, []);
-
   const handleUploadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) handleUpload(e.target.files);
     e.target.value = "";
   };
-
   const handleUploadDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setUploadDragOver(false);
     if (e.dataTransfer.files) handleUpload(e.dataTransfer.files);
   };
-
   const addUploadedImageToCanvas = (img: AIImage) => {
     const el: DesignElement = {
       id: `el-${Date.now()}`,
@@ -1021,11 +921,9 @@ export default function DesignPage() {
     setElements(prev => [...prev, el]);
     setSelectedId(el.id);
   };
-
   const frontCount = elements.filter((e) => e.side === "front").length;
   const backCount = elements.filter((e) => e.side === "back").length;
   const selectedElement = elements.find((el) => el.id === selectedId);
-
   // Technical Header Data (Human Made style)
   const techPackInfo = {
     season: "2025 SS / FW",
@@ -1038,7 +936,6 @@ export default function DesignPage() {
     output: "04 / 30 / 2026",
     pantone: tshirtColor.toUpperCase()
   };
-
   const suggestions = [
     "Galaxy heart with stars",
     "Vintage class logo 2026",
@@ -1049,7 +946,6 @@ export default function DesignPage() {
     "Infinity symbol neon",
     "Cute cat astronaut",
   ];
-
   return (
     <div className="canva-layout">
       {/* ═══ TRAM DONG PHUC DOUBLE HEADER ═══ */}
@@ -1059,7 +955,6 @@ export default function DesignPage() {
             <Link href="/" className="tram-logo">
               <Logo scale={0.4} />
             </Link>
-
             <div className="tram-search">
               <div className="tram-search-inner">
                 <span className="tram-search-icon">
@@ -1068,7 +963,6 @@ export default function DesignPage() {
                 <input type="text" placeholder="Tìm kiếm..." />
               </div>
             </div>
-
             <div className="tram-top-links ms-auto">
               <a href="#">Bản tin Unispace</a>
               <a href="#">Tuyển dụng</a>
@@ -1076,7 +970,6 @@ export default function DesignPage() {
             </div>
           </div>
         </div>
-
         <div className="section-header-menu">
           <div className="container-fluid tram-container">
             <nav className="tram-nav">
@@ -1084,7 +977,6 @@ export default function DesignPage() {
                 <li><a href="#">Trạm đồng phục <small>▼</small></a></li>
                 <li><a href="#" className="active">Thiết kế</a></li>
               </ul>
-
               <ul className="tram-nav-right ms-auto">
                 <li><a href="#">Khuyến mãi & Quà tặng</a></li>
                 <li><a href="#">Giao hàng & Thanh toán</a></li>
@@ -1093,7 +985,6 @@ export default function DesignPage() {
             </nav>
           </div>
         </div>
-
         {/* Floating actions for the canvas, since we replaced topbar */}
         <div className="tram-canvas-actions">
           <div className="canva-topbar-center">
@@ -1110,7 +1001,6 @@ export default function DesignPage() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
             </button>
           </div>
-
           <div className="canva-topbar-right">
             {selectedId && (
               <>
@@ -1141,7 +1031,6 @@ export default function DesignPage() {
           </div>
         </div>
       </header>
-
       <div className="canva-body">
         {/* ═══ LEFT TOOLBAR ═══ */}
         <aside className="canva-sidebar-left">
@@ -1207,9 +1096,7 @@ export default function DesignPage() {
             </svg>
             <span>Vị trí</span>
           </button>
-
           <div className="canva-sidebar-spacer" />
-
           {/* Side switcher */}
           <button
             className="canva-tool-btn"
@@ -1223,7 +1110,6 @@ export default function DesignPage() {
             <span>{side === "front" ? "Trước" : "Sau"}</span>
           </button>
         </aside>
-
         {/* ═══ LEFT PANEL (content) ═══ */}
         {activePanel && (
           <>
@@ -1237,7 +1123,6 @@ export default function DesignPage() {
                     <h3>Magic Media AI</h3>
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
-
                   <div className="ai-magic-scroll-area pt-2">
                     <div className="ai-canva-card">
                       <label className="ai-canva-label">Mô tả thiết kế lý tưởng của bạn</label>
@@ -1267,7 +1152,6 @@ export default function DesignPage() {
                         </button>
                       </div>
                     </div>
-
                     <button
                       className="ai-canva-generate-btn"
                       disabled={isLoading || !chatInput.trim()}
@@ -1289,20 +1173,17 @@ export default function DesignPage() {
                         </>
                       )}
                     </button>
-
                     <div className="ai-suggestions-chips">
                       {suggestions.map((s, i) => (
                         <button key={i} onClick={() => setChatInput(s)} className="ai-suggestion-chip">{s}</button>
                       ))}
                     </div>
-
                     <div className="ai-magic-results text-center">
                       {isLoading && (
                         <div className="ai-loading-placeholder p-4">
                           <p className="text-sm text-[#8b3dff] font-medium animate-pulse">AI đang vẽ tác phẩm của bạn...</p>
                         </div>
                       )}
-
                       <div className="canva-ai-grid mt-4">
                         {messages.filter(m => m.role === "ai").slice().reverse().map(m => m.images && m.images.map((img) => (
                           <div key={img.id} className="canva-ai-grid-item-wrapper group">
@@ -1310,15 +1191,12 @@ export default function DesignPage() {
                               // Professional Position Presets Logic
                               setElements((prev) => {
                                 pushHistory(prev);
-
                                 const isFront = printLocation.includes("front") || printLocation.includes("chest") || printLocation === "sleeve";
                                 const effectiveSide = isFront ? "front" : "back";
-
                                 // Auto switch side
                                 if (effectiveSide !== side) {
                                   setSide(effectiveSide as "front" | "back");
                                 }
-
                                 const getPosition = (loc: string) => {
                                   if (activeSlot !== "shirt") return { x: 50, y: 50, w: 100, h: 100 };
                                   switch (loc) {
@@ -1333,9 +1211,7 @@ export default function DesignPage() {
                                     default: return { x: 100, y: 110, w: 200, h: 200 };
                                   }
                                 };
-
                                 const pos = getPosition(printLocation);
-
                                 // Check if there's already a locked AI image on this side/slot
                                 const existingIdx = prev.findIndex(el =>
                                   el.type === "image" &&
@@ -1343,7 +1219,6 @@ export default function DesignPage() {
                                   el.slot === activeSlot &&
                                   el.locked === true
                                 );
-
                                 if (existingIdx !== -1) {
                                   // Replace existing
                                   const newElements = [...prev];
@@ -1355,7 +1230,6 @@ export default function DesignPage() {
                                   };
                                   return newElements;
                                 }
-
                                 return [...prev, {
                                   id: `fixed-el-${Date.now()}`,
                                   type: "image",
@@ -1385,7 +1259,6 @@ export default function DesignPage() {
                   </div>
                 </div>
               )}
-
               {/* Upload Panel */}
               {activePanel === "upload" && (
                 <div className="canva-panel-content">
@@ -1404,7 +1277,6 @@ export default function DesignPage() {
                       onChange={handleUploadFileChange}
                       aria-label="Chọn ảnh từ máy tính"
                     />
-
                     {/* Drop zone */}
                     <div
                       className={`upload-dropzone ${uploadDragOver ? "active" : ""}`}
@@ -1426,7 +1298,6 @@ export default function DesignPage() {
                       <p className="upload-dropzone-sub">hoặc <strong>nhấp để chọn file</strong></p>
                       <p className="upload-dropzone-hint">PNG, JPG, SVG, WEBP</p>
                     </div>
-
                     {/* Uploaded gallery */}
                     {uploadedImages.length > 0 && (
                       <>
@@ -1472,7 +1343,6 @@ export default function DesignPage() {
                   </div>
                 </div>
               )}
-
               {/* Text Panel */}
               {activePanel === "text" && (
                 <div className="canva-panel-content">
@@ -1490,7 +1360,6 @@ export default function DesignPage() {
                       className="canva-input"
                       onKeyDown={(e) => { if (e.key === "Enter" && textInput.trim()) handleAddText(); }}
                     />
-
                     <label className="canva-label">Font chữ</label>
                     <style>{fonts.map((f, i) => `.font-btn-${i} { font-family: "${f}", sans-serif; }`).join(' ')}</style>
                     <div className="canva-font-picker">
@@ -1504,7 +1373,6 @@ export default function DesignPage() {
                         </button>
                       ))}
                     </div>
-
                     <div className="canva-row">
                       <div className="canva-half">
                         <label className="canva-label">Cỡ chữ</label>
@@ -1519,7 +1387,6 @@ export default function DesignPage() {
                         </div>
                       </div>
                     </div>
-
                     <div className="canva-quick-colors">
                       <label className="canva-label">Bảng màu</label>
                       {(() => {
@@ -1550,11 +1417,9 @@ export default function DesignPage() {
                         );
                       })()}
                     </div>
-
                     <button onClick={handleAddText} className="canva-btn-add" disabled={!textInput.trim()}>
                       Thêm chữ vào áo
                     </button>
-
                     <div className="canva-text-presets">
                       <p className="canva-label">Mẫu nhanh</p>
                       {["CLASS OF 2026", "12A1 ❤️", "TOGETHER WE ARE ONE", "KỶ NIỆM", "FRIENDSHIP"].map((t) => (
@@ -1564,7 +1429,6 @@ export default function DesignPage() {
                   </div>
                 </div>
               )}
-
               {/* Color Panel */}
               {activePanel === "elements" && (
                 <div className="canva-panel-content">
@@ -1642,7 +1506,6 @@ export default function DesignPage() {
                   </div>
                 </div>
               )}
-
               {/* Layers Panel */}
               {activePanel === "layers" && (
                 <div className="canva-panel-content">
@@ -1684,7 +1547,6 @@ export default function DesignPage() {
                   </div>
                 </div>
               )}
-
               {/* Position Presets Panel */}
               {activePanel === "position" && (
                 <div className="canva-panel-content">
@@ -1724,7 +1586,6 @@ export default function DesignPage() {
                         </button>
                       ))}
                     </div>
-
                     <div className="mt-8 bg-gray-50 p-4 rounded-3xl border border-gray-100">
                       <h4 className="text-[10px] font-black uppercase mb-2 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -1745,7 +1606,6 @@ export default function DesignPage() {
             </div>
           </>
         )}
-
         {/* ═══ CENTER CANVAS ═══ */}
         <main
           ref={workspaceRef}
@@ -1766,7 +1626,6 @@ export default function DesignPage() {
               <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-back")} title="Lớn sau lưng">Lớn sau lưng</button>
             </div>
           )}
-
           {/* Canvas area with checkerboard bg */}
           <div
             className={`canva-canvas-wrapper ${isPanningWrapper ? "cursor-grabbing" : isSpacePressed ? "cursor-grab" : ""
@@ -1805,9 +1664,7 @@ export default function DesignPage() {
                   </div>
                 </div>
               </div>
-
               <div className="tech-pack-divider">FRONT & BACK DETAILS</div>
-
               {/* THREE-COLUMN TECHNICAL LAYOUT */}
               <div className="spec-slots-container">
                 {/* LEFT SIDEBAR SLOTS */}
@@ -1827,7 +1684,6 @@ export default function DesignPage() {
                       onDropImage={handleDropImage}
                       side={side}
                       tshirtColor="#fff"
-                      sleeveColor="#fff"
                       collarColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
@@ -1851,7 +1707,6 @@ export default function DesignPage() {
                       onDropImage={handleDropImage}
                       side={side}
                       tshirtColor="#fff"
-                      sleeveColor="#fff"
                       collarColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
@@ -1861,7 +1716,6 @@ export default function DesignPage() {
                     />
                   </div>
                 </div>
-
                 {/* MAIN SHIRT MOCKUP (Front & Back side-by-side) */}
                 <div className={`spec-main-shirt-v2 ${activeSlot === "shirt" ? "active" : ""}`}>
                   <div className="tech-views-row">
@@ -1877,7 +1731,6 @@ export default function DesignPage() {
                         onDropImage={handleDropImage}
                         side="front"
                         tshirtColor={tshirtColor}
-                        sleeveColor={sleeveColor}
                         collarColor={collarColor}
                         shirtType={shirtType}
                         zoom={zoom}
@@ -1888,7 +1741,6 @@ export default function DesignPage() {
                         <div className="m-label m-top">Center Front <span className="text-red-500">4.5cm Down</span></div>
                       </div>
                     </div>
-
                     <div className={`tech-view-col ${side === 'back' ? 'view-active' : ''}`} onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
                       <div className="tech-view-label">BACK VIEW</div>
                       <DesignCanvas
@@ -1901,7 +1753,6 @@ export default function DesignPage() {
                         onDropImage={handleDropImage}
                         side="back"
                         tshirtColor={tshirtColor}
-                        sleeveColor={sleeveColor}
                         collarColor={collarColor}
                         shirtType={shirtType}
                         zoom={zoom}
@@ -1914,7 +1765,6 @@ export default function DesignPage() {
                     </div>
                   </div>
                 </div>
-
                 {/* RIGHT SIDEBAR SLOTS */}
                 <div className="spec-sidebar">
                   <div
@@ -1932,7 +1782,6 @@ export default function DesignPage() {
                       onDropImage={handleDropImage}
                       side={side}
                       tshirtColor="#fff"
-                      sleeveColor="#fff"
                       collarColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
@@ -1954,7 +1803,6 @@ export default function DesignPage() {
                       onDropImage={handleDropImage}
                       side={side}
                       tshirtColor="#fff"
-                      sleeveColor="#fff"
                       collarColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
@@ -1963,18 +1811,16 @@ export default function DesignPage() {
                   </div>
                 </div>
               </div>
-
               {/* FOOTER SPECS & PANTONE */}
               <div className="tech-pack-footer-v2">
                 <div className="tech-footer-legend">
                   <div className="legend-item">Single needle Chain Stitch</div>
                   <div className="legend-item text-red-500 font-bold">ALL MEASUREMENTS IN CM</div>
                 </div>
-
                 <div className="pantone-block">
                   <div className="p-label">FABRIC</div>
                   <div className="p-swatch-wrap">
-                    <div className="p-swatch" style={{ "--swatch-bg": tshirtColor } as React.CSSProperties} />
+                    <div className="p-swatch p-swatch-dynamic" style={{ "--swatch-bg": tshirtColor } as React.CSSProperties} />
                     <div className="p-info">
                       <div className="p-name">PANTONE</div>
                       <div className="p-code">{techPackInfo.pantone}</div>
@@ -1984,7 +1830,6 @@ export default function DesignPage() {
               </div>
             </div>
           </div>
-
           {/* Bottom bar */}
           <div className="canva-bottombar">
             <div className="canva-zoom">
@@ -2028,7 +1873,6 @@ export default function DesignPage() {
           </div>
         </main>
       </div>
-
       {/* ── Mobile Bottom Tab Bar (hidden on desktop via CSS) ── */}
       <nav className="canva-mobile-tabs">
         {/* Side toggle: front / back */}

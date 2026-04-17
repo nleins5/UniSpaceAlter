@@ -234,96 +234,81 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
 
 // ─── Canva-style Design Canvas ──────────────────────────────
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
-  const strokeColor = "#000000";
-  const shadowColor = "rgba(0,0,0,0.4)";
+  const strokeColor = "#111111";
+  const shadowColor = "rgba(0,0,0,0.3)";
 
-  // Anatomically accurate Raglan paths
+  // PIXEL-PERFECT TRACING OF CLASSIC RAGLAN SKETCH
   const bodyPath = side === "front"
     ? `
-      M 100, 450
-      L 100, 200
-      Q 130, 110 155, 65
-      Q 200, 105 245, 65
-      Q 270, 110 300, 200
-      L 300, 450
+      M 95, 455
+      L 95, 190
+      C 130, 100 150, 80 155, 62
+      Q 200, 105 245, 62
+      C 250, 80 270, 100 305, 190
+      L 305, 455
       Z
     `
     : `
-      M 100, 450
-      L 100, 200
-      Q 130, 110 155, 65
-      Q 200, 75 245, 65
-      Q 270, 110 300, 200
-      L 300, 450
+      M 95, 455
+      L 95, 190
+      C 130, 100 150, 80 155, 62
+      Q 200, 75 245, 62
+      C 250, 80 270, 100 305, 190
+      L 305, 455
       Z
     `;
 
-  const leftRef = side === "front"
-    ? "M 155, 65 Q 130, 110 100, 200"
-    : "M 155, 65 Q 130, 110 100, 200";
-
-  const rightRef = side === "front"
-    ? "M 245, 65 Q 270, 110 300, 200"
-    : "M 245, 65 Q 270, 110 300, 200";
-
   const leftSleeve = `
-    M 155, 65
-    Q 110, 45 35, 120
-    L 100, 200
-    Q 130, 110 155, 65
+    M 155, 62
+    C 115, 35 105, 35 35, 115
+    L 95, 190
+    C 130, 100 150, 80 155, 62
     Z
   `;
 
   const rightSleeve = `
-    M 245, 65
-    Q 290, 45 365, 120
-    L 300, 200
-    Q 270, 110 245, 65
+    M 245, 62
+    C 285, 35 295, 35 365, 115
+    L 305, 190
+    C 250, 80 270, 100 245, 62
     Z
   `;
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      {/* Base White Layer */}
       <path d={bodyPath} fill="#FFFFFF" />
       <path d={leftSleeve} fill="#FFFFFF" />
       <path d={rightSleeve} fill="#FFFFFF" />
-
       <g>
-        {/* Raglan Sleeves */}
         <path d={leftSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
         <path d={rightSleeve} fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-
-        {/* Main Body Fill and Outline */}
         <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M 200,20 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.2" strokeDasharray="5 5" />
 
-        {/* Technical Center Alignment Line */}
-        <path d="M 200,20 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
+        {/* Raglan detail creases */}
+        <path d="M 115,145 L 130,140" stroke={strokeColor} strokeWidth="0.8" opacity="0.3" />
+        <path d="M 285,145 L 270,140" stroke={strokeColor} strokeWidth="0.8" opacity="0.3" />
 
-        {/* Neckline Details */}
         {side === "front" ? (
           <>
-            <path d="M 152,63 Q 200,75 248,63 Q 200,85 152,63 Z" fill="rgba(0,0,0,0.06)" />
-            <path d="M 155,65 Q 200,105 245,65 L 255,50 Q 200,90 145,50 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 158,70 Q 200,98 242,70" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-            <rect x="180" y="72" width="40" height="16" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+            <path d="M 152,60 Q 200,75 248,60 Q 200,85 152,60 Z" fill="rgba(0,0,0,0.06)" />
+            <path d="M 155,62 Q 200,105 245,62 L 255,48 Q 200,90 145,48 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 158,68 Q 200,98 242,68" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+            <rect x="180" y="70" width="40" height="15" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
           </>
         ) : (
           <>
-            <path d="M 155,65 Q 200,75 245,65 L 255,50 Q 200,60 145,50 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 158,62 Q 200,72 242,62" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+            <path d="M 155,62 Q 200,75 245,62 L 255,48 Q 200,60 145,48 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 158,58 Q 200,68 242,58" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
           </>
         )}
 
-        {/* Hem Stitching */}
-        <path d="M 100,435 L 300,435" stroke={strokeColor} strokeWidth="1" />
-        <path d="M 100,439 L 300,439" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
-
-        {/* Sleeve Hems */}
-        <path d="M 35,120 L 100,200" stroke={strokeColor} strokeWidth="1" />
-        <path d="M 38,117 L 103,197" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-        <path d="M 365,120 L 300,200" stroke={strokeColor} strokeWidth="1" />
-        <path d="M 362,117 L 297,197" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+        <path d="M 95,442 L 305,442" stroke={strokeColor} strokeWidth="1.2" />
+        <path d="M 95,446 L 305,446" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" />
+        <path d="M 35,115 L 95,190" stroke={strokeColor} strokeWidth="1.2" />
+        <path d="M 38,112 L 98,187" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
+        <path d="M 365,115 L 305,190" stroke={strokeColor} strokeWidth="1.2" />
+        <path d="M 362,112 L 302,187" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" />
       </g>
     </svg>
   );

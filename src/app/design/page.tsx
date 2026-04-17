@@ -62,8 +62,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
       L 95, 175
       L 35, 120
       L 105, 52
-      L 145, 35
-      Q 200, 40 255, 35
+      L 145, 23
+      Q 200, 34 255, 23
       L 295, 52
       L 365, 120
       L 305, 175
@@ -107,13 +107,13 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         {/* Back View specific details */}
         {side === "back" && (
           <>
+            {/* Proper Downward Dipping Back Collar Band */}
+            <path d="M 145,23 Q 200,34 255,23 L 255,42 Q 200,53 145,42 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 148,40 Q 200,50 252,40" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
 
-
-            <path d="M 145,35 Q 200,40 255,35 L 255,15 Q 200,10 145,15 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 148,32 Q 200,37 252,32" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-
-            <path d="M 188,38 L 188,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
-            <path d="M 212,38 L 212,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            {/* Inside Tag Stitching visible on back */}
+            <path d="M 188,48 L 188,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 212,48 L 212,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
           </>
         )}
 
@@ -265,7 +265,7 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
       M 92, 450
       L 95, 175
       Q 120, 100 152, 43
-      Q 200, 45 248, 43
+      Q 200, 54 248, 43
       Q 280, 100 305, 175
       L 308, 450
       Z
@@ -326,11 +326,11 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
         {/* Back View specific details */}
         {side === "back" && (
           <>
-            <path d="M 145,23 Q 200,28 255,23 L 255,8 Q 200,5 145,8 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 148,25 Q 200,30 252,25" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+            <path d="M 145,23 Q 200,34 255,23 L 255,42 Q 200,53 145,42 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 148,40 Q 200,50 252,40" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
 
-            <path d="M 188,38 L 188,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
-            <path d="M 212,38 L 212,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 188,48 L 188,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 212,48 L 212,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
           </>
         )}
 

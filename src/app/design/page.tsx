@@ -280,7 +280,7 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
             <path d="M 145,23 Q 200,35 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" />
             <rect x="180" y="32" width="40" height="16" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
 
-            <path d="M 152,43 Q 200,80 248,43 L 255,23 Q 200,65 145,23 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 152,43 Q 200,80 248,43 L 255,23 Q 200,65 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
             <path d="M 150,38 Q 200,75 250,38" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
           </>
         )}
@@ -291,7 +291,7 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
             <path d="M 145,23 Q 200,65 255,23 Q 200,18 145,23 Z" fill="rgba(0,0,0,0.06)" />
             <path d="M 145,23 Q 200,65 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" opacity="0.6" />
 
-            <path d="M 152,43 Q 200,30 248,43 L 255,23 Q 200,18 145,23 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 152,43 Q 200,30 248,43 L 255,23 Q 200,18 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
             <path d="M 149,38 Q 200,26 251,38" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
 
             <path d="M 188,38 L 188,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />

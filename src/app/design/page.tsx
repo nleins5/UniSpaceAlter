@@ -136,69 +136,111 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
 // ── Form A1: same-color front collar + V-piping, dark back collar ──
 
 
-// ── Form D5: dark front collar with fold-down flaps, dark back collar ──
+// ── Form D5: pure flat tech polo layout ──
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16) || 255;
-  const g = parseInt(hex.substring(2, 4), 16) || 255;
-  const b = parseInt(hex.substring(4, 6), 16) || 255;
-  const isLight = (r * 299 + g * 587 + b * 114) / 1000 > 160;
-  const strokeColor = isLight ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.15)";
-  const shadowColor = isLight ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.2)";
-  const highlightColor = isLight ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.08)";
+  const strokeColor = "#000000";
+  const shadowColor = "rgba(0,0,0,0.4)";
 
-  const effectiveCollarColor = collarColor || (isLight ? "#ffffff" : color);
-  const buttonFill = isLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.4)";
+  const effectiveCollarColor = collarColor || color;
 
-  const gradId = `polo-${side}-fab`;
-  const filtId = `polo-${side}-shd`;
-
-  // New Technical Unisex Polo Silhouette (Boxier fit as per latest Image)
-  const bodyPath = "M 80,470 L 80,140 L 10,175 L 0,75 L 105,45 L 165,35 Q 200,33 235,35 L 295,45 L 400,75 L 390,175 L 320,140 L 320,470 Z";
+  // Base Tech Flat Form sharing exact proportions with T-shirt
+  const bodyPath = side === "front"
+    ? `
+      M 92, 450
+      L 95, 175
+      L 35, 120
+      L 105, 52
+      L 155, 35
+      Q 200, 42 245, 35
+      L 295, 52
+      L 365, 120
+      L 305, 175
+      L 308, 450
+      Z
+    `
+    : `
+      M 92, 450
+      L 95, 175
+      L 35, 120
+      L 105, 52
+      L 155, 35
+      Q 200, 25 245, 35
+      L 295, 52
+      L 365, 120
+      L 305, 175
+      L 308, 450
+      Z
+    `;
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <defs>
-        <linearGradient id={gradId} x1="0.3" y1="0" x2="0.7" y2="1">
-          <stop offset="0%" stopColor={highlightColor} /><stop offset="100%" stopColor={shadowColor} />
-        </linearGradient>
-        <filter id={filtId}><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.12" /></filter>
-      </defs>
-      <g filter={`url(#${filtId})`}>
-        {/* Main Fabric */}
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" />
-        <path d={bodyPath} fill={`url(#${gradId})`} />
+      {/* Base White Solid Layer */}
+      <path d={bodyPath} fill="#FFFFFF" />
 
-        {/* Collar Details */}
-        {side === "front" ? (
+      <g>
+        {/* Draw front flaps BEHIND the back body for the back view so tips peek out */}
+        {side === "back" && (
           <>
-            {/* The V-opening (Placket) */}
-            <path d="M 192,45 L 200,150 L 208,45" fill="rgba(0,0,0,0.05)" />
-            <path d="M 194,38 L 206,38 L 206,145 L 194,145 Z" fill={color} stroke={strokeColor} strokeWidth="1" />
-
-            {/* Collar Flaps (More geometric as per latest Image) */}
-            <path d="M 165,30 L 125,85 Q 135,100 165,100 L 200,50 L 200,30 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" />
-            <path d="M 235,30 L 275,85 Q 265,100 235,100 L 200,50 L 200,30 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" />
-
-            {/* Pocket Detail (Right Chest / Left when looking) */}
-            <path d="M 230,155 L 285,155" stroke={strokeColor} strokeWidth="1.5" opacity="0.6" />
-
-            {/* Buttons (Detailed) */}
-            <circle cx="200" cy="70" r="3" fill={buttonFill} stroke={strokeColor} strokeWidth="0.5" />
-            <circle cx="200" cy="100" r="3" fill={buttonFill} stroke={strokeColor} strokeWidth="0.5" />
-            <circle cx="200" cy="130" r="3" fill={buttonFill} stroke={strokeColor} strokeWidth="0.5" />
+            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
           </>
-        ) : (
-          <path d="M 165,30 Q 200,45 235,30 L 235,10 Q 200,5 165,10 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" />
         )}
 
-        {/* Sleeve Ribbed Cuffs */}
-        <path d="M 8,168 L 95,145" stroke={strokeColor} strokeWidth="6" opacity="0.15" />
-        <path d="M 392,168 L 305,145" stroke={strokeColor} strokeWidth="6" opacity="0.15" />
+        {/* Main Body */}
+        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
 
-        {/* Technical Bottom Hem Stitching */}
-        <path d="M 90,462 L 310,462" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
-        <path d="M 90,466 L 310,466" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
+        {/* Technical Center Line */}
+        <path d="M 200,32 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
+
+        {/* Armhole Seams */}
+        <path d="M 105,52 Q 130,110 95,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+        <path d="M 295,52 Q 270,110 305,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+
+        {side === "front" && (
+          <>
+            {/* Inner V-Neck Hole */}
+            <path d="M 188,28 L 212,28 L 200,55 Z" fill="rgba(0,0,0,0.06)" />
+            {/* Neck Tag */}
+            <rect x="192" y="32" width="16" height="8" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+
+            {/* Back Folded Collar (visible behind flaps) */}
+            <path d="M 145,23 Q 200,8 255,23 L 212,28 Q 200,18 188,28 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+
+            {/* Front Placket */}
+            <rect x="188" y="55" width="24" height="95" fill={color} stroke={strokeColor} strokeWidth="1.5" />
+            <path d="M 188,145 L 212,145" stroke={strokeColor} strokeWidth="1.5" />
+            <rect x="191" y="58" width="18" height="84" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+            {/* Buttons */}
+            <circle cx="200" cy="80" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+            <circle cx="200" cy="80" r="1.5" fill={strokeColor} opacity="0.5" />
+            <circle cx="200" cy="120" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+            <circle cx="200" cy="120" r="1.5" fill={strokeColor} opacity="0.5" />
+
+            {/* Front Collar Flaps */}
+            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 147,27 L 184,31 L 194,52 L 122,65 Z" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 253,27 L 216,31 L 206,52 L 278,65 Z" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+          </>
+        )}
+
+        {side === "back" && (
+          <>
+            {/* Back Collar Flap (Folds over body) */}
+            <path d="M 145,23 Q 200,12 255,23 L 260,45 Q 200,35 140,45 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 143,41 Q 200,32 257,41" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+          </>
+        )}
+
+        {/* Bottom Hem Stitching */}
+        <path d="M 93,438 L 307,438" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 92,442 L 308,442" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
+
+        {/* Sleeve Hems Stitching */}
+        <path d="M 42,117 L 98,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 45,114 L 101,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+        <path d="M 358,117 L 302,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 355,114 L 299,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
       </g>
     </svg>
   );

@@ -38,17 +38,35 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   const id = useId().replace(/:/g, "");
 
   return (
-    <div className={`relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100 tshirt-instance-${id}`}>
+    <div className={`relative w-full h-full overflow-hidden bg-[#f8f8f8] mockup-svg shadow-2xl border border-gray-200 tshirt-instance-${id}`}>
+      {/* Drafting Grid Background */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mockup-grid" />
+
       <style>{`
-        .tshirt-instance-${id} .mockup-layer-color { background-color: ${color}; }
+        .tshirt-instance-${id} .mockup-grid { 
+          background-image: radial-gradient(#000 1px, transparent 1px); 
+          background-size: 20px 20px; 
+        }
+        .tshirt-instance-${id} .mockup-layer-color { 
+          background-color: ${color};
+          clip-path: ${side === "front" ? 'path("M25 60 L120 40 L380 40 L475 60 L475 180 L420 180 L420 480 L80 480 L80 180 L25 180 Z")' : 'path("M25 60 L120 40 L380 40 L475 60 L475 180 L420 180 L420 480 L80 480 L80 180 L25 180 Z")'};
+          transform: scale(0.85);
+          transform-origin: center;
+        }
         .tshirt-instance-${id} .mockup-layer-image { 
           background-image: url(${imageUrl}); 
           background-size: 300% 200%;
           background-position: ${side === "front" ? '0% 0%' : '50% 0%'}; 
+          transform: scale(1.1);
         }
       `}</style>
       <div className="mockup-layer-color" />
-      <div className="mockup-layer-image mockup-tshirt-target" />
+      <div className="mockup-layer-image mockup-tshirt-target opacity-90" />
+
+      {/* Tech Pack Labels */}
+      <div className="absolute bottom-4 left-4 font-mono text-[10px] text-gray-400 uppercase tracking-widest">
+        Model: Oversize / View: {side}
+      </div>
     </div>
   );
 }
@@ -58,17 +76,32 @@ function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "fron
   const id = useId().replace(/:/g, "");
 
   return (
-    <div className={`relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100 raglan-instance-${id}`}>
+    <div className={`relative w-full h-full overflow-hidden bg-[#f8f8f8] mockup-svg shadow-2xl border border-gray-200 raglan-instance-${id}`}>
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mockup-grid" />
+
       <style>{`
-        .raglan-instance-${id} .mockup-layer-color { background-color: ${color}; }
+        .raglan-instance-${id} .mockup-grid { 
+          background-image: radial-gradient(#000 1px, transparent 1px); 
+          background-size: 20px 20px; 
+        }
+        .raglan-instance-${id} .mockup-layer-color { 
+          background-color: ${color};
+          transform: scale(0.85);
+          transform-origin: center;
+        }
         .raglan-instance-${id} .mockup-layer-image { 
           background-image: url(${imageUrl}); 
           background-size: 300% 200%;
           background-position: ${side === "front" ? '0% 100%' : '50% 100%'}; 
+          transform: scale(1.1);
         }
       `}</style>
       <div className="mockup-layer-color" />
-      <div className="mockup-layer-image mockup-raglan-target" />
+      <div className="mockup-layer-image mockup-raglan-target opacity-90" />
+
+      <div className="absolute bottom-4 left-4 font-mono text-[10px] text-gray-400 uppercase tracking-widest">
+        Model: Raglan / View: {side}
+      </div>
     </div>
   );
 }

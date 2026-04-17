@@ -38,84 +38,101 @@ interface ChatMessage {
   images?: AIImage[];
 }
 
-// ─── SVG T-Shirt & Polo Mockups (Flat Illustration Style) ────
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const strokeColor = "rgba(0,0,0,0.85)";
-  const shadowColor = "rgba(0,0,0,0.4)";
+  const strokeColor = "#000000"; // Pure black for crisp technical lines
+  const shadowColor = "rgba(0,0,0,0.4)"; // For dashed stitching
 
-  // Perfectly proportioned Front & Back bodies
+  // Meticulously measured Front and Back paths
   const bodyPath = side === "front"
     ? `
-      M 85, 450
-      L 85, 170
-      Q 85, 160 75, 155
-      L 30, 110
-      L 90, 45
-      L 145, 25
-      Q 200, 80 255, 25
-      L 310, 45
-      L 370, 110
-      L 325, 155
-      Q 315, 160 315, 170
-      L 315, 450
+      M 92, 450
+      L 95, 175
+      L 35, 120
+      L 105, 52
+      L 155, 35
+      Q 200, 80 245, 35
+      L 295, 52
+      L 365, 120
+      L 305, 175
+      L 308, 450
       Z
     `
     : `
-      M 85, 450
-      L 85, 170
-      Q 85, 160 75, 155
-      L 30, 110
-      L 90, 45
-      L 145, 25
-      Q 200, 35 255, 25
-      L 310, 45
-      L 370, 110
-      L 325, 155
-      Q 315, 160 315, 170
-      L 315, 450
+      M 92, 450
+      L 95, 175
+      L 35, 120
+      L 105, 52
+      L 155, 35
+      Q 200, 30 245, 35
+      L 295, 52
+      L 365, 120
+      L 305, 175
+      L 308, 450
       Z
     `;
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
+      {/* Base White Layer to ensure no transparency through the lineart */}
+      <path d={bodyPath} fill="#FFFFFF" />
+
       <g>
-        {/* Main Body Fabric */}
+        {/* Main Body Fill and Outline */}
         <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
 
-        {/* Technical Center Line */}
-        <path d="M 200,32 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.2" strokeDasharray="4 4" />
+        {/* Technical Center Alignment Line */}
+        <path d="M 200,20 L 200,460" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
 
-        {/* Front View Collar Details */}
+        {/* Armhole Seams (Crucial for Tech Pack look) */}
+        <path d="M 105,52 Q 130,110 95,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+        <path d="M 295,52 Q 270,110 305,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+
+        {/* Front View specific details */}
         {side === "front" && (
           <>
-            {/* Back inner collar visible through front hole */}
-            <path d="M 145,25 Q 200,35 255,25 Q 200,80 145,25" fill="rgba(0,0,0,0.06)" />
-            {/* Front Collar Ribbing (Inner strip) */}
-            <path d="M 145,25 Q 200,80 255,25 L 245,32 Q 200,72 155,32 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 145,25 Q 200,80 255,25" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-            {/* Back inner collar rim */}
-            <path d="M 155,32 Q 200,42 245,32" fill="none" stroke={strokeColor} strokeWidth="1" opacity="0.6" />
-            {/* Rectangular Tag inside collar */}
-            <rect x="185" y="42" width="30" height="14" rx="1" fill="white" stroke={strokeColor} strokeWidth="1" />
+            {/* Back inner collar area visible through front hole (Gray shading) */}
+            <path d="M 145,23 Q 200,35 255,23 Q 200,65 145,23 Z" fill="rgba(0,0,0,0.06)" />
+            {/* Back neck top edge rim */}
+            <path d="M 145,23 Q 200,35 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+            {/* Inner Tag */}
+            <rect x="180" y="32" width="40" height="16" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+
+            {/* Front Thick Collar Ribbing (Overlays the body) */}
+            <path d="M 155,35 Q 200,80 245,35 L 255,23 Q 200,65 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            {/* Collar inner stitch line */}
+            <path d="M 152,31 Q 200,75 248,31" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
           </>
         )}
 
-        {/* Back View Collar Details */}
+        {/* Back View specific details */}
         {side === "back" && (
           <>
-            {/* Back Collar Ribbing (Inner strip) */}
-            <path d="M 145,25 Q 200,35 255,25 L 245,35 Q 200,45 155,35 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 145,25 Q 200,35 255,25" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+            {/* Front inner collar visible inside back view (Gray shading) */}
+            <path d="M 145,23 Q 200,65 255,23 Q 200,18 145,23 Z" fill="rgba(0,0,0,0.06)" />
+            {/* Front neck rim (bottom curve of the hole) */}
+            <path d="M 145,23 Q 200,65 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" opacity="0.6" />
+
+            {/* Back Thick Collar Ribbing */}
+            <path d="M 155,35 Q 200,30 245,35 L 255,23 Q 200,18 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            {/* Collar inner stitch line */}
+            <path d="M 152,31 Q 200,26 248,31" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+
+            {/* Back inner tag stitch marks */}
+            <path d="M 188,38 L 188,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 212,38 L 212,48" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
           </>
         )}
 
-        {/* Technical Straight Bottom Hem Stitching */}
-        <path d="M 85,440 L 315,440" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
-        <path d="M 85,445 L 315,445" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
+        {/* Technical Bottom Hem Stitching */}
+        <path d="M 93,438 L 307,438" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 92,442 L 308,442" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
 
-        {/* Sleeve hems stitching */}
-        <path d="M 33,115 L 75,152" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-        <path d="M 367,115 L 325,152" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+        {/* Sleeve Hems Stitching (Thick parallel cuff lines) */}
+        <path d="M 42,117 L 98,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 45,114 L 101,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+
+        <path d="M 358,117 L 302,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 355,114 L 299,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
       </g>
     </svg>
   );

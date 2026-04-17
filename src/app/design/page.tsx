@@ -90,27 +90,14 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         {/* Front View specific details */}
         {side === "front" && (
           <>
-            {/* Back inner collar area visible through front hole (Gray shading) */}
-            <path d="M 145,23 Q 200,35 255,23 Q 200,65 145,23 Z" fill="rgba(0,0,0,0.06)" />
-            {/* Back neck top edge rim */}
-            <path d="M 145,23 Q 200,35 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" />
             {/* Inner Tag */}
             <rect x="180" y="32" width="40" height="16" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-
-            {/* Front Thick Collar Ribbing (Overlays the body) */}
-            <path d="M 155,35 Q 200,80 245,35 L 255,23 Q 200,65 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            {/* Collar inner stitch line */}
-            <path d="M 152,31 Q 200,75 248,31" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
           </>
         )}
 
         {/* Back View specific details */}
         {side === "back" && (
           <>
-            {/* Proper Downward Dipping Back Collar Band */}
-            <path d="M 145,23 Q 200,34 255,23 L 255,42 Q 200,53 145,42 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 148,40 Q 200,50 252,40" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-
             {/* Inside Tag Stitching visible on back */}
             <path d="M 188,48 L 188,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
             <path d="M 212,48 L 212,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
@@ -314,21 +301,13 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
         {/* Front View specific details */}
         {side === "front" && (
           <>
-            <path d="M 145,23 Q 200,35 255,23 Q 200,60 145,23 Z" fill="rgba(0,0,0,0.06)" />
-            <path d="M 145,23 Q 200,35 255,23" fill="none" stroke={strokeColor} strokeWidth="1.5" />
             <rect x="180" y="32" width="40" height="16" rx="1" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-
-            <path d="M 152,43 Q 200,80 248,43 L 255,23 Q 200,60 145,23 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 150,38 Q 200,75 250,38" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
           </>
         )}
 
         {/* Back View specific details */}
         {side === "back" && (
           <>
-            <path d="M 145,23 Q 200,34 255,23 L 255,42 Q 200,53 145,42 Z" fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 148,40 Q 200,50 252,40" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-
             <path d="M 188,48 L 188,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
             <path d="M 212,48 L 212,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
           </>

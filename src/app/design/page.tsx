@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "../../components/Logo";
@@ -35,37 +35,38 @@ interface ChatMessage {
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imageUrl = "/mockups/tshirt_oversize.png";
+  const id = useId().replace(/:/g, "");
+
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100">
-      <div
-        className="mockup-layer-color"
-        style={{ "--shirt-color": color } as React.CSSProperties}
-      />
-      <div
-        className="mockup-layer-image mockup-tshirt-target"
-        style={{
-          backgroundImage: `url(${imageUrl})`,
-          backgroundPosition: side === "front" ? '0% 50%' : '100% 50%',
-        } as React.CSSProperties}
-      />
+    <div className={`relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100 tshirt-instance-${id}`}>
+      <style>{`
+        .tshirt-instance-${id} .mockup-layer-color { background-color: ${color}; }
+        .tshirt-instance-${id} .mockup-layer-image { 
+          background-image: url(${imageUrl}); 
+          background-position: ${side === "front" ? '0% 50%' : '100% 50%'}; 
+        }
+      `}</style>
+      <div className="mockup-layer-color" />
+      <div className="mockup-layer-image mockup-tshirt-target" />
     </div>
   );
 }
+
 function RaglanShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imageUrl = "/mockups/raglan_classic.png";
+  const id = useId().replace(/:/g, "");
+
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100">
-      <div
-        className="mockup-layer-color"
-        style={{ "--shirt-color": color } as React.CSSProperties}
-      />
-      <div
-        className="mockup-layer-image mockup-raglan-target"
-        style={{
-          backgroundImage: `url(${imageUrl})`,
-          backgroundPosition: side === "front" ? '0% 50%' : '100% 50%',
-        } as React.CSSProperties}
-      />
+    <div className={`relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100 raglan-instance-${id}`}>
+      <style>{`
+        .raglan-instance-${id} .mockup-layer-color { background-color: ${color}; }
+        .raglan-instance-${id} .mockup-layer-image { 
+          background-image: url(${imageUrl}); 
+          background-position: ${side === "front" ? '0% 50%' : '100% 50%'}; 
+        }
+      `}</style>
+      <div className="mockup-layer-color" />
+      <div className="mockup-layer-image mockup-raglan-target" />
     </div>
   );
 }
@@ -1634,15 +1635,14 @@ export default function DesignPage() {
               if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
           >
-            {/* ═══ TECHNICAL SPECIFICATION SHEET (Tech Pack Wrapper) ═══ */}
-            <div
-              className="tech-pack-frame"
-              style={{
-                "--pan-x": `${pan.x}px`,
-                "--pan-y": `${pan.y}px`,
-                "--tech-zoom": zoom / 100
-              } as React.CSSProperties}
-            >
+            <div className="tech-pack-frame tech-pack-panned">
+              <style>{`
+                .tech-pack-panned {
+                  --pan-x: ${pan.x}px;
+                  --pan-y: ${pan.y}px;
+                  --tech-zoom: ${zoom / 100};
+                }
+              `}</style>
               {/* ═══ HUMAN MADE STYLE HEADER ═══ */}
               <div className="tech-pack-header-v2">
                 <div className="tech-header-left-logo">
@@ -1820,7 +1820,10 @@ export default function DesignPage() {
                 <div className="pantone-block">
                   <div className="p-label">FABRIC</div>
                   <div className="p-swatch-wrap">
-                    <div className="p-swatch p-swatch-dynamic" style={{ "--swatch-bg": tshirtColor } as React.CSSProperties} />
+                    <style>{`
+                      .p-swatch-dynamic { --swatch-bg: ${tshirtColor}; }
+                    `}</style>
+                    <div className="p-swatch p-swatch-dynamic" />
                     <div className="p-info">
                       <div className="p-name">PANTONE</div>
                       <div className="p-code">{techPackInfo.pantone}</div>

@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
-@utility mockup-layer-color {
-  position: absolute;
-  inset: 0;
-  transition: background-color 0.5s;
-  background-color: var(--shirt-color, #ffffff);
+@layer utilities {
+  .mockup-layer-color {
+    position: absolute;
+    inset: 0;
+    transition: background-color 0.5s;
+  }
+
+  .mockup-layer-image {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    mix-blend-mode: multiply;
+  }
+
+  .mockup-tshirt-target {
+    background-size: 200% auto;
+    filter: contrast(1.1) brightness(1.1);
+  }
+
+  .mockup-raglan-target {
+    background-size: 200% auto;
+    filter: contrast(1.1) brightness(1.1);
+  }
+
+  .p-swatch-dynamic {
+    background-color: var(--swatch-bg, transparent);
+  }
 }
 
-
-
-@utility mockup-layer-image {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-repeat: no-repeat;
-  mix-blend-mode: multiply;
-}
-
-@utility mockup-tshirt-target {
-  background-size: 200% auto;
-  filter: contrast(1.1) brightness(1.1);
-}
-
-@utility mockup-raglan-target {
-  background-size: 200% auto;
-  filter: contrast(1.1) brightness(1.1);
-}
-
-@utility p-swatch-dynamic {
-  background-color: var(--swatch-bg, transparent);
-}
 
 
 

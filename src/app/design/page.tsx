@@ -45,14 +45,6 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
           background-size: 20px 20px;
           opacity: 0.03;
         }
-        .instance-${id} .mockup-base {
-          position: absolute;
-          inset: 0;
-          background-image: url(${imageUrl});
-          background-size: contain;
-          background-position: center;
-          background-repeat: no-repeat;
-        }
         .instance-${id} .mockup-color-layer {
           position: absolute;
           inset: 0;
@@ -61,18 +53,30 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
           mask-size: contain;
           mask-position: center;
           mask-repeat: no-repeat;
+        }
+        .instance-${id} .mockup-topography {
+          position: absolute;
+          inset: 0;
+          background-image: url(${imageUrl});
+          background-size: contain;
+          background-position: center;
+          background-repeat: no-repeat;
           mix-blend-mode: multiply;
+          filter: brightness(1.1) contrast(1.1);
         }
       `}</style>
+      
+      {/* 1. Industrial Background */}
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
       
-      {/* Target Shirt Image (Shadows/Lines) */}
-      <div className="mockup-base pointer-events-none opacity-100 contrast-[1.05] brightness-[1.05]" />
-      
-      {/* Color Layer masked to shirt shape */}
+      {/* 2. Realistic Base Color (Masked to garment shape) */}
       <div className="mockup-color-layer transition-colors duration-500" />
+      
+      {/* 3. Physical Topography (Shadows, ripples, stitches) - Placed OVER the color */}
+      <div className="mockup-topography pointer-events-none" />
 
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.01)]" />
+      {/* 4. Technical Finishing */}
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.01)]" />
 
       <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
         UNI / {type.toUpperCase()} / {side.toUpperCase()}

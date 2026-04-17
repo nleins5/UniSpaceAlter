@@ -36,26 +36,32 @@ interface ChatMessage {
 function MockupViewport({ side, type, color }: { side: "front" | "back", type: "tshirt" | "raglan", color: string }) {
   const id = useId().replace(/:/g, "");
   const imageUrl = `/mockups/${type}_${side}.png`;
+  const maskUrl = `/mockups/${type}_${side}_mask.png`;
 
   return (
-    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#ededed] instance-${id}`}>
+    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-[#fafafa] instance-${id}`}>
       <style>{`
         .instance-${id} .blueprint-grid {
           background-image: radial-gradient(#000 1px, transparent 1px);
-          background-size: 30px 30px;
-          opacity: 0.05;
+          background-size: 20px 20px;
+          opacity: 0.03;
         }
-        .instance-${id} .mockup-base-color {
+        /* SOLID COLOR LAYER (Using the silhouette mask) */
+        .instance-${id} .mockup-color-fill {
           position: absolute;
           inset: 0;
           background-color: ${color};
-          mask-image: url(${imageUrl});
+          mask-image: url(${maskUrl});
           mask-size: contain;
           mask-position: center;
           mask-repeat: no-repeat;
+          -webkit-mask-image: url(${maskUrl});
+          -webkit-mask-size: contain;
+          -webkit-mask-position: center;
+          -webkit-mask-repeat: no-repeat;
         }
-        /* HIGH CONTRAST SHADOWS (MULTIPLY) */
-        .instance-${id} .mockup-shadows {
+        /* FABRIC DETAIL LAYER (Multiply) */
+        .instance-${id} .mockup-details {
           position: absolute;
           inset: 0;
           background-image: url(${imageUrl});
@@ -63,53 +69,24 @@ function MockupViewport({ side, type, color }: { side: "front" | "back", type: "
           background-position: center;
           background-repeat: no-repeat;
           mix-blend-mode: multiply;
-          filter: contrast(1.5) brightness(0.9) grayscale(1);
-          opacity: 0.9;
-        }
-        /* FABRIC SHEEN / HIGHLIGHTS (SCREEN) */
-        .instance-${id} .mockup-highlights {
-          position: absolute;
-          inset: 0;
-          background-image: url(${imageUrl});
-          background-size: contain;
-          background-position: center;
-          background-repeat: no-repeat;
-          mix-blend-mode: screen;
-          filter: contrast(1.8) brightness(0.5) grayscale(1);
-          opacity: 0.35;
-        }
-        /* FABRIC TEXTURE GRAIN */
-        .instance-${id} .mockup-textile-grain {
-          position: absolute;
-          inset: 0;
-          background-image: url(${imageUrl});
-          background-size: contain;
-          background-position: center;
-          background-repeat: no-repeat;
-          mix-blend-mode: overlay;
-          filter: contrast(1.2) brightness(1.2);
-          opacity: 0.12;
+          filter: brightness(1.05) contrast(1.05);
         }
       `}</style>
       
-      {/* 1. Studio Background */}
+      {/* 1. Industrial Background */}
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
       
-      {/* 2. Saturated Base Color */}
-      <div className="mockup-base-color transition-colors duration-500" />
+      {/* 2. Full Color Fill (Solid Silhouette) */}
+      <div className="mockup-color-fill transition-colors duration-500" />
       
-      {/* 3. Deep Cinematic Shadows */}
-      <div className="mockup-shadows pointer-events-none" />
+      {/* 3. Realistic Shadows/Lines Over the color */}
+      <div className="mockup-details pointer-events-none" />
 
-      {/* 4. Fabric Professional Highlights */}
-      <div className="mockup-highlights pointer-events-none" />
+      {/* 4. Lighting Polish */}
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.02)]" />
 
-      {/* 5. Textile Grain Detail */}
-      <div className="mockup-textile-grain pointer-events-none" />
-
-      {/* 6. Technical Labeling */}
-      <div className="absolute bottom-6 right-6 font-mono text-[10px] text-gray-400 tracking-[0.3em] font-bold opacity-40 uppercase">
-        UNI / {type} / {side}
+      <div className="absolute bottom-4 right-4 font-mono text-[9px] text-gray-400 tracking-[0.2em] font-bold opacity-30">
+        UNI / {type.toUpperCase()} / {side.toUpperCase()}
       </div>
     </div>
   );

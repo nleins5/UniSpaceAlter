@@ -33,7 +33,12 @@ interface ChatMessage {
   content: string;
   images?: AIImage[];
 }
-function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "back", type: "tshirt" | "raglan", color: string, sleeveColor?: string }) {
+function MockupViewport({ side, type, color, sleeveColor }: { 
+  side: "front" | "back", 
+  type: "tshirt" | "raglan", 
+  color: string, 
+  sleeveColor?: string 
+}) {
   const id = useId().replace(/:/g, "");
   const imageUrl = `/mockups/${type}_${side}.png`;
 
@@ -45,21 +50,25 @@ function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "b
           background-size: 20px 20px;
           opacity: 0.03;
         }
-        /* THE COLOR BASE (Solid Color behind the image) */
+
+        /* 
+         * ISOLATED BLENDING MODEL
+         */
+
+        .instance-${id} .mockup-blend-container {
+          position: absolute;
+          inset: 0;
+          isolation: isolate;        /* nhốt blend modes bên trong */
+        }
+
         .instance-${id} .mockup-base-color {
           position: absolute;
           inset: 0;
           background-color: ${color};
-          mask-image: url(${imageUrl});
-          mask-size: contain;
-          mask-position: center;
-          mask-repeat: no-repeat;
-          -webkit-mask-image: url(${imageUrl});
-          -webkit-mask-size: contain;
-          -webkit-mask-position: center;
-          -webkit-mask-repeat: no-repeat;
+          mix-blend-mode: multiply;
+          transition: background-color 500ms;
         }
-        /* THE MOCKUP IMAGE (Multiply on top of the color) */
+
         .instance-${id} .mockup-image-layer {
           position: absolute;
           inset: 0;
@@ -70,14 +79,17 @@ function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "b
           mix-blend-mode: multiply;
         }
       `}</style>
-      
+
+      {/* Background lưới */}
       <div className="blueprint-grid absolute inset-0 pointer-events-none" />
-      
-      {/* 1. Dyeing the fabric with color */}
-      <div className="mockup-base-color transition-colors duration-500" />
-      
-      {/* 2. Applying the original photo detail (Shadows/folds) */}
-      <div className="mockup-image-layer pointer-events-none" />
+
+      {/* Container blend isolated */}
+      <div className="mockup-blend-container">
+        {/* Lớp màu nhuộm */}
+        <div className="mockup-base-color" />
+        {/* Lớp shadow/fold của vải */}
+        <div className="mockup-image-layer pointer-events-none" />
+      </div>
 
       <div className="absolute bottom-6 right-6 font-mono text-[10px] text-gray-400 font-bold opacity-30 uppercase tracking-[0.2em]">
         UNI / {type} / {side}
@@ -93,6 +105,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   return <MockupViewport side={side} type="raglan" color={color} sleeveColor={sleeveColor} />;
 }
+
 
 
 

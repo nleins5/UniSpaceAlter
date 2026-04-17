@@ -33,50 +33,67 @@ interface ChatMessage {
   content: string;
   images?: AIImage[];
 }
-function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const strokeColor = "#333333";
-  // Boxy / Oversized Path Coordinates
-  const bodyPath = side === "front"
-    ? `M 80,450 L 80,180 L 10,140 L 95,35 L 145,28 Q 200,55 255,28 L 305,35 L 390,140 L 320,180 L 320,450 Z`
-    : `M 80,450 L 80,180 L 10,140 L 95,35 L 145,28 Q 200,18 255,28 L 305,35 L 390,140 L 320,180 L 320,450 Z`;
+function MockupViewport({ side, type, color, sleeveColor }: { side: "front" | "back", type: "tshirt" | "raglan", color: string, sleeveColor?: string }) {
+  const id = useId().replace(/:/g, "");
+  const imageUrl = `/mockups/${type}_${side}.png`;
 
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <defs>
-        <filter id="vector-shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.08" /></filter>
-      </defs>
-      <g filter="url(#vector-shadow)">
-        <path d={bodyPath} fill="#FFFFFF" />
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.8" strokeLinejoin="round" />
-        {/* Detail Lines (Vector Style) */}
-        <path d="M 80,180 L 115,195" stroke={strokeColor} strokeWidth="1.2" opacity="0.4" />
-        <path d="M 320,180 L 285,195" stroke={strokeColor} strokeWidth="1.2" opacity="0.4" />
-        <path d="M 80,440 L 320,440" stroke={strokeColor} strokeWidth="1" strokeDasharray="3,2" opacity="0.3" />
-      </g>
-    </svg>
+    <div className={`mockup-viewport relative w-full h-full overflow-hidden bg-white instance-${id}`}>
+      <style>{`
+        .instance-${id} .blueprint-grid {
+          background-image: radial-gradient(#000 1px, transparent 1px);
+          background-size: 20px 20px;
+          opacity: 0.03;
+        }
+        /* THE COLOR BASE (Solid Color behind the image) */
+        .instance-${id} .mockup-base-color {
+          position: absolute;
+          inset: 0;
+          background-color: ${color};
+          mask-image: url(${imageUrl});
+          mask-size: contain;
+          mask-position: center;
+          mask-repeat: no-repeat;
+          -webkit-mask-image: url(${imageUrl});
+          -webkit-mask-size: contain;
+          -webkit-mask-position: center;
+          -webkit-mask-repeat: no-repeat;
+        }
+        /* THE MOCKUP IMAGE (Multiply on top of the color) */
+        .instance-${id} .mockup-image-layer {
+          position: absolute;
+          inset: 0;
+          background-image: url(${imageUrl});
+          background-size: contain;
+          background-position: center;
+          background-repeat: no-repeat;
+          mix-blend-mode: multiply;
+        }
+      `}</style>
+      
+      <div className="blueprint-grid absolute inset-0 pointer-events-none" />
+      
+      {/* 1. Dyeing the fabric with color */}
+      <div className="mockup-base-color transition-colors duration-500" />
+      
+      {/* 2. Applying the original photo detail (Shadows/folds) */}
+      <div className="mockup-image-layer pointer-events-none" />
+
+      <div className="absolute bottom-6 right-6 font-mono text-[10px] text-gray-400 font-bold opacity-30 uppercase tracking-[0.2em]">
+        UNI / {type} / {side}
+      </div>
+    </div>
   );
+}
+
+function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
+  return <MockupViewport side={side} type="tshirt" color={color} />;
 }
 
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
-  const strokeColor = "#333333";
-  
-  return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <defs>
-        <filter id="raglan-vector-shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.1" /></filter>
-      </defs>
-      <g filter="url(#raglan-vector-shadow)">
-        {/* BODY */}
-        <path d="M 160,25 C 180,55 220,55 240,25 L 300,130 L 300,450 C 240,465 160,465 100,450 L 100,130 Z" fill={color} stroke={strokeColor} strokeWidth="1.8" />
-        {/* SLEEVES */}
-        <path d="M 160,25 C 130,20 100,25 70,45 L 5,145 L 60,200 L 100,130 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.8" />
-        <path d="M 240,25 C 270,20 300,25 330,45 L 395,145 L 340,200 L 300,130 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.8" />
-        {/* COLLAR */}
-        <path d="M 160,25 C 175,55 225,55 240,25 C 225,48 175,48 160,25 Z" fill={color} stroke={strokeColor} strokeWidth="1.8" />
-      </g>
-    </svg>
-  );
+  return <MockupViewport side={side} type="raglan" color={color} sleeveColor={sleeveColor} />;
 }
+
 
 
 

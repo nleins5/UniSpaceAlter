@@ -62,8 +62,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
       L 95, 175
       L 35, 120
       L 105, 52
-      L 145, 23
-      Q 200, 34 255, 23
+      L 150, 48
+      Q 200, 52 250, 48
       L 295, 52
       L 365, 120
       L 305, 175
@@ -251,28 +251,26 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
     : `
       M 92, 450
       L 95, 175
-      Q 120, 100 152, 43
-      Q 200, 54 248, 43
+      Q 120, 100 152, 48
+      Q 200, 52 248, 48
       Q 280, 100 305, 175
       L 308, 450
       Z
     `;
 
   const leftSleeve = `
-    M 145, 23
-    Q 80, 20 33, 115
+    M 152, 48
+    Q 80, 50 33, 115
     L 95, 175
-    Q 120, 100 152, 43
-    L 145, 23
+    Q 120, 100 152, 48
     Z
   `;
 
   const rightSleeve = `
-    M 255, 23
-    Q 320, 20 367, 115
+    M 248, 48
+    Q 320, 50 367, 115
     L 305, 175
-    Q 280, 100 248, 43
-    L 255, 23
+    Q 280, 100 248, 48
     Z
   `;
 
@@ -294,10 +292,6 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
         {/* Technical Center Alignment Line */}
         <path d="M 200,20 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
 
-        {/* Top Sleeve Fold Lines (Shoulder flow) */}
-        <path d="M 145,23 Q 80,20 33,115" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-        <path d="M 255,23 Q 320,20 367,115" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-
         {/* Front View specific details */}
         {side === "front" && (
           <>
@@ -308,8 +302,8 @@ function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { co
         {/* Back View specific details */}
         {side === "back" && (
           <>
-            <path d="M 188,48 L 188,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
-            <path d="M 212,48 L 212,58" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 188,52 L 188,62" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
+            <path d="M 212,52 L 212,62" stroke={strokeColor} strokeWidth="1" strokeDasharray="2 2" />
           </>
         )}
 

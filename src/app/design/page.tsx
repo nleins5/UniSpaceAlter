@@ -52,8 +52,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   const gradId = `tshirt-${side}-fab`;
   const filtId = `tshirt-${side}-shd`;
 
-  // Fashion-forward Technical Silhouette (Angled sleeves, flared bottom)
-  const bodyPath = "M 80,460 Q 200,475 320,460 L 312,142 L 390,175 L 400,85 L 295,45 L 235,30 Q 200,28 165,30 L 105,45 L 0,85 L 10,175 L 88,142 Z";
+  // 1:1 Technical Silhouette (Straight Boxy Fit)
+  const bodyPath = "M 90,465 L 90,140 L 10,185 L 0,85 L 110,48 L 165,30 Q 200,28 235,30 L 290,48 L 400,85 L 390,185 L 310,140 L 310,465 Z";
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
@@ -74,22 +74,23 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         {/* Technical Neckline Details */}
         {side === "front" ? (
           <>
-            <path d="M 165,30 Q 200,68 235,30 Q 200,88 165,30 Z" fill="rgba(0,0,0,0.1)" fillRule="evenodd" />
-            <path d="M 165,30 Q 200,80 235,30 L 235,22 Q 200,18 165,22 Z" fill={color} stroke={strokeColor} strokeWidth="1.4" />
-            <path d="M 165,22 Q 200,72 235,22" fill="none" stroke={strokeColor} strokeWidth="2.8" strokeLinecap="round" />
+            <path d="M 160,30 Q 200,75 240,30 Q 200,82 160,30 Z" fill="rgba(0,0,0,0.08)" />
+            <path d="M 160,30 Q 200,75 240,30 L 240,20 Q 200,16 160,20 Z" fill={color} stroke={strokeColor} strokeWidth="1.6" />
+            <path d="M 160,20 Q 200,68 240,20" fill="none" stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
+            <rect x="185" y="38" width="30" height="12" rx="1" fill="white" stroke={strokeColor} strokeWidth="0.5" opacity="0.4" />
           </>
         ) : (
           <>
             {/* Back high neckline rib */}
-            <path d="M 165,22 Q 200,45 235,22 L 235,15 Q 200,12 165,15 Z" fill={color} stroke={strokeColor} strokeWidth="1.4" />
+            <path d="M 160,20 Q 200,38 240,20 L 240,12 Q 200,9 160,12 Z" fill={color} stroke={strokeColor} strokeWidth="1.6" />
             {/* Visible inner front collar rim */}
-            <path d="M 165,22 Q 200,28 235,22" fill="none" stroke={strokeColor} strokeWidth="1" opacity="0.4" />
+            <path d="M 160,20 Q 200,28 240,20" fill="none" stroke={strokeColor} strokeWidth="1" opacity="0.4" />
           </>
         )}
 
-        {/* Stitching Lines (Technical Reference) */}
-        <path d="M 100,453 Q 200,468 300,453" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
-        <path d="M 100,457 Q 200,472 300,457" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
+        {/* Technical Straight Bottom Hem Stitching */}
+        <path d="M 90,458 L 310,458" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
+        <path d="M 90,462 L 310,462" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
 
         {/* Sleeve hems stitching */}
         <path d="M 25,170 L 105,145" stroke={shadowColor} strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />

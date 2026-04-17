@@ -44,8 +44,22 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   const strokeColor = "rgba(0,0,0,0.8)";
   const shadowColor = "rgba(0,0,0,0.5)"; // For stitching
 
-  // 1:1 Technical Silhouette (Straight Boxy Fit)
-  const bodyPath = "M 90,465 L 90,140 L 10,185 L 0,85 L 110,48 L 165,30 Q 200,28 235,30 L 290,48 L 400,85 L 390,185 L 310,140 L 310,465 Z";
+  // Professional Tech Pack Silhouette (Curved armholes, clean drops)
+  const bodyPath = `
+    M 90,460 
+    L 90,180 
+    Q 90,160 80,150 
+    L 20,135 
+    L 70,60 
+    L 150,30 
+    Q 200,28 250,30 
+    L 330,60 
+    L 380,135 
+    L 320,150 
+    Q 310,160 310,180 
+    L 310,460 
+    Z
+  `;
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
@@ -78,8 +92,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         <path d="M 90,460 L 310,460" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
 
         {/* Sleeve hems stitching */}
-        <path d="M 22,168 L 100,143" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-        <path d="M 378,168 L 300,143" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+        <path d="M 23,136 L 80,148" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
+        <path d="M 377,136 L 320,148" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
       </g>
     </svg>
   );

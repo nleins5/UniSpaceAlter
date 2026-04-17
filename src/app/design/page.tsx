@@ -39,174 +39,101 @@ interface ChatMessage {
 }
 
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  // Use the exact PNG provided by the user for 1:1 realism
   const imageUrl = "/mockups/tshirt_oversize.png";
 
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg">
-      {/* Background color layer */}
+    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100">
+      {/* 1. Underlying Color Layer */}
       <div
-        className="absolute inset-0 transition-colors duration-300"
+        className="absolute inset-0 transition-colors duration-500"
         style={{ backgroundColor: color }}
       />
 
-      {/* The Technical Image with Multiply blend mode to show the color underneath */}
-      <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
-        <img
-          src={imageUrl}
-          alt={`T-Shirt ${side}`}
-          className="h-full w-auto object-cover"
-          style={{
-            mixBlendMode: 'multiply',
-            transform: side === "back" ? "translateX(-25%)" : "translateX(25%)",
-            scale: "1.95"
-          }}
-        />
-      </div>
+      {/* 2. Professional Image Overlay with Exact Cropping */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${imageUrl})`,
+          backgroundSize: '200% auto', // Exactly 2 shirts side-by-side
+          backgroundPosition: side === "front" ? '0% 50%' : '100% 50%',
+          backgroundRepeat: 'no-repeat',
+          mixBlendMode: 'multiply',
+          filter: 'contrast(1.1) brightness(1.1)', // Push off-white to pure white for better blending
+        }}
+      />
     </div>
   );
 }
 
-// ── Form A1: same-color front collar + V-piping, dark back collar ──
-
-
-// ── Form D5: pure flat tech polo layout ──
-function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
-  const strokeColor = "#000000";
-  const shadowColor = "rgba(0,0,0,0.4)";
-
-  const effectiveCollarColor = collarColor || color;
-
-  // Base Tech Flat Form sharing exact proportions with T-shirt
-  const bodyPath = side === "front"
-    ? `
-      M 92, 450
-      L 95, 175
-      L 35, 120
-      L 105, 52
-      L 155, 35
-      Q 200, 42 245, 35
-      L 295, 52
-      L 365, 120
-      L 305, 175
-      L 308, 450
-      Z
-    `
-    : `
-      M 92, 450
-      L 95, 175
-      L 35, 120
-      L 105, 52
-      L 155, 35
-      Q 200, 25 245, 35
-      L 295, 52
-      L 365, 120
-      L 305, 175
-      L 308, 450
-      Z
-    `;
-
-  return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      {/* Base White Solid Layer */}
-      <path d={bodyPath} fill="#FFFFFF" />
-
-      <g>
-        {/* Draw front flaps BEHIND the back body for the back view so tips peek out */}
-        {side === "back" && (
-          <>
-            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-          </>
-        )}
-
-        {/* Main Body */}
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-
-        {/* Technical Center Line */}
-        <path d="M 200,32 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
-
-        {/* Armhole Seams */}
-        <path d="M 105,52 Q 130,110 95,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-        <path d="M 295,52 Q 270,110 305,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-
-        {side === "front" && (
-          <>
-            {/* Inner V-Neck Hole */}
-            <path d="M 188,28 L 212,28 L 200,55 Z" fill="rgba(0,0,0,0.06)" />
-            {/* Neck Tag */}
-            <rect x="192" y="32" width="16" height="8" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-
-            {/* Back Folded Collar (visible behind flaps) */}
-            <path d="M 145,23 Q 200,8 255,23 L 212,28 Q 200,18 188,28 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-
-            {/* Front Placket */}
-            <rect x="188" y="55" width="24" height="95" fill={color} stroke={strokeColor} strokeWidth="1.5" />
-            <path d="M 188,145 L 212,145" stroke={strokeColor} strokeWidth="1.5" />
-            <rect x="191" y="58" width="18" height="84" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-            {/* Buttons */}
-            <circle cx="200" cy="80" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-            <circle cx="200" cy="80" r="1.5" fill={strokeColor} opacity="0.5" />
-            <circle cx="200" cy="120" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-            <circle cx="200" cy="120" r="1.5" fill={strokeColor} opacity="0.5" />
-
-            {/* Front Collar Flaps */}
-            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 147,27 L 184,31 L 194,52 L 122,65 Z" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 253,27 L 216,31 L 206,52 L 278,65 Z" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-          </>
-        )}
-
-        {side === "back" && (
-          <>
-            {/* Back Collar Flap (Folds over body) */}
-            <path d="M 145,23 Q 200,12 255,23 L 260,45 Q 200,35 140,45 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 143,41 Q 200,32 257,41" fill="none" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-          </>
-        )}
-
-        {/* Bottom Hem Stitching */}
-        <path d="M 93,438 L 307,438" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
-        <path d="M 92,442 L 308,442" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
-
-        {/* Sleeve Hems Stitching */}
-        <path d="M 42,117 L 98,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
-        <path d="M 45,114 L 101,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-        <path d="M 358,117 L 302,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
-        <path d="M 355,114 L 299,167" stroke={shadowColor} strokeWidth="1" strokeDasharray="3 2" />
-      </g>
-    </svg>
-  );
-}
-
-// ─── Canva-style Design Canvas ──────────────────────────────
 function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
-  // Use the exact PNG provided by the user for 1:1 realism
   const imageUrl = "/mockups/raglan_classic.png";
 
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg">
-      {/* Background color layer */}
+    <div className="relative w-full h-full overflow-hidden rounded-xl bg-white mockup-svg shadow-inner border border-gray-100">
       <div
-        className="absolute inset-0 transition-colors duration-300"
+        className="absolute inset-0 transition-colors duration-500"
         style={{ backgroundColor: color }}
       />
-
-      {/* The Technical Image with Multiply blend mode */}
-      <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
-        <img
-          src={imageUrl}
-          alt={`Raglan ${side}`}
-          className="h-full w-auto object-cover"
-          style={{
-            mixBlendMode: 'multiply',
-            transform: side === "back" ? "translateX(-25%)" : "translateX(25%)",
-            scale: "1.95"
-          }}
-        />
-      </div>
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${imageUrl})`,
+          backgroundSize: '200% auto',
+          backgroundPosition: side === "front" ? '0% 50%' : '100% 50%',
+          backgroundRepeat: 'no-repeat',
+          mixBlendMode: 'multiply',
+          filter: 'contrast(1.1) brightness(1.1)',
+        }}
+      />
     </div>
+  );
+}
+
+function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
+  const strokeColor = "#000000";
+  const shadowColor = "rgba(0,0,0,0.4)";
+  const effectiveCollarColor = collarColor || color;
+
+  const bodyPath = side === "front"
+    ? `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 42 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`
+    : `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 25 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`;
+
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
+      <path d={bodyPath} fill="#FFFFFF" />
+      <g>
+        {side === "back" && (
+          <>
+            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+          </>
+        )}
+        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M 200,32 L 200,450" stroke={strokeColor} strokeWidth="1" opacity="0.3" strokeDasharray="6 4" />
+        <path d="M 105,52 Q 130,110 95,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+        <path d="M 295,52 Q 270,110 305,175" fill="none" stroke={strokeColor} strokeWidth="1.5" />
+        {side === "front" && (
+          <>
+            <path d="M 188,28 L 212,28 L 200,55 Z" fill="rgba(0,0,0,0.06)" />
+            <rect x="192" y="32" width="16" height="8" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+            <path d="M 145,23 Q 200,8 255,23 L 212,28 Q 200,18 188,28 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <rect x="188" y="55" width="24" height="95" fill={color} stroke={strokeColor} strokeWidth="1.5" />
+            <path d="M 188,145 L 212,145" stroke={strokeColor} strokeWidth="1.5" />
+            <circle cx="200" cy="80" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+            <circle cx="200" cy="120" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
+            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+          </>
+        )}
+        {side === "back" && (
+          <path d="M 145,23 Q 200,12 255,23 L 260,45 Q 200,35 140,45 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
+        )}
+        <path d="M 93,438 L 307,438" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 92,442 L 308,442" stroke={shadowColor} strokeWidth="1" strokeDasharray="4 2" />
+        <path d="M 42,117 L 98,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+        <path d="M 358,117 L 302,170" stroke={strokeColor} strokeWidth="1" opacity="0.8" />
+      </g>
+    </svg>
   );
 }
 

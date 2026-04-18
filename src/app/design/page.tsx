@@ -796,17 +796,17 @@ export default function DesignPage() {
     if (slot !== "shirt") return { x: 40, y: 40, w: 120, h: 120 };
     // Canvas 400x480. Body center x=200.
     switch (loc) {
-      case "left-chest": return { x: 220, y: 92, w: 45, h: 45 }; 
-      case "right-chest": return { x: 104, y: 92, w: 45, h: 45 }; 
-      case "center-chest": return { x: 114, y: 88, w: 140, h: 110 };
-      case "full-front": return { x: 92, y: 105, w: 176, h: 240 }; // Moved another 8px left
-      case "oversize-front": return { x: 74, y: 95, w: 210, h: 290 };
-      case "back-neck": return { x: 157, y: 45, w: 50, h: 25 }; 
-      case "back-collar": return { x: 157, y: 45, w: 50, h: 25 };
-      case "upper-back": return { x: 114, y: 95, w: 140, h: 90 };
-      case "full-back": return { x: 92, y: 105, w: 176, h: 240 };
-      case "sleeve": return { x: 5, y: 100, w: 55, h: 55 };
-      default: return { x: 114, y: 130, w: 140, h: 140 };
+      case "left-chest": return { x: 212, y: 92, w: 45, h: 45 }; 
+      case "right-chest": return { x: 96, y: 92, w: 45, h: 45 }; 
+      case "center-chest": return { x: 106, y: 88, w: 140, h: 110 };
+      case "full-front": return { x: 84, y: 105, w: 176, h: 240 }; // Moved another 8px left (Total 28px from orig 112)
+      case "oversize-front": return { x: 66, y: 95, w: 210, h: 290 };
+      case "back-neck": return { x: 149, y: 45, w: 50, h: 25 }; 
+      case "back-collar": return { x: 149, y: 45, w: 50, h: 25 };
+      case "upper-back": return { x: 106, y: 95, w: 140, h: 90 };
+      case "full-back": return { x: 84, y: 105, w: 176, h: 240 };
+      case "sleeve": return { x: -3, y: 100, w: 55, h: 55 };
+      default: return { x: 106, y: 130, w: 140, h: 140 };
     }
   }, []);
   // ─── Canvas Actions ──────────────────────────
@@ -861,7 +861,7 @@ export default function DesignPage() {
           rotation: 0,
           side: (isShirt ? effectiveSide : side) as "front" | "back",
           slot: activeSlot,
-          locked: true, // Keep AI images locked for consistency as requested before
+          locked: !isShirt, // Only lock in technical detail slots. Allow shirt designs to be moved for pixel-perfect adjustment.
         };
 
         if (isShirt) {

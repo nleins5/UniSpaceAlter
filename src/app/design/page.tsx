@@ -514,6 +514,16 @@ export default function DesignPage() {
   const [uploadDragOver, setUploadDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const slotLabel = (s: string) => {
+    switch (s) {
+      case "shirt": return "Áo";
+      case "neck-label": return "Gáy cổ";
+      case "hang-tag": return "Thẻ bài";
+      case "logo-detail": return "Logo";
+      case "packaging": return "Bao bì";
+      default: return s;
+    }
+  };
   // Undo / Redo
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
@@ -1172,7 +1182,7 @@ export default function DesignPage() {
               {activePanel === "ai" && (
                 <div className="canva-panel-content ai-magic-media-panel">
                   <div className="canva-panel-header">
-                    <h3>Magic Media AI</h3>
+                    <h3>Magic Media AI {activeSlot !== "shirt" && <span className="active-slot-badge">{slotLabel(activeSlot)}</span>}</h3>
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
                   <div className="ai-magic-scroll-area pt-2">
@@ -1317,7 +1327,7 @@ export default function DesignPage() {
               {activePanel === "upload" && (
                 <div className="canva-panel-content">
                   <div className="canva-panel-header">
-                    <h3>Tải ảnh lên</h3>
+                    <h3>Tải ảnh lên {activeSlot !== "shirt" && <span className="active-slot-badge">{slotLabel(activeSlot)}</span>}</h3>
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
                   <div className="canva-panel-body">
@@ -1401,7 +1411,7 @@ export default function DesignPage() {
               {activePanel === "text" && (
                 <div className="canva-panel-content">
                   <div className="canva-panel-header">
-                    <h3>Thêm chữ</h3>
+                    <h3>Thêm chữ {activeSlot !== "shirt" && <span className="active-slot-badge">{slotLabel(activeSlot)}</span>}</h3>
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
                   <div className="canva-panel-body">
@@ -1732,7 +1742,7 @@ export default function DesignPage() {
                 <div className="spec-sidebar">
                   <div
                     className={`spec-slot ${activeSlot === "neck-label" ? "active" : ""}`}
-                    onClick={() => setActiveSlot("neck-label")}
+                    onClick={() => { setActiveSlot("neck-label"); if (!activePanel) setActivePanel("ai"); }}
                   >
                     <span className="spec-slot-title">GÁY CỔ / NECK LABEL</span>
                     <DesignCanvas
@@ -1753,10 +1763,15 @@ export default function DesignPage() {
                       isPositionMode={activePanel === "position"}
                       activeLocation={printLocation}
                     />
+                    {!elements.some(el => el.slot === "neck-label") && (
+                      <div className="spec-slot-empty-hint">
+                        <span>+ Nhấp để thêm</span>
+                      </div>
+                    )}
                   </div>
                   <div
                     className={`spec-slot ${activeSlot === "hang-tag" ? "active" : ""}`}
-                    onClick={() => setActiveSlot("hang-tag")}
+                    onClick={() => { setActiveSlot("hang-tag"); if (!activePanel) setActivePanel("ai"); }}
                   >
                     <span className="spec-slot-title">THẺ BÀI / HANG TAG</span>
                     <DesignCanvas
@@ -1777,6 +1792,11 @@ export default function DesignPage() {
                       isPositionMode={activePanel === "position"}
                       activeLocation={printLocation}
                     />
+                    {!elements.some(el => el.slot === "hang-tag") && (
+                      <div className="spec-slot-empty-hint">
+                        <span>+ Nhấp để thêm</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* MAIN SHIRT MOCKUP (Front & Back side-by-side) */}
@@ -1834,7 +1854,7 @@ export default function DesignPage() {
                 <div className="spec-sidebar">
                   <div
                     className={`spec-slot ${activeSlot === "logo-detail" ? "active" : ""}`}
-                    onClick={() => setActiveSlot("logo-detail")}
+                    onClick={() => { setActiveSlot("logo-detail"); if (!activePanel) setActivePanel("upload"); }}
                   >
                     <span className="spec-slot-title">LOGO DETAIL</span>
                     <DesignCanvas
@@ -1853,10 +1873,15 @@ export default function DesignPage() {
                       zoom={50}
                       slot="logo-detail"
                     />
+                    {!elements.some(el => el.slot === "logo-detail") && (
+                      <div className="spec-slot-empty-hint">
+                        <span>+ Nhấp để thêm</span>
+                      </div>
+                    )}
                   </div>
                   <div
                     className={`spec-slot ${activeSlot === "packaging" ? "active" : ""}`}
-                    onClick={() => setActiveSlot("packaging")}
+                    onClick={() => { setActiveSlot("packaging"); if (!activePanel) setActivePanel("upload"); }}
                   >
                     <span className="spec-slot-title">PACKAGING</span>
                     <DesignCanvas
@@ -1875,6 +1900,11 @@ export default function DesignPage() {
                       zoom={50}
                       slot="packaging"
                     />
+                    {!elements.some(el => el.slot === "packaging") && (
+                      <div className="spec-slot-empty-hint">
+                        <span>+ Nhấp để thêm</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

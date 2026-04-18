@@ -1864,6 +1864,67 @@ body::after {
   display: none;
 }
 
+/* Empty slot hint overlay */
+.spec-slot-empty-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.spec-slot-empty-hint span {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #aaa;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px dashed #ccc;
+  transition: all 0.2s ease;
+}
+
+.spec-slot:hover .spec-slot-empty-hint span {
+  color: #8b3dff;
+  border-color: #8b3dff;
+  background: rgba(139, 61, 255, 0.05);
+}
+
+/* Active slot badge */
+.active-slot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8b3dff;
+  background: rgba(139, 61, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(139, 61, 255, 0.2);
+  margin-left: 8px;
+}
+
+.active-slot-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8b3dff;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
 .neck-label-preview {
   position: absolute;
   top: 8%;

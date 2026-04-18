@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useCallback, useEffect, useId } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "../../components/Logo";
@@ -34,56 +34,50 @@ interface ChatMessage {
   images?: AIImage[];
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const strokeColor = "#333333";
-  // Boxy / Oversized Vector Paths
-  const bodyPath = side === "front"
-    ? `M 80,450 L 80,180 L 10,140 L 95,35 L 145,28 Q 200,55 255,28 L 305,35 L 390,140 L 320,180 L 320,450 Z`
-    : `M 80,450 L 80,180 L 10,140 L 95,35 L 145,28 Q 200,18 255,28 L 305,35 L 390,140 L 320,180 L 320,450 Z`;
-
+  const imgUrl = `/mockups/v_tshirt_${side}.png`;
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <defs>
-        <filter id="vector-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.08" /></filter>
-      </defs>
-      <g filter="url(#vector-shadow)">
-        <path d={bodyPath} fill="#FFFFFF" />
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-        
-        {/* Vector Detail Lines */}
-        <path d="M 80,180 L 115,195" stroke={strokeColor} strokeWidth="1.1" opacity="0.4" />
-        <path d="M 320,180 L 285,195" stroke={strokeColor} strokeWidth="1.1" opacity="0.4" />
-        <path d="M 95,35 Q 120,80 95,120" stroke={strokeColor} strokeWidth="0.8" opacity="0.2" fill="none" />
-        <path d="M 305,35 Q 280,80 305,120" stroke={strokeColor} strokeWidth="0.8" opacity="0.2" fill="none" />
-
-        {/* Collar Detail */}
-        {side === "front" ? (
-          <path d="M 145,28 Q 200,65 255,28 Q 200,50 145,28 Z" fill="rgba(0,0,0,0.05)" stroke={strokeColor} strokeWidth="1.2" />
-        ) : (
-          <path d="M 145,28 Q 200,42 255,28 Q 200,20 145,28 Z" fill="rgba(0,0,0,0.05)" stroke={strokeColor} strokeWidth="1.2" />
-        )}
-      </g>
-    </svg>
+    <div className="relative w-full h-full drop-shadow-md">
+      <style>{`
+        .tshirt-mask-${side} {
+          background-color: ${color};
+          mask-image: url('${imgUrl}');
+          -webkit-mask-image: url('${imgUrl}');
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          mask-position: center;
+        }
+      `}</style>
+      {/* Base Color Fill Mask */}
+      <div className={`absolute inset-0 transition-colors duration-500 tshirt-mask-${side}`} />
+      {/* Technical Detail Lines Overlay */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imgUrl} alt="Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+    </div>
   );
 }
 
-function RaglanShirtSVG({ color, sleeveColor = "#333333", side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
-  const strokeColor = "#333333";
-  
+function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
+  const imgUrl = `/mockups/v_raglan_${side}.png`;
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <defs>
-        <filter id="raglan-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.1" /></filter>
-      </defs>
-      <g filter="url(#raglan-shadow)">
-        {/* BODY */}
-        <path d="M 160,25 C 180,55 220,55 240,25 L 300,130 L 300,450 C 240,465 160,465 100,450 L 100,130 Z" fill={color} stroke={strokeColor} strokeWidth="1.8" />
-        {/* SLEEVES */}
-        <path d="M 160,25 C 130,20 100,25 70,45 L 5,145 L 60,200 L 100,130 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.8" />
-        <path d="M 240,25 C 270,20 300,25 330,45 L 395,145 L 340,200 L 300,130 Z" fill={sleeveColor} stroke={strokeColor} strokeWidth="1.8" />
-        {/* COLLAR */}
-        <path d="M 160,25 C 175,55 225,55 240,25 C 225,48 175,48 160,25 Z" fill={color} stroke={strokeColor} strokeWidth="1.8" />
-      </g>
-    </svg>
+    <div className="relative w-full h-full drop-shadow-md">
+      <style>{`
+        .raglan-mask-${side} {
+          background-color: ${color};
+          mask-image: url('${imgUrl}');
+          -webkit-mask-image: url('${imgUrl}');
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          mask-position: center;
+        }
+      `}</style>
+      {/* Base Color Fill Mask */}
+      <div className={`absolute inset-0 transition-colors duration-500 raglan-mask-${side}`} />
+      {/* Technical Detail Lines Overlay */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imgUrl} alt="Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+    </div>
   );
 }
 
@@ -1946,7 +1940,7 @@ export default function DesignPage() {
           <button
             key={tab.id}
             className={`canva-mobile-tab ${activePanel === tab.id ? "active" : ""}`}
-            onClick={() => setActivePanel(activePanel === tab.id ? null : tab.id)}
+            onClick={() => setActivePanel(activePanel === tab.id ? null : tab.id as "ai" | "upload" | "text" | "elements" | "layers" | "position")}
           >
             {tab.icon}
             <span>{tab.label}</span>

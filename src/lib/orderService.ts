@@ -18,8 +18,11 @@ export interface Order {
   address: string;
   size: string;
   color: string;
+  sleeveColor?: string;
+  collarColor?: string;
   quantity: number;
   notes?: string;
+  shirtType?: string;
   status: string;
   createdAt: string;
   updatedAt?: string;
@@ -58,6 +61,8 @@ function rowToOrder(row: Record<string, unknown>): Order {
     address: row.address as string,
     size: row.size as string,
     color: row.color as string,
+    sleeveColor: (row.sleeve_color as string) || undefined,
+    collarColor: (row.collar_color as string) || undefined,
     quantity: row.quantity as number,
     notes: (row.notes as string) || undefined,
     status: row.status as string,
@@ -118,8 +123,9 @@ export async function createOrder(
   orderData: Omit<Order, "orderId" | "createdAt" | "updatedAt">,
   frontBlob?: Buffer,
   backBlob?: Buffer,
+  customId?: string,
 ): Promise<{ orderId: string }> {
-  const orderId = `ORD-${Date.now()}`;
+  const orderId = customId || `ORD-${Date.now()}`;
 
   if (isSupabaseConfigured && supabase) {
     // Upload design files
@@ -153,6 +159,8 @@ export async function createOrder(
       address: orderData.address,
       size: orderData.size,
       color: orderData.color,
+      sleeve_color: orderData.sleeveColor || null,
+      collar_color: orderData.collarColor || null,
       quantity: orderData.quantity,
       notes: orderData.notes || null,
       status: "pending",
@@ -197,4 +205,33 @@ export async function updateOrderStatus(id: string, status: string): Promise<voi
     order.status = status;
     order.updatedAt = new Date().toISOString();
   }
+}
+
+// ── DELETE order ────────────────────────────────────────────
+export async function deleteOrder(id: string): Promise<boolean> {
+  if (isSupabaseConfigured && supabase) {
+    // Delete files first
+    await supabase.storage.from("designs").remove([
+      `${id}/front_design.png`,
+      `${id}/back_design.png`
+    ]);
+
+    const { error } = await supabase
+      .from("orders")
+      .delete()
+      .eq("order_id", id);
+    if (error) {
+      console.error("Supabase deleteOrder:", error.message);
+      return false;
+    }
+    return true;
+  }
+  // In-memory fallback
+  if (memoryOrders.has(id)) {
+    memoryOrders.delete(id);
+    memoryFiles.delete(`${id}/front_design.png`);
+    memoryFiles.delete(`${id}/back_design.png`);
+    return true;
+  }
+  return false;
 }

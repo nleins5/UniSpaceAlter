@@ -19,6 +19,8 @@ interface OrderData {
   hasFrontDesign: boolean;
   hasBackDesign: boolean;
   shirtType?: string;
+  sleeveColor?: string;
+  collarColor?: string;
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
@@ -27,6 +29,38 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
   manufacturing: { label: "Đang in", color: "#3b82f6", bg: "#eff6ff" },
   completed: { label: "Hoàn thành", color: "#10b981", bg: "#ecfdf5" },
 };
+
+function DesignImage({ src, alt }: { src: string; alt: string }) {
+  const [imgUrl, setImgUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const userData = sessionStorage.getItem("user");
+    const token = userData ? JSON.parse(userData).token : null;
+    let localUrl = "";
+
+    fetch(src, {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {}
+    })
+      .then(res => res.blob())
+      .then(blob => {
+        localUrl = URL.createObjectURL(blob);
+        setImgUrl(localUrl);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+
+    return () => {
+      if (localUrl) URL.revokeObjectURL(localUrl);
+    };
+  }, [src]);
+
+  if (loading) return <div className="mfr-spinner-small" />;
+  if (!imgUrl) return <div className="text-red-500 text-[10px]">Lỗi tải ảnh</div>;
+
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={imgUrl} alt={alt} />;
+}
 
 const COLOR_NAMES: Record<string, string> = {
   "#ffffff": "Trắng", "#1a1a1a": "Đen", "#1a1a2e": "Tím đen",
@@ -47,8 +81,14 @@ export default function ManufacturerPage({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`/api/orders/${id}`)
+    const userData = sessionStorage.getItem("user");
+    const token = userData ? JSON.parse(userData).token : null;
+
+    fetch(`/api/orders/${id}`, {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {}
+    })
       .then((res) => {
+        if (res.status === 401) throw new Error("Unauthorized — Vui lòng đăng nhập để xem đơn hàng");
         if (!res.ok) throw new Error("Order not found");
         return res.json();
       })
@@ -59,7 +99,16 @@ export default function ManufacturerPage({
 
   const handleDownload = async (file: string) => {
     try {
-      const res = await fetch(`/api/orders/${id}/${file}?dl=1`);
+      const userData = sessionStorage.getItem("user");
+      const token = userData ? JSON.parse(userData).token : null;
+
+      const res = await fetch(`/api/orders/${id}/${file}?dl=1`, {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+      });
+      if (res.status === 401) {
+        alert("Bạn cần đăng nhập để tải file.");
+        return;
+      }
       if (!res.ok) {
         alert("Không thể tải file. Vui lòng thử lại.");
         return;
@@ -156,8 +205,7 @@ export default function ManufacturerPage({
                 <span className="mfr-design-label">Mặt trước</span>
                 {order.hasFrontDesign ? (
                   <div className="mfr-design-preview">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/api/orders/${order.orderId}/front_design.png`} alt="Front design" />
+                    <DesignImage src={`/api/orders/${order.orderId}/front_design.png`} alt="Front design" />
                   </div>
                 ) : (
                   <div className="mfr-design-empty">
@@ -176,8 +224,7 @@ export default function ManufacturerPage({
                 <span className="mfr-design-label">Mặt sau</span>
                 {order.hasBackDesign ? (
                   <div className="mfr-design-preview">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/api/orders/${order.orderId}/back_design.png`} alt="Back design" />
+                    <DesignImage src={`/api/orders/${order.orderId}/back_design.png`} alt="Back design" />
                   </div>
                 ) : (
                   <div className="mfr-design-empty">
@@ -234,7 +281,31 @@ export default function ManufacturerPage({
                 {order.shirtType && (
                   <div className="mfr-info-row">
                     <span>Loại áo</span>
-                    <strong>{order.shirtType === "polo-a1" ? "Polo A1" : order.shirtType === "polo-d5" ? "Polo D5" : "Áo thun"}</strong>
+                    <strong>
+                      {order.shirtType === "polo-a1" ? "Polo A1" : 
+                       order.shirtType === "polo-d5" ? "Polo D5" : 
+                       order.shirtType === "raglan" ? "Raglan" : "Áo thun"}
+                    </strong>
+                  </div>
+                )}
+                {order.sleeveColor && order.sleeveColor !== order.color && (
+                  <div className="mfr-info-row">
+                    <span>Màu tay áo</span>
+                    <div className="mfr-color-val">
+                      <style>{`.mfr-s-dot{background:${order.sleeveColor};border:${order.sleeveColor === '#ffffff' ? '1px solid #ddd' : 'none'}}`}</style>
+                      <span className="mfr-color-dot mfr-s-dot" />
+                      <strong>{COLOR_NAMES[order.sleeveColor] || order.sleeveColor}</strong>
+                    </div>
+                  </div>
+                )}
+                {order.collarColor && order.collarColor !== order.color && (
+                  <div className="mfr-info-row">
+                    <span>Màu cổ áo</span>
+                    <div className="mfr-color-val">
+                      <style>{`.mfr-c-dot{background:${order.collarColor};border:${order.collarColor === '#ffffff' ? '1px solid #ddd' : 'none'}}`}</style>
+                      <span className="mfr-color-dot mfr-c-dot" />
+                      <strong>{COLOR_NAMES[order.collarColor] || order.collarColor}</strong>
+                    </div>
                   </div>
                 )}
               </div>

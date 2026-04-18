@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDesignFile } from "../../../../../lib/orderService";
+import { requireAuth } from "../../../../../lib/authService";
 
 export async function GET(
   req: NextRequest,
@@ -7,6 +8,15 @@ export async function GET(
 ) {
   try {
     const { id, file } = await params;
+
+    // Security: Require any authenticated session to view/download design files
+    const session = requireAuth(req);
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized — vui lòng đăng nhập" },
+        { status: 401 }
+      );
+    }
 
     // Only allow specific files
     if (file !== "front_design.png" && file !== "back_design.png") {

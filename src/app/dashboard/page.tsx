@@ -38,15 +38,48 @@ export default function DashboardPage() {
   const [sideExpanded, setSideExpanded] = useState(false);
 
   useEffect(() => {
-    const userData = sessionStorage.getItem("user");
-    if (!userData) { router.push("/login"); return; }
-    setUser(JSON.parse(userData));
-    loadOrders();
+    const checkLogin = async () => {
+      const userData = sessionStorage.getItem("user");
+      if (!userData) {
+        router.push("/login");
+        return;
+      }
+
+      const parsedUser = JSON.parse(userData);
+      const token = parsedUser.token;
+
+      // Verify token with server
+      try {
+        const res = await fetch("/api/auth/verify", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+          throw new Error("Session expired");
+        }
+
+        const data = await res.json();
+        setUser({ ...parsedUser, ...data.user });
+        loadOrders();
+      } catch (err) {
+        console.error("Auth verification failed:", err);
+        sessionStorage.removeItem("user");
+        router.push("/login");
+      }
+    };
+
+    checkLogin();
   }, [router]);
 
   const loadOrders = async () => {
     try {
-      const res = await fetch("/api/orders");
+      const userData = sessionStorage.getItem("user");
+      const token = userData ? JSON.parse(userData).token : null;
+
+      const res = await fetch("/api/orders", {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+      });
+
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
@@ -102,9 +135,15 @@ export default function DashboardPage() {
     const prev = orders;
     setOrders(cur => cur.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o));
     try {
+      const userData = sessionStorage.getItem("user");
+      const token = userData ? JSON.parse(userData).token : null;
+
       const res = await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ status: newStatus }),
       });
       if (!res.ok) throw new Error();
@@ -115,6 +154,32 @@ export default function DashboardPage() {
       setUpdatingId(null);
     }
   }, [orders]);
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xoá đơn hàng này? Thao tác không thể hoàn tác.")) return;
+
+    setUpdatingId(orderId);
+    try {
+      const userData = sessionStorage.getItem("user");
+      const token = userData ? JSON.parse(userData).token : null;
+
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "DELETE",
+        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+      });
+
+      if (res.ok) {
+        setOrders(cur => cur.filter(o => o.orderId !== orderId));
+      } else {
+        const data = await res.json();
+        alert(data.error || "Không thể xoá đơn hàng.");
+      }
+    } catch {
+      alert("Lỗi kết nối khi xoá đơn hàng.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const handleDragStart = (id: string) => setDraggedOrder(id);
   const handleDragEnd = () => setDraggedOrder(null);
@@ -336,7 +401,10 @@ export default function DashboardPage() {
                       >
                         <div className="adm-card-top">
                           <code>{order.orderId.slice(-8)}</code>
-                          <Link href={`/manufacturer/${order.orderId}`} className="adm-card-link" title="Chi tiết">↗</Link>
+                          <div className="flex gap-1">
+                            <button onClick={() => handleDeleteOrder(order.orderId)} className="adm-card-del" title="Xoá đơn">×</button>
+                            <Link href={`/manufacturer/${order.orderId}`} className="adm-card-link" title="Chi tiết">↗</Link>
+                          </div>
                         </div>
                         <p className="adm-card-name">{order.customerName}</p>
                         <p className="adm-card-phone">{order.phone}</p>
@@ -417,9 +485,14 @@ export default function DashboardPage() {
                       </select>
                     </td>
                     <td>
-                      <Link href={`/manufacturer/${order.orderId}`} className="adm-tbl-eye" title="Xem">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/manufacturer/${order.orderId}`} className="adm-tbl-eye" title="Xem">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                        </Link>
+                        <button onClick={() => handleDeleteOrder(order.orderId)} className="adm-tbl-del" title="Xoá">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

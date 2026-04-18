@@ -938,7 +938,13 @@ export default function DesignPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleDeleteSelected, handleDuplicateSelected, handleUndo, handleRedo]);
   const handleComplete = () => {
-    sessionStorage.setItem("designData", JSON.stringify({ elements, tshirtColor, shirtType }));
+    sessionStorage.setItem("designData", JSON.stringify({ 
+      elements, 
+      tshirtColor, 
+      sleeveColor, 
+      collarColor, 
+      shirtType 
+    }));
     router.push("/order");
   };
   const handleUpload = useCallback((files: FileList | File[]) => {
@@ -985,7 +991,6 @@ export default function DesignPage() {
   };
   const frontCount = elements.filter((e) => e.side === "front").length;
   const backCount = elements.filter((e) => e.side === "back").length;
-  const selectedElement = elements.find((el) => el.id === selectedId);
   // Technical Header Data (Human Made style)
   const techPackInfo = {
     season: "2025 SS / FW",

@@ -24,10 +24,18 @@ interface DesignElement {
 interface DesignData {
   elements: DesignElement[];
   tshirtColor: string;
-  shirtType?: "tshirt" | "polo-a1" | "polo-d5";
+  sleeveColor?: string;
+  collarColor?: string;
+  shirtType?: "tshirt" | "polo" | "raglan" | "polo-a1" | "polo-d5";
 }
 
-function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color: string; side?: "front" | "back"; shirtType?: "tshirt" | "polo-a1" | "polo-d5" }) {
+function OrderShirtSVG({ color, side = "front", shirtType = "tshirt", sleeveColor, collarColor }: { 
+  color: string; 
+  side?: "front" | "back"; 
+  shirtType?: string;
+  sleeveColor?: string;
+  collarColor?: string;
+}) {
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16) || 255;
   const g = parseInt(hex.substring(2, 4), 16) || 255;
@@ -50,10 +58,10 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
     ? "M200 38 L148 38 C142 38 137 40 134 44 L95 72 L40 115 C34 120 30 128 32 136 L50 168 C52 174 58 177 64 175 L105 145 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 145 L336 175 C342 177 348 174 350 168 L368 136 C370 128 366 120 360 115 L305 72 L266 44 C263 40 258 38 252 38 L200 38Z"
     : "M200 42 L148 42 C142 42 137 44 134 48 L95 76 L40 118 C34 123 30 131 32 139 L50 170 C52 176 58 179 64 177 L105 148 L105 435 C105 443 111 449 119 449 L281 449 C289 449 295 443 295 435 L295 148 L336 177 C342 179 348 176 350 170 L368 139 C370 131 366 123 360 118 L305 76 L266 48 C263 44 258 42 252 42 L200 42Z";
 
-  const isPolo = shirtType === "polo-a1" || shirtType === "polo-d5";
+  const isPolo = shirtType?.startsWith("polo");
   const bodyPath = isPolo ? poloPath : tshirtPath;
-  const gradId = `ord-fab-${shirtType}-${side}`;
-  const filtId = `ord-shd-${shirtType}-${side}`;
+  const gradId = `ord-fab-${side}`;
+  const filtId = `ord-shd-${side}`;
 
   return (
     <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -65,6 +73,12 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
       </defs>
       <g filter={`url(#${filtId})`}>
         <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.2" />
+        
+        {/* Raglan sleeve colorization (approximate via overlay if needed, but here we just fill the path) */}
+        {shirtType === "raglan" && sleeveColor && (
+           <path d={bodyPath} fill={sleeveColor} clipPath="url(#raglan-sleeve-clip)" />
+        )}
+
         <path d={bodyPath} fill={`url(#${gradId})`} />
         {/* T-shirt neckline */}
         {shirtType === "tshirt" && side === "front" && (
@@ -82,7 +96,7 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
         {/* Polo collar - Form A1: same-color collar + V-piping */}
         {shirtType === "polo-a1" && side === "front" && (
           <>
-            <path d="M160 42 Q160 30 172 25 Q186 20 200 20 Q214 20 228 25 Q240 30 240 42" fill={color} stroke={strokeColor} strokeWidth="1" />
+            <path d="M160 42 Q160 30 172 25 Q186 20 200 20 Q214 20 228 25 Q240 30 240 42" fill={collarColor || color} stroke={strokeColor} strokeWidth="1" />
             <line x1="190" y1="42" x2="198" y2="130" stroke={pipingColor} strokeWidth="2.5" />
             <line x1="210" y1="42" x2="202" y2="130" stroke={pipingColor} strokeWidth="2.5" />
             <circle cx="200" cy="60" r="4.5" fill={buttonFill} stroke={pipingColor} strokeWidth="0.8" />
@@ -100,8 +114,8 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
             <path d="M245 22 L267 52" stroke={backCollarTrim} strokeWidth="2" opacity="0.7" />
             <line x1="156" y1="12" x2="244" y2="12" stroke={backCollarTrim} strokeWidth="2" opacity="0.6" />
             <line x1="156" y1="16" x2="244" y2="16" stroke={backCollarTrim} strokeWidth="1" opacity="0.3" />
-            <path d="M193 48 L200 120 L207 48" fill={color} stroke="none" />
-            <rect x="197" y="48" width="6" height="72" rx="1" fill={color} stroke={strokeColor} strokeWidth="0.5" />
+            <path d="M193 48 L200 120 L207 48" fill={collarColor || color} stroke="none" />
+            <rect x="197" y="48" width="6" height="72" rx="1" fill={collarColor || color} stroke={strokeColor} strokeWidth="0.5" />
             <circle cx="200" cy="58" r="4" fill={buttonFill} />
             <circle cx="200" cy="78" r="4" fill={buttonFill} />
             <circle cx="200" cy="98" r="4" fill={buttonFill} />
@@ -121,18 +135,20 @@ function OrderShirtSVG({ color, side = "front", shirtType = "tshirt" }: { color:
 }
 
 function PreviewCanvas({
-  elements, side, tshirtColor, shirtType, canvasRef,
+  elements, side, tshirtColor, sleeveColor, collarColor, shirtType, canvasRef,
 }: {
   elements: DesignElement[];
   side: "front" | "back";
   tshirtColor: string;
-  shirtType: "tshirt" | "polo-a1" | "polo-d5";
+  sleeveColor?: string;
+  collarColor?: string;
+  shirtType?: string;
   canvasRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const sideElements = elements.filter((el) => el.side === side);
   return (
     <div ref={canvasRef} className="relative w-full max-w-[300px] aspect-[400/480] mx-auto">
-      <OrderShirtSVG color={tshirtColor} side={side} shirtType={shirtType} />
+      <OrderShirtSVG color={tshirtColor} sleeveColor={sleeveColor} collarColor={collarColor} side={side} shirtType={shirtType} />
       <style>{sideElements.map(el => {
         const cls = `.order-el-${el.id.replace(/[^a-z0-9]/gi, '')}`;
         let css = `${cls} { left: ${(el.x / 400) * 100}%; top: ${(el.y / 480) * 100}%; width: ${(el.width / 400) * 100}%; height: ${(el.height / 480) * 100}%;`;
@@ -159,7 +175,7 @@ function PreviewCanvas({
 
 export default function OrderPage() {
   const [designData, setDesignData] = useState<DesignData | null>(null);
-  const [shirtType, setShirtType] = useState<"tshirt" | "polo-a1" | "polo-d5">("tshirt");
+  const [shirtType, setShirtType] = useState<"tshirt" | "polo" | "raglan" | "polo-a1" | "polo-d5">("tshirt");
   const [previewSide, setPreviewSide] = useState<"front" | "back">("front");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -210,6 +226,8 @@ export default function OrderPage() {
       formData.append("address", form.address);
       formData.append("size", form.size);
       formData.append("color", designData.tshirtColor);
+      if (designData.sleeveColor) formData.append("sleeveColor", designData.sleeveColor);
+      if (designData.collarColor) formData.append("collarColor", designData.collarColor);
       formData.append("quantity", form.quantity);
       formData.append("notes", form.notes);
       formData.append("shirtType", shirtType);
@@ -326,12 +344,40 @@ export default function OrderPage() {
               </div>
 
               <div className="order-preview-canvas-wrap">
-                <PreviewCanvas elements={designData.elements} side={previewSide} tshirtColor={designData.tshirtColor} shirtType={shirtType} canvasRef={previewSide === "front" ? frontRef : backRef} />
+                <PreviewCanvas 
+                  elements={designData.elements} 
+                  side={previewSide} 
+                  tshirtColor={designData.tshirtColor} 
+                  sleeveColor={designData.sleeveColor}
+                  collarColor={designData.collarColor}
+                  shirtType={shirtType} 
+                  canvasRef={previewSide === "front" ? frontRef : backRef} 
+                />
               </div>
 
               <div className="fixed -left-[9999px] opacity-0 pointer-events-none">
-                {previewSide !== "front" && <PreviewCanvas elements={designData.elements} side="front" tshirtColor={designData.tshirtColor} shirtType={shirtType} canvasRef={frontRef} />}
-                {previewSide !== "back" && <PreviewCanvas elements={designData.elements} side="back" tshirtColor={designData.tshirtColor} shirtType={shirtType} canvasRef={backRef} />}
+                {previewSide !== "front" && (
+                  <PreviewCanvas 
+                    elements={designData.elements} 
+                    side="front" 
+                    tshirtColor={designData.tshirtColor} 
+                    sleeveColor={designData.sleeveColor}
+                    collarColor={designData.collarColor}
+                    shirtType={shirtType} 
+                    canvasRef={frontRef} 
+                  />
+                )}
+                {previewSide !== "back" && (
+                  <PreviewCanvas 
+                    elements={designData.elements} 
+                    side="back" 
+                    tshirtColor={designData.tshirtColor} 
+                    sleeveColor={designData.sleeveColor}
+                    collarColor={designData.collarColor}
+                    shirtType={shirtType} 
+                    canvasRef={backRef} 
+                  />
+                )}
               </div>
 
               <div className="order-preview-meta">

@@ -5515,6 +5515,36 @@ body::after {
   color: #000;
 }
 
+.adm-card-del {
+  color: #b0b0c0;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.adm-card-del:hover {
+  color: #ef4444;
+  transform: scale(1.2);
+}
+
+.adm-tbl-del {
+  background: none;
+  border: none;
+  color: #b0b0c0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.adm-tbl-del:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
 .adm-card-name {
   font-size: 0.86rem;
   font-weight: 700;

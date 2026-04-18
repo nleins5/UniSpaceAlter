@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { createSession } from "../../../../lib/authService";
 
 // Hash password with SHA-256 + salt
 function hashPassword(password: string): string {
@@ -68,8 +69,8 @@ export async function POST(request: Request) {
     );
 
     if (user) {
-      // Generate a simple session token
-      const token = crypto.randomBytes(32).toString("hex");
+      // Create a server-side session token
+      const token = createSession(user.id, user.email, user.admin);
       
       return NextResponse.json({
         user: {

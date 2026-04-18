@@ -690,7 +690,7 @@ export default function DesignPage() {
       pushHistory(prev);
       return prev.map((el) => {
         if (el.id !== selectedId) return el;
-        const pos = getPresetPosition(preset, el.slot);
+        const pos = getPresetPosition(preset, el.slot || "shirt");
         
         // Auto-switch side
         const isBack = preset.includes("back") || preset.includes("neck");

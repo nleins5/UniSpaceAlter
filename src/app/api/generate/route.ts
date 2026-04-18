@@ -53,7 +53,7 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
   const t8Key = process.env.T8STAR_API_KEY;
   if (!t8Key) return [];
 
-  const fullPrompt = `${enPrompt}, professional edgy streetwear graphic design, high-fidelity vector illustration, vibrant urban hiphop aesthetic, oversized class shirt style, Y2K aesthetic elements, chrome textures, graffiti art influences, isolated on solid white background, flat 2D vector art, clean sharp lines, bold color palette, professional streetwear brand identity, masterpiece, printable screen-print design, centered composition, high-end merchandise quality`;
+  const fullPrompt = `${enPrompt}, isolated on solid white background, NO T-SHIRT, NO CLOTHING, NO MOCKUP, NO BODY, NO PEOPLE, flat 2D vector decal, professional edgy streetwear graphic design, high-fidelity vector illustration, vibrant urban hiphop aesthetic, Y2K aesthetic elements, chrome textures, graffiti art influences, clean sharp lines, bold color palette, masterpiece, printable screen-print design, centered composition, high-end merchandise quality, 8k resolution, minimalist background`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {

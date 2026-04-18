@@ -796,17 +796,17 @@ export default function DesignPage() {
     if (slot !== "shirt") return { x: 40, y: 40, w: 120, h: 120 };
     // Canvas 400x480. Body center x=200.
     switch (loc) {
-      case "left-chest": return { x: 235, y: 92, w: 45, h: 45 }; 
-      case "right-chest": return { x: 120, y: 92, w: 45, h: 45 }; 
-      case "center-chest": return { x: 130, y: 88, w: 140, h: 110 };
-      case "full-front": return { x: 112, y: 105, w: 176, h: 240 }; // Aligned to CSS [112, 105] 176x240
-      case "oversize-front": return { x: 95, y: 95, w: 210, h: 290 };
-      case "back-neck": return { x: 175, y: 45, w: 50, h: 25 }; 
-      case "back-collar": return { x: 175, y: 45, w: 50, h: 25 };
-      case "upper-back": return { x: 130, y: 95, w: 140, h: 90 };
-      case "full-back": return { x: 112, y: 105, w: 176, h: 240 };
-      case "sleeve": return { x: 25, y: 100, w: 55, h: 55 };
-      default: return { x: 130, y: 130, w: 140, h: 140 };
+      case "left-chest": return { x: 231, y: 92, w: 45, h: 45 }; 
+      case "right-chest": return { x: 116, y: 92, w: 45, h: 45 }; 
+      case "center-chest": return { x: 126, y: 88, w: 140, h: 110 };
+      case "full-front": return { x: 108, y: 105, w: 176, h: 240 }; // Moved 4px left for visual alignment
+      case "oversize-front": return { x: 91, y: 95, w: 210, h: 290 };
+      case "back-neck": return { x: 171, y: 45, w: 50, h: 25 }; 
+      case "back-collar": return { x: 171, y: 45, w: 50, h: 25 };
+      case "upper-back": return { x: 126, y: 95, w: 140, h: 90 };
+      case "full-back": return { x: 108, y: 105, w: 176, h: 240 };
+      case "sleeve": return { x: 21, y: 100, w: 55, h: 55 };
+      default: return { x: 126, y: 130, w: 140, h: 140 };
     }
   }, []);
   // ─── Canvas Actions ──────────────────────────

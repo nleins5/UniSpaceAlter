@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "../../components/Logo";
@@ -35,50 +35,38 @@ interface ChatMessage {
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_tshirt_${side}.png`;
-  const maskStyle = {
-    backgroundColor: color,
-    maskImage: `url('${imgUrl}')`,
-    WebkitMaskImage: `url('${imgUrl}')`,
-    maskSize: 'contain',
-    WebkitMaskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-  };
+  const uniqueId = useId().replace(/:/g, "-");
+  const maskId = `tshirt-mask-${side}-${uniqueId}`;
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      {/* Base Color Fill Mask */}
-      <div 
-        className="absolute inset-0 transition-colors duration-500" 
-        style={maskStyle}
-      />
-      {/* Technical Detail Lines Overlay */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imgUrl} alt="Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <mask id={maskId}>
+            <image href={imgUrl} width="400" height="480" />
+          </mask>
+        </defs>
+        <rect width="400" height="480" fill={color} mask={`url(#${maskId})`} className="transition-colors duration-500" />
+        <image href={imgUrl} width="400" height="480" style={{ mixBlendMode: 'multiply', opacity: 0.85 }} />
+      </svg>
     </div>
   );
 }
 
 function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_raglan_${side}.png`;
-  const maskStyle = {
-    backgroundColor: color,
-    maskImage: `url('${imgUrl}')`,
-    WebkitMaskImage: `url('${imgUrl}')`,
-    maskSize: 'contain',
-    WebkitMaskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-  };
+  const uniqueId = useId().replace(/:/g, "-");
+  const maskId = `raglan-mask-${side}-${uniqueId}`;
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      {/* Base Color Fill Mask */}
-      <div 
-        className="absolute inset-0 transition-colors duration-500" 
-        style={maskStyle}
-      />
-      {/* Technical Detail Lines Overlay */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imgUrl} alt="Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <mask id={maskId}>
+            <image href={imgUrl} width="400" height="480" />
+          </mask>
+        </defs>
+        <rect width="400" height="480" fill={color} mask={`url(#${maskId})`} className="transition-colors duration-500" />
+        <image href={imgUrl} width="400" height="480" style={{ mixBlendMode: 'multiply', opacity: 0.85 }} />
+      </svg>
     </div>
   );
 }
@@ -95,41 +83,28 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
   const collarImgUrl = `/mockups/v_polo_${side}_collar.png`;
   const effectiveCollarColor = collarColor || color;
   
-  const bodyMaskStyle = {
-    backgroundColor: color,
-    maskImage: `url('${imgUrl}')`,
-    WebkitMaskImage: `url('${imgUrl}')`,
-    maskSize: 'contain',
-    WebkitMaskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-  };
-
-  const collarMaskStyle = {
-    backgroundColor: effectiveCollarColor,
-    maskImage: `url('${collarImgUrl}')`,
-    WebkitMaskImage: `url('${collarImgUrl}')`,
-    maskSize: 'contain',
-    WebkitMaskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-  };
+  const uniqueId = useId().replace(/:/g, "-");
+  const bodyMaskId = `polo-body-mask-${side}-${uniqueId}`;
+  const collarMaskId = `polo-collar-mask-${side}-${uniqueId}`;
 
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      {/* Base Color Fill Mask */}
-      <div 
-        className="absolute inset-0 transition-colors duration-500" 
-        style={bodyMaskStyle}
-      />
-      {/* Collar Color Fill Mask */}
-      <div 
-        className="absolute inset-0 transition-colors duration-500" 
-        style={collarMaskStyle}
-      />
-      {/* Technical Detail Lines Overlay */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imgUrl} alt="Polo Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <mask id={bodyMaskId}>
+            <image href={imgUrl} width="400" height="480" />
+          </mask>
+          <mask id={collarMaskId}>
+            <image href={collarImgUrl} width="400" height="480" />
+          </mask>
+        </defs>
+        {/* Base Body Color */}
+        <rect width="400" height="480" fill={color} mask={`url(#${bodyMaskId})`} className="transition-colors duration-500" />
+        {/* Collar Color (on top) */}
+        <rect width="400" height="480" fill={effectiveCollarColor} mask={`url(#${collarMaskId})`} className="transition-colors duration-500" />
+        {/* Lines Overlay */}
+        <image href={imgUrl} width="400" height="480" style={{ mixBlendMode: 'multiply', opacity: 0.85 }} />
+      </svg>
     </div>
   );
 }

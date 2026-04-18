@@ -934,18 +934,18 @@ export default function DesignPage() {
 
   const getPresetPosition = useCallback((loc: string, slot: string) => {
     if (slot !== "shirt") return { x: 10, y: 10, w: 60, h: 60 };
-    // Canvas 400x480. Body x=[105,295], center x=200.
+    // Canvas 400x480. Body center x=200.
     switch (loc) {
-      case "left-chest": return { x: 215, y: 105, w: 60, h: 60 };
-      case "right-chest": return { x: 125, y: 105, w: 60, h: 60 };
-      case "center-chest": return { x: 125, y: 100, w: 150, h: 120 };
-      case "full-front": return { x: 110, y: 100, w: 180, h: 240 };
-      case "oversize-front": return { x: 90, y: 90, w: 220, h: 320 };
-      case "back-neck": return { x: 165, y: 55, w: 70, h: 35 };
-      case "back-collar": return { x: 165, y: 55, w: 70, h: 35 };
-      case "upper-back": return { x: 125, y: 95, w: 150, h: 100 };
-      case "full-back": return { x: 110, y: 100, w: 180, h: 240 };
-      case "sleeve": return { x: 25, y: 100, w: 60, h: 60 };
+      case "left-chest": return { x: 222, y: 100, w: 42, h: 42 }; // Slightly higher, smaller for professional look
+      case "right-chest": return { x: 136, y: 100, w: 42, h: 42 }; 
+      case "center-chest": return { x: 130, y: 95, w: 140, h: 110 };
+      case "full-front": return { x: 115, y: 100, w: 170, h: 260 };
+      case "oversize-front": return { x: 95, y: 95, w: 210, h: 330 };
+      case "back-neck": return { x: 175, y: 48, w: 50, h: 25 }; // Standard 3" x 1.5" yoke placement
+      case "back-collar": return { x: 175, y: 48, w: 50, h: 25 };
+      case "upper-back": return { x: 130, y: 95, w: 140, h: 90 };
+      case "full-back": return { x: 115, y: 100, w: 170, h: 260 };
+      case "sleeve": return { x: 25, y: 100, w: 55, h: 55 };
       default: return { x: 110, y: 130, w: 140, h: 140 };
     }
   }, []);

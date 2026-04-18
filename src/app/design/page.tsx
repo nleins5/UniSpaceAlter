@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback, useEffect, useId } from "react";
+import React, { useState, useRef, useCallback, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "../../components/Logo";
@@ -189,14 +189,14 @@ function DesignCanvas({
   const handleElementMouseDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
       e.stopPropagation();
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
       onSelectElement(el.id);
       if (el.locked) return; // Prevent dragging locked elements
       hasMovedRef.current = false;
       const rect = canvasRef.current!.getBoundingClientRect();
       const scale = zoom / 100;
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
       setDragOffset({
         x: (clientX - rect.left) / scale - el.x,
         y: (clientY - rect.top) / scale - el.y,
@@ -210,8 +210,8 @@ function DesignCanvas({
       if (el.locked) return;
       setIsResizing(true);
       onSelectElement(el.id);
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
       const startX = clientX;
       const startY = clientY;
       const startWidth = el.width;
@@ -351,7 +351,7 @@ function DesignCanvas({
       <div
         ref={canvasRef}
         className={`canva-canvas ${isDropTarget ? "canva-canvas-drop-active" : ""}`}
-        onMouseDown={(e) => {
+        onMouseDown={(e: React.MouseEvent) => {
           // Only deselect if the click target is the canvas itself (not a child element)
           // AND no movement occurred (not the end of a drag)
           if (e.target === e.currentTarget && !hasMovedRef.current) {
@@ -359,7 +359,7 @@ function DesignCanvas({
           }
           hasMovedRef.current = false;
         }}
-        onTouchEnd={(e) => {
+        onTouchEnd={(e: React.TouchEvent) => {
           // Tap on canvas (shirt area) but not on an element → deselect on mobile
           if (e.target === e.currentTarget && !hasMovedRef.current) {
             onSelectElement(null);
@@ -553,7 +553,7 @@ export default function DesignPage() {
       e.preventDefault();
       if (e.ctrlKey || e.metaKey) {
         // Pinch-to-zoom or Ctrl+Scroll
-        setZoom(z => {
+        setZoom((z: number) => {
           const zoomSpeed = 0.005; // Weighted zoom speed
           const factor = Math.exp(-e.deltaY * zoomSpeed);
           const newZ = Math.min(400, Math.max(10, z * factor));
@@ -562,7 +562,7 @@ export default function DesignPage() {
           const rect = el.getBoundingClientRect();
           const px = e.clientX - rect.left - rect.width / 2;
           const py = e.clientY - rect.top - rect.height / 2;
-          setPan(p => ({
+          setPan((p: {x: number, y: number}) => ({
             x: p.x - (px - p.x) * (scaleDelta - 1),
             y: p.y - (py - p.y) * (scaleDelta - 1)
           }));
@@ -570,7 +570,7 @@ export default function DesignPage() {
         });
       } else {
         // Trackpad 2-finger pan or regular Mouse Wheel pan
-        setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+        setPan((p: {x: number, y: number}) => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
       }
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
@@ -653,11 +653,11 @@ export default function DesignPage() {
     });
   }, [elements]);
   const handleRedo = useCallback(() => {
-    setRedoStack(r => {
+    setRedoStack((r: DesignElement[][]) => {
       if (r.length === 0) return r;
       const newRedo = r.slice(0, -1);
       const next = r[r.length - 1];
-      setHistoryStack(h => [...h, elements]);
+      setHistoryStack((h: DesignElement[][]) => [...h, elements]);
       setElements(next);
       return newRedo;
     });
@@ -728,7 +728,7 @@ export default function DesignPage() {
   // ─── Sync panel → selected text element (live update on canvas) ───
   useEffect(() => {
     if (!selectedId) return;
-    setElements(prev => prev.map(el =>
+    setElements((prev: DesignElement[]) => prev.map((el: DesignElement) =>
       el.id === selectedId && el.type === "text"
         ? { ...el, textColor, fontFamily: textFont, fontSize: textSize }
         : el
@@ -794,10 +794,9 @@ export default function DesignPage() {
   // ─── Canvas Actions ──────────────────────────
   const handleDropImage = useCallback(
     (image: AIImage) => {
-      setElements((prev) => {
+      setElements((prev: DesignElement[]) => {
         pushHistory(prev);
-        // Fixed slot replacement logic for drag-drop too
-        const existingIdx = prev.findIndex(el =>
+        const existingIdx = prev.findIndex((el: DesignElement) =>
           el.type === "image" &&
           el.side === side &&
           el.slot === activeSlot &&
@@ -828,7 +827,6 @@ export default function DesignPage() {
           locked: true,
         }];
       });
-      // Optionally select the element (redundant if replaced but fine for new)
     },
     [side, activeSlot, pushHistory]
   );
@@ -850,7 +848,7 @@ export default function DesignPage() {
       fontFamily: textFont,
       textColor: textColor,
     };
-    setElements((prev) => {
+    setElements((prev: DesignElement[]) => {
       pushHistory(prev);
       return [...prev, el];
     });
@@ -858,18 +856,18 @@ export default function DesignPage() {
     setTextInput("");
   };
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
-    setElements((prev) => prev.map((el) => (el.id === id ? { ...el, x, y } : el)));
+    setElements((prev: DesignElement[]) => prev.map((el: DesignElement) => (el.id === id ? { ...el, x, y } : el)));
   }, []);
   const handleResizeElement = useCallback((id: string, width: number, height: number, x?: number, y?: number) => {
-    setElements((prev) => prev.map((el) => (
+    setElements((prev: DesignElement[]) => prev.map((el: DesignElement) => (
       el.id === id ? { ...el, width, height, ...(x !== undefined ? { x } : {}), ...(y !== undefined ? { y } : {}) } : el
     )));
   }, []);
   const handleDeleteSelected = useCallback(() => {
     if (!selectedId) return;
-    setElements((prev) => {
+    setElements((prev: DesignElement[]) => {
       pushHistory(prev);
-      return prev.filter((el) => el.id !== selectedId);
+      return prev.filter((el: DesignElement) => el.id !== selectedId);
     });
     setSelectedId(null);
   }, [selectedId, pushHistory]);
@@ -878,7 +876,7 @@ export default function DesignPage() {
     const original = elements.find((el) => el.id === selectedId);
     if (!original) return;
     const dup = { ...original, id: `el-${Date.now()}`, x: original.x + 15, y: original.y + 15 };
-    setElements((prev) => {
+    setElements((prev: DesignElement[]) => {
       pushHistory(prev);
       return [...prev, dup];
     });
@@ -905,14 +903,14 @@ export default function DesignPage() {
     const fileArr = Array.from(files).filter(f => f.type.startsWith("image/"));
     fileArr.forEach(file => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = (e: ProgressEvent<FileReader>) => {
         const url = e.target?.result as string;
         const img: AIImage = {
           id: `upload-${Date.now()}-${Math.random().toString(36).slice(2)}`,
           label: file.name.replace(/\.[^.]+$/, "").slice(0, 20),
           url,
         };
-        setUploadedImages(prev => [img, ...prev]);
+        setUploadedImages((prev: AIImage[]) => [img, ...prev]);
       };
       reader.readAsDataURL(file);
     });
@@ -940,7 +938,7 @@ export default function DesignPage() {
       side,
       slot: activeSlot,
     };
-    setElements(prev => [...prev, el]);
+    setElements((prev: DesignElement[]) => [...prev, el]);
     setSelectedId(el.id);
   };
   const frontCount = elements.filter((e) => e.side === "front").length;
@@ -1158,7 +1156,7 @@ export default function DesignPage() {
                           placeholder="Mô tả thiết kế lý tưởng của bạn..."
                           value={chatInput}
                           onChange={(e) => setChatInput(e.target.value)}
-                          onKeyDown={(e) => {
+                          onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
                             if (e.key === "Enter" && !e.shiftKey) {
                               e.preventDefault();
                               if (chatInput.trim() && !isLoading) {
@@ -1207,7 +1205,7 @@ export default function DesignPage() {
                         </div>
                       )}
                       <div className="canva-ai-grid mt-4">
-                        {messages.filter(m => m.role === "ai").slice().reverse().map(m => m.images && m.images.map((img) => (
+                        {messages.filter((m: ChatMessage) => m.role === "ai").slice().reverse().map((m: ChatMessage) => m.images && m.images.map((img: AIImage) => (
                           <div key={img.id} className="canva-ai-grid-item-wrapper group">
                             <div className="canva-ai-item" onClick={() => {
                               // Professional Position Presets Logic
@@ -1444,7 +1442,7 @@ export default function DesignPage() {
                     </button>
                     <div className="canva-text-presets">
                       <p className="canva-label">Mẫu nhanh</p>
-                      {["CLASS OF 2026", "12A1 ❤️", "TOGETHER WE ARE ONE", "KỶ NIỆM", "FRIENDSHIP"].map((t) => (
+                      {["CLASS OF 2026", "12A1 ❤️", "TOGETHER WE ARE ONE", "KỶ NIỆM", "FRIENDSHIP"].map((t: string) => (
                         <button key={t} className="canva-preset-btn" onClick={() => { setTextInput(t); }}>{t}</button>
                       ))}
                     </div>
@@ -1544,23 +1542,23 @@ export default function DesignPage() {
                       <p className="canva-layers-empty">Chưa có element nào</p>
                     ) : (
                       <div className="canva-layers-list">
-                        {elements.filter((el) => el.side === side).map((el, i) => (
+                        {elements.filter((el: DesignElement) => el.side === side).map((el: DesignElement, i: number) => (
                           <div key={el.id} className={`canva-layer-item ${selectedId === el.id ? "active" : ""}`} onClick={() => setSelectedId(el.id)}>
                             <span className="canva-layer-idx">{i + 1}</span>
                             <span className="canva-layer-icon">{el.type === "text" ? "T" : "🖼"}</span>
                             <span className="canva-layer-name">{el.label}</span>
                             <div className="flex items-center gap-1">
                               <button
-                                onClick={(e) => {
+                                onClick={(e: React.MouseEvent) => {
                                   e.stopPropagation();
-                                  setElements(prev => prev.map(p => p.id === el.id ? { ...p, locked: !p.locked } : p));
+                                  setElements((prev: DesignElement[]) => prev.map((p: DesignElement) => p.id === el.id ? { ...p, locked: !p.locked } : p));
                                 }}
                                 className={`canva-layer-lock ${el.locked ? "locked" : ""}`}
                                 title={el.locked ? "Mở khoá" : "Khoá vị trí"}
                               >
                                 {el.locked ? "🔒" : "🔓"}
                               </button>
-                              <button onClick={(e) => { e.stopPropagation(); setElements((prev) => { pushHistory(prev); return prev.filter((p) => p.id !== el.id); }); if (selectedId === el.id) setSelectedId(null); }} className="canva-layer-delete" aria-label="Xóa layer">×</button>
+                              <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); setElements((prev: DesignElement[]) => { pushHistory(prev); return prev.filter((p: DesignElement) => p.id !== el.id); }); if (selectedId === el.id) setSelectedId(null); }} className="canva-layer-delete" aria-label="Xóa layer">×</button>
                             </div>
                           </div>
                         ))}
@@ -1632,7 +1630,7 @@ export default function DesignPage() {
         <main
           ref={workspaceRef}
           className="canva-workspace"
-          onTouchStart={(e) => {
+          onTouchStart={(e: React.TouchEvent) => {
             // Tap on workspace background (outside elements) → deselect on mobile
             if (e.target === e.currentTarget) setSelectedId(null);
           }}
@@ -1652,7 +1650,7 @@ export default function DesignPage() {
           <div
             className={`canva-canvas-wrapper ${isPanningWrapper ? "cursor-grabbing" : isSpacePressed ? "cursor-grab" : ""
               }`}
-            onMouseDown={(e) => {
+            onMouseDown={(e: React.MouseEvent) => {
               if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
           >
@@ -1863,7 +1861,7 @@ export default function DesignPage() {
                 min="20"
                 max="200"
                 value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZoom(Number(e.target.value))}
                 aria-label="Điều chỉnh thu phóng"
               />
               <span className="canva-zoom-val">{zoom}%</span>
@@ -1944,7 +1942,7 @@ export default function DesignPage() {
           { id: "text", label: "Chữ", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg> },
           { id: "elements", label: "Màu", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="13.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="10.5" r="2.5" /><circle cx="8.5" cy="7.5" r="2.5" /><circle cx="6.5" cy="12.5" r="2.5" /><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg> },
           { id: "layers", label: "Layer", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg> },
-        ] as const).map(tab => (
+        ] as const).map((tab: { id: string; label: string; icon: React.ReactNode }) => (
           <button
             key={tab.id}
             className={`canva-mobile-tab ${activePanel === tab.id ? "active" : ""}`}

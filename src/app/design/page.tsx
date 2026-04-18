@@ -684,69 +684,28 @@ export default function DesignPage() {
       return newRedo;
     });
   }, [elements]);
-  const handleSnapToPosition = (preset: "left-chest" | "right-chest" | "center-chest" | "full-front" | "back-neck" | "full-back" | "upper-back") => {
+  const handleSnapToPosition = (preset: string) => {
     if (!selectedId) return;
     setElements((prev) => {
       pushHistory(prev);
       return prev.map((el) => {
         if (el.id !== selectedId) return el;
-        const newEl = { ...el };
-        // Canvas is 400x480. Shirt body is approx x=[105, 295], center x=200.
-        // Collar top ≈ Y=55, Chest zone ≈ Y=100-180, Hem ≈ Y=395
-        if (preset === "left-chest") {
-          // Wearer's Left = Screen Right. Standard 4"x4" pocket position.
-          newEl.side = "front";
-          newEl.width = 65;
-          newEl.height = (el.height / el.width) * 65;
-          newEl.x = 230 - (newEl.width / 2);
-          newEl.y = 115;
-        } else if (preset === "right-chest") {
-          // Wearer's Right = Screen Left. Mirror of left-chest.
-          newEl.side = "front";
-          newEl.width = 65;
-          newEl.height = (el.height / el.width) * 65;
-          newEl.x = 170 - (newEl.width / 2);
-          newEl.y = 115;
-        } else if (preset === "center-chest") {
-          // Centered horizontally, at upper chest height below collar.
-          newEl.side = "front";
-          newEl.width = 130;
-          newEl.height = (el.height / el.width) * 130;
-          newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 110;
-        } else if (preset === "full-front") {
-          // Full front print area, centered.
-          newEl.side = "front";
-          newEl.width = 180;
-          newEl.height = (el.height / el.width) * 180;
-          newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 115;
-        } else if (preset === "back-neck") {
-          // Small print just below back collar. Standard 3"x1.5" back neck print.
-          newEl.side = "back";
-          newEl.width = 80;
-          newEl.height = (el.height / el.width) * 80;
-          newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 80;
-        } else if (preset === "upper-back") {
-          // Upper back, yoke area.
-          newEl.side = "back";
-          newEl.width = 180;
-          newEl.height = (el.height / el.width) * 180;
-          newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 100;
-        } else if (preset === "full-back") {
-          // Full back print, centered.
-          newEl.side = "back";
-          newEl.width = 180;
-          newEl.height = (el.height / el.width) * 180;
-          newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 115;
-        }
-        const backPresets = ["back-neck", "full-back", "upper-back"];
-        if (backPresets.includes(preset)) setSide("back");
-        else setSide("front");
-        return newEl;
+        const pos = getPresetPosition(preset, el.slot);
+        
+        // Auto-switch side
+        const isBack = preset.includes("back") || preset.includes("neck");
+        const targetSide = isBack ? "back" : "front";
+        if (targetSide !== side) setSide(targetSide);
+
+        return {
+          ...el,
+          side: targetSide,
+          x: pos.x,
+          y: pos.y,
+          width: pos.w,
+          height: pos.h,
+          rotation: 0
+        };
       });
     });
   };
@@ -977,14 +936,15 @@ export default function DesignPage() {
     if (slot !== "shirt") return { x: 10, y: 10, w: 60, h: 60 };
     // Canvas 400x480. Body x=[105,295], center x=200.
     switch (loc) {
-      case "left-chest": return { x: 198, y: 115, w: 65, h: 65 };
-      case "right-chest": return { x: 138, y: 115, w: 65, h: 65 };
-      case "center-chest": return { x: 135, y: 110, w: 130, h: 100 };
-      case "full-front": return { x: 110, y: 115, w: 180, h: 230 };
-      case "oversize-front": return { x: 90, y: 100, w: 220, h: 300 };
-      case "back-collar": return { x: 160, y: 80, w: 80, h: 40 };
-      case "upper-back": return { x: 110, y: 100, w: 180, h: 120 };
-      case "full-back": return { x: 110, y: 115, w: 180, h: 230 };
+      case "left-chest": return { x: 215, y: 105, w: 60, h: 60 };
+      case "right-chest": return { x: 125, y: 105, w: 60, h: 60 };
+      case "center-chest": return { x: 125, y: 100, w: 150, h: 120 };
+      case "full-front": return { x: 110, y: 100, w: 180, h: 240 };
+      case "oversize-front": return { x: 90, y: 90, w: 220, h: 320 };
+      case "back-neck": return { x: 165, y: 55, w: 70, h: 35 };
+      case "back-collar": return { x: 165, y: 55, w: 70, h: 35 };
+      case "upper-back": return { x: 125, y: 95, w: 150, h: 100 };
+      case "full-back": return { x: 110, y: 100, w: 180, h: 240 };
       case "sleeve": return { x: 25, y: 100, w: 60, h: 60 };
       default: return { x: 110, y: 130, w: 140, h: 140 };
     }

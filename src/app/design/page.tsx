@@ -148,6 +148,7 @@ interface DesignCanvasProps {
   side: "front" | "back";
   tshirtColor: string;
   collarColor: string;
+  sleeveColor: string;
   shirtType: "tshirt" | "polo" | "raglan";
   zoom: number;
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
@@ -165,6 +166,7 @@ function DesignCanvas({
   side,
   tshirtColor,
   collarColor,
+  sleeveColor,
   shirtType,
   zoom,
   slot = "shirt",
@@ -1705,6 +1707,7 @@ export default function DesignPage() {
                       side={side}
                       tshirtColor="#fff"
                       collarColor="#fff"
+                      sleeveColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
                       slot="neck-label"
@@ -1728,6 +1731,7 @@ export default function DesignPage() {
                       side={side}
                       tshirtColor="#fff"
                       collarColor="#fff"
+                      sleeveColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
                       slot="hang-tag"
@@ -1752,6 +1756,7 @@ export default function DesignPage() {
                         side="front"
                         tshirtColor={tshirtColor}
                         collarColor={collarColor}
+                        sleeveColor={sleeveColor}
                         shirtType={shirtType}
                         zoom={zoom}
                         slot="shirt"
@@ -1774,6 +1779,7 @@ export default function DesignPage() {
                         side="back"
                         tshirtColor={tshirtColor}
                         collarColor={collarColor}
+                        sleeveColor={sleeveColor}
                         shirtType={shirtType}
                         zoom={zoom}
                         slot="shirt"
@@ -1803,6 +1809,7 @@ export default function DesignPage() {
                       side={side}
                       tshirtColor="#fff"
                       collarColor="#fff"
+                      sleeveColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
                       slot="logo-detail"
@@ -1824,6 +1831,7 @@ export default function DesignPage() {
                       side={side}
                       tshirtColor="#fff"
                       collarColor="#fff"
+                      sleeveColor="#fff"
                       shirtType="tshirt"
                       zoom={50}
                       slot="packaging"

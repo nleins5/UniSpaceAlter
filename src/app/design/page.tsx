@@ -35,21 +35,25 @@ interface ChatMessage {
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_tshirt_${side}.png`;
-  const maskStyle = {
-    backgroundColor: color,
-    WebkitMaskImage: `url('${imgUrl}')`,
-    WebkitMaskSize: 'contain',
-    WebkitMaskRepeat: 'no-repeat',
-    WebkitMaskPosition: 'center',
-    maskImage: `url('${imgUrl}')`,
-    maskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-  };
+  const uniqueId = useId().replace(/:/g, "-");
+  
   return (
     <div className="relative w-full h-full drop-shadow-md">
+      <style>{`
+        .tshirt-mask-${uniqueId} {
+          background-color: ${color};
+          mask-image: url('${imgUrl}');
+          -webkit-mask-image: url('${imgUrl}');
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          -webkit-mask-repeat: no-repeat;
+          mask-position: center;
+          -webkit-mask-position: center;
+        }
+      `}</style>
       {/* Base Color Fill Mask */}
-      <div className="absolute inset-0 transition-colors duration-500" style={maskStyle} />
+      <div className={`absolute inset-0 transition-colors duration-500 tshirt-mask-${uniqueId}`} />
       {/* Detail Lines Overlay */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={imgUrl} alt="T-Shirt Mockup" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
@@ -61,38 +65,40 @@ function RaglanShirtSVG({ color, side = "front", sleeveColor }: { color: string;
   const imgUrl = `/mockups/v_raglan_${side}.png`;
   const sleeveImgUrl = `/mockups/v_raglan_${side}_sleeve.png?v=1`;
   const effectiveSleeveColor = sleeveColor || color;
-
-  const maskStyle = {
-    backgroundColor: color,
-    WebkitMaskImage: `url('${imgUrl}')`,
-    WebkitMaskSize: 'contain',
-    WebkitMaskRepeat: 'no-repeat',
-    WebkitMaskPosition: 'center',
-    maskImage: `url('${imgUrl}')`,
-    maskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-  };
-
-  const sleeveMaskStyle = {
-    backgroundColor: effectiveSleeveColor,
-    WebkitMaskImage: `url('${sleeveImgUrl}')`,
-    WebkitMaskSize: 'contain',
-    WebkitMaskRepeat: 'no-repeat',
-    WebkitMaskPosition: 'center',
-    maskImage: `url('${sleeveImgUrl}')`,
-    maskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-  };
+  const uniqueId = useId().replace(/:/g, "-");
 
   return (
     <div className="relative w-full h-full drop-shadow-md">
+      <style>{`
+        .raglan-mask-${uniqueId} {
+          background-color: ${color};
+          mask-image: url('${imgUrl}');
+          -webkit-mask-image: url('${imgUrl}');
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          -webkit-mask-repeat: no-repeat;
+          mask-position: center;
+          -webkit-mask-position: center;
+        }
+        .raglan-sleeve-mask-${uniqueId} {
+          background-color: ${effectiveSleeveColor};
+          mask-image: url('${sleeveImgUrl}');
+          -webkit-mask-image: url('${sleeveImgUrl}');
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          -webkit-mask-repeat: no-repeat;
+          mask-position: center;
+          -webkit-mask-position: center;
+        }
+      `}</style>
+      
       {/* Base Color Fill Mask (Whole Shirt) */}
-      <div className="absolute inset-0 transition-colors duration-500" style={maskStyle} />
+      <div className={`absolute inset-0 transition-colors duration-500 raglan-mask-${uniqueId}`} />
       
       {/* Sleeve Color Fill Mask (Overwrites sleeves) */}
-      <div className="absolute inset-0 transition-colors duration-500" style={sleeveMaskStyle} />
+      <div className={`absolute inset-0 transition-colors duration-500 raglan-sleeve-mask-${uniqueId}`} />
       
       {/* Detail Lines Overlay */}
       {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -23,8 +23,8 @@ const VI_EN: Record<string, string> = {
   "vũ trụ": "space universe", "đầu lâu": "skull", "thiên thần": "angel",
   "phượng hoàng": "phoenix", "kỳ lân": "unicorn", "cướp biển": "pirate",
   "dễ thương": "cute adorable chibi mascot, kawaii character design", "đẹp": "beautiful high quality", "ngầu": "cool badass sigma", "đáng yêu": "lovely cute", "cổ điển": "vintage retro", "neon": "neon glowing cinematic",
-  "cháy": "fire aesthetic, vibrant, explosive colors, streetwear vibe",
-  "áo lớp": "professional high school class t-shirt design, centered mascot logo, vectorized logo style, vibrant streetwear aesthetic, student apparel brand",
+  "cháy": "explosive fire aesthetic, vibrant streetwear vibe, hiphop graffiti style, high contrast urban art",
+  "áo lớp": "edgy oversized high school class t-shirt design, hiphop streetwear mascot, graffiti logo style, vibrant urban aesthetic, student apparel brand, y2k vibes, high-end streetwear merchandise",
   "y2k": "y2k aesthetic, chrome, futuristic, 2000s style, cyber sigilism",
   "vẽ tay": "hand-drawn illustration, sketch style",
   "chất": "premium quality, sharp edges, professional graphic design",
@@ -53,7 +53,7 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
   const t8Key = process.env.T8STAR_API_KEY;
   if (!t8Key) return [];
 
-  const fullPrompt = `${enPrompt}, professional t-shirt graphic design, high-fidelity vector illustration style, isolated on solid white background, flat 2D vector art, clean sharp lines, vibrant color palette, professional streetwear brand identity, student class uniform mascot aesthetic, high resolution, masterpiece, no realistic shadows, printable screen-print design, centered composition, high-end merchandise quality`;
+  const fullPrompt = `${enPrompt}, professional edgy streetwear graphic design, high-fidelity vector illustration, vibrant urban hiphop aesthetic, oversized class shirt style, Y2K aesthetic elements, chrome textures, graffiti art influences, isolated on solid white background, flat 2D vector art, clean sharp lines, bold color palette, professional streetwear brand identity, masterpiece, printable screen-print design, centered composition, high-end merchandise quality`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {

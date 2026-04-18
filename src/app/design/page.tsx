@@ -936,15 +936,15 @@ export default function DesignPage() {
     if (slot !== "shirt") return { x: 10, y: 10, w: 60, h: 60 };
     // Canvas 400x480. Body center x=200.
     switch (loc) {
-      case "left-chest": return { x: 222, y: 100, w: 42, h: 42 }; // Slightly higher, smaller for professional look
-      case "right-chest": return { x: 136, y: 100, w: 42, h: 42 }; 
-      case "center-chest": return { x: 130, y: 95, w: 140, h: 110 };
-      case "full-front": return { x: 115, y: 100, w: 170, h: 260 };
-      case "oversize-front": return { x: 95, y: 95, w: 210, h: 330 };
-      case "back-neck": return { x: 175, y: 48, w: 50, h: 25 }; // Standard 3" x 1.5" yoke placement
-      case "back-collar": return { x: 175, y: 48, w: 50, h: 25 };
+      case "left-chest": return { x: 235, y: 92, w: 45, h: 45 }; // Moved significantly right (viewer perspect.)
+      case "right-chest": return { x: 120, y: 92, w: 45, h: 45 }; 
+      case "center-chest": return { x: 130, y: 88, w: 140, h: 110 };
+      case "full-front": return { x: 115, y: 110, w: 170, h: 250 };
+      case "oversize-front": return { x: 100, y: 100, w: 200, h: 280 };
+      case "back-neck": return { x: 175, y: 45, w: 50, h: 25 }; 
+      case "back-collar": return { x: 175, y: 45, w: 50, h: 25 };
       case "upper-back": return { x: 130, y: 95, w: 140, h: 90 };
-      case "full-back": return { x: 115, y: 100, w: 170, h: 260 };
+      case "full-back": return { x: 115, y: 110, w: 170, h: 250 };
       case "sleeve": return { x: 25, y: 100, w: 55, h: 55 };
       default: return { x: 110, y: 130, w: 140, h: 140 };
     }
@@ -1026,14 +1026,14 @@ export default function DesignPage() {
     pantone: tshirtColor.toUpperCase()
   };
   const suggestions = [
-    "Áo lớp chuyên văn bay bổng",
-    "Mascot Hổ ngầu cho lớp A1",
-    "Phi hành đoàn lớp 12A",
-    "Logo lớp phong cách Y2K",
-    "Phượng hoàng lửa lớp Chuyên Anh",
-    "Dễ thương chibi lớp 10B3",
-    "Typography niên khóa 2022-2025",
-    "Phi hành gia vũ trụ lớp lý",
+    "🔥 Hiphop Graffiti lớp A1 cực cháy",
+    "🐯 Streetwear Panther Y2k Chrome",
+    "🛸 Cyber Sigilism Y2K Class 12A",
+    "🖼️ Oversized Streetwear Art",
+    "🦅 Fire Phoenix Hiphop Style",
+    "🎨 Graffiti Spray Paint Logo",
+    "🏁 Racing Team Varsity Aesthetic",
+    "🛹 Urban Skater Mascot Design",
   ];
   return (
     <div className="canva-layout">

@@ -988,18 +988,7 @@ export default function DesignPage() {
   };
   const frontCount = elements.filter((e) => e.side === "front").length;
   const backCount = elements.filter((e) => e.side === "back").length;
-  // Technical Header Data (Human Made style)
-  const techPackInfo = {
-    season: "2025 SS / FW",
-    styleNo: "UN2404-TP",
-    category: activeSlot === "shirt" ? "TOP" : activeSlot.toUpperCase(),
-    name: "Layered Graphic Tee",
-    fabric: "100% COTTON 250GSM",
-    factory: "UNISPACE_LAB",
-    input: "04 / 16 / 2026",
-    output: "04 / 30 / 2026",
-    pantone: tshirtColor.toUpperCase()
-  };
+  // Technical Header Data removed
   const suggestions = [
     "🔥 Hiphop Graffiti lớp A1 cực cháy",
     "🐯 Streetwear Panther Y2k Chrome",
@@ -1680,7 +1669,7 @@ export default function DesignPage() {
               if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
           >
-            <div className="tech-pack-frame tech-pack-panned" style={{ backgroundColor: "transparent" }}>
+            <div className="tech-pack-frame tech-pack-panned bg-transparent">
               <style>{`
                 .tech-pack-panned {
                   --pan-x: ${pan.x}px;
@@ -1689,9 +1678,7 @@ export default function DesignPage() {
                 }
               `}</style>
               
-              <div className="relative w-[900px] h-[1000px] bg-white border-2 border-black shadow-2xl mx-auto origin-top-left overflow-hidden text-black font-sans rounded-3xl" style={{
-                backgroundImage: "linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)",
-                backgroundSize: "25px 25px",
+              <div className="relative w-[900px] h-[1000px] bg-white border-2 border-black shadow-2xl mx-auto origin-top-left overflow-hidden text-black font-sans rounded-3xl bg-[linear-gradient(#e5e7eb_1px,transparent_1px),linear-gradient(90deg,#e5e7eb_1px,transparent_1px)] bg-[size:25px_25px]" style={{
                 transform: `scale(var(--tech-zoom))`
               }}>
                 {/* ═══ HEADER ROW 1 ═══ */}
@@ -1705,7 +1692,7 @@ export default function DesignPage() {
                      </div>
                      <div className="w-[180px] flex flex-col justify-center border-r-2 border-black p-4">
                          <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">PROJECT NAME:</div>
-                         <input type="text" className="text-[12px] font-bold outline-none bg-transparent w-full text-black leading-tight" defaultValue="Fire Hustle 1995 Short pants" />
+                         <input type="text" aria-label="Project Name" title="Project Name" placeholder="Project Name" className="text-[12px] font-bold outline-none bg-transparent w-full text-black leading-tight" defaultValue="Fire Hustle 1995 Short pants" />
                      </div>
                      <div className="w-[140px] flex flex-col justify-center border-r-2 border-black p-4">
                          <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">FABRIC:</div>
@@ -1782,7 +1769,7 @@ export default function DesignPage() {
                 </div>
                 <div className="absolute w-[80px] h-[1px] bg-[#b492c9] left-[410px] top-[285px] border-b border-t border-[#b492c9]" />
                 <div className="absolute left-[500px] top-[300px] w-[90px] h-[120px] bg-[#2a2a2a] p-3 flex flex-col justify-center items-center shadow-xl">
-                   <div className="text-[#ccff00] font-black text-xl mb-2 tracking-tighter" style={{fontFamily: "'Playfair Display', serif", fontStyle: "italic"}}>Hustle</div>
+                   <div className="text-[#ccff00] font-black text-xl mb-2 tracking-tighter font-serif italic">Hustle</div>
                    <div className="text-white/60 text-[5px] text-center leading-[1.6]">
                      Technical spec for back print.<br/>Make sure it aligns with seam perfectly.
                    </div>
@@ -1818,7 +1805,7 @@ export default function DesignPage() {
 
                 <div className="absolute left-[240px] bottom-[260px] w-[90px] h-[70px] bg-[#2a2a2a] p-3 flex flex-col justify-center items-center shadow-xl relative group">
                    <div className="absolute w-[150px] h-[1px] bg-[#b492c9] right-[-140px] top-[35px] -z-10 border-b border-t border-[#b492c9]" />
-                   <div className="text-[#ccff00] font-black text-2xl tracking-tighter" style={{fontFamily: "'Playfair Display', serif", fontStyle: "italic"}}>H.</div>
+                   <div className="text-[#ccff00] font-black text-2xl tracking-tighter font-serif italic">H.</div>
                    <div className="text-white/60 text-[6px] text-center uppercase tracking-widest mt-1">1995</div>
                 </div>
 

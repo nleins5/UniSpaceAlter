@@ -35,38 +35,46 @@ interface ChatMessage {
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_tshirt_${side}.png`;
-  const uniqueId = useId().replace(/:/g, "-");
-  const maskId = `tshirt-mask-${side}-${uniqueId}`;
+  const maskStyle = {
+    backgroundColor: color,
+    WebkitMaskImage: `url('${imgUrl}')`,
+    WebkitMaskSize: 'contain',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskPosition: 'center',
+    maskImage: `url('${imgUrl}')`,
+    maskSize: 'contain',
+    maskRepeat: 'no-repeat',
+    maskPosition: 'center',
+  };
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <mask id={maskId}>
-            <image href={imgUrl} width="400" height="480" />
-          </mask>
-        </defs>
-        <rect width="400" height="480" fill={color} mask={`url(#${maskId})`} className="transition-colors duration-500" />
-        <image href={imgUrl} width="400" height="480" style={{ mixBlendMode: 'multiply', opacity: 0.85 }} />
-      </svg>
+      {/* Base Color Fill Mask */}
+      <div className="absolute inset-0 transition-colors duration-500" style={maskStyle} />
+      {/* Detail Lines Overlay */}
+      <img src={imgUrl} className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
     </div>
   );
 }
 
 function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_raglan_${side}.png`;
-  const uniqueId = useId().replace(/:/g, "-");
-  const maskId = `raglan-mask-${side}-${uniqueId}`;
+  const maskStyle = {
+    backgroundColor: color,
+    WebkitMaskImage: `url('${imgUrl}')`,
+    WebkitMaskSize: 'contain',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskPosition: 'center',
+    maskImage: `url('${imgUrl}')`,
+    maskSize: 'contain',
+    maskRepeat: 'no-repeat',
+    maskPosition: 'center',
+  };
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <mask id={maskId}>
-            <image href={imgUrl} width="400" height="480" />
-          </mask>
-        </defs>
-        <rect width="400" height="480" fill={color} mask={`url(#${maskId})`} className="transition-colors duration-500" />
-        <image href={imgUrl} width="400" height="480" style={{ mixBlendMode: 'multiply', opacity: 0.85 }} />
-      </svg>
+      {/* Base Color Fill Mask */}
+      <div className="absolute inset-0 transition-colors duration-500" style={maskStyle} />
+      {/* Detail Lines Overlay */}
+      <img src={imgUrl} className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
     </div>
   );
 }

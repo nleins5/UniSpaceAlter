@@ -80,7 +80,7 @@ function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?
 
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_polo_${side}.png`;
-  const collarImgUrl = `/mockups/v_polo_${side}_collar.png?v=4`;
+  const collarImgUrl = `/mockups/v_polo_${side}_collar.png?v=5`;
   const effectiveCollarColor = collarColor || color;
   
   const uniqueId = useId().replace(/:/g, "-");

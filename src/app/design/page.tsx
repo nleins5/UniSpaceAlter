@@ -51,7 +51,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
       {/* Base Color Fill Mask */}
       <div className="absolute inset-0 transition-colors duration-500" style={maskStyle} />
       {/* Detail Lines Overlay */}
-      <img src={imgUrl} className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imgUrl} alt="T-Shirt Mockup" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
     </div>
   );
 }
@@ -94,7 +95,8 @@ function RaglanShirtSVG({ color, side = "front", sleeveColor }: { color: string;
       <div className="absolute inset-0 transition-colors duration-500" style={sleeveMaskStyle} />
       
       {/* Detail Lines Overlay */}
-      <img src={imgUrl} className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imgUrl} alt="Raglan Mockup" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
     </div>
   );
 }
@@ -131,7 +133,7 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
         {/* Collar Color (on top) */}
         <rect width="400" height="480" fill={effectiveCollarColor} mask={`url(#${collarMaskId})`} className="transition-colors duration-500" />
         {/* Lines Overlay */}
-        <image href={imgUrl} width="400" height="480" style={{ mixBlendMode: 'multiply', opacity: 0.85 }} />
+        <image href={imgUrl} width="400" height="480" className="mix-blend-multiply opacity-[0.85]" />
       </svg>
     </div>
   );

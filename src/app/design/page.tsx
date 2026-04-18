@@ -35,21 +35,22 @@ interface ChatMessage {
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_tshirt_${side}.png`;
+  const maskStyle = {
+    backgroundColor: color,
+    maskImage: `url('${imgUrl}')`,
+    WebkitMaskImage: `url('${imgUrl}')`,
+    maskSize: 'contain',
+    WebkitMaskSize: 'contain',
+    maskRepeat: 'no-repeat',
+    maskPosition: 'center',
+  };
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      <style>{`
-        .tshirt-mask-${side} {
-          background-color: ${color};
-          mask-image: url('${imgUrl}');
-          -webkit-mask-image: url('${imgUrl}');
-          mask-size: contain;
-          -webkit-mask-size: contain;
-          mask-repeat: no-repeat;
-          mask-position: center;
-        }
-      `}</style>
       {/* Base Color Fill Mask */}
-      <div className={`absolute inset-0 transition-colors duration-500 tshirt-mask-${side}`} />
+      <div 
+        className="absolute inset-0 transition-colors duration-500" 
+        style={maskStyle}
+      />
       {/* Technical Detail Lines Overlay */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={imgUrl} alt="Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
@@ -59,21 +60,22 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
 
 function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_raglan_${side}.png`;
+  const maskStyle = {
+    backgroundColor: color,
+    maskImage: `url('${imgUrl}')`,
+    WebkitMaskImage: `url('${imgUrl}')`,
+    maskSize: 'contain',
+    WebkitMaskSize: 'contain',
+    maskRepeat: 'no-repeat',
+    maskPosition: 'center',
+  };
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      <style>{`
-        .raglan-mask-${side} {
-          background-color: ${color};
-          mask-image: url('${imgUrl}');
-          -webkit-mask-image: url('${imgUrl}');
-          mask-size: contain;
-          -webkit-mask-size: contain;
-          mask-repeat: no-repeat;
-          mask-position: center;
-        }
-      `}</style>
       {/* Base Color Fill Mask */}
-      <div className={`absolute inset-0 transition-colors duration-500 raglan-mask-${side}`} />
+      <div 
+        className="absolute inset-0 transition-colors duration-500" 
+        style={maskStyle}
+      />
       {/* Technical Detail Lines Overlay */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={imgUrl} alt="Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
@@ -92,32 +94,39 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
   const imgUrl = `/mockups/v_polo_${side}.png`;
   const collarImgUrl = `/mockups/v_polo_${side}_collar.png`;
   const effectiveCollarColor = collarColor || color;
+  
+  const bodyMaskStyle = {
+    backgroundColor: color,
+    maskImage: `url('${imgUrl}')`,
+    WebkitMaskImage: `url('${imgUrl}')`,
+    maskSize: 'contain',
+    WebkitMaskSize: 'contain',
+    maskRepeat: 'no-repeat',
+    maskPosition: 'center',
+  };
+
+  const collarMaskStyle = {
+    backgroundColor: effectiveCollarColor,
+    maskImage: `url('${collarImgUrl}')`,
+    WebkitMaskImage: `url('${collarImgUrl}')`,
+    maskSize: 'contain',
+    WebkitMaskSize: 'contain',
+    maskRepeat: 'no-repeat',
+    maskPosition: 'center',
+  };
+
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      <style>{`
-        .polo-mask-${side} {
-          background-color: ${color};
-          mask-image: url('${imgUrl}');
-          -webkit-mask-image: url('${imgUrl}');
-          mask-size: contain;
-          -webkit-mask-size: contain;
-          mask-repeat: no-repeat;
-          mask-position: center;
-        }
-        .polo-collar-mask-${side} {
-          background-color: ${effectiveCollarColor};
-          mask-image: url('${collarImgUrl}');
-          -webkit-mask-image: url('${collarImgUrl}');
-          mask-size: contain;
-          -webkit-mask-size: contain;
-          mask-repeat: no-repeat;
-          mask-position: center;
-        }
-      `}</style>
       {/* Base Color Fill Mask */}
-      <div className={`absolute inset-0 transition-colors duration-500 polo-mask-${side}`} />
+      <div 
+        className="absolute inset-0 transition-colors duration-500" 
+        style={bodyMaskStyle}
+      />
       {/* Collar Color Fill Mask */}
-      <div className={`absolute inset-0 transition-colors duration-500 polo-collar-mask-${side}`} />
+      <div 
+        className="absolute inset-0 transition-colors duration-500" 
+        style={collarMaskStyle}
+      />
       {/* Technical Detail Lines Overlay */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={imgUrl} alt="Polo Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
@@ -471,7 +480,7 @@ export default function DesignPage() {
   const [side, setSide] = useState<"front" | "back">("front");
   const [tshirtColor, setTshirtColor] = useState("#ffffff");
   const [sleeveColor, setSleeveColor] = useState("#ffffff");
-  const [collarColor, setCollarColor] = useState("#ffffff");
+  const [collarColor, setCollarColor] = useState("");
   const [shirtType, setShirtType] = useState<"tshirt" | "polo" | "raglan">("tshirt");
   const [activeColorTarget, setActiveColorTarget] = useState<"body" | "sleeve" | "collar">("body");
   const [activeSlot, setActiveSlot] = useState<"shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging">("shirt");
@@ -1461,7 +1470,7 @@ export default function DesignPage() {
                           Tay
                         </button>
                       )}
-                      {(shirtType === "polo" || shirtType === "tshirt") && (
+                      {shirtType === "polo" && (
                         <button
                           className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all ${activeColorTarget === "collar" ? "bg-black text-white" : "bg-gray-100"}`}
                           onClick={() => setActiveColorTarget("collar")}

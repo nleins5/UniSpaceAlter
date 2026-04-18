@@ -169,7 +169,10 @@ export async function createOrder(
       has_front_design: Boolean(frontBlob),
       has_back_design: Boolean(backBlob),
     });
-    if (error) console.error("Supabase createOrder:", error.message);
+    if (error) {
+      console.error("Supabase createOrder:", error.message);
+      throw new Error("Failed to save order to database.");
+    }
     return { orderId };
   }
 

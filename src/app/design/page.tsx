@@ -1661,7 +1661,7 @@ export default function DesignPage() {
               <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-back")} title="Full Back">Full Back</button>
             </div>
           )}
-          {/* Canvas area with checkerboard bg */}
+          {/* Canvas area with Human Made Tech Pack layout */}
           <div
             className={`canva-canvas-wrapper ${isPanningWrapper ? "cursor-grabbing" : isSpacePressed ? "cursor-grab" : ""
               }`}
@@ -1669,144 +1669,199 @@ export default function DesignPage() {
               if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
           >
-            <div className="tech-pack-frame tech-pack-panned bg-transparent">
+            <div className="tech-pack-frame tech-pack-panned" style={{ backgroundColor: "transparent", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <style>{`
                 .tech-pack-panned {
                   --pan-x: ${pan.x}px;
                   --pan-y: ${pan.y}px;
                   --tech-zoom: ${zoom / 100};
                 }
+                .cell-label {
+                  font-size: 10px;
+                  font-weight: 500;
+                  color: #333;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background-color: #f8f9fa;
+                }
+                .cell-value {
+                  font-size: 11px;
+                  font-weight: 500;
+                  color: #111;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                }
               `}</style>
               
-              <div className="relative w-[900px] h-[1000px] bg-white border-2 border-black shadow-2xl mx-auto origin-top-left overflow-hidden text-black font-sans rounded-3xl bg-[linear-gradient(#e5e7eb_1px,transparent_1px),linear-gradient(90deg,#e5e7eb_1px,transparent_1px)] bg-[size:25px_25px]" style={{
+              <div className="relative w-[1150px] h-[850px] bg-white border-[3px] border-[#111] shadow-2xl mx-auto origin-center overflow-hidden text-[#111] font-sans" style={{
                 transform: `scale(var(--tech-zoom))`
               }}>
-                {/* ═══ HEADER ROW 1 ═══ */}
-                <div className="flex border-b-2 border-black bg-white/80 backdrop-blur-sm">
-                     <div className="w-[180px] border-r-2 border-black flex flex-col justify-center items-center py-5 relative">
-                         <div className="text-[7px] font-bold absolute top-1 left-2 uppercase text-[#b492c9]">BRAND LOGO</div>
-                         <div className="w-[60px] h-[60px] bg-black rounded-full flex flex-col items-center justify-center text-white font-black text-center text-[10px] leading-tight rotate-[-5deg] tracking-tight transform-gpu hover:rotate-0 transition-transform">
-                             <span>STREET</span><span>FACE</span>
-                         </div>
-                         <div className="text-[6px] font-bold mt-2 font-mono tracking-widest text-black">CLOTHING.CO</div>
+                {/* ═══ HEADER TABLE ═══ */}
+                <div className="flex border-b-[2px] border-[#111]">
+                     {/* LOGO CELL */}
+                     <div className="w-[140px] border-r-[2px] border-[#111] flex flex-col justify-center items-center p-2">
+                        <div className="text-[10px] font-black uppercase text-[#111] tracking-tighter mb-1 mt-1">STRMCWBY</div>
+                        <div className="text-[14px] font-black uppercase text-[#111] tracking-tight leading-none">HUMAN</div>
+                        <Logo scale={0.6} />
+                        <div className="text-[12px] font-black uppercase text-[#111] tracking-wide mt-1">MADE</div>
                      </div>
-                     <div className="w-[180px] flex flex-col justify-center border-r-2 border-black p-4">
-                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">PROJECT NAME:</div>
-                         <input type="text" aria-label="Project Name" title="Project Name" placeholder="Project Name" className="text-[12px] font-bold outline-none bg-transparent w-full text-black leading-tight" defaultValue="Fire Hustle 1995 Short pants" />
-                     </div>
-                     <div className="w-[140px] flex flex-col justify-center border-r-2 border-black p-4">
-                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">FABRIC:</div>
-                         <div className="text-[12px] font-bold text-black leading-tight">Heavy Cotton<br/>20S</div>
-                     </div>
-                     <div className="flex-1 flex flex-col justify-center p-4">
-                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">CATEGORY:</div>
-                         <div className="text-[12px] font-bold text-black leading-tight">Top</div>
-                     </div>
-                </div>
-                {/* ═══ HEADER ROW 2 ═══ */}
-                <div className="flex border-b-2 border-black bg-white/80 backdrop-blur-sm ml-[180px]">
-                     <div className="w-[180px] flex flex-col justify-center border-r-2 border-black p-3">
-                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">COLOR:</div>
-                         <div className="text-[10px] font-bold text-black">White, Green</div>
-                     </div>
-                     <div className="w-[140px] flex flex-col justify-center border-r-2 border-black p-3">
-                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">DATE:</div>
-                         <div className="text-[10px] font-bold text-black">July 2024</div>
-                     </div>
-                     <div className="flex-1 flex flex-col justify-center p-3">
-                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">SIZE RANGE:</div>
-                         <div className="text-[10px] font-bold text-black">L - XXL</div>
-                     </div>
-                </div>
-
-                {/* ═══ SWATCHES ═══ */}
-                <div className="absolute left-[30px] top-[180px]">
-                     <div className="text-[8px] font-bold text-[#b492c9] uppercase tracking-widest mb-3 leading-tight">Color<br/>Swatches</div>
-                     <div className="flex items-center justify-between w-[90px] h-[16px] bg-[#ccff00] border border-[#ccff00] px-1 mb-1 shadow-sm">
-                        <span className="text-[6px] font-black tracking-widest text-[#5a6b00]">CMYK: 21 0 85 7</span>
-                     </div>
-                     <div className="flex items-center justify-between w-[90px] h-[16px] border border-[#b492c9] px-1 shadow-sm bg-white/50 backdrop-blur-sm">
-                        <span className="text-[6px] font-black tracking-widest text-[#b492c9]">CMYK: 0 0 0 0</span>
+                     
+                     <div className="flex-1 flex flex-col">
+                        {/* ROW 1 */}
+                        <div className="flex flex-1 border-b-[1px] border-[#111]">
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">SEASON</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">2026 SS / FW</div>
+                           
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">CATEGORY</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] cell-value uppercase">{activeSlot === 'shirt' ? 'TOP' : activeSlot}</div>
+                           
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">FABRIC</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">100% COTTON</div>
+                           
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">FACTORY</div>
+                           <div className="w-[120px] cell-value font-bold">UNISPACE</div>
+                        </div>
+                        {/* ROW 2 */}
+                        <div className="flex flex-1">
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">STYLE NO</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">HM230210TO</div>
+                           
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">NAME</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">Graphic Logo Tee</div>
+                           
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">INPUT</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">04 / 18 / 2026</div>
+                           
+                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">OUTPUT</div>
+                           <div className="w-[120px] cell-value">05 / 20 / 2026</div>
+                        </div>
                      </div>
                 </div>
 
-                {/* ═══ SIDE VIEW PORTRAIT ═══ */}
-                <div className="absolute left-[30px] bottom-[200px]">
-                     <div className="text-[8px] font-bold text-[#b492c9] uppercase tracking-widest mb-2">SIDE VIEW</div>
-                     <div className="w-[80px] h-[80px] bg-[#2a2a2a] flex items-center justify-center p-2 shadow-lg">
-                        <svg viewBox="0 0 100 100" className="w-[50px] h-[50px] text-[#ccff00] fill-current opacity-90">
-                           <path d="M50 0 C 50 0, 30 20, 30 50 C 30 70, 40 80, 50 80 C 60 80, 70 70, 70 50 C 70 20, 50 0, 50 0 Z M 50 20 C 50 20, 40 35, 40 55 C 40 65, 45 70, 50 70 C 55 70, 60 65, 60 55 C 60 35, 50 20, 50 20 Z" />
-                           <path d="M40 80 C 30 80, 20 70, 20 60 C 20 40, 35 30, 35 30 C 35 30, 30 45, 30 55 C 30 60, 35 65, 40 65 C 40 65, 35 70, 40 80 Z" />
-                           <path d="M60 80 C 70 80, 80 70, 80 60 C 80 40, 65 30, 65 30 C 65 30, 70 45, 70 55 C 70 60, 65 65, 60 65 C 60 65, 65 70, 60 80 Z" />
-                        </svg>
-                     </div>
+                {/* ═══ DIVIDER ROW ═══ */}
+                <div className="border-b-[2px] border-[#111] bg-[#f8f9fa] py-1 text-center text-[10px] uppercase font-medium tracking-widest text-[#333]">
+                   FRONT & BACK DETAILS
                 </div>
 
-                {/* ═══ BACK VIEW ═══ */}
-                <div className="absolute left-[80px] top-[240px] cursor-pointer group" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
-                  <div className={`canva-canvas transition-all ${side === "back" ? "ring-[2px] ring-[#b492c9] ring-offset-4 ring-offset-transparent outline outline-1 outline-white z-10 scale-[0.80]" : "scale-[0.80] opacity-80"} !bg-transparent !shadow-none filter-none origin-center`}>
-                    <DesignCanvas
-                      elements={elements}
-                      selectedId={selectedId}
-                      onSelectElement={setSelectedId}
-                      onMoveElement={handleMoveElement}
-                      onResizeElement={handleResizeElement}
-                      onPushHistory={() => pushHistory(elements)}
-                      onDropImage={handleDropImage}
-                      side="back"
-                      tshirtColor={tshirtColor}
-                      collarColor={collarColor}
-                      sleeveColor={sleeveColor}
-                      shirtType={shirtType}
-                      zoom={100}
-                      slot="shirt"
-                    />
+                {/* ═══ MOCKUP VIEWS ═══ */}
+                <div className="flex h-[calc(100%-110px)] relative">
+                  
+                  {/* LEFT PANE: FRONT VIEW */}
+                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
+                     {/* Red Center Line CF */}
+                     <div className="absolute top-[20px] bottom-[80px] left-1/2 w-[1px] bg-red-500 z-0"></div>
+                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CF</div>
+                     
+                     {/* Front Shirt Container */}
+                     <div className={`canva-canvas transition-all ${side === "front" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.85] relative`}>
+                        <DesignCanvas
+                           elements={elements}
+                           selectedId={selectedId}
+                           onSelectElement={setSelectedId}
+                           onMoveElement={handleMoveElement}
+                           onResizeElement={handleResizeElement}
+                           onPushHistory={() => pushHistory(elements)}
+                           onDropImage={handleDropImage}
+                           side="front"
+                           tshirtColor={tshirtColor}
+                           collarColor={collarColor}
+                           sleeveColor={sleeveColor}
+                           shirtType={shirtType}
+                           zoom={100}
+                           slot="shirt"
+                        />
+                     </div>
+
+                     {/* Front Annotations */}
+                     <div className="absolute left-[30px] top-[20px] text-[10px] leading-tight text-[#333]">
+                        <div className="font-bold text-[#111]">NECK MAIN LABE (No fold)</div>
+                        <div>Flat Sewn Main Label</div>
+                        <div>with Four-Sided Stitching</div>
+                     </div>
+                     <div className="absolute left-[160px] top-[70px] text-[10px] leading-tight text-[#333]">
+                        <div className="font-bold text-[#111]">BINDING</div>
+                        <div>2Needle bottom</div>
+                        <div>Cover Stitch 1/4"</div>
+                     </div>
+                     <div className="absolute left-[300px] top-[70px] text-[10px] leading-tight text-[#333]">
+                        <div className="font-bold text-[#111]">Center Front</div>
+                        <div className="text-red-500 font-bold">4.5cm Down</div>
+                        <div>From Neck Seam</div>
+                        <div>Screen print</div>
+                     </div>
+                     <div className="absolute left-[30px] bottom-[200px] text-[10px] leading-tight text-[#333] text-right">
+                        <div>Single needle</div>
+                        <div>Chain Stitch</div>
+                     </div>
+                     
+                     {/* Front Label */}
+                     <div className="absolute bottom-[30px] w-full text-center text-[10px] font-medium tracking-widest uppercase">
+                        FRONT VIEW
+                     </div>
                   </div>
-                </div>
 
-                <div className="absolute left-[500px] top-[280px] text-[8px] font-bold text-[#b492c9] tracking-widest uppercase">
-                  BACK VIEW
-                </div>
-                <div className="absolute w-[80px] h-[1px] bg-[#b492c9] left-[410px] top-[285px] border-b border-t border-[#b492c9]" />
-                <div className="absolute left-[500px] top-[300px] w-[90px] h-[120px] bg-[#2a2a2a] p-3 flex flex-col justify-center items-center shadow-xl">
-                   <div className="text-[#ccff00] font-black text-xl mb-2 tracking-tighter font-serif italic">Hustle</div>
-                   <div className="text-white/60 text-[5px] text-center leading-[1.6]">
-                     Technical spec for back print.<br/>Make sure it aligns with seam perfectly.
-                   </div>
-                   <div className="text-[#b492c9] text-[5px] text-center mt-2 tracking-widest">1995</div>
-                </div>
+                  {/* RIGHT PANE: BACK VIEW */}
+                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group border-l-[1px] border-dashed border-gray-300" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
+                     {/* Red Center Line CB */}
+                     <div className="absolute top-[20px] bottom-[80px] left-1/2 w-[1px] bg-red-500 z-0"></div>
+                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CB</div>
+                     
+                     {/* Red Measurement Line */}
+                     <div className="absolute top-[140px] right-[130px] w-[1px] h-[80px] bg-red-500 z-20"></div>
+                     <div className="absolute top-[140px] right-[125px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+                     <div className="absolute top-[220px] right-[125px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+                     <div className="absolute top-[175px] right-[140px] text-red-500 text-[10px] font-bold z-20">18cm</div>
 
-                {/* ═══ FRONT VIEW ═══ */}
-                <div className="absolute left-[400px] bottom-[20px] cursor-pointer group" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
-                  <div className={`canva-canvas transition-all ${side === "front" ? "ring-[2px] ring-[#b492c9] ring-offset-4 ring-offset-transparent outline outline-1 outline-white z-10 scale-[0.90]" : "scale-[0.90] opacity-80"} !bg-transparent !shadow-none filter-none origin-center`}>
-                    <DesignCanvas
-                      elements={elements}
-                      selectedId={selectedId}
-                      onSelectElement={setSelectedId}
-                      onMoveElement={handleMoveElement}
-                      onResizeElement={handleResizeElement}
-                      onPushHistory={() => pushHistory(elements)}
-                      onDropImage={handleDropImage}
-                      side="front"
-                      tshirtColor={tshirtColor}
-                      collarColor={collarColor}
-                      sleeveColor={sleeveColor}
-                      shirtType={shirtType}
-                      zoom={100}
-                      slot="shirt"
-                    />
+                     {/* Back Shirt Container */}
+                     <div className={`canva-canvas transition-all ${side === "back" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.85] relative`}>
+                        <DesignCanvas
+                           elements={elements}
+                           selectedId={selectedId}
+                           onSelectElement={setSelectedId}
+                           onMoveElement={handleMoveElement}
+                           onResizeElement={handleResizeElement}
+                           onPushHistory={() => pushHistory(elements)}
+                           onDropImage={handleDropImage}
+                           side="back"
+                           tshirtColor={tshirtColor}
+                           collarColor={collarColor}
+                           sleeveColor={sleeveColor}
+                           shirtType={shirtType}
+                           zoom={100}
+                           slot="shirt"
+                        />
+                     </div>
+
+                     {/* Back Annotations */}
+                     <div className="absolute left-[130px] top-[70px] text-[10px] leading-tight text-[#333]">
+                        <div className="font-bold text-[#111]">BINDING</div>
+                        <div>2Needle bottom</div>
+                        <div>Cover Stitch 1/4"</div>
+                     </div>
+                     <div className="absolute right-[50px] top-[70px] text-[10px] leading-tight text-[#333]">
+                        <div className="font-bold text-[#111]">Center Back</div>
+                        <div className="text-red-500 font-bold">18cm Down</div>
+                        <div>From Neck Seam</div>
+                        <div>Screen print</div>
+                     </div>
+                     
+                     {/* Back Label */}
+                     <div className="absolute bottom-[30px] w-full text-center text-[10px] font-medium tracking-widest uppercase">
+                        BACK VIEW
+                     </div>
                   </div>
-                </div>
-                
-                <div className="absolute left-[400px] bottom-[460px] text-[8px] font-bold text-[#b492c9] tracking-widest uppercase text-right">
-                  FRONT VIEW
-                </div>
-                <div className="absolute w-[80px] h-[1px] bg-[#b492c9] right-[435px] bottom-[465px] border-b border-t border-[#b492c9]" />
 
-                <div className="absolute left-[240px] bottom-[260px] w-[90px] h-[70px] bg-[#2a2a2a] p-3 flex flex-col justify-center items-center shadow-xl relative group">
-                   <div className="absolute w-[150px] h-[1px] bg-[#b492c9] right-[-140px] top-[35px] -z-10 border-b border-t border-[#b492c9]" />
-                   <div className="text-[#ccff00] font-black text-2xl tracking-tighter font-serif italic">H.</div>
-                   <div className="text-white/60 text-[6px] text-center uppercase tracking-widest mt-1">1995</div>
+                  {/* ═══ BOTTOM FABRIC SWATCH ═══ */}
+                  <div className="absolute bottom-[10px] right-[10px] w-[70px] border-[2px] border-[#111] bg-white flex flex-col items-center">
+                     <div className="w-full border-b-[1px] border-[#111] text-center text-[9px] font-bold p-[2px]">FABRIC</div>
+                     <div className="w-[54px] h-[64px] border-[1px] border-[#111] mt-2 mb-1" style={{ backgroundColor: tshirtColor }}></div>
+                     <div className="w-full text-[6px] text-center p-1 leading-tight">
+                        PANTONE<br/>11-0601 TCX<br/>{tshirtColor}
+                     </div>
+                  </div>
+
                 </div>
 
               </div>

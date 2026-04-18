@@ -1789,71 +1789,10 @@ export default function DesignPage() {
               </div>
               <div className="tech-pack-divider">FRONT & BACK DETAILS</div>
               {/* THREE-COLUMN TECHNICAL LAYOUT */}
-              <div className="spec-slots-container">
-                {/* LEFT SIDEBAR SLOTS */}
-                <div className="spec-sidebar">
-                  <div
-                    className={`spec-slot ${activeSlot === "neck-label" ? "active" : ""}`}
-                    onClick={() => { setActiveSlot("neck-label"); if (!activePanel) setActivePanel("ai"); }}
-                  >
-                    <span className="spec-slot-title">GÁY CỔ / NECK LABEL</span>
-                    <DesignCanvas
-                      elements={elements}
-                      selectedId={selectedId}
-                      onSelectElement={setSelectedId}
-                      onMoveElement={handleMoveElement}
-                      onResizeElement={handleResizeElement}
-                      onPushHistory={() => pushHistory(elements)}
-                      onDropImage={handleDropImage}
-                      side={side}
-                      tshirtColor="#fff"
-                      collarColor="#fff"
-                      sleeveColor="#fff"
-                      shirtType="tshirt"
-                      zoom={50}
-                      slot="neck-label"
-                      isPositionMode={activePanel === "position"}
-                      activeLocation={printLocation}
-                    />
-                    {!elements.some(el => el.slot === "neck-label") && (
-                      <div className="spec-slot-empty-hint">
-                        <span>+ Nhấp để thêm</span>
-                      </div>
-                    )}
-                  </div>
-                  <div
-                    className={`spec-slot ${activeSlot === "hang-tag" ? "active" : ""}`}
-                    onClick={() => { setActiveSlot("hang-tag"); if (!activePanel) setActivePanel("ai"); }}
-                  >
-                    <span className="spec-slot-title">THẺ BÀI / HANG TAG</span>
-                    <DesignCanvas
-                      elements={elements}
-                      selectedId={selectedId}
-                      onSelectElement={setSelectedId}
-                      onMoveElement={handleMoveElement}
-                      onResizeElement={handleResizeElement}
-                      onPushHistory={() => pushHistory(elements)}
-                      onDropImage={handleDropImage}
-                      side={side}
-                      tshirtColor="#fff"
-                      collarColor="#fff"
-                      sleeveColor="#fff"
-                      shirtType="tshirt"
-                      zoom={50}
-                      slot="hang-tag"
-                      isPositionMode={activePanel === "position"}
-                      activeLocation={printLocation}
-                    />
-                    {!elements.some(el => el.slot === "hang-tag") && (
-                      <div className="spec-slot-empty-hint">
-                        <span>+ Nhấp để thêm</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {/* MAIN SHIRT MOCKUP (Front & Back side-by-side) */}
-                <div className={`spec-main-shirt-v2 ${activeSlot === "shirt" ? "active" : ""}`}>
-                  <div className="tech-views-row">
+              {/* MAIN SHIRT MOCKUP (Front & Back side-by-side) */}
+              <div className="spec-slots-container flex justify-center !p-10">
+                <div className={`spec-main-shirt-v2 ${activeSlot === "shirt" ? "active" : ""} !w-full !max-w-6xl`}>
+                  <div className="tech-views-row !flex !justify-center !gap-12">
                     <div className={`tech-view-col ${side === 'front' ? 'view-active' : ''}`} onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
                       <div className="tech-view-label">FRONT VIEW</div>
                       <DesignCanvas
@@ -1872,10 +1811,6 @@ export default function DesignPage() {
                         zoom={zoom}
                         slot="shirt"
                       />
-                      <div className="measure-lines">
-                        <div className="m-line" />
-                        <div className="m-label m-top">Center Front <span className="text-red-500">4.5cm Down</span></div>
-                      </div>
                     </div>
                     <div className={`tech-view-col ${side === 'back' ? 'view-active' : ''}`} onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
                       <div className="tech-view-label">BACK VIEW</div>
@@ -1895,68 +1830,7 @@ export default function DesignPage() {
                         zoom={zoom}
                         slot="shirt"
                       />
-                      <div className="measure-lines">
-                        <div className="m-line" />
-                        <div className="m-label m-b-label">Center Back <span className="text-red-500">18cm Down</span></div>
-                      </div>
                     </div>
-                  </div>
-                </div>
-                {/* RIGHT SIDEBAR SLOTS */}
-                <div className="spec-sidebar">
-                  <div
-                    className={`spec-slot ${activeSlot === "logo-detail" ? "active" : ""}`}
-                    onClick={() => { setActiveSlot("logo-detail"); if (!activePanel) setActivePanel("upload"); }}
-                  >
-                    <span className="spec-slot-title">LOGO DETAIL</span>
-                    <DesignCanvas
-                      elements={elements}
-                      selectedId={selectedId}
-                      onSelectElement={setSelectedId}
-                      onMoveElement={handleMoveElement}
-                      onResizeElement={handleResizeElement}
-                      onPushHistory={() => pushHistory(elements)}
-                      onDropImage={handleDropImage}
-                      side={side}
-                      tshirtColor="#fff"
-                      collarColor="#fff"
-                      sleeveColor="#fff"
-                      shirtType="tshirt"
-                      zoom={50}
-                      slot="logo-detail"
-                    />
-                    {!elements.some(el => el.slot === "logo-detail") && (
-                      <div className="spec-slot-empty-hint">
-                        <span>+ Nhấp để thêm</span>
-                      </div>
-                    )}
-                  </div>
-                  <div
-                    className={`spec-slot ${activeSlot === "packaging" ? "active" : ""}`}
-                    onClick={() => { setActiveSlot("packaging"); if (!activePanel) setActivePanel("upload"); }}
-                  >
-                    <span className="spec-slot-title">PACKAGING</span>
-                    <DesignCanvas
-                      elements={elements}
-                      selectedId={selectedId}
-                      onSelectElement={setSelectedId}
-                      onMoveElement={handleMoveElement}
-                      onResizeElement={handleResizeElement}
-                      onPushHistory={() => pushHistory(elements)}
-                      onDropImage={handleDropImage}
-                      side={side}
-                      tshirtColor="#fff"
-                      collarColor="#fff"
-                      sleeveColor="#fff"
-                      shirtType="tshirt"
-                      zoom={50}
-                      slot="packaging"
-                    />
-                    {!elements.some(el => el.slot === "packaging") && (
-                      <div className="spec-slot-empty-hint">
-                        <span>+ Nhấp để thêm</span>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

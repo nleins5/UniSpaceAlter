@@ -1689,72 +1689,75 @@ export default function DesignPage() {
                 }
               `}</style>
               
-              <div className="relative w-[1000px] h-[1000px] bg-white border border-gray-300 shadow-2xl mx-auto origin-top-left overflow-hidden text-black font-sans" style={{
-                backgroundImage: "linear-gradient(#f0f0f0 1px, transparent 1px), linear-gradient(90deg, #f0f0f0 1px, transparent 1px)",
-                backgroundSize: "20px 20px",
+              <div className="relative w-[900px] h-[1000px] bg-white border-2 border-black shadow-2xl mx-auto origin-top-left overflow-hidden text-black font-sans rounded-3xl" style={{
+                backgroundImage: "linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)",
+                backgroundSize: "25px 25px",
                 transform: `scale(var(--tech-zoom))`
               }}>
                 {/* ═══ HEADER ROW 1 ═══ */}
-                <div className="flex border-b border-gray-300 bg-white">
-                     <div className="w-[180px] border-r border-gray-300 flex flex-col justify-center items-center py-6">
-                         <div className="text-[8px] font-bold text-magenta-500 absolute top-2 left-2 uppercase text-[#d946ef]">BRAND LOGO</div>
-                         <div className="mt-4"><Logo scale={0.7} /></div>
-                         <div className="text-[10px] font-bold mt-2 font-mono">CLOTHING.CO</div>
+                <div className="flex border-b-2 border-black bg-white/80 backdrop-blur-sm">
+                     <div className="w-[180px] border-r-2 border-black flex flex-col justify-center items-center py-5 relative">
+                         <div className="text-[7px] font-bold absolute top-1 left-2 uppercase text-[#b492c9]">BRAND LOGO</div>
+                         <div className="w-[60px] h-[60px] bg-black rounded-full flex flex-col items-center justify-center text-white font-black text-center text-[10px] leading-tight rotate-[-5deg] tracking-tight transform-gpu hover:rotate-0 transition-transform">
+                             <span>STREET</span><span>FACE</span>
+                         </div>
+                         <div className="text-[6px] font-bold mt-2 font-mono tracking-widest text-black">CLOTHING.CO</div>
                      </div>
-                     <div className="flex-1 flex flex-col justify-center border-r border-gray-300 p-4">
-                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">PROJECT NAME:</div>
-                         <input type="text" className="text-sm font-medium mt-1 outline-none bg-transparent w-full" defaultValue="Fire Hustle 1995 Short pants" />
+                     <div className="w-[180px] flex flex-col justify-center border-r-2 border-black p-4">
+                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">PROJECT NAME:</div>
+                         <input type="text" className="text-[12px] font-bold outline-none bg-transparent w-full text-black leading-tight" defaultValue="Fire Hustle 1995 Short pants" />
                      </div>
-                     <div className="w-[150px] flex flex-col justify-center border-r border-gray-300 p-4">
-                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">FABRIC:</div>
-                         <div className="text-sm font-medium mt-1">Heavy Cotton 20S</div>
+                     <div className="w-[140px] flex flex-col justify-center border-r-2 border-black p-4">
+                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">FABRIC:</div>
+                         <div className="text-[12px] font-bold text-black leading-tight">Heavy Cotton<br/>20S</div>
                      </div>
-                     <div className="w-[150px] flex flex-col justify-center p-4">
-                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">CATEGORY:</div>
-                         <div className="text-sm font-medium mt-1">Top</div>
+                     <div className="flex-1 flex flex-col justify-center p-4">
+                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">CATEGORY:</div>
+                         <div className="text-[12px] font-bold text-black leading-tight">Top</div>
                      </div>
                 </div>
                 {/* ═══ HEADER ROW 2 ═══ */}
-                <div className="flex border-b border-gray-300 bg-white ml-[180px]">
-                     <div className="flex-1 flex flex-col justify-center border-r border-gray-300 p-3">
-                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">COLOR:</div>
-                         <div className="text-sm font-medium mt-1">White, Green</div>
+                <div className="flex border-b-2 border-black bg-white/80 backdrop-blur-sm ml-[180px]">
+                     <div className="w-[180px] flex flex-col justify-center border-r-2 border-black p-3">
+                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">COLOR:</div>
+                         <div className="text-[10px] font-bold text-black">White, Green</div>
                      </div>
-                     <div className="w-[150px] flex flex-col justify-center border-r border-gray-300 p-3">
-                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">DATE:</div>
-                         <div className="text-sm font-medium mt-1">July 2024</div>
+                     <div className="w-[140px] flex flex-col justify-center border-r-2 border-black p-3">
+                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">DATE:</div>
+                         <div className="text-[10px] font-bold text-black">July 2024</div>
                      </div>
-                     <div className="w-[150px] flex flex-col justify-center p-3">
-                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">SIZE RANGE:</div>
-                         <div className="text-sm font-medium mt-1">L - XXL</div>
+                     <div className="flex-1 flex flex-col justify-center p-3">
+                         <div className="text-[7px] font-bold uppercase text-gray-500 mb-1">SIZE RANGE:</div>
+                         <div className="text-[10px] font-bold text-black">L - XXL</div>
                      </div>
                 </div>
 
                 {/* ═══ SWATCHES ═══ */}
-                <div className="absolute left-[30px] top-[200px]">
-                     <div className="text-[10px] font-bold text-[#d946ef] uppercase tracking-widest mb-3">Color Swatches</div>
-                     <div className="flex items-center justify-between w-[120px] bg-[#ccff00]/60 border border-[#ccff00] p-1.5 mb-2">
-                        <span className="text-[9px] font-bold text-black/70">CMYK: 21 0 85 7</span>
+                <div className="absolute left-[30px] top-[180px]">
+                     <div className="text-[8px] font-bold text-[#b492c9] uppercase tracking-widest mb-3 leading-tight">Color<br/>Swatches</div>
+                     <div className="flex items-center justify-between w-[90px] h-[16px] bg-[#ccff00] border border-[#ccff00] px-1 mb-1 shadow-sm">
+                        <span className="text-[6px] font-black tracking-widest text-[#5a6b00]">CMYK: 21 0 85 7</span>
                      </div>
-                     <div className="flex items-center justify-between w-[120px] border border-[#d946ef]/50 p-1.5">
-                        <span className="text-[9px] font-bold text-[#d946ef]">CMYK: 0 0 0 0</span>
+                     <div className="flex items-center justify-between w-[90px] h-[16px] border border-[#b492c9] px-1 shadow-sm bg-white/50 backdrop-blur-sm">
+                        <span className="text-[6px] font-black tracking-widest text-[#b492c9]">CMYK: 0 0 0 0</span>
                      </div>
                 </div>
 
                 {/* ═══ SIDE VIEW PORTRAIT ═══ */}
-                <div className="absolute left-[30px] bottom-[180px]">
-                     <div className="text-[10px] font-bold text-[#d946ef] uppercase tracking-widest mb-2">SIDE VIEW</div>
-                     <div className="w-[120px] h-[120px] bg-[#2a2a2a] flex items-center justify-center p-4">
-                        <svg viewBox="0 0 100 100" className="w-full h-full text-[#ccff00] fill-current opacity-80">
-                           <path d="M50 10C50 10 30 30 30 60C30 75 40 85 50 85C60 85 70 75 70 60C70 30 50 10 50 10Z"/>
-                           <path d="M50 30C50 30 40 45 40 65C40 75 45 80 50 80C55 80 60 75 60 65C60 45 50 30 50 30Z" fill="#2a2a2a"/>
+                <div className="absolute left-[30px] bottom-[200px]">
+                     <div className="text-[8px] font-bold text-[#b492c9] uppercase tracking-widest mb-2">SIDE VIEW</div>
+                     <div className="w-[80px] h-[80px] bg-[#2a2a2a] flex items-center justify-center p-2 shadow-lg">
+                        <svg viewBox="0 0 100 100" className="w-[50px] h-[50px] text-[#ccff00] fill-current opacity-90">
+                           <path d="M50 0 C 50 0, 30 20, 30 50 C 30 70, 40 80, 50 80 C 60 80, 70 70, 70 50 C 70 20, 50 0, 50 0 Z M 50 20 C 50 20, 40 35, 40 55 C 40 65, 45 70, 50 70 C 55 70, 60 65, 60 55 C 60 35, 50 20, 50 20 Z" />
+                           <path d="M40 80 C 30 80, 20 70, 20 60 C 20 40, 35 30, 35 30 C 35 30, 30 45, 30 55 C 30 60, 35 65, 40 65 C 40 65, 35 70, 40 80 Z" />
+                           <path d="M60 80 C 70 80, 80 70, 80 60 C 80 40, 65 30, 65 30 C 65 30, 70 45, 70 55 C 70 60, 65 65, 60 65 C 60 65, 65 70, 60 80 Z" />
                         </svg>
                      </div>
                 </div>
 
                 {/* ═══ BACK VIEW ═══ */}
-                <div className="absolute left-[150px] top-[260px] cursor-pointer" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
-                  <div className={`canva-canvas ${side === "back" ? "ring-2 ring-[#d946ef]" : ""} !bg-transparent`} style={{ transform: "scale(1)", filter: "none", boxShadow: "none" }}>
+                <div className="absolute left-[80px] top-[240px] cursor-pointer group" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
+                  <div className={`canva-canvas transition-all ${side === "back" ? "ring-[2px] ring-[#b492c9] ring-offset-4 ring-offset-transparent outline outline-1 outline-white z-10 scale-[0.80]" : "scale-[0.80] opacity-80"} !bg-transparent !shadow-none filter-none origin-center`}>
                     <DesignCanvas
                       elements={elements}
                       selectedId={selectedId}
@@ -1774,22 +1777,21 @@ export default function DesignPage() {
                   </div>
                 </div>
 
-                <div className="absolute left-[580px] top-[260px] text-[10px] font-bold text-[#d946ef] tracking-wider relative">
+                <div className="absolute left-[500px] top-[280px] text-[8px] font-bold text-[#b492c9] tracking-widest uppercase">
                   BACK VIEW
-                  <div className="absolute w-[60px] h-[1px] bg-[#d946ef] left-[-70px] top-[6px]" />
                 </div>
-                
-                <div className="absolute left-[580px] top-[290px] w-[140px] h-[160px] bg-[#2a2a2a] p-4 flex flex-col justify-center items-center">
-                   <div className="text-[#ccff00] font-black text-2xl font-serif mb-3">Hustle</div>
-                   <div className="text-white/60 text-[8px] text-center leading-relaxed">
-                     Technical spec for back print.
-                     Make sure it aligns with seam perfectly.
+                <div className="absolute w-[80px] h-[1px] bg-[#b492c9] left-[410px] top-[285px] border-b border-t border-[#b492c9]" />
+                <div className="absolute left-[500px] top-[300px] w-[90px] h-[120px] bg-[#2a2a2a] p-3 flex flex-col justify-center items-center shadow-xl">
+                   <div className="text-[#ccff00] font-black text-xl mb-2 tracking-tighter" style={{fontFamily: "'Playfair Display', serif", fontStyle: "italic"}}>Hustle</div>
+                   <div className="text-white/60 text-[5px] text-center leading-[1.6]">
+                     Technical spec for back print.<br/>Make sure it aligns with seam perfectly.
                    </div>
+                   <div className="text-[#b492c9] text-[5px] text-center mt-2 tracking-widest">1995</div>
                 </div>
 
                 {/* ═══ FRONT VIEW ═══ */}
-                <div className="absolute left-[500px] bottom-[30px] cursor-pointer" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
-                  <div className={`canva-canvas ${side === "front" ? "ring-2 ring-[#d946ef]" : ""} !bg-transparent`} style={{ transform: "scale(1)", filter: "none", boxShadow: "none" }}>
+                <div className="absolute left-[400px] bottom-[20px] cursor-pointer group" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
+                  <div className={`canva-canvas transition-all ${side === "front" ? "ring-[2px] ring-[#b492c9] ring-offset-4 ring-offset-transparent outline outline-1 outline-white z-10 scale-[0.90]" : "scale-[0.90] opacity-80"} !bg-transparent !shadow-none filter-none origin-center`}>
                     <DesignCanvas
                       elements={elements}
                       selectedId={selectedId}
@@ -1809,17 +1811,15 @@ export default function DesignPage() {
                   </div>
                 </div>
                 
-                <div className="absolute left-[500px] bottom-[480px] text-[10px] font-bold text-[#d946ef] tracking-wider relative">
+                <div className="absolute left-[400px] bottom-[460px] text-[8px] font-bold text-[#b492c9] tracking-widest uppercase text-right">
                   FRONT VIEW
-                  <div className="absolute w-[60px] h-[1px] bg-[#d946ef] right-[80px] top-[6px]" />
                 </div>
+                <div className="absolute w-[80px] h-[1px] bg-[#b492c9] right-[435px] bottom-[465px] border-b border-t border-[#b492c9]" />
 
-                <div className="absolute left-[340px] bottom-[300px] w-[140px] h-[100px] bg-[#2a2a2a] p-4 flex flex-col justify-center items-center relative">
-                   <div className="absolute w-[180px] h-[1px] bg-[#d946ef] right-[-190px] top-[50px]" />
-                   <div className="text-[#ccff00] font-black text-2xl font-serif">H.</div>
-                   <div className="text-white/60 text-[8px] text-center uppercase tracking-widest mt-2">
-                     1995
-                   </div>
+                <div className="absolute left-[240px] bottom-[260px] w-[90px] h-[70px] bg-[#2a2a2a] p-3 flex flex-col justify-center items-center shadow-xl relative group">
+                   <div className="absolute w-[150px] h-[1px] bg-[#b492c9] right-[-140px] top-[35px] -z-10 border-b border-t border-[#b492c9]" />
+                   <div className="text-[#ccff00] font-black text-2xl tracking-tighter" style={{fontFamily: "'Playfair Display', serif", fontStyle: "italic"}}>H.</div>
+                   <div className="text-white/60 text-[6px] text-center uppercase tracking-widest mt-1">1995</div>
                 </div>
 
               </div>

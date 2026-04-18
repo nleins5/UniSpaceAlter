@@ -56,8 +56,11 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
-function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
+function RaglanShirtSVG({ color, side = "front", sleeveColor }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_raglan_${side}.png`;
+  const sleeveImgUrl = `/mockups/v_raglan_${side}_sleeve.png?v=1`;
+  const effectiveSleeveColor = sleeveColor || color;
+
   const maskStyle = {
     backgroundColor: color,
     WebkitMaskImage: `url('${imgUrl}')`,
@@ -69,10 +72,27 @@ function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?
     maskRepeat: 'no-repeat',
     maskPosition: 'center',
   };
+
+  const sleeveMaskStyle = {
+    backgroundColor: effectiveSleeveColor,
+    WebkitMaskImage: `url('${sleeveImgUrl}')`,
+    WebkitMaskSize: 'contain',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskPosition: 'center',
+    maskImage: `url('${sleeveImgUrl}')`,
+    maskSize: 'contain',
+    maskRepeat: 'no-repeat',
+    maskPosition: 'center',
+  };
+
   return (
     <div className="relative w-full h-full drop-shadow-md">
-      {/* Base Color Fill Mask */}
+      {/* Base Color Fill Mask (Whole Shirt) */}
       <div className="absolute inset-0 transition-colors duration-500" style={maskStyle} />
+      
+      {/* Sleeve Color Fill Mask (Overwrites sleeves) */}
+      <div className="absolute inset-0 transition-colors duration-500" style={sleeveMaskStyle} />
+      
       {/* Detail Lines Overlay */}
       <img src={imgUrl} className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
     </div>
@@ -353,7 +373,7 @@ function DesignCanvas({
       >
         {slot === "shirt" ? (
           shirtType === "raglan" ? (
-            <RaglanShirtSVG color={tshirtColor} side={side} />
+            <RaglanShirtSVG color={tshirtColor} sleeveColor={sleeveColor} side={side} />
           ) : shirtType === "polo" ? (
             <PoloShirtSVG color={tshirtColor} collarColor={collarColor} side={side} />
           ) : (

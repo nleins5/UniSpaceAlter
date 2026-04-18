@@ -4923,8 +4923,8 @@ body::after {
 .adm {
   display: flex;
   min-height: 100dvh;
-  background: #f6f5fa;
-  font-family: 'Inter', -apple-system, sans-serif;
+  background: #fafafa;
+  font-family: 'Roboto', 'Nunito', -apple-system, sans-serif;
 }
 
 /* ─── SIDEBAR ─── */
@@ -4940,9 +4940,9 @@ body::after {
   align-items: center;
   padding: 16px 0 20px;
   overflow: hidden;
-  background: linear-gradient(175deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+  background: #000;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .adm-side.expanded {
@@ -4987,8 +4987,8 @@ body::after {
 }
 
 .adm-side-btn.active {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.15);
+  color: #000;
+  background: #fedd74;
 }
 
 .adm-side-label {
@@ -5016,11 +5016,11 @@ body::after {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  background: #fedd74;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #000;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.03em;
@@ -5078,9 +5078,9 @@ body::after {
 }
 
 .adm-icon-btn:hover {
-  border-color: #7c3aed;
-  color: #7c3aed;
-  background: #faf8ff;
+  border-color: #000;
+  color: #000;
+  background: #fffdf5;
 }
 
 .adm-primary-btn {
@@ -5088,8 +5088,8 @@ body::after {
   align-items: center;
   gap: 8px;
   padding: 10px 22px;
-  background: #111827;
-  color: #fff;
+  background: #000;
+  color: #fedd74;
   font-size: 0.82rem;
   font-weight: 600;
   border-radius: 12px;
@@ -5101,7 +5101,7 @@ body::after {
 }
 
 .adm-primary-btn:hover {
-  background: #1f2937;
+  background: #1a1a1a;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -5189,7 +5189,7 @@ body::after {
 
 .adm-chart-total {
   font-size: 0.75rem;
-  color: #7c3aed;
+  color: #000;
   font-weight: 700;
 }
 
@@ -5219,7 +5219,7 @@ body::after {
   width: 100%;
   min-height: 4px;
   border-radius: 5px 5px 1px 1px;
-  background: linear-gradient(180deg, #a78bfa, #7c3aed);
+  background: linear-gradient(180deg, #fedd74, #e6c85a);
   transition: transform 0.2s;
   transform-origin: bottom;
 }
@@ -5292,8 +5292,8 @@ body::after {
 }
 
 .adm-search-box:focus-within {
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+  border-color: #000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
 .adm-search-box svg {
@@ -5344,12 +5344,12 @@ body::after {
 }
 
 .adm-toggle button:hover {
-  color: #7c3aed;
+  color: #000;
 }
 
 .adm-toggle button.on {
-  background: #111827;
-  color: #fff;
+  background: #000;
+  color: #fedd74;
 }
 
 /* ─── KANBAN ─── */
@@ -5475,7 +5475,7 @@ body::after {
 }
 
 .adm-card-link:hover {
-  color: #7c3aed;
+  color: #000;
 }
 
 .adm-card-name {
@@ -5562,7 +5562,7 @@ body::after {
 }
 
 .adm-status-sel:hover {
-  border-color: #7c3aed;
+  border-color: #000;
 }
 
 .adm-status-sel[data-st="pending"] {
@@ -5687,8 +5687,8 @@ body::after {
 }
 
 .adm-tbl-eye:hover {
-  background: #f5f3ff;
-  color: #7c3aed;
+  background: #fffdf5;
+  color: #000;
 }
 
 .adm-tbl tfoot td {
@@ -5712,8 +5712,8 @@ body::after {
 .adm-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #eeedf5;
-  border-top-color: #7c3aed;
+  border: 3px solid #eee;
+  border-top-color: #000;
   border-radius: 50%;
   animation: adm-spin 0.7s linear infinite;
   margin-bottom: 14px;

@@ -177,22 +177,13 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══ MARQUEE AD LINE ═══ */}
-      <div className="tdp-marquee-bar">
-        <div className="tdp-container">
-          <div className="tdp-marquee-track">
-            <span>
-              🎨 Thiết kế áo lớp, áo nhóm, áo công ty ⚡ In DTG chất lượng cao ✈️ Giao hàng toàn quốc &nbsp;&nbsp;&nbsp; 🎨 Thiết kế áo lớp, áo nhóm, áo công ty ⚡ In DTG chất lượng cao ✈️ Giao hàng toàn quốc &nbsp;&nbsp;&nbsp;
-            </span>
-          </div>
-        </div>
-      </div>
+
 
       {/* ═══ BỘ SƯU TẬP ÁO ═══ */}
       <div className="tdp-section" id="products">
         <div className="tdp-container">
           <div className="tdp-section-title center">
-            <span className="tdp-dot-icon">●</span>&nbsp; Bộ sưu tập áo lớp UniSpace &nbsp;<span className="tdp-dot-icon">●</span>
+            Bộ sưu tập áo lớp UniSpace
           </div>
           <p className="tdp-catalog-desc">Hàng trăm mẫu thiết kế độc quyền. Nhấn vào mẫu bất kỳ để bắt đầu thiết kế online.</p>
           <div className="tdp-catalog-grid">
@@ -201,7 +192,7 @@ export default function HomePage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.src} alt={p.label} />
                 <div className="tdp-catalog-overlay">
-                  <span>🎨 Thiết kế ngay</span>
+                  <span>Thiết kế ngay</span>
                 </div>
               </Link>
             ))}
@@ -214,7 +205,7 @@ export default function HomePage() {
       <div className="tdp-section tdp-section-dark" id="why">
         <div className="tdp-container">
           <div className="tdp-section-title white">
-            <span className="tdp-dot-icon">●</span> Các bước đặt hàng
+            Các bước đặt hàng
           </div>
           <div className="tdp-steps-grid">
             {[
@@ -305,18 +296,15 @@ export default function HomePage() {
 
             <div className="tdp-footer-col">
               <h4>Liên kết nhanh</h4>
-              <Link href="/design">🎨 Tự thiết kế online</Link>
-              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">💬 Nhắn tin Facebook</a>
-              <a href="tel:+84000000000">📞 Hotline</a>
+              <Link href="/design">Tự thiết kế online</Link>
+              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Nhắn tin Facebook</a>
+              <a href="https://www.instagram.com/tramdongphuc/" target="_blank" rel="noopener noreferrer">Instagram</a>
+              <a href="tel:+84000000000">Hotline</a>
             </div>
           </div>
 
           <div className="tdp-footer-bottom">
             <p>© 2026 UniSpace — Trạm In Áo. All rights reserved.</p>
-            <div className="tdp-footer-status">
-              <span className="tdp-status-dot" />
-              <span>System Operational</span>
-            </div>
           </div>
         </div>
       </footer>

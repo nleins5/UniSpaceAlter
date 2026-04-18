@@ -972,22 +972,84 @@ export default function DesignPage() {
     setUploadDragOver(false);
     if (e.dataTransfer.files) handleUpload(e.dataTransfer.files);
   };
+
+  const getPresetPosition = useCallback((loc: string, slot: string) => {
+    if (slot !== "shirt") return { x: 10, y: 10, w: 60, h: 60 };
+    // Canvas 400x480. Body x=[105,295], center x=200.
+    switch (loc) {
+      case "left-chest": return { x: 198, y: 115, w: 65, h: 65 };
+      case "right-chest": return { x: 138, y: 115, w: 65, h: 65 };
+      case "center-chest": return { x: 135, y: 110, w: 130, h: 100 };
+      case "full-front": return { x: 110, y: 115, w: 180, h: 230 };
+      case "oversize-front": return { x: 90, y: 100, w: 220, h: 300 };
+      case "back-collar": return { x: 160, y: 80, w: 80, h: 40 };
+      case "upper-back": return { x: 110, y: 100, w: 180, h: 120 };
+      case "full-back": return { x: 110, y: 115, w: 180, h: 230 };
+      case "sleeve": return { x: 25, y: 100, w: 60, h: 60 };
+      default: return { x: 110, y: 130, w: 140, h: 140 };
+    }
+  }, []);
+
   const addUploadedImageToCanvas = (img: AIImage) => {
-    const el: DesignElement = {
-      id: `el-${Date.now()}`,
-      type: "image",
-      label: img.label,
-      url: img.url,
-      x: activeSlot === "shirt" ? 110 : 10,
-      y: activeSlot === "shirt" ? 130 : 10,
-      width: activeSlot === "shirt" ? 140 : 60,
-      height: activeSlot === "shirt" ? 140 : 60,
-      rotation: 0,
-      side,
-      slot: activeSlot,
-    };
-    setElements((prev: DesignElement[]) => [...prev, el]);
-    setSelectedId(el.id);
+    setElements((prev: DesignElement[]) => {
+      pushHistory(prev);
+
+      const isFront = printLocation.includes("front") || printLocation.includes("chest") || printLocation === "sleeve";
+      const effectiveSide = isFront ? "front" : "back";
+      
+      // Auto switch side if on shirt
+      if (activeSlot === "shirt" && effectiveSide !== side) {
+        setSide(effectiveSide as "front" | "back");
+      }
+
+      const pos = getPresetPosition(printLocation, activeSlot);
+
+      // If we are in a special technical slot (neck-label, hang-tag, etc)
+      // We want to REPLACE any existing image in that slot to keep it clean, same as AI logic.
+      if (activeSlot !== "shirt") {
+        const existingIdx = prev.findIndex(el => 
+          el.type === "image" && 
+          el.slot === activeSlot
+        );
+
+        if (existingIdx !== -1) {
+          const newElements = [...prev];
+          newElements[existingIdx] = {
+            ...newElements[existingIdx],
+            url: img.url,
+            label: img.label,
+            x: pos.x,
+            y: pos.y,
+            width: pos.w,
+            height: pos.h
+          };
+          return newElements;
+        }
+      }
+
+      // Default behavior: add as a new element
+      const el: DesignElement = {
+        id: `el-${Date.now()}`,
+        type: "image",
+        label: img.label,
+        url: img.url,
+        x: pos.x,
+        y: pos.y,
+        width: pos.w,
+        height: pos.h,
+        rotation: 0,
+        side: (activeSlot === 'shirt' ? effectiveSide : side) as "front" | "back",
+        slot: activeSlot,
+        locked: activeSlot !== "shirt" // Lock in technical detail slots for better UX
+      };
+      
+      const nextElements = [...prev, el];
+      // Only set selected if it's not a locked tech-pack element
+      if (activeSlot === "shirt") {
+        setTimeout(() => setSelectedId(el.id), 0);
+      }
+      return nextElements;
+    });
   };
   const frontCount = elements.filter((e) => e.side === "front").length;
   const backCount = elements.filter((e) => e.side === "back").length;
@@ -1264,23 +1326,8 @@ export default function DesignPage() {
                                 if (effectiveSide !== side) {
                                   setSide(effectiveSide as "front" | "back");
                                 }
-                                const getPosition = (loc: string) => {
-                                  if (activeSlot !== "shirt") return { x: 50, y: 50, w: 100, h: 100 };
-                                  // Canvas 400x480. Body x=[105,295], center x=200.
-                                  switch (loc) {
-                                    case "left-chest": return { x: 198, y: 115, w: 65, h: 65 };
-                                    case "right-chest": return { x: 138, y: 115, w: 65, h: 65 };
-                                    case "center-chest": return { x: 135, y: 110, w: 130, h: 100 };
-                                    case "full-front": return { x: 110, y: 115, w: 180, h: 230 };
-                                    case "oversize-front": return { x: 90, y: 100, w: 220, h: 300 };
-                                    case "back-collar": return { x: 160, y: 80, w: 80, h: 40 };
-                                    case "upper-back": return { x: 110, y: 100, w: 180, h: 120 };
-                                    case "full-back": return { x: 110, y: 115, w: 180, h: 230 };
-                                    case "sleeve": return { x: 25, y: 100, w: 60, h: 60 };
-                                    default: return { x: 110, y: 115, w: 180, h: 180 };
-                                  }
-                                };
-                                const pos = getPosition(printLocation);
+                                
+                                const pos = getPresetPosition(printLocation, activeSlot);
                                 // Check if there's already a locked AI image on this side/slot
                                 const existingIdx = prev.findIndex(el =>
                                   el.type === "image" &&

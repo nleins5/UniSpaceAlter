@@ -80,27 +80,29 @@ function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?
 
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_polo_${side}.png`;
+  const collarImgUrl = `/mockups/v_polo_${side}_collar.png?v=3`;
   const effectiveCollarColor = collarColor || color;
-
-  // Sử dụng path gốc do người dùng yêu cầu để luôn đảm bảo tính ổn định
-  const bodyPath = side === "front" 
-    ? "M 100 100 L 300 100 L 320 200 L 320 450 L 80 450 L 80 200 Z"
-    : "M 100 100 L 300 100 L 320 200 L 320 450 L 80 450 L 80 200 Z";
   
-  const collarPath = side === "front"
-    ? "M 150 100 L 150 80 Q 155 70, 165 70 L 180 70 L 180 100 Z M 220 100 L 220 70 L 235 70 Q 245 70, 250 80 L 250 100 Z"
-    : "M 150 100 L 150 80 Q 200 70, 250 80 L 250 100 Z";
+  const uniqueId = useId().replace(/:/g, "-");
+  const bodyMaskId = `polo-body-mask-${side}-${uniqueId}`;
+  const collarMaskId = `polo-collar-mask-${side}-${uniqueId}`;
 
   return (
     <div className="relative w-full h-full drop-shadow-md">
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
-        {/* Base Body Vector File */}
-        <path d={bodyPath} fill={color} className="transition-colors duration-500" />
-        
-        {/* Collar Vector Path */}
-        <path d={collarPath} fill={effectiveCollarColor} className="transition-colors duration-500" />
-        
-        {/* Detail Lines Overlay */}
+        <defs>
+          <mask id={bodyMaskId}>
+            <image href={imgUrl} width="400" height="480" />
+          </mask>
+          <mask id={collarMaskId}>
+            <image href={collarImgUrl} width="400" height="480" />
+          </mask>
+        </defs>
+        {/* Base Body Color */}
+        <rect width="400" height="480" fill={color} mask={`url(#${bodyMaskId})`} className="transition-colors duration-500" />
+        {/* Collar Color (on top) */}
+        <rect width="400" height="480" fill={effectiveCollarColor} mask={`url(#${collarMaskId})`} className="transition-colors duration-500" />
+        {/* Lines Overlay */}
         <image href={imgUrl} width="400" height="480" style={{ mixBlendMode: 'multiply', opacity: 0.85 }} />
       </svg>
     </div>

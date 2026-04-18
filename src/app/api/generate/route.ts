@@ -22,11 +22,20 @@ const VI_EN: Record<string, string> = {
   "galaxy": "galaxy cosmic nebula", "thiên hà": "galaxy cosmic",
   "vũ trụ": "space universe", "đầu lâu": "skull", "thiên thần": "angel",
   "phượng hoàng": "phoenix", "kỳ lân": "unicorn", "cướp biển": "pirate",
-  "dễ thương": "cute adorable kawai", "đẹp": "beautiful high quality", "ngầu": "cool badass sigma", "đáng yêu": "lovely cute", "cổ điển": "vintage retro", "neon": "neon glowing cinematic",
+  "dễ thương": "cute adorable chibi mascot, kawaii character design", "đẹp": "beautiful high quality", "ngầu": "cool badass sigma", "đáng yêu": "lovely cute", "cổ điển": "vintage retro", "neon": "neon glowing cinematic",
   "cháy": "fire aesthetic, vibrant, explosive colors, streetwear vibe",
-  "áo lớp": "school class uniform logo, student mascot, illustrative style",
-  "y2k": "y2k aesthetic, chrome, futuristic, 2000s style",
+  "áo lớp": "professional high school class t-shirt design, centered mascot logo, vectorized logo style, vibrant streetwear aesthetic, student apparel brand",
+  "y2k": "y2k aesthetic, chrome, futuristic, 2000s style, cyber sigilism",
   "vẽ tay": "hand-drawn illustration, sketch style",
+  "chất": "premium quality, sharp edges, professional graphic design",
+  "chuyên": "specialized academic major theme, intellectual minimalist icon",
+  "niên khóa": "graduation year batch style, varsity logo aesthetic",
+  "mạnh mẽ": "powerful aggressive mascot, sports team logo style",
+  "tối giản": "minimalist clean line art, simple sophisticated logo",
+  "màu nước": "artistic watercolor style, soft ethereal colors",
+  "vẽ nét": "detailed line art illustration, ink drawing style",
+  "cá tính": "unique edgy streetwear design, expressive individualistic art",
+  "vượt thời gian": "timeless classic design, iconic simple branding",
 };
 
 function translatePrompt(prompt: string): string {
@@ -44,7 +53,7 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
   const t8Key = process.env.T8STAR_API_KEY;
   if (!t8Key) return [];
 
-  const fullPrompt = `${enPrompt}, high-fidelity t-shirt graphic design, professional streetwear brand aesthetic, bold vibrant colors, y2k illustrative style, fire and explosive effects, student class shirt mascot design, highly detailed vector illustration, isolated on white background, no background, high resolution 8k, professional apparel merchandise design`;
+  const fullPrompt = `${enPrompt}, professional t-shirt graphic design, high-fidelity vector illustration style, isolated on solid white background, flat 2D vector art, clean sharp lines, vibrant color palette, professional streetwear brand identity, student class uniform mascot aesthetic, high resolution, masterpiece, no realistic shadows, printable screen-print design, centered composition, high-end merchandise quality`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {

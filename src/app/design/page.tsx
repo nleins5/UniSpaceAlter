@@ -968,14 +968,14 @@ export default function DesignPage() {
     pantone: tshirtColor.toUpperCase()
   };
   const suggestions = [
-    "Galaxy heart with stars",
-    "Vintage class logo 2026",
-    "Japanese dragon tattoo",
-    "Wolf howling at moon",
-    "Cherry blossom sakura",
-    "Retro football badge",
-    "Infinity symbol neon",
-    "Cute cat astronaut",
+    "Áo lớp chuyên văn bay bổng",
+    "Mascot Hổ ngầu cho lớp A1",
+    "Phi hành đoàn lớp 12A",
+    "Logo lớp phong cách Y2K",
+    "Phượng hoàng lửa lớp Chuyên Anh",
+    "Dễ thương chibi lớp 10B3",
+    "Typography niên khóa 2022-2025",
+    "Phi hành gia vũ trụ lớp lý",
   ];
   return (
     <div className="canva-layout">
@@ -1164,7 +1164,7 @@ export default function DesignPage() {
                         <textarea
                           className="ai-canva-textarea"
                           aria-label="Mô tả thiết kế lý tưởng của bạn"
-                          placeholder="Mô tả thiết kế lý tưởng của bạn..."
+                          placeholder="Nhập yêu cầu tại đây..."
                           value={chatInput}
                           onChange={(e) => setChatInput(e.target.value)}
                           onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {

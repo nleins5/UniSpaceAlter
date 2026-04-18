@@ -1963,13 +1963,6 @@ export default function DesignPage() {
                 Mặt sau {backCount > 0 && <span className="canva-badge">{backCount}</span>}
               </button>
             </div>
-            {selectedElement && (
-              <div className="canva-element-info">
-                <span className="canva-info-label">{selectedElement.type === "text" ? "Text" : "Image"}: {selectedElement.label}</span>
-                <span className="canva-info-pos">{Math.round(selectedElement.x)}, {Math.round(selectedElement.y)}</span>
-                <span className="canva-info-size">{Math.round(selectedElement.width)} × {Math.round(selectedElement.height)}</span>
-              </div>
-            )}
           </div>
         </main>
       </div>

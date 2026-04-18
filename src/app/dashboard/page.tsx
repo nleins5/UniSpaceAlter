@@ -408,6 +408,20 @@ export default function DashboardPage() {
                         </div>
                         <p className="adm-card-name">{order.customerName}</p>
                         <p className="adm-card-phone">{order.phone}</p>
+                        
+                        {(order.frontDesignUrl || order.backDesignUrl) && (
+                          <div className="flex gap-2 my-2 justify-center p-1 bg-gray-50 rounded-lg border border-gray-100">
+                            {order.frontDesignUrl && (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img src={order.frontDesignUrl} alt="Mặt trước" className="w-14 h-16 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:scale-150 transition-transform origin-center cursor-zoom-in" />
+                            )}
+                            {order.backDesignUrl && (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img src={order.backDesignUrl} alt="Mặt sau" className="w-14 h-16 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:scale-150 transition-transform origin-center cursor-zoom-in" />
+                            )}
+                          </div>
+                        )}
+
                         <div className="adm-card-tags">
                           <span className={`adm-swatch adm-sw-${order.orderId.replace(/\W/g, '_')}`} />
                           <span className="adm-tag size">{order.size}</span>
@@ -465,6 +479,18 @@ export default function DashboardPage() {
                     <td>
                       <strong>{order.customerName}</strong>
                       {order.email && <small>{order.email}</small>}
+                      {(order.frontDesignUrl || order.backDesignUrl) && (
+                        <div className="flex gap-2 mt-1.5">
+                          {order.frontDesignUrl && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={order.frontDesignUrl} alt="Front" className="w-8 h-10 object-contain drop-shadow-sm hover:scale-150 transition-transform origin-left cursor-zoom-in bg-gray-50 rounded border border-gray-100" />
+                          )}
+                          {order.backDesignUrl && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={order.backDesignUrl} alt="Back" className="w-8 h-10 object-contain drop-shadow-sm hover:scale-150 transition-transform origin-left cursor-zoom-in bg-gray-50 rounded border border-gray-100" />
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td>{order.phone}</td>
                     <td><span className="adm-tag size">{order.size}</span></td>

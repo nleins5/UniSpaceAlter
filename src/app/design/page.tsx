@@ -90,6 +90,8 @@ function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?
 
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_polo_${side}.png`;
+  const collarImgUrl = `/mockups/v_polo_${side}_collar.png`;
+  const effectiveCollarColor = collarColor || color;
   return (
     <div className="relative w-full h-full drop-shadow-md">
       <style>{`
@@ -102,9 +104,20 @@ function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; c
           mask-repeat: no-repeat;
           mask-position: center;
         }
+        .polo-collar-mask-${side} {
+          background-color: ${effectiveCollarColor};
+          mask-image: url('${collarImgUrl}');
+          -webkit-mask-image: url('${collarImgUrl}');
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          mask-position: center;
+        }
       `}</style>
       {/* Base Color Fill Mask */}
       <div className={`absolute inset-0 transition-colors duration-500 polo-mask-${side}`} />
+      {/* Collar Color Fill Mask */}
+      <div className={`absolute inset-0 transition-colors duration-500 polo-collar-mask-${side}`} />
       {/* Technical Detail Lines Overlay */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={imgUrl} alt="Polo Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />

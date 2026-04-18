@@ -1675,7 +1675,7 @@ body::after {
   max-width: 1200px;
   min-height: 1600px;
   border: 5px solid #111;
-  padding: 40px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -1685,6 +1685,7 @@ body::after {
   transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)) scale(var(--tech-zoom, 1));
   transform-origin: center center;
   color: #000;
+  overflow: hidden;
 }
 
 .tech-pack-header-v2 {
@@ -1741,15 +1742,18 @@ body::after {
 /* Three-Column Specification Layout */
 .spec-slots-container {
   display: flex;
-  gap: 30px;
+  gap: 20px;
   flex: 1;
+  min-width: 0;
 }
 
 .spec-sidebar {
-  width: 220px;
+  width: 140px;
+  min-width: 140px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 30px;
+  flex-shrink: 0;
 }
 
 .spec-slot {
@@ -7828,27 +7832,29 @@ body::after {
 
 .spec-main-shirt-v2 {
   flex: 1;
-  padding: 40px 0;
+  min-width: 0;
+  padding: 30px 0;
 }
 
 .tech-views-row {
   display: flex;
-  gap: 60px;
+  gap: 30px;
   justify-content: center;
 }
 
 .tech-view-col {
   flex: 1;
-  max-width: 440px;
+  max-width: 380px;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  padding: 30px;
+  padding: 20px;
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
   background: #fff;
+  min-width: 0;
 }
 
 .tech-view-col.view-active {
@@ -7865,8 +7871,10 @@ body::after {
 }
 
 .tech-view-col .canva-canvas {
-  width: 400px;
-  height: 480px;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  aspect-ratio: 400 / 480;
   position: relative !important;
   transform: scale(0.9) !important;
 }

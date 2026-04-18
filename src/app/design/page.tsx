@@ -1680,7 +1680,7 @@ export default function DesignPage() {
               if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
           >
-            <div className="tech-pack-frame tech-pack-panned">
+            <div className="tech-pack-frame tech-pack-panned" style={{ backgroundColor: "transparent" }}>
               <style>{`
                 .tech-pack-panned {
                   --pan-x: ${pan.x}px;
@@ -1688,93 +1688,140 @@ export default function DesignPage() {
                   --tech-zoom: ${zoom / 100};
                 }
               `}</style>
-              {/* ═══ HUMAN MADE STYLE HEADER ═══ */}
-              <div className="tech-pack-header-v2">
-                <div className="tech-header-left-logo">
-                  <Logo />
-                  <div className="tech-logo-sub">TECH PACK</div>
+              
+              <div className="relative w-[1000px] h-[1000px] bg-white border border-gray-300 shadow-2xl mx-auto origin-top-left overflow-hidden text-black font-sans" style={{
+                backgroundImage: "linear-gradient(#f0f0f0 1px, transparent 1px), linear-gradient(90deg, #f0f0f0 1px, transparent 1px)",
+                backgroundSize: "20px 20px",
+                transform: `scale(var(--tech-zoom))`
+              }}>
+                {/* ═══ HEADER ROW 1 ═══ */}
+                <div className="flex border-b border-gray-300 bg-white">
+                     <div className="w-[180px] border-r border-gray-300 flex flex-col justify-center items-center py-6">
+                         <div className="text-[8px] font-bold text-magenta-500 absolute top-2 left-2 uppercase text-[#d946ef]">BRAND LOGO</div>
+                         <div className="mt-4"><Logo scale={0.7} /></div>
+                         <div className="text-[10px] font-bold mt-2 font-mono">CLOTHING.CO</div>
+                     </div>
+                     <div className="flex-1 flex flex-col justify-center border-r border-gray-300 p-4">
+                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">PROJECT NAME:</div>
+                         <input type="text" className="text-sm font-medium mt-1 outline-none bg-transparent w-full" defaultValue="Fire Hustle 1995 Short pants" />
+                     </div>
+                     <div className="w-[150px] flex flex-col justify-center border-r border-gray-300 p-4">
+                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">FABRIC:</div>
+                         <div className="text-sm font-medium mt-1">Heavy Cotton 20S</div>
+                     </div>
+                     <div className="w-[150px] flex flex-col justify-center p-4">
+                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">CATEGORY:</div>
+                         <div className="text-sm font-medium mt-1">Top</div>
+                     </div>
                 </div>
-                <div className="tech-header-grid">
-                  <div className="tech-row">
-                    <div className="tech-cell"><div className="t-label">SEASON</div><div className="t-val">{techPackInfo.season}</div></div>
-                    <div className="tech-cell"><div className="t-label">CATEGORY</div><div className="t-val">{techPackInfo.category}</div></div>
-                    <div className="tech-cell"><div className="t-label">FABRIC</div><div className="t-val">{techPackInfo.fabric}</div></div>
-                    <div className="tech-cell"><div className="t-label">FACTORY</div><div className="t-val">{techPackInfo.factory}</div></div>
-                  </div>
-                  <div className="tech-row">
-                    <div className="tech-cell"><div className="t-label">STYLE NO</div><div className="t-val">{techPackInfo.styleNo}</div></div>
-                    <div className="tech-cell"><div className="t-label">NAME</div><div className="t-val">{techPackInfo.name}</div></div>
-                    <div className="tech-cell"><div className="t-label">INPUT</div><div className="t-val">{techPackInfo.input}</div></div>
-                    <div className="tech-cell"><div className="t-label">OUTPUT</div><div className="t-val">{techPackInfo.output}</div></div>
-                  </div>
+                {/* ═══ HEADER ROW 2 ═══ */}
+                <div className="flex border-b border-gray-300 bg-white ml-[180px]">
+                     <div className="flex-1 flex flex-col justify-center border-r border-gray-300 p-3">
+                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">COLOR:</div>
+                         <div className="text-sm font-medium mt-1">White, Green</div>
+                     </div>
+                     <div className="w-[150px] flex flex-col justify-center border-r border-gray-300 p-3">
+                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">DATE:</div>
+                         <div className="text-sm font-medium mt-1">July 2024</div>
+                     </div>
+                     <div className="w-[150px] flex flex-col justify-center p-3">
+                         <div className="text-[10px] font-bold text-magenta-500 uppercase text-[#d946ef]">SIZE RANGE:</div>
+                         <div className="text-sm font-medium mt-1">L - XXL</div>
+                     </div>
                 </div>
-              </div>
-              <div className="tech-pack-divider">FRONT & BACK DETAILS</div>
-              {/* THREE-COLUMN TECHNICAL LAYOUT */}
-              {/* MAIN SHIRT MOCKUP (Front & Back side-by-side) */}
-              <div className="spec-slots-container flex justify-center !p-10">
-                <div className={`spec-main-shirt-v2 ${activeSlot === "shirt" ? "active" : ""} !w-full !max-w-6xl`}>
-                  <div className="tech-views-row !flex !justify-center !gap-12">
-                    <div className={`tech-view-col ${side === 'front' ? 'view-active' : ''}`} onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
-                      <div className="tech-view-label">FRONT VIEW</div>
-                      <DesignCanvas
-                        elements={elements}
-                        selectedId={selectedId}
-                        onSelectElement={setSelectedId}
-                        onMoveElement={handleMoveElement}
-                        onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)}
-                        onDropImage={handleDropImage}
-                        side="front"
-                        tshirtColor={tshirtColor}
-                        collarColor={collarColor}
-                        sleeveColor={sleeveColor}
-                        shirtType={shirtType}
-                        zoom={zoom}
-                        slot="shirt"
-                      />
-                    </div>
-                    <div className={`tech-view-col ${side === 'back' ? 'view-active' : ''}`} onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
-                      <div className="tech-view-label">BACK VIEW</div>
-                      <DesignCanvas
-                        elements={elements}
-                        selectedId={selectedId}
-                        onSelectElement={setSelectedId}
-                        onMoveElement={handleMoveElement}
-                        onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)}
-                        onDropImage={handleDropImage}
-                        side="back"
-                        tshirtColor={tshirtColor}
-                        collarColor={collarColor}
-                        sleeveColor={sleeveColor}
-                        shirtType={shirtType}
-                        zoom={zoom}
-                        slot="shirt"
-                      />
-                    </div>
-                  </div>
+
+                {/* ═══ SWATCHES ═══ */}
+                <div className="absolute left-[30px] top-[200px]">
+                     <div className="text-[10px] font-bold text-[#d946ef] uppercase tracking-widest mb-3">Color Swatches</div>
+                     <div className="flex items-center justify-between w-[120px] bg-[#ccff00]/60 border border-[#ccff00] p-1.5 mb-2">
+                        <span className="text-[9px] font-bold text-black/70">CMYK: 21 0 85 7</span>
+                     </div>
+                     <div className="flex items-center justify-between w-[120px] border border-[#d946ef]/50 p-1.5">
+                        <span className="text-[9px] font-bold text-[#d946ef]">CMYK: 0 0 0 0</span>
+                     </div>
                 </div>
-              </div>
-              {/* FOOTER SPECS & PANTONE */}
-              <div className="tech-pack-footer-v2">
-                <div className="tech-footer-legend">
-                  <div className="legend-item">Single needle Chain Stitch</div>
-                  <div className="legend-item text-red-500 font-bold">ALL MEASUREMENTS IN CM</div>
+
+                {/* ═══ SIDE VIEW PORTRAIT ═══ */}
+                <div className="absolute left-[30px] bottom-[180px]">
+                     <div className="text-[10px] font-bold text-[#d946ef] uppercase tracking-widest mb-2">SIDE VIEW</div>
+                     <div className="w-[120px] h-[120px] bg-[#2a2a2a] flex items-center justify-center p-4">
+                        <svg viewBox="0 0 100 100" className="w-full h-full text-[#ccff00] fill-current opacity-80">
+                           <path d="M50 10C50 10 30 30 30 60C30 75 40 85 50 85C60 85 70 75 70 60C70 30 50 10 50 10Z"/>
+                           <path d="M50 30C50 30 40 45 40 65C40 75 45 80 50 80C55 80 60 75 60 65C60 45 50 30 50 30Z" fill="#2a2a2a"/>
+                        </svg>
+                     </div>
                 </div>
-                <div className="pantone-block">
-                  <div className="p-label">FABRIC</div>
-                  <div className="p-swatch-wrap">
-                    <style>{`
-                      .p-swatch-dynamic { --swatch-bg: ${tshirtColor}; }
-                    `}</style>
-                    <div className="p-swatch p-swatch-dynamic" />
-                    <div className="p-info">
-                      <div className="p-name">PANTONE</div>
-                      <div className="p-code">{techPackInfo.pantone}</div>
-                    </div>
+
+                {/* ═══ BACK VIEW ═══ */}
+                <div className="absolute left-[150px] top-[260px] cursor-pointer" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
+                  <div className={`canva-canvas ${side === "back" ? "ring-2 ring-[#d946ef]" : ""} !bg-transparent`} style={{ transform: "scale(1)", filter: "none", boxShadow: "none" }}>
+                    <DesignCanvas
+                      elements={elements}
+                      selectedId={selectedId}
+                      onSelectElement={setSelectedId}
+                      onMoveElement={handleMoveElement}
+                      onResizeElement={handleResizeElement}
+                      onPushHistory={() => pushHistory(elements)}
+                      onDropImage={handleDropImage}
+                      side="back"
+                      tshirtColor={tshirtColor}
+                      collarColor={collarColor}
+                      sleeveColor={sleeveColor}
+                      shirtType={shirtType}
+                      zoom={100}
+                      slot="shirt"
+                    />
                   </div>
                 </div>
+
+                <div className="absolute left-[580px] top-[260px] text-[10px] font-bold text-[#d946ef] tracking-wider relative">
+                  BACK VIEW
+                  <div className="absolute w-[60px] h-[1px] bg-[#d946ef] left-[-70px] top-[6px]" />
+                </div>
+                
+                <div className="absolute left-[580px] top-[290px] w-[140px] h-[160px] bg-[#2a2a2a] p-4 flex flex-col justify-center items-center">
+                   <div className="text-[#ccff00] font-black text-2xl font-serif mb-3">Hustle</div>
+                   <div className="text-white/60 text-[8px] text-center leading-relaxed">
+                     Technical spec for back print.
+                     Make sure it aligns with seam perfectly.
+                   </div>
+                </div>
+
+                {/* ═══ FRONT VIEW ═══ */}
+                <div className="absolute left-[500px] bottom-[30px] cursor-pointer" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
+                  <div className={`canva-canvas ${side === "front" ? "ring-2 ring-[#d946ef]" : ""} !bg-transparent`} style={{ transform: "scale(1)", filter: "none", boxShadow: "none" }}>
+                    <DesignCanvas
+                      elements={elements}
+                      selectedId={selectedId}
+                      onSelectElement={setSelectedId}
+                      onMoveElement={handleMoveElement}
+                      onResizeElement={handleResizeElement}
+                      onPushHistory={() => pushHistory(elements)}
+                      onDropImage={handleDropImage}
+                      side="front"
+                      tshirtColor={tshirtColor}
+                      collarColor={collarColor}
+                      sleeveColor={sleeveColor}
+                      shirtType={shirtType}
+                      zoom={100}
+                      slot="shirt"
+                    />
+                  </div>
+                </div>
+                
+                <div className="absolute left-[500px] bottom-[480px] text-[10px] font-bold text-[#d946ef] tracking-wider relative">
+                  FRONT VIEW
+                  <div className="absolute w-[60px] h-[1px] bg-[#d946ef] right-[80px] top-[6px]" />
+                </div>
+
+                <div className="absolute left-[340px] bottom-[300px] w-[140px] h-[100px] bg-[#2a2a2a] p-4 flex flex-col justify-center items-center relative">
+                   <div className="absolute w-[180px] h-[1px] bg-[#d946ef] right-[-190px] top-[50px]" />
+                   <div className="text-[#ccff00] font-black text-2xl font-serif">H.</div>
+                   <div className="text-white/60 text-[8px] text-center uppercase tracking-widest mt-2">
+                     1995
+                   </div>
+                </div>
+
               </div>
             </div>
           </div>

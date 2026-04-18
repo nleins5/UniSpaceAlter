@@ -18,6 +18,8 @@ interface OrderData {
   status: string;
   hasFrontDesign: boolean;
   hasBackDesign: boolean;
+  frontDesignUrl?: string;
+  backDesignUrl?: string;
   shirtType?: string;
   sleeveColor?: string;
   collarColor?: string;
@@ -30,16 +32,18 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
   completed: { label: "Hoàn thành", color: "#10b981", bg: "#ecfdf5" },
 };
 
-function DesignImage({ src, alt }: { src: string; alt: string }) {
-  const [imgUrl, setImgUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+function DesignImage({ src, fallbackSrc, alt }: { src?: string; fallbackSrc: string; alt: string }) {
+  const [imgUrl, setImgUrl] = useState<string | null>(src || null);
+  const [loading, setLoading] = useState(!src);
 
   useEffect(() => {
+    if (src) return;
+
     const userData = sessionStorage.getItem("user");
     const token = userData ? JSON.parse(userData).token : null;
     let localUrl = "";
 
-    fetch(src, {
+    fetch(fallbackSrc, {
       headers: token ? { "Authorization": `Bearer ${token}` } : {}
     })
       .then(res => res.blob())
@@ -53,13 +57,13 @@ function DesignImage({ src, alt }: { src: string; alt: string }) {
     return () => {
       if (localUrl) URL.revokeObjectURL(localUrl);
     };
-  }, [src]);
+  }, [src, fallbackSrc]);
 
   if (loading) return <div className="mfr-spinner-small" />;
   if (!imgUrl) return <div className="text-red-500 text-[10px]">Lỗi tải ảnh</div>;
 
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={imgUrl} alt={alt} />;
+  return <img src={imgUrl} alt={alt} className="hover:scale-150 transition-transform origin-center cursor-zoom-in drop-shadow-sm" />;
 }
 
 const COLOR_NAMES: Record<string, string> = {
@@ -205,7 +209,7 @@ export default function ManufacturerPage({
                 <span className="mfr-design-label">Mặt trước</span>
                 {order.hasFrontDesign ? (
                   <div className="mfr-design-preview">
-                    <DesignImage src={`/api/orders/${order.orderId}/front_design.png`} alt="Front design" />
+                    <DesignImage src={order.frontDesignUrl} fallbackSrc={`/api/orders/${order.orderId}/front_design.png`} alt="Front design" />
                   </div>
                 ) : (
                   <div className="mfr-design-empty">
@@ -214,7 +218,7 @@ export default function ManufacturerPage({
                   </div>
                 )}
                 {order.hasFrontDesign && (
-                  <button onClick={() => handleDownload("front_design.png")} className="mfr-download-btn">
+                  <button onClick={() => window.open(order.frontDesignUrl || `/api/orders/${order.orderId}/front_design.png?dl=1`, '_blank')} className="mfr-download-btn">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                     Tải mặt trước
                   </button>
@@ -224,7 +228,7 @@ export default function ManufacturerPage({
                 <span className="mfr-design-label">Mặt sau</span>
                 {order.hasBackDesign ? (
                   <div className="mfr-design-preview">
-                    <DesignImage src={`/api/orders/${order.orderId}/back_design.png`} alt="Back design" />
+                    <DesignImage src={order.backDesignUrl} fallbackSrc={`/api/orders/${order.orderId}/back_design.png`} alt="Back design" />
                   </div>
                 ) : (
                   <div className="mfr-design-empty">
@@ -233,7 +237,7 @@ export default function ManufacturerPage({
                   </div>
                 )}
                 {order.hasBackDesign && (
-                  <button onClick={() => handleDownload("back_design.png")} className="mfr-download-btn">
+                  <button onClick={() => window.open(order.backDesignUrl || `/api/orders/${order.orderId}/back_design.png?dl=1`, '_blank')} className="mfr-download-btn">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                     Tải mặt sau
                   </button>

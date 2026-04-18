@@ -1518,6 +1518,8 @@ export default function DesignPage() {
                               <div className="relative group">
                                 <input
                                   type="color"
+                                  title="Chọn màu áo"
+                                  aria-label="Chọn màu áo"
                                   value={activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor}
                                   onChange={(e) => {
                                     const val = e.target.value;

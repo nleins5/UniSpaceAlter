@@ -41,22 +41,29 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
     <div className="relative w-full h-full drop-shadow-md">
       <style>{`
         .tshirt-mask-${uniqueId} {
+          position: absolute;
+          inset: 0;
           background-color: ${color};
-          mask-image: url('${imgUrl}');
           -webkit-mask-image: url('${imgUrl}');
-          mask-size: contain;
+          mask-image: url('${imgUrl}');
           -webkit-mask-size: contain;
-          mask-repeat: no-repeat;
+          mask-size: contain;
           -webkit-mask-repeat: no-repeat;
-          mask-position: center;
+          mask-repeat: no-repeat;
           -webkit-mask-position: center;
+          mask-position: center;
+          transition: background-color 0.4s ease;
         }
       `}</style>
       {/* Base Color Fill Mask */}
-      <div className={`absolute inset-0 transition-colors duration-500 tshirt-mask-${uniqueId}`} />
-      {/* Detail Lines Overlay */}
+      <div className={`tshirt-mask-${uniqueId}`} />
+      {/* Detail Lines Overlay - Preserves shadows and highlights */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imgUrl} alt="T-Shirt Mockup" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+      <img 
+        src={imgUrl} 
+        alt="T-Shirt Mockup" 
+        className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.9] mix-blend-multiply" 
+      />
     </div>
   );
 }
@@ -1504,6 +1511,30 @@ export default function DesignPage() {
                                 )}
                               </button>
                             ))}
+                          </div>
+                          <div className="mt-8 pt-6 border-t border-gray-100">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-[#8b3dff] mb-4 block">Màu tùy chỉnh</label>
+                            <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-3xl">
+                              <div className="relative group">
+                                <input
+                                  type="color"
+                                  value={activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (activeColorTarget === "body") setTshirtColor(val);
+                                    else if (activeColorTarget === "sleeve") setSleeveColor(val);
+                                    else setCollarColor(val);
+                                  }}
+                                  className="w-14 h-14 rounded-2xl border-4 border-white shadow-xl cursor-pointer p-0 overflow-hidden appearance-none"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-[12px] font-bold text-gray-800 uppercase font-mono">
+                                  {activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor}
+                                </div>
+                                <div className="text-[10px] text-gray-400 font-medium tracking-tight">Mã màu HEX</div>
+                              </div>
+                            </div>
                           </div>
                         </>
                       );

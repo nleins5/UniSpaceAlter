@@ -63,7 +63,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
 
 function RaglanShirtSVG({ color, side = "front", sleeveColor }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_raglan_${side}.png`;
-  const sleeveImgUrl = `/mockups/v_raglan_${side}_sleeve.png?v=5`;
+  const sleeveImgUrl = `/mockups/v_raglan_${side}_sleeve.png?v=6`;
   const effectiveSleeveColor = sleeveColor || color;
   const uniqueId = useId().replace(/:/g, "-");
 

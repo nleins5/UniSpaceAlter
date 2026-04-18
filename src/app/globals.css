@@ -2117,7 +2117,7 @@ body::after {
 /* Print area guide (dashed box on shirt) */
 .canva-print-area {
   position: absolute;
-  left: 25%; /* Moved further left to match visual center */
+  left: 23%; /* Final nudge left to match user visual center */
   top: 22%;
   width: 44%;
   height: 50%;

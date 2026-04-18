@@ -89,44 +89,26 @@ function RaglanShirtSVG({ color, side = "front" }: { color: string; sleeveColor?
 
 
 function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
-  const strokeColor = "#333333";
-  const effectiveCollarColor = collarColor || color;
-  const bodyPath = side === "front"
-    ? `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 42 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`
-    : `M 92, 450 L 95, 175 L 35, 120 L 105, 52 L 155, 35 Q 200, 25 245, 35 L 295, 52 L 365, 120 L 305, 175 L 308, 450 Z`;
-
+  const imgUrl = `/mockups/v_polo_${side}.png`;
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="mockup-svg">
-      <defs>
-        <filter id="polo-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.1" /></filter>
-      </defs>
-      <g filter="url(#polo-shadow)">
-        <path d={bodyPath} fill="#FFFFFF" />
-        {/* COLLAR BACKGROUND (Back view) */}
-        {side === "back" && (
-          <>
-            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-          </>
-        )}
-        <path d={bodyPath} fill={color} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-        {side === "front" && (
-          <>
-            <path d="M 188,28 L 212,28 L 200,55 Z" fill="rgba(0,0,0,0.06)" />
-            <rect x="192" y="32" width="16" height="8" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-            <path d="M 145,23 Q 200,8 255,23 L 212,28 Q 200,18 188,28 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <rect x="188" y="55" width="24" height="95" fill={color} stroke={strokeColor} strokeWidth="1.5" />
-            <circle cx="200" cy="80" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-            <circle cx="200" cy="120" r="3.5" fill="#FFF" stroke={strokeColor} strokeWidth="1" />
-            <path d="M 145,23 L 188,28 L 200,55 L 115,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-            <path d="M 255,23 L 212,28 L 200,55 L 285,70 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-          </>
-        )}
-        {side === "back" && (
-          <path d="M 145,23 Q 200,12 255,23 L 260,45 Q 200,35 140,45 Z" fill={effectiveCollarColor} stroke={strokeColor} strokeWidth="1.5" strokeLinejoin="round" />
-        )}
-      </g>
-    </svg>
+    <div className="relative w-full h-full drop-shadow-md">
+      <style>{`
+        .polo-mask-${side} {
+          background-color: ${color};
+          mask-image: url('${imgUrl}');
+          -webkit-mask-image: url('${imgUrl}');
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          mask-position: center;
+        }
+      `}</style>
+      {/* Base Color Fill Mask */}
+      <div className={`absolute inset-0 transition-colors duration-500 polo-mask-${side}`} />
+      {/* Technical Detail Lines Overlay */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imgUrl} alt="Polo Tech Pack" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
+    </div>
   );
 }
 

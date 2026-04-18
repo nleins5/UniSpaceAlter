@@ -431,6 +431,7 @@ function DesignCanvas({
             <div className={`print-guide-box pg-full-front ${activeLocation === 'full-front' ? 'active' : ''}`} />
             <div className={`print-guide-box pg-oversize-front ${activeLocation === 'oversize-front' ? 'active' : ''}`} />
             <div className={`print-guide-box pg-left-chest ${activeLocation === 'left-chest' ? 'active' : ''}`} />
+            <div className={`print-guide-box pg-right-chest ${activeLocation === 'right-chest' ? 'active' : ''}`} />
             <div className={`print-guide-box pg-center-chest ${activeLocation === 'center-chest' ? 'active' : ''}`} />
             <div className={`print-guide-box pg-full-back ${activeLocation === 'full-back' ? 'active' : ''}`} />
             <div className={`print-guide-box pg-back-collar ${activeLocation === 'back-collar' ? 'active' : ''}`} />
@@ -673,7 +674,7 @@ export default function DesignPage() {
       return newRedo;
     });
   }, [elements]);
-  const handleSnapToPosition = (preset: "left-chest" | "center-chest" | "full-front" | "back-neck" | "full-back") => {
+  const handleSnapToPosition = (preset: "left-chest" | "right-chest" | "center-chest" | "full-front" | "back-neck" | "full-back" | "upper-back") => {
     if (!selectedId) return;
     setElements((prev) => {
       pushHistory(prev);
@@ -681,40 +682,60 @@ export default function DesignPage() {
         if (el.id !== selectedId) return el;
         const newEl = { ...el };
         // Canvas is 400x480. Shirt body is approx x=[105, 295], center x=200.
+        // Collar top ≈ Y=55, Chest zone ≈ Y=100-180, Hem ≈ Y=395
         if (preset === "left-chest") {
+          // Wearer's Left = Screen Right. Standard 4"x4" pocket position.
           newEl.side = "front";
           newEl.width = 65;
           newEl.height = (el.height / el.width) * 65;
-          // Wearer's Left = Screen Right
-          newEl.x = 225 - (newEl.width / 2);
-          newEl.y = 110;
-        } else if (preset === "center-chest") {
+          newEl.x = 230 - (newEl.width / 2);
+          newEl.y = 115;
+        } else if (preset === "right-chest") {
+          // Wearer's Right = Screen Left. Mirror of left-chest.
           newEl.side = "front";
-          newEl.width = 120;
-          newEl.height = (el.height / el.width) * 120;
+          newEl.width = 65;
+          newEl.height = (el.height / el.width) * 65;
+          newEl.x = 170 - (newEl.width / 2);
+          newEl.y = 115;
+        } else if (preset === "center-chest") {
+          // Centered horizontally, at upper chest height below collar.
+          newEl.side = "front";
+          newEl.width = 130;
+          newEl.height = (el.height / el.width) * 130;
           newEl.x = 200 - (newEl.width / 2);
           newEl.y = 110;
         } else if (preset === "full-front") {
+          // Full front print area, centered.
           newEl.side = "front";
-          newEl.width = 240;
-          newEl.height = (el.height / el.width) * 240;
+          newEl.width = 180;
+          newEl.height = (el.height / el.width) * 180;
           newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 130;
+          newEl.y = 115;
         } else if (preset === "back-neck") {
+          // Small print just below back collar. Standard 3"x1.5" back neck print.
           newEl.side = "back";
-          newEl.width = 50;
-          newEl.height = (el.height / el.width) * 50;
+          newEl.width = 80;
+          newEl.height = (el.height / el.width) * 80;
           newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 60;
+          newEl.y = 80;
+        } else if (preset === "upper-back") {
+          // Upper back, yoke area.
+          newEl.side = "back";
+          newEl.width = 180;
+          newEl.height = (el.height / el.width) * 180;
+          newEl.x = 200 - (newEl.width / 2);
+          newEl.y = 100;
         } else if (preset === "full-back") {
+          // Full back print, centered.
           newEl.side = "back";
-          newEl.width = 250;
-          newEl.height = (el.height / el.width) * 250;
+          newEl.width = 180;
+          newEl.height = (el.height / el.width) * 180;
           newEl.x = 200 - (newEl.width / 2);
-          newEl.y = 120;
+          newEl.y = 115;
         }
-        if (preset === "back-neck" || preset === "full-back") setSide("back");
-        if (preset === "left-chest" || preset === "center-chest" || preset === "full-front") setSide("front");
+        const backPresets = ["back-neck", "full-back", "upper-back"];
+        if (backPresets.includes(preset)) setSide("back");
+        else setSide("front");
         return newEl;
       });
     });
@@ -1230,16 +1251,18 @@ export default function DesignPage() {
                                 }
                                 const getPosition = (loc: string) => {
                                   if (activeSlot !== "shirt") return { x: 50, y: 50, w: 100, h: 100 };
+                                  // Canvas 400x480. Body x=[105,295], center x=200.
                                   switch (loc) {
-                                    case "left-chest": return { x: 230, y: 110, w: 75, h: 75 };
-                                    case "center-chest": return { x: 140, y: 100, w: 120, h: 90 };
-                                    case "full-front": return { x: 100, y: 110, w: 200, h: 260 };
-                                    case "oversize-front": return { x: 80, y: 100, w: 240, h: 320 };
-                                    case "back-collar": return { x: 160, y: 45, w: 80, h: 35 };
-                                    case "upper-back": return { x: 110, y: 100, w: 180, h: 100 };
-                                    case "full-back": return { x: 100, y: 110, w: 200, h: 280 };
+                                    case "left-chest": return { x: 198, y: 115, w: 65, h: 65 };
+                                    case "right-chest": return { x: 138, y: 115, w: 65, h: 65 };
+                                    case "center-chest": return { x: 135, y: 110, w: 130, h: 100 };
+                                    case "full-front": return { x: 110, y: 115, w: 180, h: 230 };
+                                    case "oversize-front": return { x: 90, y: 100, w: 220, h: 300 };
+                                    case "back-collar": return { x: 160, y: 80, w: 80, h: 40 };
+                                    case "upper-back": return { x: 110, y: 100, w: 180, h: 120 };
+                                    case "full-back": return { x: 110, y: 115, w: 180, h: 230 };
                                     case "sleeve": return { x: 25, y: 100, w: 60, h: 60 };
-                                    default: return { x: 100, y: 110, w: 200, h: 200 };
+                                    default: return { x: 110, y: 115, w: 180, h: 180 };
                                   }
                                 };
                                 const pos = getPosition(printLocation);
@@ -1589,14 +1612,15 @@ export default function DesignPage() {
                     <p className="text-[11px] text-gray-400 mb-4 leading-relaxed uppercase font-bold tracking-wider">Chọn vị trí tiêu chuẩn công nghiệp</p>
                     <div className="grid grid-cols-2 gap-3">
                       {[
+                        { id: "left-chest", label: "Ngực trái", icon: "💎" },
+                        { id: "right-chest", label: "Ngực phải", icon: "✨" },
+                        { id: "center-chest", label: "Giữa ngực", icon: "🎯" },
                         { id: "full-front", label: "Full Front", icon: "👕" },
-                        { id: "oversize-front", label: "Oversized Front", icon: "👚" },
-                        { id: "left-chest", label: "Left Chest", icon: "💎" },
-                        { id: "center-chest", label: "Center Chest", icon: "🎯" },
-                        { id: "sleeve", label: "Sleeve (Tay)", icon: "💪" },
+                        { id: "oversize-front", label: "Oversized", icon: "👚" },
+                        { id: "sleeve", label: "Tay áo", icon: "💪" },
+                        { id: "back-collar", label: "Sau gáy", icon: "🦒" },
+                        { id: "upper-back", label: "Lưng trên", icon: "📍" },
                         { id: "full-back", label: "Full Back", icon: "🎞️" },
-                        { id: "upper-back", label: "Upper Back", icon: "📍" },
-                        { id: "back-collar", label: "Back Collar", icon: "🦒" },
                       ].map((loc) => (
                         <button
                           key={loc.id}
@@ -1606,6 +1630,7 @@ export default function DesignPage() {
                             const isFront = loc.id.includes("front") || loc.id.includes("chest") || loc.id === "sleeve";
                             setSide(isFront ? "front" : "back");
                             setActiveSlot("shirt");
+                            setPrintLocation(loc.id);
                           }}
                         >
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-transform group-hover:scale-110 ${printLocation === loc.id ? 'bg-[#8b3dff] text-white' : 'bg-white shadow-sm'}`}>
@@ -1626,8 +1651,12 @@ export default function DesignPage() {
                         <span className="text-[11px] font-medium text-gray-500">Kích thước mặc định</span>
                         <span className="text-[11px] font-bold font-mono">
                           {printLocation === 'full-front' ? '12" x 14"' :
-                            printLocation === 'left-chest' ? '4" x 4"' :
-                              printLocation === 'oversize-front' ? '15" x 16"' : 'Standard'}
+                            printLocation === 'left-chest' || printLocation === 'right-chest' ? '4" x 4"' :
+                            printLocation === 'center-chest' ? '8" x 6"' :
+                            printLocation === 'oversize-front' ? '15" x 16"' :
+                            printLocation === 'back-collar' ? '3" x 1.5"' :
+                            printLocation === 'upper-back' ? '12" x 8"' :
+                            printLocation === 'full-back' ? '12" x 14"' : 'Standard'}
                         </span>
                       </div>
                     </div>
@@ -1651,10 +1680,12 @@ export default function DesignPage() {
             <div className="canva-snap-toolbar">
               <span className="canva-snap-label">Vị trí in chuẩn</span>
               <button className="canva-snap-btn" onClick={() => handleSnapToPosition("left-chest")} title="Ngực trái">Ngực trái</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("right-chest")} title="Ngực phải">Ngực phải</button>
               <button className="canva-snap-btn" onClick={() => handleSnapToPosition("center-chest")} title="Giữa ngực">Giữa ngực</button>
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-front")} title="Lớn trước ngực">Lớn trước ngực</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-front")} title="Full Front">Full Front</button>
               <button className="canva-snap-btn" onClick={() => handleSnapToPosition("back-neck")} title="Sau gáy">Sau gáy</button>
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-back")} title="Lớn sau lưng">Lớn sau lưng</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("upper-back")} title="Lưng trên">Lưng trên</button>
+              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-back")} title="Full Back">Full Back</button>
             </div>
           )}
           {/* Canvas area with checkerboard bg */}

@@ -1653,8 +1653,8 @@ export default function DesignPage() {
                     <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/80 flex items-center justify-around z-50">
                       {[
                         { label: "Front Print", x: 130, y: 150, w: 140, h: 140, side: "front" as const },
-                        { label: "Neck Tag", x: 175, y: 70, w: 50, h: 50, side: "front" as const },
-                        { label: "Woven Patch", x: 265, y: 365, w: 60, h: 40, side: "front" as const }
+                        { label: "Neck Tag", x: 182, y: 75, w: 35, h: 35, side: "front" as const },
+                        { label: "Woven Patch", x: 255, y: 355, w: 60, h: 40, side: "front" as const }
                       ].map((slot) => {
                         const assignedEl = elements.find(e => e.techSlot === slot.label);
                         return (

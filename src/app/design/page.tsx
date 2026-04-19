@@ -1637,8 +1637,8 @@ export default function DesignPage() {
                       TWIN NEEDLE<br/>TOP STITCH
                     </div>
 
-                    {/* Front T-shirt canvas — centered, scaled to fit better */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 z-40">
+                    {/* Front T-shirt canvas — shifted up to avoid covering preview */}
+                    <div className="absolute inset-x-0 top-0 bottom-[100px] flex items-center justify-center z-40">
                       <div className="w-[450px] h-[500px] cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('front')}>
                         <div className="scale-[0.85] origin-center">
                           <DesignCanvas
@@ -1668,8 +1668,8 @@ export default function DesignPage() {
                       <line x1="340" y1="285" x2="290" y2="305" stroke="#ef4444" strokeWidth="0.8"/>
                     </svg>
 
-                    {/* Front Design thumbnail */}
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center z-30">
+                    {/* Front Design thumbnail — moved to bottom-left corner */}
+                    <div className="absolute bottom-4 left-6 flex flex-col items-center z-30">
                       <div className="text-[9px] font-bold italic mb-1 text-gray-700">Front Design</div>
                       <div className="w-[90px] h-[75px] border border-[#888] bg-white flex items-center justify-center overflow-hidden">
                         {elements.find(e => e.side === 'front' && e.url) ? (
@@ -1697,8 +1697,8 @@ export default function DesignPage() {
                       TWIN NEEDLE<br/>TOP STITCH
                     </div>
 
-                    {/* Back T-shirt canvas — centered, scaled to fit better */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 z-40">
+                    {/* Back T-shirt canvas — shifted up to avoid covering preview */}
+                    <div className="absolute inset-x-0 top-0 bottom-[100px] flex items-center justify-center z-40">
                       <div className="w-[450px] h-[500px] cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('back')}>
                         <div className="scale-[0.85] origin-center">
                           <DesignCanvas
@@ -1723,9 +1723,9 @@ export default function DesignPage() {
                       <line x1="340" y1="290" x2="290" y2="300" stroke="#ef4444" strokeWidth="0.8"/>
                     </svg>
 
-                    {/* Back Design thumbnail */}
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center z-30">
-                      <div className="text-[9px] font-bold italic mb-1 text-gray-700">Back Design</div>
+                    {/* Back Design thumbnail — moved to bottom-right corner */}
+                    <div className="absolute bottom-4 right-6 flex flex-col items-center z-30">
+                      <div className="text-[9px] font-bold italic mb-1 text-gray-700 text-right">Back Design</div>
                       <div className="w-[90px] h-[75px] border border-[#888] bg-white flex items-center justify-center overflow-hidden">
                         {elements.find(e => e.side === 'back' && e.url) ? (
                           <Image

@@ -1663,8 +1663,10 @@ export default function DesignPage() {
                   <div className="w-[350px] flex flex-col divide-y-[2.5px] divide-black bg-white">
                     <div className="flex-1 p-6 flex flex-col items-center justify-center">
                       <div className="border-[2.5px] border-black w-full aspect-square relative bg-[#1a1b24] shadow-inner">
-                        <img 
+                        <Image 
                           src={elements.find(e => e.slot === 'front-artwork')?.url || 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=350&auto=format&fit=crop'} 
+                          width={350}
+                          height={350}
                           className={`w-full h-full object-contain ${elements.find(e => e.slot === 'front-artwork') ? 'p-10' : 'opacity-5 grayscale p-16'}`} 
                           alt="Front Design Preview"
                         />
@@ -1676,8 +1678,10 @@ export default function DesignPage() {
                     </div>
                     <div className="flex-1 p-6 flex flex-col items-center justify-center">
                        <div className="border-[2.5px] border-black w-full aspect-square relative bg-[#1a1b24] shadow-inner">
-                        <img 
+                        <Image 
                           src={elements.find(e => e.slot === 'back-artwork')?.url || 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=350&auto=format&fit=crop'} 
+                          width={350}
+                          height={350}
                           className={`w-full h-full object-contain ${elements.find(e => e.slot === 'back-artwork') ? 'p-10' : 'opacity-5 grayscale p-16'}`} 
                           alt="Back Design Preview"
                         />

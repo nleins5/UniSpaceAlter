@@ -390,7 +390,7 @@ function DesignCanvas({
           </div>
         )}
         {/* Print area guide */}
-        <div className="canva-print-area">
+        <div className="canva-print-area -z-10">
           <span className="canva-print-label">Vùng in {side === "front" ? "mặt trước" : "mặt sau"}</span>
         </div>
         {/* Print Position Technical Guides */}
@@ -408,7 +408,7 @@ function DesignCanvas({
           </div>
         )}
         {sideElements.map((el) => (
-          <div key={el.id} className="canva-element-wrapper">
+          <div key={el.id} className="canva-element-wrapper z-50">
             <div
               className={`canva-element el-${el.id} ${selectedId === el.id ? "canva-element-selected" : ""} ${el.locked ? "canva-element-locked !pointer-events-none" : ""}`}
               onMouseDown={(e) => !el.locked && handleElementMouseDown(e, el)}

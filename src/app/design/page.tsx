@@ -244,21 +244,27 @@ function DesignCanvas({
       try {
         const image: AIImage = JSON.parse(data);
         const rect = canvasRef.current!.getBoundingClientRect();
-        const visualScale = rect.width / (slot === "shirt" ? 400 : 300);
         
-        // Decisively shift to the RIGHT (+60) as requested
-        const xOffset = side === "front" ? 60 : 0;
-        const yOffset = side === "front" ? 15 : 0;
+        // ROBUST CENTER-BASED MAPPING
+        // Works regardless of layout scale or origin shifts
+        const internalWidth = (slot === "shirt" ? 400 : 300);
+        const internalHeight = (slot === "shirt" ? 480 : 300);
+        const visualScale = rect.width / internalWidth;
         
-        const x = (e.clientX - rect.left) / visualScale - 50 + xOffset; 
-        const y = (e.clientY - rect.top) / visualScale - 50 + yOffset;
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        // Map distance from visual center to distance from internal center
+        // Subtraction of 50 centers the 100px element on the drop point
+        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50;
+        const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50;
         
         onDropImage(image, x, y);
       } catch (err) {
         console.error("Drop error:", err);
       }
     },
-    [onDropImage, slot, side]
+    [onDropImage, slot]
   );
   return (
     <>

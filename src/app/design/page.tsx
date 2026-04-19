@@ -243,21 +243,18 @@ function DesignCanvas({
       if (!data) return;
       try {
         const image: AIImage = JSON.parse(data);
-        const rect = canvasRef.current!.getBoundingClientRect();
-        
-        // ROBUST CENTER-BASED MAPPING
-        // Works regardless of layout scale or origin shifts
-        const internalWidth = (slot === "shirt" ? 400 : 300);
-        const internalHeight = (slot === "shirt" ? 480 : 300);
-        const visualScale = rect.width / internalWidth;
-        
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        
-        // EVEN FURTHER SHIFT to the viewer's RIGHT ON SCREEN (+350)
-        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 350;
-        const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50;
-        
+        // Use the inner canvas element's actual bounding rect for pixel-perfect mapping
+        const canvasEl = canvasRef.current?.querySelector('.canva-canvas') as HTMLElement | null;
+        const rect = (canvasEl ?? canvasRef.current!).getBoundingClientRect();
+
+        // Map mouse position directly onto the canvas coordinate space
+        // rect.width/height reflect the true rendered size including any CSS scale
+        const internalWidth = slot === "shirt" ? 400 : 300;
+        const internalHeight = slot === "shirt" ? 480 : 300;
+
+        const x = ((e.clientX - rect.left) / rect.width) * internalWidth - 50;
+        const y = ((e.clientY - rect.top) / rect.height) * internalHeight - 50;
+
         onDropImage(image, x, y);
       } catch (err) {
         console.error("Drop error:", err);
@@ -1633,14 +1630,14 @@ export default function DesignPage() {
                     </div>
 
                     {/* Annotations right of shirt */}
-                    <div className="absolute top-[90px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
-                      PRINT
+                    <div className="absolute top-[85px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
+                      PRINTED MAIN LABEL<br/>(Neck Tag)
                     </div>
-                    <div className="absolute top-[120px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
-                      TWIN NEEDLE<br/>TOP STITCH
+                    <div className="absolute top-[135px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
+                      MAIN CENTER<br/>PRINT
                     </div>
-                    <div className="absolute bottom-[90px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
-                      TWIN NEEDLE<br/>TOP STITCH
+                    <div className="absolute bottom-[80px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
+                      PRINTED WOVEN<br/>PATCH
                     </div>
 
                     {/* Front T-shirt canvas — shifted up to avoid covering preview */}
@@ -1666,29 +1663,39 @@ export default function DesignPage() {
 
                     {/* Leader lines SVG */}
                     <svg className="absolute inset-0 w-full h-full pointer-events-none z-20">
-                      <line x1="90" y1="85" x2="185" y2="90" stroke="#ef4444" strokeWidth="0.8"/>
-                      <line x1="90" y1="62" x2="185" y2="75" stroke="#ef4444" strokeWidth="0.8"/>
-                      <line x1="90" y1="285" x2="190" y2="310" stroke="#ef4444" strokeWidth="0.8"/>
-                      <line x1="340" y1="100" x2="285" y2="110" stroke="#ef4444" strokeWidth="0.8"/>
-                      <line x1="340" y1="135" x2="285" y2="140" stroke="#ef4444" strokeWidth="0.8"/>
-                      <line x1="340" y1="285" x2="290" y2="305" stroke="#ef4444" strokeWidth="0.8"/>
+                      {/* Neck Tag Leader */}
+                      <line x1="340" y1="95" x2="235" y2="95" stroke="#ef4444" strokeWidth="0.8" strokeDasharray="3 2" />
+                      <circle cx="235" cy="95" r="1.5" fill="#ef4444" />
+                      
+                      {/* Main Print Leader */}
+                      <line x1="340" y1="145" x2="280" y2="150" stroke="#ef4444" strokeWidth="0.8" strokeDasharray="3 2" />
+                      <circle cx="280" cy="150" r="1.5" fill="#ef4444" />
+
+                      {/* Woven Patch Leader */}
+                      <line x1="340" y1="350" x2="315" y2="350" stroke="#ef4444" strokeWidth="0.8" strokeDasharray="3 2" />
+                      <circle cx="315" cy="350" r="1.5" fill="#ef4444" />
                     </svg>
 
-                    {/* Front Design thumbnail — moved to bottom-left corner */}
-                    <div className="absolute bottom-4 left-6 flex flex-col items-center z-30">
-                      <div className="text-[9px] font-bold italic mb-1 text-gray-700">Front Design</div>
-                      <div className="w-[90px] h-[75px] border border-[#888] bg-white flex items-center justify-center overflow-hidden">
-                        {elements.find(e => e.side === 'front' && e.url) ? (
-                          <Image
-                            src={elements.find(e => e.side === 'front' && e.url)?.url || ''}
-                            width={90} height={75}
-                            className="w-full h-full object-contain p-1"
-                            alt="Front Design"
-                          />
-                        ) : (
-                          <span className="text-[7px] text-gray-300 font-bold uppercase text-center">No Design</span>
-                        )}
-                      </div>
+                    {/* Thumbnails row at bottom — all 3 slots accept drops */}
+                    <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/60 flex items-center justify-around z-50">
+                      {["Front Print", "Neck Tag", "Woven Patch"].map((label) => (
+                        <div key={label} className="flex flex-col items-center gap-1">
+                          <div className="text-[7px] font-black uppercase tracking-widest opacity-50">{label}</div>
+                          <div
+                            className="w-[65px] h-[65px] border-2 border-dashed border-[#aaa] bg-white flex items-center justify-center overflow-hidden cursor-copy transition-colors hover:border-red-400 hover:bg-red-50"
+                            onDragOver={(ev) => ev.preventDefault()}
+                            onDrop={(ev) => {
+                              ev.preventDefault();
+                              try {
+                                const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
+                                handleDropImage(img, 150, 150);
+                              } catch {}
+                            }}
+                          >
+                            <span className="text-[6px] text-gray-300 uppercase">Drop here</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 

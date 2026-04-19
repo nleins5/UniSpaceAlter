@@ -254,8 +254,8 @@ function DesignCanvas({
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        // MASSIVE INCREASE to shift decisively to the viewer's RIGHT ON SCREEN (+180)
-        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 180;
+        // EXTREME SHIFT to the viewer's LEFT ON SCREEN (-180)
+        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 - 180;
         const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50 + 125;
         
         onDropImage(image, x, y);

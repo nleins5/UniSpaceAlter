@@ -246,8 +246,8 @@ function DesignCanvas({
         const rect = canvasRef.current!.getBoundingClientRect();
         const visualScale = rect.width / (slot === "shirt" ? 400 : 300);
         
-        // Further pull to the left (-65) as it's still appearing too far right
-        const xOffset = side === "front" ? -65 : 0;
+        // Decisively shift to the RIGHT (+60) as requested
+        const xOffset = side === "front" ? 60 : 0;
         const yOffset = side === "front" ? 15 : 0;
         
         const x = (e.clientX - rect.left) / visualScale - 50 + xOffset; 

@@ -254,10 +254,8 @@ function DesignCanvas({
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        // Map distance from visual center to distance from internal center
-        // Subtraction of 50 centers the 100px element on the drop point
-        // EXTREMELY Increased offsets for the "components to be added" as requested (Right +100, Down +125)
-        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 100;
+        // MASSIVE INCREASE to shift decisively to the viewer's RIGHT ON SCREEN (+180)
+        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 180;
         const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50 + 125;
         
         onDropImage(image, x, y);

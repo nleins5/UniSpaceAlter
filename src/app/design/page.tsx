@@ -1605,25 +1605,27 @@ export default function DesignPage() {
                 <div className="relative blueprint-grid h-[calc(100%-200px)]">
                   
                   {/* ─── FRONT SECTION (Top Half) ─── */}
-                  <div className="relative h-1/2">
+                  <div className="relative h-1/2 overflow-hidden">
                     {/* "Center Front" label */}
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 text-red-500 text-[11px] italic font-semibold z-30">Center Front</div>
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 text-red-500 text-[11px] italic font-semibold z-30">Center Front</div>
                     
                     {/* Front T-shirt - centered */}
-                    <div className="absolute top-[20px] left-1/2 -translate-x-1/2 w-[320px] h-[320px] z-10 cursor-pointer" onClick={() => setSide('front')}>
-                      <DesignCanvas
-                        elements={elements}
-                        selectedId={selectedId}
-                        onSelectElement={setSelectedId}
-                        onMoveElement={handleMoveElement}
-                        onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)}
-                        onDropImage={handleDropImage}
-                        side="front"
-                        tshirtColor={tshirtColor}
-                        zoom={zoom}
-                        slot="shirt"
-                      />
+                    <div className="absolute top-[16px] left-1/2 -translate-x-1/2 w-[260px] h-[300px] z-10 cursor-pointer" onClick={() => setSide('front')}>
+                      <div className="scale-[0.62] origin-top-center">
+                        <DesignCanvas
+                          elements={elements}
+                          selectedId={selectedId}
+                          onSelectElement={setSelectedId}
+                          onMoveElement={handleMoveElement}
+                          onResizeElement={handleResizeElement}
+                          onPushHistory={() => pushHistory(elements)}
+                          onDropImage={handleDropImage}
+                          side="front"
+                          tshirtColor={tshirtColor}
+                          zoom={zoom}
+                          slot="shirt"
+                        />
+                      </div>
                     </div>
 
                     {/* "5 CM DOWN FROM NECK" annotation - right side */}
@@ -1668,27 +1670,29 @@ export default function DesignPage() {
                   </div>
 
                   {/* ─── BACK SECTION (Bottom Half) ─── */}
-                  <div className="relative h-1/2">
+                  <div className="relative h-1/2 overflow-hidden">
                     {/* "5 CM DOWN FROM NECK" annotation - left side */}
-                    <div className="absolute top-[30px] left-[50px] text-red-500 text-[9px] font-bold uppercase leading-tight z-30">
+                    <div className="absolute top-[20px] left-[50px] text-red-500 text-[9px] font-bold uppercase leading-tight z-30">
                       5 CM DOWN<br/>FROM NECK
                     </div>
                     
                     {/* Back T-shirt - centered */}
-                    <div className="absolute top-[10px] left-1/2 -translate-x-1/2 w-[340px] h-[340px] z-10 cursor-pointer" onClick={() => setSide('back')}>
-                      <DesignCanvas
-                        elements={elements}
-                        selectedId={selectedId}
-                        onSelectElement={setSelectedId}
-                        onMoveElement={handleMoveElement}
-                        onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)}
-                        onDropImage={handleDropImage}
-                        side="back"
-                        tshirtColor={tshirtColor}
-                        zoom={zoom}
-                        slot="shirt"
-                      />
+                    <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[280px] h-[300px] z-10 cursor-pointer" onClick={() => setSide('back')}>
+                      <div className="scale-[0.62] origin-top-center">
+                        <DesignCanvas
+                          elements={elements}
+                          selectedId={selectedId}
+                          onSelectElement={setSelectedId}
+                          onMoveElement={handleMoveElement}
+                          onResizeElement={handleResizeElement}
+                          onPushHistory={() => pushHistory(elements)}
+                          onDropImage={handleDropImage}
+                          side="back"
+                          tshirtColor={tshirtColor}
+                          zoom={zoom}
+                          slot="shirt"
+                        />
+                      </div>
                     </div>
 
                     {/* "Back Design" preview box - RIGHT side */}

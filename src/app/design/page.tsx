@@ -256,9 +256,9 @@ function DesignCanvas({
         
         // Map distance from visual center to distance from internal center
         // Subtraction of 50 centers the 100px element on the drop point
-        // Increased offsets for the "components to be added" as requested (Right +45, Down +55)
-        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 45;
-        const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50 + 55;
+        // EXTREMELY Increased offsets for the "components to be added" as requested (Right +100, Down +125)
+        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 100;
+        const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50 + 125;
         
         onDropImage(image, x, y);
       } catch (err) {

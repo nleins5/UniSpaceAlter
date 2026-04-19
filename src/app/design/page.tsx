@@ -22,11 +22,20 @@ interface DesignElement {
   side: "front" | "back";
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging" | "front-artwork" | "back-artwork";
   locked?: boolean;
+  techSlot?: string;
 }
 interface AIImage {
   id: string;
   label: string;
   url: string;
+}
+interface TechSlotConfig {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  side: "front" | "back";
+  label: string;
 }
 interface ChatMessage {
   id: string;
@@ -747,7 +756,7 @@ export default function DesignPage() {
     }
   }, []);
   const handleDropImage = useCallback(
-    (image: AIImage, xOrOverride?: number | { x: number, y: number, w: number, h: number, side?: "front" | "back" }, y?: number) => {
+    (image: AIImage, xOrOverride?: number | TechSlotConfig, y?: number) => {
       setElements((prev: DesignElement[]) => {
         pushHistory(prev);
         
@@ -758,14 +767,16 @@ export default function DesignPage() {
         let finalY = 0;
         let finalW = 140; // Default width
         let finalH = 140; // Default height
+        let techSlotId: string | undefined = undefined;
 
-        if (typeof xOrOverride === 'object') {
+        if (typeof xOrOverride === 'object' && xOrOverride !== null) {
           // Technical Slot Case
           finalX = xOrOverride.x;
           finalY = xOrOverride.y;
           finalW = xOrOverride.w;
           finalH = xOrOverride.h;
-          if (xOrOverride.side) effectiveSide = xOrOverride.side;
+          effectiveSide = xOrOverride.side;
+          techSlotId = xOrOverride.label;
         } else if (typeof xOrOverride === 'number' && typeof y === 'number') {
           // Free Drop Case
           finalX = xOrOverride;
@@ -796,6 +807,7 @@ export default function DesignPage() {
           side: effectiveSide as "front" | "back",
           slot: activeSlot,
           locked: true,
+          techSlot: techSlotId
         };
 
         return [...prev, el];
@@ -1640,27 +1652,36 @@ export default function DesignPage() {
                     {/* Thumbnails row at bottom — PRECISION TECHNICAL SLOTS */}
                     <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/80 flex items-center justify-around z-50">
                       {[
-                        { label: "Front Print", x: 130, y: 150, w: 140, h: 140 },
-                        { label: "Neck Tag", x: 175, y: 70, w: 50, h: 50 },
-                        { label: "Woven Patch", x: 265, y: 365, w: 60, h: 40 }
-                      ].map((slot) => (
-                        <div key={slot.label} className="flex flex-col items-center gap-1">
-                          <div className="text-[7px] font-black uppercase tracking-widest text-black/40">{slot.label}</div>
-                          <div
-                            className="w-[65px] h-[65px] border-2 border-dashed border-red-200 bg-white flex items-center justify-center overflow-hidden cursor-copy transition-all hover:border-red-500 hover:bg-red-50 group"
-                            onDragOver={(ev) => ev.preventDefault()}
-                            onDrop={(ev) => {
-                              ev.preventDefault();
-                              try {
-                                const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
-                                handleDropImage(img, { x: slot.x, y: slot.y, w: slot.w, h: slot.h });
-                              } catch {}
-                            }}
-                          >
-                            <span className="text-[7px] text-red-300 font-bold uppercase group-hover:text-red-500 transition-colors">Drop</span>
+                        { label: "Front Print", x: 130, y: 150, w: 140, h: 140, side: "front" as const },
+                        { label: "Neck Tag", x: 175, y: 70, w: 50, h: 50, side: "front" as const },
+                        { label: "Woven Patch", x: 265, y: 365, w: 60, h: 40, side: "front" as const }
+                      ].map((slot) => {
+                        const assignedEl = elements.find(e => e.techSlot === slot.label);
+                        return (
+                          <div key={slot.label} className="flex flex-col items-center gap-1">
+                            <div className="text-[7px] font-black uppercase tracking-widest text-black/40">{slot.label}</div>
+                            <div
+                              className="w-[65px] h-[65px] border-2 border-dashed border-red-200 bg-white flex items-center justify-center overflow-hidden cursor-copy transition-all hover:border-red-500 hover:bg-red-50 group"
+                              onDragOver={(ev) => ev.preventDefault()}
+                              onDrop={(ev) => {
+                                ev.preventDefault();
+                                try {
+                                  const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
+                                  handleDropImage(img, { ...slot });
+                                } catch {}
+                              }}
+                            >
+                              {assignedEl?.url ? (
+                                <div className="relative w-full h-full p-1">
+                                  <Image src={assignedEl.url} fill className="object-contain" alt={slot.label} />
+                                </div>
+                              ) : (
+                                <span className="text-[7px] text-red-300 font-bold uppercase group-hover:text-red-500 transition-colors">Drop</span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1703,22 +1724,35 @@ export default function DesignPage() {
 
                     {/* Back Print drop slot — PRECISION TECHNICAL SLOT */}
                     <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/80 flex items-center justify-around z-50">
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="text-[7px] font-black uppercase tracking-widest text-black/40">Back Print</div>
-                        <div
-                          className="w-[120px] h-[65px] border-2 border-dashed border-blue-200 bg-white flex items-center justify-center overflow-hidden cursor-copy transition-all hover:border-blue-500 hover:bg-blue-50 group"
-                          onDragOver={(ev) => ev.preventDefault()}
-                          onDrop={(ev) => {
-                            ev.preventDefault();
-                            try {
-                              const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
-                              handleDropImage(img, { x: 120, y: 130, w: 160, h: 180, side: "back" });
-                            } catch {}
-                          }}
-                        >
-                          <span className="text-[7px] text-blue-300 font-bold uppercase group-hover:text-blue-500 transition-colors">Drop for Back</span>
-                        </div>
-                      </div>
+                      {[
+                        { label: "Back Print", x: 120, y: 130, w: 160, h: 180, side: "back" as const }
+                      ].map((slot) => {
+                        const assignedEl = elements.find(e => e.techSlot === slot.label);
+                        return (
+                          <div key={slot.label} className="flex flex-col items-center gap-1">
+                            <div className="text-[7px] font-black uppercase tracking-widest text-black/40">{slot.label}</div>
+                            <div
+                              className="w-[120px] h-[65px] border-2 border-dashed border-blue-200 bg-white flex items-center justify-center overflow-hidden cursor-copy transition-all hover:border-blue-500 hover:bg-blue-50 group"
+                              onDragOver={(ev) => ev.preventDefault()}
+                              onDrop={(ev) => {
+                                ev.preventDefault();
+                                try {
+                                  const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
+                                  handleDropImage(img, { ...slot });
+                                } catch {}
+                              }}
+                            >
+                              {assignedEl?.url ? (
+                                <div className="relative w-full h-full p-1">
+                                  <Image src={assignedEl.url} fill className="object-contain" alt={slot.label} />
+                                </div>
+                              ) : (
+                                <span className="text-[7px] text-blue-300 font-bold uppercase group-hover:text-blue-500 transition-colors">Drop for Back</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

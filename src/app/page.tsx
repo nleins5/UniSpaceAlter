@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Logo } from "../components/Logo";
 
-// Slider images (downloaded from tramdongphuc.com → public/images/slider/)
 const sliderImages = [
   "/images/slider/1.jpeg",
   "/images/slider/2.jpeg",
@@ -12,7 +11,6 @@ const sliderImages = [
   "/images/slider/4.jpeg",
 ];
 
-// UniSpace product catalog images
 const productImages = [
   { src: "/images/products/p1.png", label: "Phong cách Đen - Đỏ" },
   { src: "/images/products/p2.png", label: "Phong cách Trắng - Navy" },
@@ -28,7 +26,6 @@ export default function HomePage() {
   const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto slide
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrentSlide((s) => (s + 1) % sliderImages.length);
@@ -46,8 +43,6 @@ export default function HomePage() {
 
   return (
     <div className="tdp-page">
-
-      {/* ═══ HEADER TOP (White) ═══ */}
       <div className="tdp-header-top">
         <div className="tdp-container tdp-header-top-inner">
           <Link href="/" className="tdp-logo-link">
@@ -81,11 +76,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══ HEADER MENU (Black) ═══ */}
       <div className="tdp-header-menu">
         <div className="tdp-container">
           <nav className={`tdp-nav ${mobileMenuOpen ? "open" : ""}`}>
-            {/* left nav */}
             <ul className="tdp-nav-left">
               <li className="tdp-nav-dropdown">
                 <a
@@ -119,7 +112,6 @@ export default function HomePage() {
               </li>
             </ul>
 
-            {/* right nav */}
             <ul className="tdp-nav-right">
               <li><a href="#pricing">Khuyến mãi &amp; Quà tặng</a></li>
               <li><a href="#why">Giao hàng &amp; Thanh toán</a></li>
@@ -132,7 +124,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══ HERO SLIDER ═══ */}
       <div className="tdp-slider">
         <div className="tdp-carousel">
           <div className="tdp-carousel-inner">
@@ -146,8 +137,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-
-          {/* Dots */}
           <div className="tdp-carousel-dots">
             {sliderImages.map((_, i) => (
               <button
@@ -158,8 +147,6 @@ export default function HomePage() {
               />
             ))}
           </div>
-
-          {/* Prev / Next */}
           <button
             className="tdp-carousel-btn tdp-carousel-prev"
             onClick={() => goSlide((currentSlide - 1 + sliderImages.length) % sliderImages.length)}
@@ -177,9 +164,6 @@ export default function HomePage() {
         </div>
       </div>
 
-
-
-      {/* ═══ BỘ SƯU TẬP ÁO ═══ */}
       <div className="tdp-section" id="products">
         <div className="tdp-container">
           <div className="tdp-section-title center">
@@ -200,8 +184,6 @@ export default function HomePage() {
         </div>
       </div>
 
-
-      {/* ═══ CÁC BƯỚC ═══ */}
       <div className="tdp-section tdp-section-dark" id="why">
         <div className="tdp-container">
           <div className="tdp-section-title white">
@@ -223,7 +205,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══ ĐĂNG KÝ TƯ VẤN ═══ */}
       <div className="tdp-section" id="pricing">
         <div className="tdp-container tdp-consult-area">
           <div className="tdp-consult-left">
@@ -242,7 +223,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══ FOOTER ═══ */}
       <footer className="tdp-footer">
         <div className="tdp-container">
           <div className="tdp-footer-grid">
@@ -257,24 +237,6 @@ export default function HomePage() {
                   📍 647 Tạ Quang Bửu, P.5, Q.8, TP. Hồ Chí Minh
                 </a>
               </p>
-              <div className="tdp-footer-socials">
-                <a
-                  href="https://www.facebook.com/UniSpace.TramInAo"
-                  target="_blank" rel="noopener noreferrer"
-                  className="tdp-footer-fb"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
-                  Facebook
-                </a>
-                <a
-                  href="https://www.instagram.com/tramdongphuc/"
-                  target="_blank" rel="noopener noreferrer"
-                  className="tdp-footer-ig"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
-                  Instagram
-                </a>
-              </div>
             </div>
 
             <div className="tdp-footer-col">
@@ -283,7 +245,6 @@ export default function HomePage() {
               <a href="#pricing">Bảng giá</a>
               <a href="#products">Bảng size</a>
               <a href="#products">Bảng màu</a>
-              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Feedback</a>
             </div>
 
             <div className="tdp-footer-col">
@@ -298,11 +259,9 @@ export default function HomePage() {
               <h4>Liên kết nhanh</h4>
               <Link href="/design">Tự thiết kế online</Link>
               <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Nhắn tin Facebook</a>
-              <a href="https://www.instagram.com/tramdongphuc/" target="_blank" rel="noopener noreferrer">Instagram</a>
               <a href="tel:+84000000000">Hotline</a>
             </div>
           </div>
-
           <div className="tdp-footer-bottom">
             <p>© 2026 UniSpace — Trạm In Áo. All rights reserved.</p>
           </div>

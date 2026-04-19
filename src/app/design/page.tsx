@@ -244,9 +244,11 @@ function DesignCanvas({
       try {
         const image: AIImage = JSON.parse(data);
         const rect = canvasRef.current!.getBoundingClientRect();
-        const scale = zoom / 100;
-        const x = (e.clientX - rect.left) / scale - 40;
-        const y = (e.clientY - rect.top) / scale - 40;
+        // Adjust for BOTH the inner zoom scale and the outer layout scale (0.85)
+        const layoutScale = 0.85;
+        const totalScale = (zoom / 100) * layoutScale;
+        const x = (e.clientX - rect.left) / totalScale - 50; 
+        const y = (e.clientY - rect.top) / totalScale - 50;
         onDropImage(image, x, y);
       } catch (err) {
         console.error("Drop error:", err);
@@ -1633,8 +1635,8 @@ export default function DesignPage() {
                     </div>
 
                     {/* Front T-shirt canvas — centered, scaled to fit better */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 overflow-hidden">
-                      <div className="w-[450px] h-[500px] overflow-hidden cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('front')}>
+                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 z-40">
+                      <div className="w-[450px] h-[500px] cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('front')}>
                         <div className="scale-[0.85] origin-center">
                           <DesignCanvas
                             elements={elements}
@@ -1693,8 +1695,8 @@ export default function DesignPage() {
                     </div>
 
                     {/* Back T-shirt canvas — centered, scaled to fit better */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 overflow-hidden">
-                      <div className="w-[450px] h-[500px] overflow-hidden cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('back')}>
+                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 z-40">
+                      <div className="w-[450px] h-[500px] cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('back')}>
                         <div className="scale-[0.85] origin-center">
                           <DesignCanvas
                             elements={elements}

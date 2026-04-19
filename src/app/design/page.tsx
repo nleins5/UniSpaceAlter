@@ -246,8 +246,8 @@ function DesignCanvas({
         const rect = canvasRef.current!.getBoundingClientRect();
         const visualScale = rect.width / (slot === "shirt" ? 400 : 300);
         
-        // Add manual offsets to fix the "too far left/top" issue on the front side
-        const xOffset = side === "front" ? 10 : 0;
+        // Move back to the left (xOffset = 0) as requested, keeping the yOffset
+        const xOffset = side === "front" ? 0 : 0;
         const yOffset = side === "front" ? 15 : 0;
         
         const x = (e.clientX - rect.left) / visualScale - 50 + xOffset; 

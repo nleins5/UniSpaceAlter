@@ -772,22 +772,36 @@ export default function DesignPage() {
     }
   }, []);
   const handleDropImage = useCallback(
-    (image: AIImage, overridePos?: { x: number, y: number, w: number, h: number }) => {
+    (image: AIImage, xOrOverride?: number | { x: number, y: number, w: number, h: number }, y?: number) => {
       setElements((prev: DesignElement[]) => {
         pushHistory(prev);
         
         const isBack = printLocation.includes("back") || printLocation === "back-artwork";
         const effectiveSide = isBack ? "back" : "front";
 
-        if (effectiveSide !== side && !overridePos) {
-          setSide(effectiveSide as "front" | "back");
-        }
+        let finalX = 0;
+        let finalY = 0;
+        let finalW = 140; // Default width
+        let finalH = 140; // Default height
 
-        const pos = overridePos || getPresetPosition(printLocation, activeSlot);
-        const finalX = pos.x;
-        const finalY = pos.y;
-        const finalW = pos.w;
-        const finalH = pos.h;
+        if (typeof xOrOverride === 'object') {
+          // Technical Slot Case
+          finalX = xOrOverride.x;
+          finalY = xOrOverride.y;
+          finalW = xOrOverride.w;
+          finalH = xOrOverride.h;
+        } else if (typeof xOrOverride === 'number' && typeof y === 'number') {
+          // Free Drop Case
+          finalX = xOrOverride;
+          finalY = y;
+        } else {
+          // Preset Case
+          const pos = getPresetPosition(printLocation, activeSlot);
+          finalX = pos.x;
+          finalY = pos.y;
+          finalW = pos.w;
+          finalH = pos.h;
+        }
 
         const el: DesignElement = {
           id: `design-el-${Date.now()}`,
@@ -807,7 +821,7 @@ export default function DesignPage() {
         return [...prev, el];
       });
     },
-    [side, activeSlot, printLocation, getPresetPosition, pushHistory]
+    [activeSlot, printLocation, getPresetPosition, pushHistory]
   );
   const handleAddText = () => {
     if (!textInput.trim()) return;

@@ -1637,7 +1637,7 @@ export default function DesignPage() {
                       {[
                         { label: "Front Print", x: 130, y: 150, w: 140, h: 140 },
                         { label: "Neck Tag", x: 175, y: 70, w: 50, h: 50 },
-                        { label: "Woven Patch", x: 280, y: 380, w: 60, h: 40 }
+                        { label: "Woven Patch", x: 265, y: 365, w: 60, h: 40 }
                       ].map((slot) => (
                         <div key={slot.label} className="flex flex-col items-center gap-1">
                           <div className="text-[7px] font-black uppercase tracking-widest text-black/40">{slot.label}</div>

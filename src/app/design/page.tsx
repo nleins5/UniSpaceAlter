@@ -1632,10 +1632,10 @@ export default function DesignPage() {
                       TWIN NEEDLE<br/>TOP STITCH
                     </div>
 
-                    {/* Front T-shirt canvas — centered, scaled to fit */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-16 overflow-hidden">
-                      <div className="w-[230px] h-[230px] overflow-hidden cursor-pointer flex-shrink-0" onClick={() => setSide('front')}>
-                        <div className="scale-[0.52] origin-top-left">
+                    {/* Front T-shirt canvas — centered, scaled to fit better */}
+                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 overflow-hidden">
+                      <div className="w-[450px] h-[500px] overflow-hidden cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('front')}>
+                        <div className="scale-[0.85] origin-center">
                           <DesignCanvas
                             elements={elements}
                             selectedId={selectedId}
@@ -1692,10 +1692,10 @@ export default function DesignPage() {
                       TWIN NEEDLE<br/>TOP STITCH
                     </div>
 
-                    {/* Back T-shirt canvas — centered, scaled to fit */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-16 overflow-hidden">
-                      <div className="w-[230px] h-[230px] overflow-hidden cursor-pointer flex-shrink-0" onClick={() => setSide('back')}>
-                        <div className="scale-[0.52] origin-top-left">
+                    {/* Back T-shirt canvas — centered, scaled to fit better */}
+                    <div className="absolute inset-0 flex items-center justify-center pt-2 pb-12 overflow-hidden">
+                      <div className="w-[450px] h-[500px] overflow-hidden cursor-pointer flex-shrink-0 flex items-center justify-center" onClick={() => setSide('back')}>
+                        <div className="scale-[0.85] origin-center">
                           <DesignCanvas
                             elements={elements}
                             selectedId={selectedId}

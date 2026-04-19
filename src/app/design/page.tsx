@@ -242,22 +242,21 @@ function DesignCanvas({
       const data = e.dataTransfer.getData("application/json");
       if (!data) return;
       try {
-        const image: AIImage = JSON.parse(data);
-        const rect = canvasRef.current!.getBoundingClientRect();
+        const visualScale = rect.width / (slot === "shirt" ? 400 : 300);
         
-        // Cumulative scale calculation
-        // We use the actual rendered width vs defined width to find the true visually applied scale
-        const visualScale = rect.width / (slot === "shirt" ? 400 : 300); // 400 is the standard DesignCanvas width for shirts
+        // Add manual offsets to fix the "too far left/top" issue on the front side
+        const xOffset = side === "front" ? 10 : 0;
+        const yOffset = side === "front" ? 15 : 0;
         
-        const x = (e.clientX - rect.left) / visualScale - 50; 
-        const y = (e.clientY - rect.top) / visualScale - 50;
+        const x = (e.clientX - rect.left) / visualScale - 50 + xOffset; 
+        const y = (e.clientY - rect.top) / visualScale - 50 + yOffset;
         
         onDropImage(image, x, y);
       } catch (err) {
         console.error("Drop error:", err);
       }
     },
-    [onDropImage, slot]
+    [onDropImage, slot, side]
   );
   return (
     <>

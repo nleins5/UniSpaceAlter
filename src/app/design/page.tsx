@@ -244,17 +244,20 @@ function DesignCanvas({
       try {
         const image: AIImage = JSON.parse(data);
         const rect = canvasRef.current!.getBoundingClientRect();
-        // Adjust for BOTH the inner zoom scale and the outer layout scale (0.85)
-        const layoutScale = 0.85;
-        const totalScale = (zoom / 100) * layoutScale;
-        const x = (e.clientX - rect.left) / totalScale - 50; 
-        const y = (e.clientY - rect.top) / totalScale - 50;
+        
+        // Cumulative scale calculation
+        // We use the actual rendered width vs defined width to find the true visually applied scale
+        const visualScale = rect.width / (slot === "shirt" ? 400 : 300); // 400 is the standard DesignCanvas width for shirts
+        
+        const x = (e.clientX - rect.left) / visualScale - 50; 
+        const y = (e.clientY - rect.top) / visualScale - 50;
+        
         onDropImage(image, x, y);
       } catch (err) {
         console.error("Drop error:", err);
       }
     },
-    [onDropImage, zoom]
+    [onDropImage, slot]
   );
   return (
     <>

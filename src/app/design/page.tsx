@@ -44,60 +44,65 @@ interface ChatMessage {
   images?: AIImage[];
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  if (side === "front") {
-    return (
-      <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
-        {/* Shadow layer for depth */}
-        <path d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" fill="black" opacity="0.05" transform="translate(2, 4)" />
-        
-        {/* Main Body & Sleeves - Deep Boxy Fit */}
-        <path 
-          d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" 
-          fill={color} 
-          stroke="#000" 
-          strokeWidth="1.5" 
-          strokeLinejoin="round" 
-        />
-
-        {/* Heavy Rib Collar */}
-        <path 
-          d="M170 85C170 85 185 135 250 135C315 135 330 85 330 85C330 85 310 95 250 95C190 95 170 85 170 85Z" 
-          fill="#fafafa" 
-          stroke="#000" 
-          strokeWidth="1.2" 
-        />
-        <path d="M185 92C210 105 290 105 315 92" stroke="#000" strokeWidth="0.5" opacity="0.3" />
-
-        {/* Technical Seams */}
-        <path d="M145 235V450M355 235V450" stroke="#000" strokeWidth="0.7" opacity="0.2" />
-        <path d="M145 235C145 235 155 130 90 100M355 235C355 235 345 130 410 100" stroke="#000" strokeWidth="1.2" opacity="0.5" />
-
-        {/* Hem & Sleeve Stitches (Double Needle) */}
-        <path d="M145 435H355M145 440H355" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
-        <path d="M40 240L65 255M45 245L70 260" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
-        <path d="M435 255L460 240M430 260L455 245" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
-      </svg>
-    );
-  }
-
+  const isFront = side === "front";
+  
   return (
     <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
-      <path d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" fill="black" opacity="0.05" transform="translate(2, 4)" />
-      
+      {/* Outer Glow/Depth */}
+      <defs>
+        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+          <feOffset dx="0" dy="2" result="offsetblur" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="0.1" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* Main silhouette - smooth organic curves */}
       <path 
-        d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" 
+        d="M105 105C105 105 70 120 40 145C30 155 45 230 75 270C85 285 140 240 140 240V440C140 455 155 460 170 460H330C345 460 360 455 360 440V240C360 240 415 285 425 270C455 230 470 155 460 145C430 120 395 105 395 105C395 105 360 85 250 85C140 85 105 105 105 105Z" 
         fill={color} 
         stroke="#000" 
-        strokeWidth="1.5" 
-        strokeLinejoin="round" 
+        strokeWidth="1.2" 
+        filter="url(#softShadow)"
       />
 
-      {/* Back High Neck Detail */}
-      <path d="M170 85C170 85 200 95 250 95C300 95 330 85 330 85" fill="#fafafa" stroke="#000" strokeWidth="1.2" />
-      <path d="M145 235C145 235 155 130 90 100M355 235C355 235 345 130 410 100" stroke="#000" strokeWidth="1.2" opacity="0.5" />
+      {/* Collar Detail */}
+      {isFront ? (
+        <>
+          <path 
+            d="M175 95C175 95 185 140 250 140C315 140 325 95 325 95C325 95 310 105 250 105C190 105 175 95 175 95Z" 
+            fill="#f5f5f5" 
+            stroke="#000" 
+            strokeWidth="1" 
+          />
+          {/* inner neck detail */}
+          <path d="M190 100C210 115 290 115 310 100" stroke="#000" strokeWidth="0.5" opacity="0.3" />
+        </>
+      ) : (
+        <path d="M175 95C175 95 200 105 250 105C300 105 325 95 325 95" fill="#f5f5f5" stroke="#000" strokeWidth="1" />
+      )}
+
+      {/* Seam architecture */}
+      <path d="M140 240C140 240 160 135 105 105M360 240C360 240 340 135 395 105" stroke="#000" strokeWidth="0.8" opacity="0.4" />
       
-      {/* Back Hem Stitches */}
-      <path d="M145 435H355M145 440H355" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
+      {/* Heavy-weight stitching (double needle) */}
+      <g opacity="0.5" stroke="#000" strokeWidth="0.3" strokeDasharray="2 1">
+        {/* Hem */}
+        <path d="M140 445H360" />
+        <path d="M140 450H360" />
+        {/* Left Sleeve */}
+        <path d="M45 245L75 260" />
+        <path d="M50 250L80 265" />
+        {/* Right Sleeve */}
+        <path d="M455 245L425 260" />
+        <path d="M450 250L420 265" />
+      </g>
     </svg>
   );
 }

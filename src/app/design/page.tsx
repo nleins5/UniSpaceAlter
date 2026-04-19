@@ -254,9 +254,10 @@ function DesignCanvas({
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        // EXTREME SHIFT to the viewer's LEFT ON SCREEN (-180)
-        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 - 180;
-        const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50 + 125;
+        // RESET TO ZERO for perfect center alignment under the mouse
+        // No more offsets, just 1:1 mapping from mouse to canvas
+        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50;
+        const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50;
         
         onDropImage(image, x, y);
       } catch (err) {

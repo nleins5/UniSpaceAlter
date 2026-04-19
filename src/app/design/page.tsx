@@ -193,7 +193,9 @@ function DesignCanvas({
     const scale = zoom / 100;
     const handleMouseMove = (e: MouseEvent) => {
       if (!canvasRef.current) return;
-      if (el.locked) return; // Disallow dragging for fixed slots
+      const el = elements.find(item => item.id === selectedId);
+      if (!el || el.locked) return; // Disallow dragging if not found or if fixed slot
+      
       hasMovedRef.current = true;
       const rect = canvasRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / scale - dragOffset.x;
@@ -202,7 +204,9 @@ function DesignCanvas({
     };
     const handleTouchMove = (e: TouchEvent) => {
       if (!canvasRef.current || !e.touches[0]) return;
-      if (el.locked) return; // Disallow dragging for fixed slots
+      const el = elements.find(item => item.id === selectedId);
+      if (!el || el.locked) return; // Disallow dragging if not found or if fixed slot
+      
       e.preventDefault();
       hasMovedRef.current = true;
       const rect = canvasRef.current.getBoundingClientRect();

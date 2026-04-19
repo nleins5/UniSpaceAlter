@@ -45,6 +45,7 @@ interface ChatMessage {
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_tshirt_${side}.png`;
+  const maskUrl = `/mockups/tshirt_${side}_mask.png`;
   const uniqueId = useId().replace(/:/g, "-");
   
   return (
@@ -54,8 +55,8 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
           position: absolute;
           inset: 0;
           background-color: ${color};
-          -webkit-mask-image: url('${imgUrl}');
-          mask-image: url('${imgUrl}');
+          -webkit-mask-image: url('${maskUrl}');
+          mask-image: url('${maskUrl}');
           -webkit-mask-size: contain;
           mask-size: contain;
           -webkit-mask-repeat: no-repeat;

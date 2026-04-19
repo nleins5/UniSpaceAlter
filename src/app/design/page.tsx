@@ -772,47 +772,25 @@ export default function DesignPage() {
     }
   }, []);
   const handleDropImage = useCallback(
-    (image: AIImage) => {
+    (image: AIImage, overridePos?: { x: number, y: number, w: number, h: number }) => {
       setElements((prev: DesignElement[]) => {
         pushHistory(prev);
         
-        // Force slot based on printLocation
         const isBack = printLocation.includes("back") || printLocation === "back-artwork";
         const effectiveSide = isBack ? "back" : "front";
 
-        // Auto switch side for better UX
-        if (effectiveSide !== side) {
+        if (effectiveSide !== side && !overridePos) {
           setSide(effectiveSide as "front" | "back");
         }
 
-        const pos = getPresetPosition(printLocation, activeSlot);
+        const pos = overridePos || getPresetPosition(printLocation, activeSlot);
         const finalX = pos.x;
         const finalY = pos.y;
         const finalW = pos.w;
         const finalH = pos.h;
 
-        const elIdx = prev.findIndex((e: DesignElement) => 
-          e.side === effectiveSide && 
-          e.slot === activeSlot
-        );
-
-        if (elIdx !== -1) {
-          const newElements = [...prev];
-          newElements[elIdx] = {
-            ...newElements[elIdx],
-            url: image.url,
-            label: image.label,
-            x: finalX,
-            y: finalY,
-            width: finalW,
-            height: finalH,
-            locked: true // Movements are restricted to the brand slot
-          };
-          return newElements;
-        }
-
         const el: DesignElement = {
-          id: `brand-el-${Date.now()}`,
+          id: `design-el-${Date.now()}`,
           type: "image",
           label: image.label,
           url: image.url,
@@ -823,7 +801,7 @@ export default function DesignPage() {
           rotation: 0,
           side: effectiveSide,
           slot: activeSlot,
-          locked: true,
+          locked: false,
         };
 
         return [...prev, el];
@@ -1676,11 +1654,15 @@ export default function DesignPage() {
                       <circle cx="315" cy="350" r="1.5" fill="#ef4444" />
                     </svg>
 
-                    {/* Thumbnails row at bottom — all 3 slots accept drops */}
+                    {/* Thumbnails row at bottom — DEFINED POSITIONS FOR PRECISION */}
                     <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/60 flex items-center justify-around z-50">
-                      {["Front Print", "Neck Tag", "Woven Patch"].map((label) => (
-                        <div key={label} className="flex flex-col items-center gap-1">
-                          <div className="text-[7px] font-black uppercase tracking-widest opacity-50">{label}</div>
+                      {[
+                        { label: "Front Print", x: 130, y: 150, w: 140, h: 140 },
+                        { label: "Neck Tag", x: 175, y: 70, w: 50, h: 50 },
+                        { label: "Woven Patch", x: 280, y: 380, w: 60, h: 40 }
+                      ].map((slot) => (
+                        <div key={slot.label} className="flex flex-col items-center gap-1">
+                          <div className="text-[7px] font-black uppercase tracking-widest opacity-50">{slot.label}</div>
                           <div
                             className="w-[65px] h-[65px] border-2 border-dashed border-[#aaa] bg-white flex items-center justify-center overflow-hidden cursor-copy transition-colors hover:border-red-400 hover:bg-red-50"
                             onDragOver={(ev) => ev.preventDefault()}
@@ -1688,7 +1670,8 @@ export default function DesignPage() {
                               ev.preventDefault();
                               try {
                                 const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
-                                handleDropImage(img);
+                                // Point to EXACT technical coordinates
+                                handleDropImage(img, { x: slot.x, y: slot.y, w: slot.w, h: slot.h });
                               } catch {}
                             }}
                           >

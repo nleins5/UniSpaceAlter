@@ -44,37 +44,46 @@ interface ChatMessage {
   images?: AIImage[];
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const imgUrl = `/mockups/v_tshirt_${side}.png`;
-  const uniqueId = useId().replace(/:/g, "-");
-  
+  if (side === "front") {
+    return (
+      <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl">
+        {/* Main Body & Sleeves */}
+        <path 
+          d="M110 115L45 140L65 250L135 225V420H365V225L435 250L455 140L390 115C390 115 350 100 250 100C150 100 110 115 110 115Z" 
+          fill={color} 
+          stroke="#111" 
+          strokeWidth="2" 
+          strokeLinejoin="round" 
+        />
+        {/* Collar Detail */}
+        <path 
+          d="M175 105C175 105 185 135 250 135C315 135 325 105 325 105C325 105 315 115 250 115C185 115 175 105 175 105Z" 
+          fill="#eee" 
+          stroke="#111" 
+          strokeWidth="1.5" 
+        />
+        {/* Sleeve Stitches */}
+        <path d="M75 200L105 190M395 190L425 200" stroke="#111" strokeWidth="0.5" strokeDasharray="2 1" />
+        {/* internal seam lines */}
+        <path d="M135 225C135 225 155 140 110 115M365 225C365 225 345 140 390 115" stroke="#111" strokeWidth="1.5" opacity="0.4" />
+      </svg>
+    );
+  }
+
   return (
-    <div className="relative w-full h-full drop-shadow-md">
-      <style>{`
-        .tshirt-mask-${uniqueId} {
-          position: absolute;
-          inset: 0;
-          background-color: ${color};
-          -webkit-mask-image: url('${imgUrl}');
-          mask-image: url('${imgUrl}');
-          -webkit-mask-size: contain;
-          mask-size: contain;
-          -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
-          -webkit-mask-position: center;
-          mask-position: center;
-          transition: background-color 0.4s ease;
-        }
-      `}</style>
-      {/* Base Color Fill Mask */}
-      <div className={`tshirt-mask-${uniqueId}`} />
-      {/* Detail Lines Overlay - Preserves shadows and highlights */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img 
-        src={imgUrl} 
-        alt="T-Shirt Mockup" 
-        className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.9] mix-blend-multiply" 
+    <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl">
+      {/* Main Body & Sleeves BACK */}
+      <path 
+        d="M110 115L45 140L65 250L135 225V420H365V225L435 250L455 140L390 115C390 115 350 100 250 100C150 100 110 115 110 115Z" 
+        fill={color} 
+        stroke="#111" 
+        strokeWidth="2" 
+        strokeLinejoin="round" 
       />
-    </div>
+      {/* High Neck Back Detail */}
+      <path d="M175 105C175 105 195 115 250 115C305 115 325 105 325 105" stroke="#111" strokeWidth="2" />
+      <path d="M135 225C135 225 155 140 110 115M365 225C365 225 345 140 390 115" stroke="#111" strokeWidth="1.5" opacity="0.4" />
+    </svg>
   );
 }
 

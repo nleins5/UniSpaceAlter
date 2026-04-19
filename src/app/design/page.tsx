@@ -254,8 +254,8 @@ function DesignCanvas({
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        // Minor adjustment (+30 Right) as it's still visually biased to one side
-        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 30;
+        // Pull significantly to the LEFT (-60) as it was appearing too far right in the screenshot
+        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 - 60;
         const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50;
         
         onDropImage(image, x, y);

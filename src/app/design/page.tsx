@@ -242,6 +242,8 @@ function DesignCanvas({
       const data = e.dataTransfer.getData("application/json");
       if (!data) return;
       try {
+        const image: AIImage = JSON.parse(data);
+        const rect = canvasRef.current!.getBoundingClientRect();
         const visualScale = rect.width / (slot === "shirt" ? 400 : 300);
         
         // Add manual offsets to fix the "too far left/top" issue on the front side

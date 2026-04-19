@@ -1581,12 +1581,12 @@ export default function DesignPage() {
                 {/* ─── HEADER TABLE ─── */}
                 <div className="grid grid-cols-4 border-b-[1.5px] border-[#888] text-[11px]">
                   <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 font-bold bg-white">Design</div>
-                  <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 text-gray-600">Urban Core TS</div>
+                  <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 text-gray-600">UniSpace Tee</div>
                   <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 font-bold bg-white">Size</div>
                   <div className="border-b-[1.5px] border-[#888] p-2 px-4 text-gray-600">XS / S / M / L / XL</div>
                   
                   <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 font-bold bg-white">Brand</div>
-                  <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 text-gray-600">Urban Core Supply</div>
+                  <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 text-gray-600">UniSpace</div>
                   <div className="border-r-[1.5px] border-b-[1.5px] border-[#888] p-2 px-4 font-bold bg-white">Date Created</div>
                   <div className="border-b-[1.5px] border-[#888] p-2 px-4 text-gray-600">01/01/2026</div>
                   
@@ -1633,9 +1633,9 @@ export default function DesignPage() {
                     </div>
 
                     {/* Front T-shirt canvas — centered, scaled to fit */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-[60px]">
-                      <div className="w-[320px] h-[320px] cursor-pointer" onClick={() => setSide('front')}>
-                        <div className="w-full h-full scale-[0.72] origin-center">
+                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-16 overflow-hidden">
+                      <div className="w-[230px] h-[230px] overflow-hidden cursor-pointer flex-shrink-0" onClick={() => setSide('front')}>
+                        <div className="scale-[0.52] origin-top-left">
                           <DesignCanvas
                             elements={elements}
                             selectedId={selectedId}
@@ -1693,9 +1693,9 @@ export default function DesignPage() {
                     </div>
 
                     {/* Back T-shirt canvas — centered, scaled to fit */}
-                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-[60px]">
-                      <div className="w-[320px] h-[320px] cursor-pointer" onClick={() => setSide('back')}>
-                        <div className="w-full h-full scale-[0.72] origin-center">
+                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-16 overflow-hidden">
+                      <div className="w-[230px] h-[230px] overflow-hidden cursor-pointer flex-shrink-0" onClick={() => setSide('back')}>
+                        <div className="scale-[0.52] origin-top-left">
                           <DesignCanvas
                             elements={elements}
                             selectedId={selectedId}
@@ -1742,8 +1742,7 @@ export default function DesignPage() {
                   {/* Logo */}
                   <div className="flex items-center justify-center p-2">
                     <div className="text-center">
-                      <div className="font-black text-[14px] leading-none uppercase tracking-tighter italic">URBAN</div>
-                      <div className="font-black text-[10px] uppercase tracking-[0.15em] leading-tight">CORE</div>
+                      <div className="font-black text-[18px] leading-none tracking-tighter">Uni<span className="text-violet-600">Space</span></div>
                     </div>
                   </div>
                   {/* Color Palette */}

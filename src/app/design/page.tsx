@@ -747,12 +747,12 @@ export default function DesignPage() {
     }
   }, []);
   const handleDropImage = useCallback(
-    (image: AIImage, xOrOverride?: number | { x: number, y: number, w: number, h: number }, y?: number) => {
+    (image: AIImage, xOrOverride?: number | { x: number, y: number, w: number, h: number, side?: "front" | "back" }, y?: number) => {
       setElements((prev: DesignElement[]) => {
         pushHistory(prev);
         
         const isBack = printLocation.includes("back") || printLocation === "back-artwork";
-        const effectiveSide = isBack ? "back" : "front";
+        let effectiveSide = isBack ? "back" : "front";
 
         let finalX = 0;
         let finalY = 0;
@@ -765,6 +765,7 @@ export default function DesignPage() {
           finalY = xOrOverride.y;
           finalW = xOrOverride.w;
           finalH = xOrOverride.h;
+          if (xOrOverride.side) effectiveSide = xOrOverride.side;
         } else if (typeof xOrOverride === 'number' && typeof y === 'number') {
           // Free Drop Case
           finalX = xOrOverride;
@@ -776,6 +777,10 @@ export default function DesignPage() {
           finalY = pos.y;
           finalW = pos.w;
           finalH = pos.h;
+        }
+
+        if (effectiveSide !== side) {
+          setSide(effectiveSide as "front" | "back");
         }
 
         const el: DesignElement = {
@@ -796,7 +801,7 @@ export default function DesignPage() {
         return [...prev, el];
       });
     },
-    [activeSlot, printLocation, getPresetPosition, pushHistory]
+    [side, activeSlot, printLocation, getPresetPosition, pushHistory]
   );
   const handleAddText = () => {
     if (!textInput.trim()) return;
@@ -1696,20 +1701,23 @@ export default function DesignPage() {
                       <line x1="340" y1="290" x2="290" y2="300" stroke="#ef4444" strokeWidth="0.8"/>
                     </svg>
 
-                    {/* Back Design thumbnail — moved to bottom-right corner */}
-                    <div className="absolute bottom-4 right-6 flex flex-col items-center z-30">
-                      <div className="text-[9px] font-bold italic mb-1 text-gray-700 text-right">Back Design</div>
-                      <div className="w-[90px] h-[75px] border border-[#888] bg-white flex items-center justify-center overflow-hidden">
-                        {elements.find(e => e.side === 'back' && e.url) ? (
-                          <Image
-                            src={elements.find(e => e.side === 'back' && e.url)?.url || ''}
-                            width={90} height={75}
-                            className="w-full h-full object-contain p-1"
-                            alt="Back Design"
-                          />
-                        ) : (
-                          <span className="text-[7px] text-gray-300 font-bold uppercase text-center">No Design</span>
-                        )}
+                    {/* Back Print drop slot — PRECISION TECHNICAL SLOT */}
+                    <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/80 flex items-center justify-around z-50">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="text-[7px] font-black uppercase tracking-widest text-black/40">Back Print</div>
+                        <div
+                          className="w-[120px] h-[65px] border-2 border-dashed border-blue-200 bg-white flex items-center justify-center overflow-hidden cursor-copy transition-all hover:border-blue-500 hover:bg-blue-50 group"
+                          onDragOver={(ev) => ev.preventDefault()}
+                          onDrop={(ev) => {
+                            ev.preventDefault();
+                            try {
+                              const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
+                              handleDropImage(img, { x: 100, y: 120, w: 200, h: 220, side: "back" });
+                            } catch {}
+                          }}
+                        >
+                          <span className="text-[7px] text-blue-300 font-bold uppercase group-hover:text-blue-500 transition-colors">Drop for Back</span>
+                        </div>
                       </div>
                     </div>
                   </div>

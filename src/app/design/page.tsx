@@ -1752,8 +1752,7 @@ export default function DesignPage() {
                         { hex: '#452424', label: '#452424' },
                       ].map((c) => (
                         <div key={c.hex} className="flex flex-col items-center">
-                          {/* eslint-disable-next-line react/forbid-dom-props */}
-                          <div className="w-[50px] h-[16px] border border-[#888]" style={{ backgroundColor: c.hex }} />
+                          <div className="w-[50px] h-[16px] border border-[#888] p-swatch-dynamic" data-hex={c.hex} ref={(el) => { if(el) el.style.setProperty('--swatch-bg', c.hex); }} />
                           <div className="text-[6px] font-mono mt-0.5 text-gray-500">{c.label}</div>
                         </div>
                       ))}

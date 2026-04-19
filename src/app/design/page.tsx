@@ -20,7 +20,7 @@ interface DesignElement {
   height: number;
   rotation: number;
   side: "front" | "back";
-  slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
+  slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging" | "front-artwork" | "back-artwork";
   locked?: boolean;
 }
 interface AIImage {
@@ -81,7 +81,7 @@ interface DesignCanvasProps {
   side: "front" | "back";
   tshirtColor: string;
   zoom: number;
-  slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
+  slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging" | "front-artwork" | "back-artwork";
   isPositionMode?: boolean;
   activeLocation?: string;
 }
@@ -228,7 +228,7 @@ function DesignCanvas({
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleMouseUp);
     };
-  }, [isDragging, selectedId, dragOffset, onMoveElement, zoom]); // no onPushHistory in deps
+  }, [isDragging, selectedId, dragOffset, onMoveElement, zoom, elements]);
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
@@ -1614,7 +1614,7 @@ export default function DesignPage() {
                     </div>
 
                     {/* FRONT VIEW */}
-                    <div className="absolute top-[30px] left-[30px] w-[380px] h-[380px] z-10 cursor-pointer" onClick={() => setSide('front')}>
+                    <div className="absolute top-[40px] left-[40px] w-[350px] h-[350px] z-10 cursor-pointer" onClick={() => setSide('front')}>
                       <div className="scale-[0.8] origin-top-left transition-transform hover:scale-[0.82]">
                         <DesignCanvas
                           elements={elements}
@@ -1633,7 +1633,7 @@ export default function DesignPage() {
                     </div>
 
                     {/* BACK VIEW */}
-                    <div className="absolute top-[350px] left-[230px] w-[420px] h-[420px] z-10 cursor-pointer" onClick={() => setSide('back')}>
+                    <div className="absolute top-[380px] left-[320px] w-[380px] h-[380px] z-10 cursor-pointer" onClick={() => setSide('back')}>
                       <div className="scale-[0.85] origin-top-left transition-transform hover:scale-[0.87]">
                         <DesignCanvas
                           elements={elements}
@@ -1654,9 +1654,9 @@ export default function DesignPage() {
                     {/* Technical Leader Lines */}
                     <svg className="absolute inset-0 pointer-events-none w-full h-full z-20 opacity-40">
                       {/* To Front Chest Zone */}
-                      <line x1="170" y1="180" x2="800" y2="280" stroke="#ef4444" strokeWidth="1.5" />
+                      <line x1="180" y1="180" x2="800" y2="280" stroke="#ef4444" strokeWidth="1.5" />
                       {/* To Back Center Zone */}
-                      <line x1="440" y1="580" x2="800" y2="600" stroke="#ef4444" strokeWidth="1.5" />
+                      <line x1="500" y1="580" x2="800" y2="600" stroke="#ef4444" strokeWidth="1.5" />
                     </svg>
                   </div>
 
@@ -1666,10 +1666,11 @@ export default function DesignPage() {
                         <img 
                           src={elements.find(e => e.slot === 'front-artwork')?.url || 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=350&auto=format&fit=crop'} 
                           className={`w-full h-full object-contain ${elements.find(e => e.slot === 'front-artwork') ? 'p-10' : 'opacity-5 grayscale p-16'}`} 
+                          alt="Front Design Preview"
                         />
                         <div className="absolute bottom-0 left-0 right-0 bg-white border-t-[2.5px] border-black text-center p-2">
                           <div className="text-[11px] font-black uppercase tracking-tight">Front Design Zone</div>
-                          <div className="text-[8px] text-gray-500 font-mono">5" x 4.5" / High-Res Vector</div>
+                          <div className="text-[8px] text-gray-500 font-mono">5&quot; x 4.5&quot; / High-Res Vector</div>
                         </div>
                       </div>
                     </div>
@@ -1678,10 +1679,11 @@ export default function DesignPage() {
                         <img 
                           src={elements.find(e => e.slot === 'back-artwork')?.url || 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=350&auto=format&fit=crop'} 
                           className={`w-full h-full object-contain ${elements.find(e => e.slot === 'back-artwork') ? 'p-10' : 'opacity-5 grayscale p-16'}`} 
+                          alt="Back Design Preview"
                         />
                         <div className="absolute bottom-0 left-0 right-0 bg-white border-t-[2.5px] border-black text-center p-2">
                           <div className="text-[11px] font-black uppercase tracking-tight">Back Design Zone</div>
-                          <div className="text-[8px] text-gray-500 font-mono">12" x 10" / Screen-ready</div>
+                          <div className="text-[8px] text-gray-400 font-mono">12&quot; x 10&quot; / Screen-ready</div>
                         </div>
                       </div>
                     </div>

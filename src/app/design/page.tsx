@@ -793,7 +793,7 @@ export default function DesignPage() {
           width: finalW,
           height: finalH,
           rotation: 0,
-          side: effectiveSide,
+          side: effectiveSide as "front" | "back",
           slot: activeSlot,
           locked: true,
         };

@@ -46,43 +46,58 @@ interface ChatMessage {
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   if (side === "front") {
     return (
-      <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl">
-        {/* Main Body & Sleeves */}
+      <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
+        {/* Shadow layer for depth */}
+        <path d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" fill="black" opacity="0.05" transform="translate(2, 4)" />
+        
+        {/* Main Body & Sleeves - Deep Boxy Fit */}
         <path 
-          d="M110 115L45 140L65 250L135 225V420H365V225L435 250L455 140L390 115C390 115 350 100 250 100C150 100 110 115 110 115Z" 
+          d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" 
           fill={color} 
-          stroke="#111" 
-          strokeWidth="2" 
+          stroke="#000" 
+          strokeWidth="1.5" 
           strokeLinejoin="round" 
         />
-        {/* Collar Detail */}
+
+        {/* Heavy Rib Collar */}
         <path 
-          d="M175 105C175 105 185 135 250 135C315 135 325 105 325 105C325 105 315 115 250 115C185 115 175 105 175 105Z" 
-          fill="#eee" 
-          stroke="#111" 
-          strokeWidth="1.5" 
+          d="M170 85C170 85 185 135 250 135C315 135 330 85 330 85C330 85 310 95 250 95C190 95 170 85 170 85Z" 
+          fill="#fafafa" 
+          stroke="#000" 
+          strokeWidth="1.2" 
         />
-        {/* Sleeve Stitches */}
-        <path d="M75 200L105 190M395 190L425 200" stroke="#111" strokeWidth="0.5" strokeDasharray="2 1" />
-        {/* internal seam lines */}
-        <path d="M135 225C135 225 155 140 110 115M365 225C365 225 345 140 390 115" stroke="#111" strokeWidth="1.5" opacity="0.4" />
+        <path d="M185 92C210 105 290 105 315 92" stroke="#000" strokeWidth="0.5" opacity="0.3" />
+
+        {/* Technical Seams */}
+        <path d="M145 235V450M355 235V450" stroke="#000" strokeWidth="0.7" opacity="0.2" />
+        <path d="M145 235C145 235 155 130 90 100M355 235C355 235 345 130 410 100" stroke="#000" strokeWidth="1.2" opacity="0.5" />
+
+        {/* Hem & Sleeve Stitches (Double Needle) */}
+        <path d="M145 435H355M145 440H355" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
+        <path d="M40 240L65 255M45 245L70 260" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
+        <path d="M435 255L460 240M430 260L455 245" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
       </svg>
     );
   }
 
   return (
-    <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl">
-      {/* Main Body & Sleeves BACK */}
+    <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
+      <path d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" fill="black" opacity="0.05" transform="translate(2, 4)" />
+      
       <path 
-        d="M110 115L45 140L65 250L135 225V420H365V225L435 250L455 140L390 115C390 115 350 100 250 100C150 100 110 115 110 115Z" 
+        d="M90 100L25 145L75 275L145 235V450H355V235L425 275L475 145L410 100C410 100 350 75 250 75C150 75 90 100 90 100Z" 
         fill={color} 
-        stroke="#111" 
-        strokeWidth="2" 
+        stroke="#000" 
+        strokeWidth="1.5" 
         strokeLinejoin="round" 
       />
-      {/* High Neck Back Detail */}
-      <path d="M175 105C175 105 195 115 250 115C305 115 325 105 325 105" stroke="#111" strokeWidth="2" />
-      <path d="M135 225C135 225 155 140 110 115M365 225C365 225 345 140 390 115" stroke="#111" strokeWidth="1.5" opacity="0.4" />
+
+      {/* Back High Neck Detail */}
+      <path d="M170 85C170 85 200 95 250 95C300 95 330 85 330 85" fill="#fafafa" stroke="#000" strokeWidth="1.2" />
+      <path d="M145 235C145 235 155 130 90 100M355 235C355 235 345 130 410 100" stroke="#000" strokeWidth="1.2" opacity="0.5" />
+      
+      {/* Back Hem Stitches */}
+      <path d="M145 435H355M145 440H355" stroke="#000" strokeWidth="0.3" strokeDasharray="3 2" opacity="0.6" />
     </svg>
   );
 }

@@ -69,121 +69,6 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
-function HoodieShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
-  const imgUrl = `/mockups/v_hoodie_${side}.png`; // High-fidelity hoodie masks
-  const uniqueId = useId().replace(/:/g, "-");
-  
-  return (
-    <div className="relative w-full h-full drop-shadow-md">
-       <style>{`
-        .hoodie-mask-${uniqueId} {
-          position: absolute;
-          inset: 0;
-          background-color: ${color};
-          -webkit-mask-image: url('${imgUrl}');
-          mask-image: url('${imgUrl}');
-          -webkit-mask-size: contain;
-          mask-size: contain;
-          -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
-          -webkit-mask-position: center;
-          mask-position: center;
-          transition: background-color 0.4s ease;
-        }
-      `}</style>
-      <div className={`hoodie-mask-${uniqueId}`} />
-      <img 
-        src={imgUrl} 
-        alt="Hoodie Mockup" 
-        className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.9] mix-blend-multiply" 
-      />
-    </div>
-  );
-}
-
-function RaglanShirtSVG({ color, side = "front", sleeveColor }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
-  const imgUrl = `/mockups/v_raglan_${side}.png`;
-  const sleeveImgUrl = `/mockups/v_raglan_${side}_sleeve.png?v=9`;
-  const effectiveSleeveColor = sleeveColor || color;
-  const uniqueId = useId().replace(/:/g, "-");
-
-  return (
-    <div className="relative w-full h-full drop-shadow-md">
-      <style>{`
-        .raglan-mask-${uniqueId} {
-          background-color: ${color};
-          mask-image: url('${imgUrl}');
-          -webkit-mask-image: url('${imgUrl}');
-          mask-size: contain;
-          -webkit-mask-size: contain;
-          mask-repeat: no-repeat;
-          -webkit-mask-repeat: no-repeat;
-          mask-position: center;
-          -webkit-mask-position: center;
-        }
-        .raglan-sleeve-mask-${uniqueId} {
-          background-color: ${effectiveSleeveColor};
-          mask-image: url('${sleeveImgUrl}');
-          -webkit-mask-image: url('${sleeveImgUrl}');
-          mask-size: contain;
-          -webkit-mask-size: contain;
-          mask-repeat: no-repeat;
-          -webkit-mask-repeat: no-repeat;
-          mask-position: center;
-          -webkit-mask-position: center;
-        }
-      `}</style>
-      
-      {/* Base Color Fill Mask (Whole Shirt) */}
-      <div className={`absolute inset-0 transition-colors duration-500 raglan-mask-${uniqueId}`} />
-      
-      {/* Sleeve Color Fill Mask (Overwrites sleeves) */}
-      <div className={`absolute inset-0 transition-colors duration-500 raglan-sleeve-mask-${uniqueId}`} />
-      
-      {/* Detail Lines Overlay */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imgUrl} alt="Raglan Mockup" className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.85] mix-blend-multiply" />
-    </div>
-  );
-}
-
-
-
-
-
-
-
-
-function PoloShirtSVG({ color, collarColor, side = "front" }: { color: string; collarColor?: string; side?: "front" | "back" }) {
-  const imgUrl = `/mockups/v_polo_${side}.png`;
-  const collarImgUrl = `/mockups/v_polo_${side}_collar.png?v=6`;
-  const effectiveCollarColor = collarColor || color;
-  
-  const uniqueId = useId().replace(/:/g, "-");
-  const bodyMaskId = `polo-body-mask-${side}-${uniqueId}`;
-  const collarMaskId = `polo-collar-mask-${side}-${uniqueId}`;
-
-  return (
-    <div className="relative w-full h-full drop-shadow-md">
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <mask id={bodyMaskId}>
-            <image href={imgUrl} width="400" height="480" />
-          </mask>
-          <mask id={collarMaskId}>
-            <image href={collarImgUrl} width="400" height="480" />
-          </mask>
-        </defs>
-        {/* Base Body Color */}
-        <rect width="400" height="480" fill={color} mask={`url(#${bodyMaskId})`} className="transition-colors duration-500" />
-        {/* Collar Color (on top) */}
-        <rect width="400" height="480" fill={effectiveCollarColor} mask={`url(#${collarMaskId})`} className="transition-colors duration-500" />
-        {/* Lines Overlay */}
-        <image href={imgUrl} width="400" height="480" className="mix-blend-multiply opacity-[0.85]" />
-      </svg>
-    </div>
-  );
-}
 
 interface DesignCanvasProps {
   elements: DesignElement[];
@@ -195,9 +80,6 @@ interface DesignCanvasProps {
   onDropImage: (image: AIImage, x: number, y: number) => void;
   side: "front" | "back";
   tshirtColor: string;
-  collarColor: string;
-  sleeveColor: string;
-  shirtType: "tshirt" | "polo" | "raglan" | "hoodie";
   zoom: number;
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
   isPositionMode?: boolean;
@@ -213,9 +95,6 @@ function DesignCanvas({
   onDropImage,
   side,
   tshirtColor,
-  collarColor,
-  sleeveColor,
-  shirtType,
   zoom,
   slot = "shirt",
   isPositionMode = false,
@@ -466,15 +345,7 @@ function DesignCanvas({
            </div>
         )}
         {slot === "shirt" ? (
-          shirtType === "raglan" ? (
-            <RaglanShirtSVG color={tshirtColor} sleeveColor={sleeveColor} side={side} />
-          ) : shirtType === "polo" ? (
-            <PoloShirtSVG color={tshirtColor} collarColor={collarColor} side={side} />
-          ) : shirtType === "hoodie" ? (
-            <HoodieShirtSVG color={tshirtColor} side={side} />
-          ) : (
-            <TShirtSVG color={tshirtColor} side={side} />
-          )
+          <TShirtSVG color={tshirtColor} side={side} />
         ) : (
           <div className="tag-slot-mesh">
             <div className="tag-slot-grid" />
@@ -500,7 +371,7 @@ function DesignCanvas({
         {slot === "shirt" && side === "front" && neckLabelElement && (
           <div className="neck-label-preview">
             {neckLabelElement.type === "image" ? (
-              // eslint-disable-next-line @next/next/no-img-element
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img src={neckLabelElement.url} alt="" className="w-full h-full object-contain" />
             ) : (
               <span className="neck-label-text">{neckLabelElement.text}</span>
@@ -580,10 +451,9 @@ export default function DesignPage() {
   const router = useRouter();
   const [side, setSide] = useState<"front" | "back">("front");
   const [tshirtColor, setTshirtColor] = useState("#fbcfe8"); // ASSC Pink
-  const [sleeveColor, setSleeveColor] = useState("#fbcfe8");
-  const [collarColor, setCollarColor] = useState("");
-  const [shirtType, setShirtType] = useState<"tshirt" | "polo" | "raglan" | "hoodie">("tshirt");
-  const [activeColorTarget, setActiveColorTarget] = useState<"body" | "sleeve" | "collar">("body");
+
+  const shirtType = "tshirt";
+  const [activeColorTarget, setActiveColorTarget] = useState<"body">("body");
   const [activeSlot, setActiveSlot] = useState<"shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging">("shirt");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -888,7 +758,7 @@ export default function DesignPage() {
     }
   }, []);
   const handleDropImage = useCallback(
-    (image: AIImage) => {
+    (image: AIImage, x?: number, y?: number) => {
       setElements((prev: DesignElement[]) => {
         pushHistory(prev);
         
@@ -902,8 +772,8 @@ export default function DesignPage() {
         }
 
         const pos = getPresetPosition(printLocation, activeSlot);
-        const finalX = pos.x;
-        const finalY = pos.y;
+        const finalX = x ?? pos.x;
+        const finalY = y ?? pos.y;
         const finalW = pos.w;
         const finalH = pos.h;
 
@@ -1017,8 +887,6 @@ export default function DesignPage() {
     sessionStorage.setItem("designData", JSON.stringify({ 
       elements, 
       tshirtColor, 
-      sleeveColor, 
-      collarColor, 
       shirtType 
     }));
     router.push("/order");
@@ -1512,25 +1380,9 @@ export default function DesignPage() {
                       >
                         Thân
                       </button>
-                      {shirtType === "raglan" && (
-                        <button
-                          className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all ${activeColorTarget === "sleeve" ? "bg-black text-white" : "bg-gray-100"}`}
-                          onClick={() => setActiveColorTarget("sleeve")}
-                        >
-                          Tay
-                        </button>
-                      )}
-                      {shirtType === "polo" && (
-                        <button
-                          className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all ${activeColorTarget === "collar" ? "bg-black text-white" : "bg-gray-100"}`}
-                          onClick={() => setActiveColorTarget("collar")}
-                        >
-                          Cổ áo
-                        </button>
-                      )}
                     </div>
                     <div className="canva-color-preview canva-color-preview--mb">
-                      <style>{`.scdot{background:${activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor}}`}</style>
+                      <style>{`.scdot{background:${tshirtColor}}`}</style>
                       <div className="canva-color-dot scdot" />
                     </div>
                     {(() => {
@@ -1553,14 +1405,10 @@ export default function DesignPage() {
                               <button
                                 key={c + i}
                                 title={c}
-                                onClick={() => {
-                                  if (activeColorTarget === "body") setTshirtColor(c);
-                                  else if (activeColorTarget === "sleeve") setSleeveColor(c);
-                                  else setCollarColor(c);
-                                }}
-                                className={`canva-palette-cell sc-${i}${(activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor) === c ? ' canva-swatch-active' : ''}`}
+                                onClick={() => setTshirtColor(c)}
+                                className={`canva-palette-cell sc-${i}${tshirtColor === c ? ' canva-swatch-active' : ''}`}
                               >
-                                {(activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor) === c && (
+                                {tshirtColor === c && (
                                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={['#ffffff', '#fffff9', '#ffebee', '#fff3e0', '#fffff9', '#e8f5e9', '#e3f2fd', '#ede7f6', '#fce4ec', '#f5f5f5'].includes(c) ? '#333' : '#fff'} strokeWidth="4">
                                     <polyline points="20 6 9 17 4 12" />
                                   </svg>
@@ -1576,19 +1424,14 @@ export default function DesignPage() {
                                   type="color"
                                   title="Chọn màu áo"
                                   aria-label="Chọn màu áo"
-                                  value={activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (activeColorTarget === "body") setTshirtColor(val);
-                                    else if (activeColorTarget === "sleeve") setSleeveColor(val);
-                                    else setCollarColor(val);
-                                  }}
+                                  value={tshirtColor}
+                                  onChange={(e) => setTshirtColor(e.target.value)}
                                   className="w-14 h-14 rounded-2xl border-4 border-white shadow-xl cursor-pointer p-0 overflow-hidden appearance-none"
                                 />
                               </div>
                               <div className="flex-1">
                                 <div className="text-[12px] font-bold text-gray-800 uppercase font-mono">
-                                  {activeColorTarget === "body" ? tshirtColor : activeColorTarget === "sleeve" ? sleeveColor : collarColor}
+                                  {tshirtColor}
                                 </div>
                                 <div className="text-[10px] text-gray-400 font-medium tracking-tight">Mã màu HEX</div>
                               </div>
@@ -1690,12 +1533,6 @@ export default function DesignPage() {
               linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
           }
-          .tech-pack .blueprint-grid {
-            background-size: 20px 20px;
-            background-image:
-              linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-          }
           .tech-pack-swatch-bg {
             background-color: var(--swatch-color);
           }
@@ -1787,9 +1624,6 @@ export default function DesignPage() {
                              onDropImage={handleDropImage}
                              side="front"
                              tshirtColor={tshirtColor}
-                             collarColor={collarColor}
-                             sleeveColor={sleeveColor}
-                             shirtType="tshirt"
                              zoom={100}
                              slot="shirt"
                           />
@@ -1809,9 +1643,6 @@ export default function DesignPage() {
                              onDropImage={handleDropImage}
                              side="back"
                              tshirtColor={tshirtColor}
-                             collarColor={collarColor}
-                             sleeveColor={sleeveColor}
-                             shirtType="tshirt"
                              zoom={100}
                              slot="shirt"
                           />
@@ -1823,6 +1654,7 @@ export default function DesignPage() {
                         {/* NECK TAG ZOOM */}
                         <div className="w-[100px] h-[100px] border border-black bg-white flex items-center justify-center overflow-hidden self-start ml-24">
                            {elements.filter(e => e.id === "neck-woven").length > 0 ? (
+                               /* eslint-disable-next-line @next/next/no-img-element */
                                <img src={elements.find(e => e.id === "neck-woven")?.url} className="max-w-full max-h-full object-contain" alt="Neck Tag" />
                            ) : (
                                <div className="font-black text-[10px] italic opacity-20 uppercase text-center">Neck<br/>Tag</div>
@@ -1833,6 +1665,7 @@ export default function DesignPage() {
                         <div className="w-[350px] border border-black bg-white">
                            <div className="w-full aspect-[4/3] bg-gray-900 flex items-center justify-center overflow-hidden p-8">
                                {elements.filter(e => e.id === "front-artwork").length > 0 ? (
+                                   /* eslint-disable-next-line @next/next/no-img-element */
                                    <img src={elements.find(e => e.id === "front-artwork")?.url} className="max-w-full max-h-full object-contain" alt="Front Design" />
                                ) : (
                                    <div className="text-white opacity-20 font-black text-[20px] uppercase">FRONT DESIGN</div>
@@ -1848,6 +1681,7 @@ export default function DesignPage() {
                         <div className="w-[350px] border border-black bg-white">
                            <div className="w-full aspect-[4/3] bg-gray-900 flex items-center justify-center overflow-hidden p-8">
                                {elements.filter(e => e.id === "back-artwork").length > 0 ? (
+                                   /* eslint-disable-next-line @next/next/no-img-element */
                                    <img src={elements.find(e => e.id === "back-artwork")?.url} className="max-w-full max-h-full object-contain" alt="Back Design" />
                                ) : (
                                    <div className="text-white opacity-20 font-black text-[20px] uppercase">BACK DESIGN</div>
@@ -1863,6 +1697,7 @@ export default function DesignPage() {
                     {/* HEM TAG ZOOM (Bottom Left) */}
                     <div className="absolute bottom-[280px] left-[20px] w-[60px] h-[60px] border-2 border-red-500 bg-red-500 flex items-center justify-center overflow-hidden shadow-lg">
                         {elements.filter(e => e.id === "hem-authentic").length > 0 ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
                             <img src={elements.find(e => e.id === "hem-authentic")?.url} className="max-w-full max-h-full object-contain brightness-0 invert" alt="Hem Tag" />
                         ) : (
                             <span className="text-white font-black text-[14px]">UC</span>
@@ -1915,37 +1750,34 @@ export default function DesignPage() {
                     <span>© 2026 UNISPACE CO.</span>
                   </div>
                 </div>
-
               </div>
-              
             </div>
-          </div>
 
-          {/* Bottom bar */}
-          <div className="canva-bottombar">
-            <div className="canva-zoom">
-              <input
-                type="range"
-                className="canva-zoom-slider"
-                min="20"
-                max="200"
-                value={zoom}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZoom(Number(e.target.value))}
-                aria-label="Điều chỉnh thu phóng"
-              />
-              <span className="canva-zoom-val">{zoom}%</span>
+            {/* Bottom bar */}
+            <div className="canva-bottombar">
+              <div className="canva-zoom">
+                <input
+                  type="range"
+                  className="canva-zoom-slider"
+                  min="20"
+                  max="200"
+                  value={zoom}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZoom(Number(e.target.value))}
+                  aria-label="Điều chỉnh thu phóng"
+                />
+                <span className="canva-zoom-val">{zoom}%</span>
+              </div>
+              <div className="canva-side-indicator">
+                <button onClick={() => setSide("front")} className={side === "front" ? "active" : ""}>
+                  Mặt trước {frontCount > 0 && <span className="canva-badge">{frontCount}</span>}
+                </button>
+                <button onClick={() => setSide("back")} className={side === "back" ? "active" : ""}>
+                  Mặt sau {backCount > 0 && <span className="canva-badge">{backCount}</span>}
+                </button>
+              </div>
             </div>
-            <div className="canva-side-indicator">
-              <button onClick={() => setSide("front")} className={side === "front" ? "active" : ""}>
-                Mặt trước {frontCount > 0 && <span className="canva-badge">{frontCount}</span>}
-              </button>
-              <button onClick={() => setSide("back")} className={side === "back" ? "active" : ""}>
-                Mặt sau {backCount > 0 && <span className="canva-badge">{backCount}</span>}
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
+          </main>
+        </div>
       {/* ── Mobile Bottom Tab Bar (hidden on desktop via CSS) ── */}
       <nav className="canva-mobile-tabs">
         {/* Side toggle: front / back */}

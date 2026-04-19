@@ -254,9 +254,8 @@ function DesignCanvas({
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        // RESET TO ZERO for perfect center alignment under the mouse
-        // No more offsets, just 1:1 mapping from mouse to canvas
-        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50;
+        // Minor adjustment (+30 Right) as it's still visually biased to one side
+        const x = (e.clientX - centerX) / visualScale + (internalWidth / 2) - 50 + 30;
         const y = (e.clientY - centerY) / visualScale + (internalHeight / 2) - 50;
         
         onDropImage(image, x, y);

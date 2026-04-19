@@ -1712,7 +1712,7 @@ export default function DesignPage() {
                             ev.preventDefault();
                             try {
                               const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
-                              handleDropImage(img, { x: 100, y: 120, w: 200, h: 220, side: "back" });
+                              handleDropImage(img, { x: 120, y: 130, w: 160, h: 180, side: "back" });
                             } catch {}
                           }}
                         >

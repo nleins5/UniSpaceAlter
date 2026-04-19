@@ -1601,137 +1601,139 @@ export default function DesignPage() {
                   <div className="p-2 px-4 text-gray-600">Matsero</div>
                 </div>
 
-                {/* ─── MAIN WORKSPACE ─── */}
-                <div className="relative blueprint-grid h-[calc(100%-200px)]">
-                  
-                  {/* ─── FRONT SECTION (Top Half) ─── */}
-                  <div className="relative h-1/2 overflow-hidden">
-                    {/* "Center Front" label */}
-                    <div className="absolute top-1 left-1/2 -translate-x-1/2 text-red-500 text-[11px] italic font-semibold z-30">Center Front</div>
-                    
-                    {/* Front T-shirt - centered */}
-                    <div className="absolute top-[16px] left-1/2 -translate-x-1/2 w-[260px] h-[300px] z-10 cursor-pointer" onClick={() => setSide('front')}>
-                      <div className="scale-[0.62] origin-top-center">
-                        <DesignCanvas
-                          elements={elements}
-                          selectedId={selectedId}
-                          onSelectElement={setSelectedId}
-                          onMoveElement={handleMoveElement}
-                          onResizeElement={handleResizeElement}
-                          onPushHistory={() => pushHistory(elements)}
-                          onDropImage={handleDropImage}
-                          side="front"
-                          tshirtColor={tshirtColor}
-                          zoom={zoom}
-                          slot="shirt"
-                        />
+                {/* ─── MAIN WORKSPACE: 2 shirts side by side ─── */}
+                <div className="relative blueprint-grid flex flex-row h-[calc(100%-140px)] overflow-hidden">
+
+                  {/* ══ LEFT: FRONT SHIRT ══ */}
+                  <div className="relative flex-1 border-r border-[#ccc]">
+
+                    {/* Center Front label */}
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 text-red-500 text-[10px] italic font-semibold z-30 pointer-events-none">Center Front</div>
+
+                    {/* Annotations left of shirt */}
+                    <div className="absolute top-[75px] left-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30">
+                      MATCHING SELF<br/>FABRIC NECK TAPE
+                    </div>
+                    <div className="absolute top-[52px] left-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30">
+                      PRINTED MAIN<br/>LABEL
+                    </div>
+                    <div className="absolute bottom-[100px] left-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30">
+                      PRINTED WOVEN<br/>PATCH
+                    </div>
+
+                    {/* Annotations right of shirt */}
+                    <div className="absolute top-[90px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
+                      PRINT
+                    </div>
+                    <div className="absolute top-[120px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
+                      TWIN NEEDLE<br/>TOP STITCH
+                    </div>
+                    <div className="absolute bottom-[90px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
+                      TWIN NEEDLE<br/>TOP STITCH
+                    </div>
+
+                    {/* Front T-shirt canvas — centered, scaled to fit */}
+                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-[60px]">
+                      <div className="w-[320px] h-[320px] cursor-pointer" onClick={() => setSide('front')}>
+                        <div className="w-full h-full scale-[0.72] origin-center">
+                          <DesignCanvas
+                            elements={elements}
+                            selectedId={selectedId}
+                            onSelectElement={setSelectedId}
+                            onMoveElement={handleMoveElement}
+                            onResizeElement={handleResizeElement}
+                            onPushHistory={() => pushHistory(elements)}
+                            onDropImage={handleDropImage}
+                            side="front"
+                            tshirtColor={tshirtColor}
+                            zoom={zoom}
+                            slot="shirt"
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    {/* "5 CM DOWN FROM NECK" annotation - right side */}
-                    <div className="absolute top-[60px] right-[60px] text-red-500 text-[9px] font-bold uppercase text-right leading-tight z-30">
-                      5 CM DOWN<br/>FROM NECK
-                    </div>
+                    {/* Leader lines SVG */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-20">
+                      <line x1="90" y1="85" x2="185" y2="90" stroke="#ef4444" strokeWidth="0.8"/>
+                      <line x1="90" y1="62" x2="185" y2="75" stroke="#ef4444" strokeWidth="0.8"/>
+                      <line x1="90" y1="285" x2="190" y2="310" stroke="#ef4444" strokeWidth="0.8"/>
+                      <line x1="340" y1="100" x2="285" y2="110" stroke="#ef4444" strokeWidth="0.8"/>
+                      <line x1="340" y1="135" x2="285" y2="140" stroke="#ef4444" strokeWidth="0.8"/>
+                      <line x1="340" y1="285" x2="290" y2="305" stroke="#ef4444" strokeWidth="0.8"/>
+                    </svg>
 
-                    {/* "Front Design" preview box - LEFT side */}
-                    <div className="absolute bottom-[20px] left-[40px] z-30">
-                      <div className="text-[10px] font-bold italic mb-1">Front Design</div>
-                      <div className="w-[120px] h-[100px] border-[1.5px] border-[#888] bg-white flex items-center justify-center overflow-hidden">
-                        {elements.find(e => e.side === 'front') ? (
+                    {/* Front Design thumbnail */}
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center z-30">
+                      <div className="text-[9px] font-bold italic mb-1 text-gray-700">Front Design</div>
+                      <div className="w-[90px] h-[75px] border border-[#888] bg-white flex items-center justify-center overflow-hidden">
+                        {elements.find(e => e.side === 'front' && e.url) ? (
                           <Image
-                            src={elements.find(e => e.side === 'front')?.url || ''}
-                            width={120}
-                            height={100}
-                            className="w-full h-full object-contain p-2"
+                            src={elements.find(e => e.side === 'front' && e.url)?.url || ''}
+                            width={90} height={75}
+                            className="w-full h-full object-contain p-1"
                             alt="Front Design"
                           />
                         ) : (
-                          <div className="text-[8px] text-gray-300 font-bold uppercase text-center">No<br/>Design</div>
+                          <span className="text-[7px] text-gray-300 font-bold uppercase text-center">No Design</span>
                         )}
                       </div>
                     </div>
-
-                    {/* "SINGLE NEEDLE STITCH" annotation - right side */}
-                    <div className="absolute bottom-[30px] right-[50px] text-red-500 text-[9px] font-bold uppercase text-right leading-tight z-30">
-                      SINGLE NEEDLE<br/>STITCH
-                    </div>
-
-                    {/* Leader lines for Front */}
-                    <svg className="absolute inset-0 pointer-events-none w-full h-full z-20">
-                      {/* From center front label down */}
-                      <line x1="575" y1="20" x2="575" y2="45" stroke="#ef4444" strokeWidth="0.8" />
-                      {/* From neck to "5CM" annotation */}
-                      <line x1="630" y1="80" x2="960" y2="70" stroke="#ef4444" strokeWidth="0.8" />
-                      {/* From front design area to preview box */}
-                      <line x1="440" y1="200" x2="165" y2="280" stroke="#ef4444" strokeWidth="0.8" />
-                      {/* From hem to "single needle stitch" */}
-                      <line x1="680" y1="310" x2="960" y2="300" stroke="#ef4444" strokeWidth="0.8" />
-                    </svg>
                   </div>
 
-                  {/* ─── BACK SECTION (Bottom Half) ─── */}
-                  <div className="relative h-1/2 overflow-hidden">
-                    {/* "5 CM DOWN FROM NECK" annotation - left side */}
-                    <div className="absolute top-[20px] left-[50px] text-red-500 text-[9px] font-bold uppercase leading-tight z-30">
-                      5 CM DOWN<br/>FROM NECK
+                  {/* ══ RIGHT: BACK SHIRT ══ */}
+                  <div className="relative flex-1">
+
+                    {/* Center Back label */}
+                    <div className="absolute bottom-[60px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] italic font-semibold z-30 pointer-events-none">Center Back</div>
+
+                    {/* Annotations right side */}
+                    <div className="absolute bottom-[90px] right-4 text-red-500 text-[8px] font-bold uppercase leading-tight z-30 text-right">
+                      TWIN NEEDLE<br/>TOP STITCH
                     </div>
-                    
-                    {/* Back T-shirt - centered */}
-                    <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[280px] h-[300px] z-10 cursor-pointer" onClick={() => setSide('back')}>
-                      <div className="scale-[0.62] origin-top-center">
-                        <DesignCanvas
-                          elements={elements}
-                          selectedId={selectedId}
-                          onSelectElement={setSelectedId}
-                          onMoveElement={handleMoveElement}
-                          onResizeElement={handleResizeElement}
-                          onPushHistory={() => pushHistory(elements)}
-                          onDropImage={handleDropImage}
-                          side="back"
-                          tshirtColor={tshirtColor}
-                          zoom={zoom}
-                          slot="shirt"
-                        />
+
+                    {/* Back T-shirt canvas — centered, scaled to fit */}
+                    <div className="absolute inset-0 flex items-center justify-center pt-6 pb-[60px]">
+                      <div className="w-[320px] h-[320px] cursor-pointer" onClick={() => setSide('back')}>
+                        <div className="w-full h-full scale-[0.72] origin-center">
+                          <DesignCanvas
+                            elements={elements}
+                            selectedId={selectedId}
+                            onSelectElement={setSelectedId}
+                            onMoveElement={handleMoveElement}
+                            onResizeElement={handleResizeElement}
+                            onPushHistory={() => pushHistory(elements)}
+                            onDropImage={handleDropImage}
+                            side="back"
+                            tshirtColor={tshirtColor}
+                            zoom={zoom}
+                            slot="shirt"
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    {/* "Back Design" preview box - RIGHT side */}
-                    <div className="absolute top-[100px] right-[40px] z-30">
-                      <div className="text-[10px] font-bold italic mb-1 text-right">Back Design</div>
-                      <div className="w-[120px] h-[100px] border-[1.5px] border-[#888] bg-white flex items-center justify-center overflow-hidden">
-                        {elements.find(e => e.side === 'back') ? (
+                    {/* Leader lines SVG */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-20">
+                      <line x1="340" y1="290" x2="290" y2="300" stroke="#ef4444" strokeWidth="0.8"/>
+                    </svg>
+
+                    {/* Back Design thumbnail */}
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center z-30">
+                      <div className="text-[9px] font-bold italic mb-1 text-gray-700">Back Design</div>
+                      <div className="w-[90px] h-[75px] border border-[#888] bg-white flex items-center justify-center overflow-hidden">
+                        {elements.find(e => e.side === 'back' && e.url) ? (
                           <Image
-                            src={elements.find(e => e.side === 'back')?.url || ''}
-                            width={120}
-                            height={100}
-                            className="w-full h-full object-contain p-2"
+                            src={elements.find(e => e.side === 'back' && e.url)?.url || ''}
+                            width={90} height={75}
+                            className="w-full h-full object-contain p-1"
                             alt="Back Design"
                           />
                         ) : (
-                          <div className="text-[8px] text-gray-300 font-bold uppercase text-center">No<br/>Design</div>
+                          <span className="text-[7px] text-gray-300 font-bold uppercase text-center">No Design</span>
                         )}
                       </div>
                     </div>
-
-                    {/* "SINGLE NEEDLE STITCH" annotation - left side */}
-                    <div className="absolute bottom-[50px] left-[50px] text-red-500 text-[9px] font-bold uppercase leading-tight z-30">
-                      SINGLE NEEDLE<br/>STITCH
-                    </div>
-
-                    {/* "Center Back" label */}
-                    <div className="absolute bottom-[20px] left-1/2 -translate-x-1/2 text-red-500 text-[11px] italic font-semibold z-30">Center Back</div>
-
-                    {/* Leader lines for Back */}
-                    <svg className="absolute inset-0 pointer-events-none w-full h-full z-20">
-                      {/* From "5CM" to neck area */}
-                      <line x1="170" y1="40" x2="470" y2="50" stroke="#ef4444" strokeWidth="0.8" />
-                      {/* From back design area to preview box */}
-                      <line x1="700" y1="180" x2="960" y2="150" stroke="#ef4444" strokeWidth="0.8" />
-                      {/* From hem to "single needle stitch" */}
-                      <line x1="450" y1="300" x2="175" y2="290" stroke="#ef4444" strokeWidth="0.8" />
-                      {/* Center back line down */}
-                      <line x1="575" y1="320" x2="575" y2="340" stroke="#ef4444" strokeWidth="0.8" />
-                    </svg>
                   </div>
                 </div>
 

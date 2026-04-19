@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useCallback, useEffect, useId } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -45,67 +45,113 @@ interface ChatMessage {
 }
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const isFront = side === "front";
-  
+  const uid = React.useId().replace(/:/g, '_');
+
   return (
     <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
-      {/* Outer Glow/Depth */}
       <defs>
-        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
-          <feOffset dx="0" dy="2" result="offsetblur" />
-          <feComponentTransfer>
-            <feFuncA type="linear" slope="0.1" />
-          </feComponentTransfer>
-          <feMerge>
-            <feMergeNode />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
+        <filter id={`sh_${uid}`} x="-5%" y="-5%" width="110%" height="110%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" />
+          <feOffset dx="0" dy="1" result="offsetblur" />
+          <feComponentTransfer><feFuncA type="linear" slope="0.06" /></feComponentTransfer>
+          <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
+        {/* Collar ribbing — fine horizontal lines */}
+        <pattern id={`ch_${uid}`} patternUnits="userSpaceOnUse" width="500" height="2.5">
+          <line x1="0" y1="1.25" x2="500" y2="1.25" stroke="#555" strokeWidth="0.4" />
+        </pattern>
+        {/* Clip collar region */}
+        {isFront ? (
+          <clipPath id={`cc_${uid}`}>
+            <path d="M186,58 C215,48 240,45 250,44 C260,45 285,48 314,58 C312,70 290,80 250,84 C210,80 188,70 186,58 Z" />
+          </clipPath>
+        ) : (
+          <clipPath id={`cc_${uid}`}>
+            <path d="M195,64 C220,57 240,54 250,53 C260,54 280,57 305,64 L305,77 C280,72 260,70 250,69 C240,70 220,72 195,77 Z" />
+          </clipPath>
+        )}
       </defs>
 
-      {/* Main silhouette - smooth organic curves */}
-      <path 
-        d="M105 105C105 105 70 120 40 145C30 155 45 230 75 270C85 285 140 240 140 240V440C140 455 155 460 170 460H330C345 460 360 455 360 440V240C360 240 415 285 425 270C455 230 470 155 460 145C430 120 395 105 395 105C395 105 360 85 250 85C140 85 105 105 105 105Z" 
-        fill={color} 
-        stroke="#000" 
-        strokeWidth="1.2" 
-        filter="url(#softShadow)"
-      />
-
-      {/* Collar Detail */}
       {isFront ? (
         <>
-          <path 
-            d="M175 95C175 95 185 140 250 140C315 140 325 95 325 95C325 95 310 105 250 105C190 105 175 95 175 95Z" 
-            fill="#f5f5f5" 
-            stroke="#000" 
-            strokeWidth="1" 
+          {/* ═══ FRONT — straight-line boxy silhouette ═══ */}
+          <path
+            d="M 42,200 L 82,78 L 190,60 L 190,70 C 196,110 224,132 250,134 C 276,132 304,110 310,70 L 310,60 L 418,78 L 458,200 L 400,218 L 368,185 L 368,455 L 132,455 L 132,185 L 100,218 Z"
+            fill={color}
+            stroke="#222"
+            strokeWidth="1.1"
+            strokeLinejoin="round"
+            filter={`url(#sh_${uid})`}
           />
-          {/* inner neck detail */}
-          <path d="M190 100C210 115 290 115 310 100" stroke="#000" strokeWidth="0.5" opacity="0.3" />
+
+          {/* Neck opening — inner depth */}
+          <path
+            d="M190,70 C196,110 224,132 250,134 C276,132 304,110 310,70 C300,66 275,62 250,61 C225,62 200,66 190,70 Z"
+            fill="#d8d8d8"
+            stroke="#222"
+            strokeWidth="0.6"
+          />
+          {/* Inner shadow arc */}
+          <path
+            d="M198,76 C204,105 228,122 250,124 C272,122 296,105 302,76"
+            fill="none" stroke="#222" strokeWidth="0.3" opacity="0.2"
+          />
+
+          {/* Collar band — thin, dark, ribbed */}
+          <path
+            d="M186,58 C215,48 240,45 250,44 C260,45 285,48 314,58 C312,70 290,80 250,84 C210,80 188,70 186,58 Z"
+            fill="#222"
+            stroke="#111"
+            strokeWidth="1"
+          />
+          <rect x="0" y="0" width="500" height="500" fill={`url(#ch_${uid})`} clipPath={`url(#cc_${uid})`} opacity="0.4" />
         </>
       ) : (
-        <path d="M175 95C175 95 200 105 250 105C300 105 325 95 325 95" fill="#f5f5f5" stroke="#000" strokeWidth="1" />
+        <>
+          {/* ═══ BACK — straight-line boxy silhouette ═══ */}
+          <path
+            d="M 42,200 L 82,78 L 195,62 Q 250,52 305,62 L 418,78 L 458,200 L 400,218 L 368,185 L 368,455 L 132,455 L 132,185 L 100,218 Z"
+            fill={color}
+            stroke="#222"
+            strokeWidth="1.1"
+            strokeLinejoin="round"
+            filter={`url(#sh_${uid})`}
+          />
+
+          {/* Back collar band — thin, dark, ribbed */}
+          <path
+            d="M195,64 C220,57 240,54 250,53 C260,54 280,57 305,64 L305,77 C280,72 260,70 250,69 C240,70 220,72 195,77 Z"
+            fill="#222"
+            stroke="#111"
+            strokeWidth="1"
+          />
+          <rect x="0" y="0" width="500" height="500" fill={`url(#ch_${uid})`} clipPath={`url(#cc_${uid})`} opacity="0.4" />
+        </>
       )}
 
-      {/* Seam architecture */}
-      <path d="M140 240C140 240 160 135 105 105M360 240C360 240 340 135 395 105" stroke="#000" strokeWidth="0.8" opacity="0.4" />
-      
-      {/* Heavy-weight stitching (double needle) */}
-      <g opacity="0.5" stroke="#000" strokeWidth="0.3" strokeDasharray="2 1">
-        {/* Hem */}
-        <path d="M140 445H360" />
-        <path d="M140 450H360" />
-        {/* Left Sleeve */}
-        <path d="M45 245L75 260" />
-        <path d="M50 250L80 265" />
-        {/* Right Sleeve */}
-        <path d="M455 245L425 260" />
-        <path d="M450 250L420 265" />
+      {/* ═══ CONSTRUCTION LINES ═══ */}
+
+      {/* Armhole seam (shoulder → armpit) */}
+      <path d="M132,185 C128,145 105,110 82,78" stroke="#222" strokeWidth="0.5" opacity="0.3" fill="none" />
+      <path d="M368,185 C372,145 395,110 418,78" stroke="#222" strokeWidth="0.5" opacity="0.3" fill="none" />
+
+      {/* Sleeve cuff — double-needle stitch */}
+      <g opacity="0.45" stroke="#222" strokeWidth="0.4" strokeDasharray="3 1.5">
+        <line x1="46" y1="198" x2="98" y2="216" />
+        <line x1="49" y1="202" x2="101" y2="220" />
+        <line x1="454" y1="198" x2="402" y2="216" />
+        <line x1="451" y1="202" x2="399" y2="220" />
+      </g>
+
+      {/* Bottom hem — double-needle stitch */}
+      <g opacity="0.45" stroke="#222" strokeWidth="0.4" strokeDasharray="3 1.5">
+        <line x1="134" y1="450" x2="366" y2="450" />
+        <line x1="134" y1="454" x2="366" y2="454" />
       </g>
     </svg>
   );
 }
+
 
 
 interface DesignCanvasProps {

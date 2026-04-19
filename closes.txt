@@ -1,0 +1,184 @@
+67:    </div>
+113:    </div>
+151:    </div>
+418:          </div>
+429:          </div>
+434:        </div>
+447:          </div>
+463:                </div>
+468:                </div>
+470:            </div>
+479:          </div>
+491:            </div>
+492:          </div>
+494:      </div>
+1017:              </div>
+1018:            </div>
+1023:            </div>
+1024:          </div>
+1025:        </div>
+1039:          </div>
+1040:        </div>
+1056:          </div>
+1084:          </div>
+1085:        </div>
+1178:                  </div>
+1206:                      </div>
+1207:                    </div>
+1221:                        </div>
+1233:                    </div>
+1238:                        </div>
+1251:                              </div>
+1252:                            </div>
+1255:                            </div>
+1256:                          </div>
+1258:                      </div>
+1259:                    </div>
+1260:                  </div>
+1261:                </div>
+1269:                  </div>
+1301:                    </div>
+1313:                        </div>
+1328:                              </div>
+1339:                            </div>
+1341:                        </div>
+1344:                  </div>
+1345:                </div>
+1353:                  </div>
+1376:                    </div>
+1381:                      </div>
+1388:                        </div>
+1389:                      </div>
+1390:                    </div>
+1416:                            </div>
+1420:                    </div>
+1429:                    </div>
+1430:                  </div>
+1431:                </div>
+1439:                  </div>
+1464:                    </div>
+1468:                    </div>
+1503:                          </div>
+1521:                              </div>
+1525:                                </div>
+1526:                                <div className="text-[10px] text-gray-400 font-medium tracking-tight">Mã màu HEX</div>
+1527:                              </div>
+1528:                            </div>
+1529:                          </div>
+1533:                  </div>
+1534:                </div>
+1542:                  </div>
+1547:                    </div>
+1569:                            </div>
+1570:                          </div>
+1572:                      </div>
+1574:                  </div>
+1575:                </div>
+1583:                  </div>
+1611:                          </div>
+1617:                    </div>
+1634:                      </div>
+1635:                    </div>
+1636:                  </div>
+1637:                </div>
+1639:            </div>
+1662:            </div>
+1688:                        <div className="text-[10px] font-black uppercase text-[#111] tracking-tighter mb-1 mt-1">STRMCWBY</div>
+1689:                        <div className="text-[14px] font-black uppercase text-[#111] tracking-tight leading-none">HUMAN</div>
+1691:                        <div className="text-[12px] font-black uppercase text-[#111] tracking-wide mt-1">MADE</div>
+1692:                     </div>
+1697:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">SEASON</div>
+1698:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">2026 SS / FW</div>
+1700:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">CATEGORY</div>
+1701:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold uppercase text-[#111]">{activeSlot === 'shirt' ? 'TOP' : activeSlot}</div>
+1703:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FABRIC</div>
+1704:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">100% COTTON</div>
+1706:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FACTORY</div>
+1707:                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-[#111]">UNISPACE</div>
+1708:                        </div>
+1711:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">STYLE NO</div>
+1712:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">HM230210TO</div>
+1714:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">NAME</div>
+1715:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">Graphic Logo Tee</div>
+1717:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">INPUT</div>
+1718:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">04 / 18 / 2026</div>
+1720:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">OUTPUT</div>
+1721:                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-gray-400">05 / 20 / 2026</div>
+1722:                        </div>
+1723:                     </div>
+1724:                </div>
+1729:                </div>
+1737:                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
+1738:                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CF</div>
+1745:                           </div>
+1749:                             </div>
+1750:                           </div>
+1752:                        </div>
+1753:                        <div className="absolute top-1/2 left-full w-12 h-[1px] bg-red-500 origin-left rotate-[-20deg]"></div>
+1754:                     </div>
+1759:                           <div className="w-full h-1 bg-gray-200"></div>
+1762:                           </div>
+1763:                           <div className="w-full h-[1px] bg-gray-100 italic text-[4px]">Made in Japan</div>
+1764:                        </div>
+1765:                        <div className="absolute top-0 right-[-40px] w-12 h-[1px] bg-red-500 origin-left rotate-[-15deg]"></div>
+1766:                     </div>
+1786:                     </div>
+1790:                        <div className="font-black text-[#111] mb-1">NECK MAIN LABE (No fold)</div>
+1791:                        <div>Flat Sewn Main Label</div>
+1792:                        <div>with Four-Sided Stitching</div>
+1793:                     </div>
+1796:                        <div className="font-black text-[#111]">BINDING</div>
+1797:                        <div>2Needle bottom</div>
+1798:                        <div>Cover Stitch 1/4&quot;</div>
+1799:                        <div className="w-16 h-[1px] bg-red-500 mt-1"></div>
+1800:                     </div>
+1803:                        <div className="font-black text-[#111]">Center Front</div>
+1804:                        <div className="text-red-500 font-bold">4.5cm Down</div>
+1805:                        <div>From Neck Seam</div>
+1806:                        <div>Screen print</div>
+1807:                        <div className="w-4 h-full absolute right-[-20px] top-0 border-r border-red-500"></div>
+1808:                     </div>
+1811:                     <div className="absolute bottom-[180px] left-[150px] w-[60px] h-[1px] bg-red-500/20 border-l border-r border-red-500"></div>
+1814:                        <div>Single needle</div>
+1815:                        <div className="font-medium">Chain Stitch</div>
+1816:                     </div>
+1821:                     </div>
+1822:                  </div>
+1827:                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
+1828:                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CB</div>
+1831:                     <div className="absolute top-[160px] right-[120px] w-[1px] h-[90px] bg-red-500 z-20"></div>
+1832:                     <div className="absolute top-[160px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+1833:                     <div className="absolute top-[250px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+1834:                     <div className="absolute top-[200px] right-[135px] text-red-500 text-[11px] font-black z-20 transform -rotate-90">18cm</div>
+1854:                     </div>
+1858:                        <div className="font-black text-[#111]">BINDING</div>
+1859:                        <div>2Needle bottom</div>
+1860:                        <div>Cover Stitch 1/4&quot;</div>
+1861:                     </div>
+1863:                        <div className="font-black text-[#111]">Center Back</div>
+1864:                        <div className="text-red-500 font-bold">18cm Down</div>
+1865:                        <div>From Neck Seam</div>
+1866:                        <div>Screen print</div>
+1867:                     </div>
+1870:                        <div>Single needle</div>
+1871:                        <div>Chain Stitch</div>
+1872:                     </div>
+1877:                     </div>
+1878:                  </div>
+1882:                     <div className="w-full bg-[#111] text-center text-[9px] font-black p-[3px] text-white uppercase tracking-tighter">FABRIC</div>
+1883:                     <div className="w-[60px] h-[70px] border border-[#eee] mt-2 mb-1 shadow-inner" style={{ backgroundColor: tshirtColor }}></div>
+1888:                     </div>
+1889:                  </div>
+1891:                </div>
+1895:                  <div>HYDNSTUDIO.COM</div>
+1896:                  <div>© 2026 UNISPACE CO.</div>
+1897:                </div>
+1899:              </div>
+1901:            </div>
+1902:          </div>
+1917:            </div>
+1928:            </div>
+1936:            </div>
+1937:          </div>
+1939:      </div>
+1998:    </div>

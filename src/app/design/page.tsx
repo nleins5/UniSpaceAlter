@@ -69,6 +69,38 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
+function HoodieShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
+  const imgUrl = `/mockups/v_hoodie_${side}.png`; // High-fidelity hoodie masks
+  const uniqueId = useId().replace(/:/g, "-");
+  
+  return (
+    <div className="relative w-full h-full drop-shadow-md">
+       <style>{`
+        .hoodie-mask-${uniqueId} {
+          position: absolute;
+          inset: 0;
+          background-color: ${color};
+          -webkit-mask-image: url('${imgUrl}');
+          mask-image: url('${imgUrl}');
+          -webkit-mask-size: contain;
+          mask-size: contain;
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+          -webkit-mask-position: center;
+          mask-position: center;
+          transition: background-color 0.4s ease;
+        }
+      `}</style>
+      <div className={`hoodie-mask-${uniqueId}`} />
+      <img 
+        src={imgUrl} 
+        alt="Hoodie Mockup" 
+        className="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-[0.9] mix-blend-multiply" 
+      />
+    </div>
+  );
+}
+
 function RaglanShirtSVG({ color, side = "front", sleeveColor }: { color: string; sleeveColor?: string; side?: "front" | "back" }) {
   const imgUrl = `/mockups/v_raglan_${side}.png`;
   const sleeveImgUrl = `/mockups/v_raglan_${side}_sleeve.png?v=9`;
@@ -165,7 +197,7 @@ interface DesignCanvasProps {
   tshirtColor: string;
   collarColor: string;
   sleeveColor: string;
-  shirtType: "tshirt" | "polo" | "raglan";
+  shirtType: "tshirt" | "polo" | "raglan" | "hoodie";
   zoom: number;
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging";
   isPositionMode?: boolean;
@@ -389,11 +421,57 @@ function DesignCanvas({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
+        {slot === "shirt" && (
+           <div className="absolute inset-0 pointer-events-none z-0">
+              {/* TECHNICAL GRID & HEADERS */}
+              <div className="absolute inset-0 blueprint-grid" />
+              <div className="absolute top-4 left-4 right-4 flex justify-between items-start opacity-60">
+                <div className="flex flex-col gap-0.5">
+                   <span className="text-[7px] font-black uppercase tracking-widest text-black">Technical Data Sheet</span>
+                   <span className="text-[6px] font-mono text-gray-500">REF: REBEL-4P-2026</span>
+                </div>
+                <div className="text-[6px] font-mono text-right text-gray-400">
+                   <div>PROPERTY OF UNISPACE</div>
+                   <div>DO NOT DUPLICATE</div>
+                </div>
+              </div>
+              
+              {/* REGISTRATION MARKS */}
+              <div className="absolute top-2 left-2 text-[10px] text-red-500 font-light">+</div>
+              <div className="absolute top-2 right-2 text-[10px] text-red-500 font-light">+</div>
+              <div className="absolute bottom-2 left-2 text-[10px] text-red-500 font-light">+</div>
+              <div className="absolute bottom-2 right-2 text-[10px] text-red-500 font-light">+</div>
+
+              <style>{`
+                .design-zone { border: 0.5px solid #ef4444; position: absolute; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 6px; color: #ef4444; font-weight: 400; background: rgba(239, 68, 68, 0.01); }
+                .zone-label { background: #ef4444; color: #fff; padding: 1px 4px; position: absolute; top: -10px; left: 0; font-weight: 800; transform: skewX(-15deg); }
+                .dimension-line { position: absolute; border-top: 0.5px solid #ef4444; height: 1px; }
+                .z-front-artwork { left: 80px; top: 130px; width: 240px; height: 100px; }
+                .z-neck-woven { left: 175px; top: 35px; width: 50px; height: 50px; }
+                .z-hem-authentic { left: 260px; top: 380px; width: 45px; height: 22px; }
+                .z-back-artwork { left: 100px; top: 70px; width: 200px; height: 180px; }
+              `}</style>
+              {side === "front" && (
+                <>
+                  <div className="design-zone z-front-artwork"><span className="zone-label">FRONT ARTWORK</span></div>
+                  <div className="design-zone z-neck-woven"><span className="zone-label">WOVEN TAG</span></div>
+                  <div className="design-zone z-hem-authentic"><span className="zone-label">AUTH TAG</span></div>
+                </>
+              )}
+              {side === "back" && (
+                <>
+                  <div className="design-zone z-back-artwork"><span className="zone-label">BACK ARTWORK</span></div>
+                </>
+              )}
+           </div>
+        )}
         {slot === "shirt" ? (
           shirtType === "raglan" ? (
             <RaglanShirtSVG color={tshirtColor} sleeveColor={sleeveColor} side={side} />
           ) : shirtType === "polo" ? (
             <PoloShirtSVG color={tshirtColor} collarColor={collarColor} side={side} />
+          ) : shirtType === "hoodie" ? (
+            <HoodieShirtSVG color={tshirtColor} side={side} />
           ) : (
             <TShirtSVG color={tshirtColor} side={side} />
           )
@@ -450,22 +528,23 @@ function DesignCanvas({
         {sideElements.map((el) => (
           <div key={el.id} className="canva-element-wrapper">
             <div
-              className={`canva-element el-${el.id} ${selectedId === el.id ? "canva-element-selected" : ""} ${el.locked ? "canva-element-locked" : ""}`}
-              onMouseDown={(e) => handleElementMouseDown(e, el)}
-              onTouchStart={(e) => handleElementMouseDown(e, el)}
+              className={`canva-element el-${el.id} ${selectedId === el.id ? "canva-element-selected" : ""} ${el.locked ? "canva-element-locked !pointer-events-none" : ""}`}
+              onMouseDown={(e) => !el.locked && handleElementMouseDown(e, el)}
+              onTouchStart={(e) => !el.locked && handleElementMouseDown(e, el)}
             >
               {el.type === "image" && el.url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={el.url} alt={el.label} className="w-full h-full object-contain pointer-events-none canva-element-img-blend" draggable={false} />
+                <Image 
+                  src={el.url} 
+                  alt={el.label || "Element"} 
+                  width={800} 
+                  height={800} 
+                  unoptimized 
+                  className="w-full h-full object-contain pointer-events-none canva-element-img-blend" 
+                />
               )}
               {el.type === "text" && (
                 <div className={`canva-text-element el-text-${el.id}`}>
                   {el.text}
-                </div>
-              )}
-              {el.locked && (
-                <div className="absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow-sm pointer-events-none">
-                  <span className="text-[10px]">🔒</span>
                 </div>
               )}
             </div>
@@ -500,10 +579,10 @@ function DesignCanvas({
 export default function DesignPage() {
   const router = useRouter();
   const [side, setSide] = useState<"front" | "back">("front");
-  const [tshirtColor, setTshirtColor] = useState("#ffffff");
-  const [sleeveColor, setSleeveColor] = useState("#ffffff");
+  const [tshirtColor, setTshirtColor] = useState("#fbcfe8"); // ASSC Pink
+  const [sleeveColor, setSleeveColor] = useState("#fbcfe8");
   const [collarColor, setCollarColor] = useState("");
-  const [shirtType, setShirtType] = useState<"tshirt" | "polo" | "raglan">("tshirt");
+  const [shirtType, setShirtType] = useState<"tshirt" | "polo" | "raglan" | "hoodie">("hoodie");
   const [activeColorTarget, setActiveColorTarget] = useState<"body" | "sleeve" | "collar">("body");
   const [activeSlot, setActiveSlot] = useState<"shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging">("shirt");
   const [elements, setElements] = useState<DesignElement[]>([]);
@@ -801,27 +880,20 @@ export default function DesignPage() {
     if (slot !== "shirt") return { x: 40, y: 40, w: 120, h: 120 };
     // Canvas 400x480. Body center x=200.
     switch (loc) {
-      case "left-chest": return { x: 212, y: 92, w: 45, h: 45 }; 
-      case "right-chest": return { x: 96, y: 92, w: 45, h: 45 }; 
-      case "center-chest": return { x: 106, y: 88, w: 140, h: 110 };
-      case "full-front": return { x: 84, y: 105, w: 176, h: 240 }; // Moved another 8px left (Total 28px from orig 112)
-      case "oversize-front": return { x: 66, y: 95, w: 210, h: 290 };
-      case "back-neck": return { x: 149, y: 45, w: 50, h: 25 }; 
-      case "back-collar": return { x: 149, y: 45, w: 50, h: 25 };
-      case "upper-back": return { x: 106, y: 95, w: 140, h: 90 };
-      case "full-back": return { x: 84, y: 105, w: 176, h: 240 };
-      case "sleeve": return { x: -3, y: 100, w: 55, h: 55 };
+      case "front-artwork": return { x: 80, y: 130, w: 240, h: 100 }; 
+      case "back-artwork": return { x: 100, y: 70, w: 200, h: 180 }; 
+      case "neck-woven": return { x: 175, y: 35, w: 50, h: 50 }; 
+      case "hem-authentic": return { x: 260, y: 380, w: 45, h: 22 }; // Authentic Tag at bottom right (viewer left)
       default: return { x: 106, y: 130, w: 140, h: 140 };
     }
   }, []);
-  // ─── Canvas Actions ──────────────────────────
   const handleDropImage = useCallback(
-    (image: AIImage, x?: number, y?: number) => {
+    (image: AIImage) => {
       setElements((prev: DesignElement[]) => {
         pushHistory(prev);
         
         const isShirt = activeSlot === "shirt";
-        const isFront = printLocation.includes("front") || printLocation.includes("chest") || printLocation === "sleeve";
+        const isFront = printLocation === "front-artwork" || printLocation === "neck-woven" || printLocation === "hem-authentic";
         const effectiveSide = isFront ? "front" : "back";
 
         // Auto switch side if on shirt
@@ -830,26 +902,27 @@ export default function DesignPage() {
         }
 
         const pos = getPresetPosition(printLocation, activeSlot);
-        const finalX = x !== undefined ? x : pos.x;
-        const finalY = y !== undefined ? y : pos.y;
+        const finalX = pos.x;
+        const finalY = pos.y;
         const finalW = pos.w;
         const finalH = pos.h;
 
-        const existingIdx = prev.findIndex((el: DesignElement) =>
-          el.type === "image" &&
-          el.side === (isShirt ? effectiveSide : side) &&
-          el.slot === activeSlot &&
-          el.locked === true
+        const elIdx = prev.findIndex((e: DesignElement) => 
+          e.side === (isShirt ? effectiveSide : side) && 
+          e.slot === activeSlot
         );
 
-        if (existingIdx !== -1) {
+        if (elIdx !== -1) {
           const newElements = [...prev];
-          newElements[existingIdx] = {
-            ...newElements[existingIdx],
+          newElements[elIdx] = {
+            ...newElements[elIdx],
             url: image.url,
             label: image.label,
-            // If dropped, update position, else keep preset
-            ...(x !== undefined ? { x: finalX, y: finalY } : {})
+            x: finalX,
+            y: finalY,
+            width: finalW,
+            height: finalH,
+            locked: true
           };
           return newElements;
         }
@@ -866,12 +939,8 @@ export default function DesignPage() {
           rotation: 0,
           side: (isShirt ? effectiveSide : side) as "front" | "back",
           slot: activeSlot,
-          locked: !isShirt, // Only lock in technical detail slots. Allow shirt designs to be moved for pixel-perfect adjustment.
+          locked: true,
         };
-
-        if (isShirt) {
-          setTimeout(() => setSelectedId(el.id), 0);
-        }
 
         return [...prev, el];
       });
@@ -895,6 +964,7 @@ export default function DesignPage() {
       fontSize: textSize,
       fontFamily: textFont,
       textColor: textColor,
+      locked: true,
     };
     setElements((prev: DesignElement[]) => {
       pushHistory(prev);
@@ -1552,16 +1622,6 @@ export default function DesignPage() {
                             <span className="canva-layer-icon">{el.type === "text" ? "T" : "🖼"}</span>
                             <span className="canva-layer-name">{el.label}</span>
                             <div className="flex items-center gap-1">
-                              <button
-                                onClick={(e: React.MouseEvent) => {
-                                  e.stopPropagation();
-                                  setElements((prev: DesignElement[]) => prev.map((p: DesignElement) => p.id === el.id ? { ...p, locked: !p.locked } : p));
-                                }}
-                                className={`canva-layer-lock ${el.locked ? "locked" : ""}`}
-                                title={el.locked ? "Mở khoá" : "Khoá vị trí"}
-                              >
-                                {el.locked ? "🔒" : "🔓"}
-                              </button>
                               <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); setElements((prev: DesignElement[]) => { pushHistory(prev); return prev.filter((p: DesignElement) => p.id !== el.id); }); if (selectedId === el.id) setSelectedId(null); }} className="canva-layer-delete" aria-label="Xóa layer">×</button>
                             </div>
                           </div>
@@ -1575,32 +1635,26 @@ export default function DesignPage() {
               {activePanel === "position" && (
                 <div className="canva-panel-content">
                   <div className="canva-panel-header">
-                    <h3>Vị trí in</h3>
+                    <h3>Vị trí in chuẩn</h3>
                     <button onClick={() => setActivePanel(null)} className="canva-panel-close" aria-label="Đóng">×</button>
                   </div>
                   <div className="canva-panel-body">
-                    <p className="text-[11px] text-gray-400 mb-4 leading-relaxed uppercase font-bold tracking-wider">Chọn vị trí tiêu chuẩn công nghiệp</p>
+                    <p className="text-[11px] text-gray-400 mb-4 leading-relaxed uppercase font-bold tracking-wider">Hệ thống vị trí REBEL 4-Points</p>
                     <div className="grid grid-cols-2 gap-3">
                       {[
-                        { id: "left-chest", label: "Ngực trái", icon: "💎" },
-                        { id: "right-chest", label: "Ngực phải", icon: "✨" },
-                        { id: "center-chest", label: "Giữa ngực", icon: "🎯" },
-                        { id: "full-front", label: "Full Front", icon: "👕" },
-                        { id: "oversize-front", label: "Oversized", icon: "👚" },
-                        { id: "sleeve", label: "Tay áo", icon: "💪" },
-                        { id: "back-collar", label: "Sau gáy", icon: "🦒" },
-                        { id: "upper-back", label: "Lưng trên", icon: "📍" },
-                        { id: "full-back", label: "Full Back", icon: "🎞️" },
+                        { id: "front-artwork", label: "Front Artwork", icon: "📐" },
+                        { id: "back-artwork", label: "Back Artwork", icon: "📏" },
+                        { id: "neck-woven", label: "Neck Woven Tag", icon: "🏷️" },
+                        { id: "hem-authentic", label: "Hem Authentic Tag", icon: "🔖" },
                       ].map((loc) => (
                         <button
                           key={loc.id}
                           className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all group ${printLocation === loc.id ? 'border-[#8b3dff] bg-[#8b3dff]/5' : 'border-gray-50 hover:border-gray-200 bg-gray-50/50'}`}
                           onClick={() => {
                             setPrintLocation(loc.id);
-                            const isFront = loc.id.includes("front") || loc.id.includes("chest") || loc.id === "sleeve";
+                            const isFront = loc.id === "front-artwork" || loc.id === "neck-woven" || loc.id === "hem-authentic";
                             setSide(isFront ? "front" : "back");
                             setActiveSlot("shirt");
-                            setPrintLocation(loc.id);
                           }}
                         >
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-transform group-hover:scale-110 ${printLocation === loc.id ? 'bg-[#8b3dff] text-white' : 'bg-white shadow-sm'}`}>
@@ -1612,27 +1666,10 @@ export default function DesignPage() {
                         </button>
                       ))}
                     </div>
-                    <div className="mt-8 bg-gray-50 p-4 rounded-3xl border border-gray-100">
-                      <h4 className="text-[10px] font-black uppercase mb-2 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        Trạng thái vị trí
-                      </h4>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-medium text-gray-500">Kích thước mặc định</span>
-                        <span className="text-[11px] font-bold font-mono">
-                          {printLocation === 'full-front' ? '12" x 14"' :
-                            printLocation === 'left-chest' || printLocation === 'right-chest' ? '4" x 4"' :
-                            printLocation === 'center-chest' ? '8" x 6"' :
-                            printLocation === 'oversize-front' ? '15" x 16"' :
-                            printLocation === 'back-collar' ? '3" x 1.5"' :
-                            printLocation === 'upper-back' ? '12" x 8"' :
-                            printLocation === 'full-back' ? '12" x 14"' : 'Standard'}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
+  
             </div>
           </>
         )}
@@ -1646,6 +1683,12 @@ export default function DesignPage() {
           }
           .tech-pack-sheet-scale {
             transform: scale(var(--tech-zoom));
+          }
+          .tech-pack .blueprint-grid {
+            background-size: 20px 20px;
+            background-image:
+              linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
           }
           .tech-pack-swatch-bg {
             background-color: var(--swatch-color);
@@ -1686,89 +1729,46 @@ export default function DesignPage() {
             >
               
               <div className="relative w-[1150px] h-[850px] bg-white border-[3px] border-[#111] shadow-2xl mx-auto origin-center overflow-hidden text-[#111] font-sans rounded-[2rem] tech-pack-sheet-scale">
-                {/* ═══ HEADER TABLE ═══ */}
-                <div className="flex border-b-[2px] border-[#111]">
-                     {/* LOGO CELL */}
-                     <div className="w-[140px] border-r-[2px] border-[#111] flex flex-col justify-center items-center p-2">
-                        <div className="text-[10px] font-black uppercase text-[#111] tracking-tighter mb-1 mt-1">STRMCWBY</div>
-                        <div className="text-[14px] font-black uppercase text-[#111] tracking-tight leading-none">HUMAN</div>
-                        <Logo scale={0.6} />
-                        <div className="text-[12px] font-black uppercase text-[#111] tracking-wide mt-1">MADE</div>
-                     </div>
-                     
-                     <div className="flex-1 flex flex-col">
-                        {/* ROW 1 */}
-                        <div className="flex flex-1 border-b-[1px] border-[#111]">
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">SEASON</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">2026 SS / FW</div>
-                           
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">CATEGORY</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold uppercase text-[#111]">{activeSlot === 'shirt' ? 'TOP' : activeSlot}</div>
-                           
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FABRIC</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">100% COTTON</div>
-                           
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FACTORY</div>
-                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-[#111]">UNISPACE</div>
-                        </div>
-                        {/* ROW 2 */}
-                        <div className="flex flex-1">
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">STYLE NO</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">HM230210TO</div>
-                           
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">NAME</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">Graphic Logo Tee</div>
-                           
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">INPUT</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">04 / 18 / 2026</div>
-                           
-                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">OUTPUT</div>
-                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-gray-400">05 / 20 / 2026</div>
-                        </div>
-                     </div>
-                </div>
+                 {/* ═══ TECHNICAL HEADER (Blueprint Style) ═══ */}
+                 <div className="flex border-b-[2px] border-black bg-white">
+                      <div className="w-[180px] border-r-[2px] border-black flex flex-col justify-center items-center p-4 bg-black text-white">
+                        <div className="font-black text-[18px] tracking-tight leading-none uppercase">UniSpace</div>
+                        <div className="text-[7px] font-mono tracking-widest mt-1 opacity-80 uppercase">Technical Systems</div>
+                      </div>
+                      
+                      <div className="flex-1 grid grid-cols-4 font-mono text-[9px] uppercase tracking-tighter">
+                         <div className="border-r border-black p-2 flex flex-col justify-center">
+                            <span className="text-[7px] text-gray-500 mb-0.5">Project</span>
+                            <span className="font-black truncate">REBEL-4P-{shirtType}</span>
+                         </div>
+                         <div className="border-r border-black p-2 flex flex-col justify-center">
+                            <span className="text-[7px] text-gray-500 mb-0.5">Season</span>
+                            <span className="font-black">2026 ALPHA</span>
+                         </div>
+                         <div className="border-r border-black p-2 flex flex-col justify-center">
+                            <span className="text-[7px] text-gray-500 mb-0.5">Category</span>
+                            <span className="font-black">{shirtType === 'hoodie' ? 'FW HOODIE' : 'SS T-SHIRT'}</span>
+                         </div>
+                         <div className="p-2 flex flex-col justify-center">
+                            <span className="text-[7px] text-gray-500 mb-0.5">Date</span>
+                            <span className="font-black">APR 18, 2026</span>
+                         </div>
+                      </div>
+                  </div>
 
                 {/* ═══ DIVIDER ROW ═══ */}
-                <div className="border-b-[2px] border-[#111] bg-[#f8f9fa] py-1 text-center text-[10px] uppercase font-medium tracking-widest text-[#333]">
-                   FRONT & BACK DETAILS
+                <div className="border-b-[2px] border-black bg-gray-50 py-1 text-center text-[10px] uppercase font-mono font-black tracking-widest text-black">
+                   TECHNICAL SPECIFICATION / FRONT & BACK DETAILS
                 </div>
 
                 {/* ═══ MOCKUP VIEWS ═══ */}
                 <div className="flex h-[calc(100%-110px)] relative">
                   
                   {/* LEFT PANE: FRONT VIEW */}
-                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
-                     {/* Red Center Line CF */}
-                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
-                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CF</div>
-                     
-                     {/* NECK LABEL ZOOM DETAIL (Top Left) */}
-                     <div className="absolute top-[80px] left-[40px] z-20">
-                        <div className="w-[110px] h-[110px] rounded-full border-2 border-red-500 bg-white shadow-xl overflow-hidden relative">
-                           <div className="absolute inset-0 flex items-center justify-center scale-[2.5] opacity-20">
-                              <Logo />
-                           </div>
-                           <div className="absolute inset-0 flex flex-col items-center justify-center">
-                             <div className="w-10 h-6 bg-yellow-500/20 border border-yellow-600/30 flex items-center justify-center">
-                                <Logo scale={0.2} />
-                             </div>
-                           </div>
-                           {/* Target marker */}
-                        </div>
-                        <div className="absolute top-1/2 left-full w-12 h-[1px] bg-red-500 origin-left rotate-[-20deg]"></div>
-                     </div>
-
-                     {/* CARE LABEL ZOOM DETAIL (Bottom Left) */}
-                     <div className="absolute bottom-[100px] left-[50px] z-20">
-                        <div className="w-[80px] h-[100px] border-2 border-red-500 bg-white shadow-xl flex flex-col p-2 space-y-1">
-                           <div className="w-full h-1 bg-gray-200"></div>
-                           <div className="w-full h-8 bg-gray-50 border border-gray-200 flex items-center justify-center">
-                              <span className="text-[6px] font-mono leading-none text-center">100% COTTON<br/>WASH COLD</span>
-                           </div>
-                           <div className="w-full h-[1px] bg-gray-100 italic text-[4px]">Made in Japan</div>
-                        </div>
-                        <div className="absolute top-0 right-[-40px] w-12 h-[1px] bg-red-500 origin-left rotate-[-15deg]"></div>
-                     </div>
+                  <div className="flex-1 relative flex justify-center pt-24 blueprint-grid border-r border-black" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
+                     <div className="absolute top-4 left-4 font-mono text-[9px] uppercase font-black opacity-30">Technical Sheet / Front View</div>
+                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[0.5px] bg-red-400/20 z-0"></div>
+                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[8px] font-mono opacity-40">CENTER FRONT (CF)</div>
                      
                      {/* Front Shirt Container */}
                      <div className={`canva-canvas transition-all ${side === "front" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.82] relative`}>
@@ -1789,54 +1789,13 @@ export default function DesignPage() {
                            slot="shirt"
                         />
                      </div>
-
-                     {/* Front Annotations */}
-                     <div className="absolute left-[30px] top-[20px] text-[9px] leading-tight text-[#555] uppercase tracking-tight">
-                        <div className="font-black text-[#111] mb-1">NECK MAIN LABE (No fold)</div>
-                        <div>Flat Sewn Main Label</div>
-                        <div>with Four-Sided Stitching</div>
-                     </div>
-                     
-                     <div className="absolute left-[165px] top-[75px] text-[9px] leading-tight text-[#555] uppercase">
-                        <div className="font-black text-[#111]">BINDING</div>
-                        <div>2Needle bottom</div>
-                        <div>Cover Stitch 1/4&quot;</div>
-                        <div className="w-16 h-[1px] bg-red-500 mt-1"></div>
-                     </div>
-
-                     <div className="absolute left-[340px] top-[140px] text-[9px] leading-tight text-[#555] uppercase text-right">
-                        <div className="font-black text-[#111]">Center Front</div>
-                        <div className="text-red-500 font-bold">4.5cm Down</div>
-                        <div>From Neck Seam</div>
-                        <div>Screen print</div>
-                        <div className="w-4 h-full absolute right-[-20px] top-0 border-r border-red-500"></div>
-                     </div>
-
-                     {/* Measurement Girdle */}
-                     <div className="absolute bottom-[180px] left-[150px] w-[60px] h-[1px] bg-red-500/20 border-l border-r border-red-500"></div>
-
-                     <div className="absolute left-[30px] bottom-[220px] text-[9px] leading-tight text-gray-400 uppercase italic">
-                        <div>Single needle</div>
-                        <div className="font-medium">Chain Stitch</div>
-                     </div>
-                     
-                     {/* Front Label */}
-                     <div className="absolute bottom-[40px] w-full text-center text-[11px] font-black tracking-[0.2em] uppercase text-[#222]">
-                        FRONT VIEW
-                     </div>
                   </div>
 
                   {/* RIGHT PANE: BACK VIEW */}
-                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group border-l-2 border-black/10" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
-                     {/* Red Center Line CB */}
-                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
-                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CB</div>
-                     
-                     {/* Red Measurement Line */}
-                     <div className="absolute top-[160px] right-[120px] w-[1px] h-[90px] bg-red-500 z-20"></div>
-                     <div className="absolute top-[160px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
-                     <div className="absolute top-[250px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
-                     <div className="absolute top-[200px] right-[135px] text-red-500 text-[11px] font-black z-20 transform -rotate-90">18cm</div>
+                  <div className="flex-1 relative flex justify-center pt-24 blueprint-grid" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
+                     <div className="absolute top-4 right-4 font-mono text-[9px] uppercase font-black opacity-30 text-right">Technical Sheet / Back View</div>
+                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[0.5px] bg-red-400/20 z-0"></div>
+                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[8px] font-mono opacity-40">CENTER BACK (CB)</div>
 
                      {/* Back Shirt Container */}
                      <div className={`canva-canvas transition-all ${side === "back" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.82] relative`}>
@@ -1858,39 +1817,30 @@ export default function DesignPage() {
                         />
                      </div>
 
-                     {/* Back Annotations */}
-                     <div className="absolute left-[130px] top-[70px] text-[9px] leading-tight text-[#555] uppercase">
-                        <div className="font-black text-[#111]">BINDING</div>
-                        <div>2Needle bottom</div>
-                        <div>Cover Stitch 1/4&quot;</div>
-                     </div>
-                     <div className="absolute right-[50px] top-[75px] text-[9px] leading-tight text-[#555] uppercase text-right">
-                        <div className="font-black text-[#111]">Center Back</div>
-                        <div className="text-red-500 font-bold">18cm Down</div>
-                        <div>From Neck Seam</div>
-                        <div>Screen print</div>
-                     </div>
-
-                     <div className="absolute right-[30px] bottom-[220px] text-[9px] leading-tight text-gray-300 uppercase text-right italic">
-                        <div>Single needle</div>
-                        <div>Chain Stitch</div>
-                     </div>
-                     
                      {/* Back Label */}
-                     <div className="absolute bottom-[40px] w-full text-center text-[11px] font-black tracking-[0.2em] uppercase text-[#222]">
-                        BACK VIEW
+                     <div className="absolute bottom-[40px] w-full text-center text-[10px] font-mono font-black tracking-[0.2em] uppercase text-[#111] opacity-40">
+                        PROPERTY OF UNISPACE
                      </div>
                   </div>
-
-                  {/* ═══ BOTTOM FABRIC SWATCH ═══ */}
-                  <div className="absolute bottom-[20px] right-[20px] w-[80px] border-[2px] border-[#111] bg-white flex flex-col items-center shadow-lg">
-                     <div className="w-full bg-[#111] text-center text-[9px] font-black p-[3px] text-white uppercase tracking-tighter">FABRIC</div>
-                     <div className="w-[60px] h-[70px] border border-[#eee] mt-2 mb-1 shadow-inner tech-pack-swatch-bg"></div>
-                     <div className="w-full text-[7px] font-bold text-center p-1 leading-tight text-[#333]">
-                        PANTONE<br/>
-                        <span className="text-[#888] font-mono">11-0601 TCX</span><br/>
-                        BRIGHT WHITE
-                     </div>
+                  {/* ═══ MULTI-COLOR SWATCHES ═══ */}
+                  <div className="absolute bottom-[20px] left-1/2 -translate-x-1/2 flex gap-1 items-end">
+                     {[
+                        { name: "Black Beauty", hex: "#1a1a1b", pantone: "19-3911 TCX" },
+                        { name: "Festival Bloom", hex: "#fbcfe8", pantone: "12-2908 TCX" },
+                        { name: "Tomato", hex: "#e11d48", pantone: "18-1660 TCX" },
+                        { name: "Flame Orange", hex: "#f97316", pantone: "16-1151 TCX" },
+                        { name: "Biarritz", hex: "#10b981", pantone: "16-5942 TCX" }
+                     ].map((s, idx) => (
+                        <div key={idx} className="w-[55px] border-[1.5px] border-[#111] bg-white flex flex-col items-center">
+                           <div className={`w-full h-[40px] border-b border-[#111] swatch-color-${idx}`}></div>
+                           <style>{`.swatch-color-${idx} { background-color: ${s.hex}; }`}</style>
+                           <div className="w-full text-[5px] font-bold text-center p-0.5 leading-none text-[#111] uppercase">
+                              PANTONE<br/>
+                              <span className="text-[#888]">{s.pantone}</span><br/>
+                              {s.name}
+                           </div>
+                        </div>
+                     ))}
                   </div>
 
                 </div>
@@ -1927,6 +1877,9 @@ export default function DesignPage() {
               <span className="canva-zoom-val">{zoom}%</span>
             </div>
             <div className="canva-side-indicator">
+              <button onClick={() => setShirtType("hoodie")} className={shirtType === "hoodie" ? "active" : ""}>
+                Áo Hoodie
+              </button>
               <button onClick={() => setShirtType("tshirt")} className={shirtType === "tshirt" ? "active" : ""}>
                 Áo T-Shirt
               </button>

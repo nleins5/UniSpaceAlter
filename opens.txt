@@ -1,0 +1,184 @@
+41:    <div className="relative w-full h-full drop-shadow-md">
+78:    <div className="relative w-full h-full drop-shadow-md">
+134:    <div className="relative w-full h-full drop-shadow-md">
+369:      <div
+400:          <div className="tag-slot-mesh">
+422:          <div className="neck-label-preview">
+432:        <div className="canva-print-area">
+437:          <div className="technical-print-guides pointer-events-none">
+450:          <div key={el.id} className="canva-element-wrapper">
+451:            <div
+461:                <div className={`canva-text-element el-text-${el.id}`}>
+466:                <div className="absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow-sm pointer-events-none">
+482:          <div className="absolute inset-0 flex items-center justify-center pointer-events-none canva-drop-hint">
+483:            <div className="text-center opacity-40">
+1003:    <div className="canva-layout">
+1006:        <div className="section-header-top">
+1007:          <div className="container-fluid tram-container clearfix">
+1011:            <div className="tram-search">
+1012:              <div className="tram-search-inner">
+1019:            <div className="tram-top-links ms-auto">
+1026:        <div className="section-header-menu">
+1027:          <div className="container-fluid tram-container">
+1042:        <div className="tram-canvas-actions">
+1043:          <div className="canva-topbar-center">
+1057:          <div className="canva-topbar-right">
+1087:      <div className="canva-body">
+1171:            <div className="canva-panel">
+1174:                <div className="canva-panel-content ai-magic-media-panel">
+1175:                  <div className="canva-panel-header">
+1179:                  <div className="ai-magic-scroll-area pt-2">
+1180:                    <div className="ai-canva-card">
+1182:                      <div className="ai-canva-input-row">
+1219:                        <div className="ai-btn-loading">
+1229:                    <div className="ai-suggestions-chips">
+1234:                    <div className="ai-magic-results text-center">
+1236:                        <div className="ai-loading-placeholder p-4">
+1240:                      <div className="canva-ai-grid mt-4">
+1242:                          <div key={img.id} className="canva-ai-grid-item-wrapper group">
+1243:                            <div className="canva-ai-item" onClick={() => {
+1249:                              <div className="canva-ai-item-overlay">
+1253:                            <div className="canva-ai-item-label truncate text-[10px] mt-1 opacity-60 text-center px-1">
+1265:                <div className="canva-panel-content">
+1266:                  <div className="canva-panel-header">
+1270:                  <div className="canva-panel-body">
+1282:                    <div
+1305:                        <div className="upload-gallery-header">
+1314:                        <div className="canva-ai-grid">
+1316:                            <div
+1326:                              <div className="canva-ai-item-overlay">
+1349:                <div className="canva-panel-content">
+1350:                  <div className="canva-panel-header">
+1354:                  <div className="canva-panel-body">
+1366:                    <div className="canva-font-picker">
+1377:                    <div className="canva-row">
+1378:                      <div className="canva-half">
+1382:                      <div className="canva-half">
+1384:                        <div className="canva-color-preview">
+1391:                    <div className="canva-quick-colors">
+1407:                            <div className="canva-palette-grid">
+1424:                    <div className="canva-text-presets">
+1435:                <div className="canva-panel-content">
+1436:                  <div className="canva-panel-header">
+1440:                  <div className="canva-panel-body">
+1441:                    <div className="canva-layer-toggle mb-4">
+1465:                    <div className="canva-color-preview canva-color-preview--mb">
+1484:                          <div className="canva-palette-grid">
+1504:                          <div className="mt-8 pt-6 border-t border-gray-100">
+1506:                            <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-3xl">
+1507:                              <div className="relative group">
+1522:                              <div className="flex-1">
+1523:                                <div className="text-[12px] font-bold text-gray-800 uppercase font-mono">
+1526:                                <div className="text-[10px] text-gray-400 font-medium tracking-tight">Mã màu HEX</div>
+1538:                <div className="canva-panel-content">
+1539:                  <div className="canva-panel-header">
+1543:                  <div className="canva-panel-body">
+1544:                    <div className="canva-layers-side">
+1551:                      <div className="canva-layers-list">
+1553:                          <div key={el.id} className={`canva-layer-item ${selectedId === el.id ? "active" : ""}`} onClick={() => setSelectedId(el.id)}>
+1557:                            <div className="flex items-center gap-1">
+1579:                <div className="canva-panel-content">
+1580:                  <div className="canva-panel-header">
+1584:                  <div className="canva-panel-body">
+1586:                    <div className="grid grid-cols-2 gap-3">
+1609:                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-transform group-hover:scale-110 ${printLocation === loc.id ? 'bg-[#8b3dff] text-white' : 'bg-white shadow-sm'}`}>
+1618:                    <div className="mt-8 bg-gray-50 p-4 rounded-3xl border border-gray-100">
+1623:                      <div className="flex justify-between items-center">
+1653:            <div className="canva-snap-toolbar">
+1665:          <div
+1672:            <div 
+1681:              <div className="relative w-[1150px] h-[850px] bg-white border-[3px] border-[#111] shadow-2xl mx-auto origin-center overflow-hidden text-[#111] font-sans" style={{
+1685:                <div className="flex border-b-[2px] border-[#111]">
+1687:                     <div className="w-[140px] border-r-[2px] border-[#111] flex flex-col justify-center items-center p-2">
+1688:                        <div className="text-[10px] font-black uppercase text-[#111] tracking-tighter mb-1 mt-1">STRMCWBY</div>
+1689:                        <div className="text-[14px] font-black uppercase text-[#111] tracking-tight leading-none">HUMAN</div>
+1691:                        <div className="text-[12px] font-black uppercase text-[#111] tracking-wide mt-1">MADE</div>
+1694:                     <div className="flex-1 flex flex-col">
+1696:                        <div className="flex flex-1 border-b-[1px] border-[#111]">
+1697:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">SEASON</div>
+1698:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">2026 SS / FW</div>
+1700:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">CATEGORY</div>
+1701:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold uppercase text-[#111]">{activeSlot === 'shirt' ? 'TOP' : activeSlot}</div>
+1703:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FABRIC</div>
+1704:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">100% COTTON</div>
+1706:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FACTORY</div>
+1707:                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-[#111]">UNISPACE</div>
+1710:                        <div className="flex flex-1">
+1711:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">STYLE NO</div>
+1712:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">HM230210TO</div>
+1714:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">NAME</div>
+1715:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">Graphic Logo Tee</div>
+1717:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">INPUT</div>
+1718:                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">04 / 18 / 2026</div>
+1720:                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">OUTPUT</div>
+1721:                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-gray-400">05 / 20 / 2026</div>
+1727:                <div className="border-b-[2px] border-[#111] bg-[#f8f9fa] py-1 text-center text-[10px] uppercase font-medium tracking-widest text-[#333]">
+1732:                <div className="flex h-[calc(100%-110px)] relative">
+1735:                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
+1737:                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
+1738:                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CF</div>
+1741:                     <div className="absolute top-[80px] left-[40px] z-20">
+1742:                        <div className="w-[110px] h-[110px] rounded-full border-2 border-red-500 bg-white shadow-xl overflow-hidden relative">
+1743:                           <div className="absolute inset-0 flex items-center justify-center scale-[2.5] opacity-20">
+1746:                           <div className="absolute inset-0 flex flex-col items-center justify-center">
+1747:                             <div className="w-10 h-6 bg-yellow-500/20 border border-yellow-600/30 flex items-center justify-center">
+1753:                        <div className="absolute top-1/2 left-full w-12 h-[1px] bg-red-500 origin-left rotate-[-20deg]"></div>
+1757:                     <div className="absolute bottom-[100px] left-[50px] z-20">
+1758:                        <div className="w-[80px] h-[100px] border-2 border-red-500 bg-white shadow-xl flex flex-col p-2 space-y-1">
+1759:                           <div className="w-full h-1 bg-gray-200"></div>
+1760:                           <div className="w-full h-8 bg-gray-50 border border-gray-200 flex items-center justify-center">
+1763:                           <div className="w-full h-[1px] bg-gray-100 italic text-[4px]">Made in Japan</div>
+1765:                        <div className="absolute top-0 right-[-40px] w-12 h-[1px] bg-red-500 origin-left rotate-[-15deg]"></div>
+1769:                     <div className={`canva-canvas transition-all ${side === "front" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.82] relative`}>
+1789:                     <div className="absolute left-[30px] top-[20px] text-[9px] leading-tight text-[#555] uppercase tracking-tight">
+1790:                        <div className="font-black text-[#111] mb-1">NECK MAIN LABE (No fold)</div>
+1791:                        <div>Flat Sewn Main Label</div>
+1792:                        <div>with Four-Sided Stitching</div>
+1795:                     <div className="absolute left-[165px] top-[75px] text-[9px] leading-tight text-[#555] uppercase">
+1796:                        <div className="font-black text-[#111]">BINDING</div>
+1797:                        <div>2Needle bottom</div>
+1798:                        <div>Cover Stitch 1/4&quot;</div>
+1799:                        <div className="w-16 h-[1px] bg-red-500 mt-1"></div>
+1802:                     <div className="absolute left-[340px] top-[140px] text-[9px] leading-tight text-[#555] uppercase text-right">
+1803:                        <div className="font-black text-[#111]">Center Front</div>
+1804:                        <div className="text-red-500 font-bold">4.5cm Down</div>
+1805:                        <div>From Neck Seam</div>
+1806:                        <div>Screen print</div>
+1807:                        <div className="w-4 h-full absolute right-[-20px] top-0 border-r border-red-500"></div>
+1811:                     <div className="absolute bottom-[180px] left-[150px] w-[60px] h-[1px] bg-red-500/20 border-l border-r border-red-500"></div>
+1813:                     <div className="absolute left-[30px] bottom-[220px] text-[9px] leading-tight text-gray-400 uppercase italic">
+1814:                        <div>Single needle</div>
+1815:                        <div className="font-medium">Chain Stitch</div>
+1819:                     <div className="absolute bottom-[40px] w-full text-center text-[11px] font-black tracking-[0.2em] uppercase text-[#222]">
+1825:                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group border-l-2 border-black/10" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
+1827:                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
+1828:                     <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CB</div>
+1831:                     <div className="absolute top-[160px] right-[120px] w-[1px] h-[90px] bg-red-500 z-20"></div>
+1832:                     <div className="absolute top-[160px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+1833:                     <div className="absolute top-[250px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+1834:                     <div className="absolute top-[200px] right-[135px] text-red-500 text-[11px] font-black z-20 transform -rotate-90">18cm</div>
+1837:                     <div className={`canva-canvas transition-all ${side === "back" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.82] relative`}>
+1857:                     <div className="absolute left-[130px] top-[70px] text-[9px] leading-tight text-[#555] uppercase">
+1858:                        <div className="font-black text-[#111]">BINDING</div>
+1859:                        <div>2Needle bottom</div>
+1860:                        <div>Cover Stitch 1/4&quot;</div>
+1862:                     <div className="absolute right-[50px] top-[75px] text-[9px] leading-tight text-[#555] uppercase text-right">
+1863:                        <div className="font-black text-[#111]">Center Back</div>
+1864:                        <div className="text-red-500 font-bold">18cm Down</div>
+1865:                        <div>From Neck Seam</div>
+1866:                        <div>Screen print</div>
+1869:                     <div className="absolute right-[30px] bottom-[220px] text-[9px] leading-tight text-gray-300 uppercase text-right italic">
+1870:                        <div>Single needle</div>
+1871:                        <div>Chain Stitch</div>
+1875:                     <div className="absolute bottom-[40px] w-full text-center text-[11px] font-black tracking-[0.2em] uppercase text-[#222]">
+1881:                  <div className="absolute bottom-[20px] right-[20px] w-[80px] border-[2px] border-[#111] bg-white flex flex-col items-center shadow-lg">
+1882:                     <div className="w-full bg-[#111] text-center text-[9px] font-black p-[3px] text-white uppercase tracking-tighter">FABRIC</div>
+1883:                     <div className="w-[60px] h-[70px] border border-[#eee] mt-2 mb-1 shadow-inner" style={{ backgroundColor: tshirtColor }}></div>
+1884:                     <div className="w-full text-[7px] font-bold text-center p-1 leading-tight text-[#333]">
+1894:                <div className="absolute bottom-0 left-0 w-full flex justify-between px-4 py-1 text-[8px] font-bold opacity-20 pointer-events-none">
+1895:                  <div>HYDNSTUDIO.COM</div>
+1896:                  <div>© 2026 UNISPACE CO.</div>
+1905:          <div className="canva-bottombar">
+1906:            <div className="canva-zoom">
+1918:            <div className="canva-side-indicator">
+1929:            <div className="canva-side-indicator">

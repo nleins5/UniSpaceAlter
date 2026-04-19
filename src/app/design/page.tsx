@@ -1022,7 +1022,7 @@ export default function DesignPage() {
       </header>
       <div className="canva-body">
         {/* ═══ LEFT TOOLBAR ═══ */}
-        <aside className="canva-sidebar-left">
+        <aside className="canva-sidebar-left flex-shrink-0">
           <button
             className={`canva-tool-btn ${activePanel === "ai" ? "active" : ""}`}
             onClick={() => setActivePanel(activePanel === "ai" ? null : "ai")}
@@ -1525,7 +1525,8 @@ export default function DesignPage() {
             --swatch-color: ${tshirtColor};
           }
           .tech-pack-sheet-scale {
-            transform: scale(var(--tech-zoom));
+            transform: translate(calc(var(--pan-x) * 1px), calc(var(--pan-y) * 1px)) scale(var(--tech-zoom));
+            transform-origin: center center;
           }
           .tech-pack .blueprint-grid {
             background-size: 20px 20px;
@@ -1624,7 +1625,7 @@ export default function DesignPage() {
                              onDropImage={handleDropImage}
                              side="front"
                              tshirtColor={tshirtColor}
-                             zoom={100}
+                             zoom={zoom} /* Pass global zoom to fix event scaling */
                              slot="shirt"
                           />
                        </div>
@@ -1643,7 +1644,7 @@ export default function DesignPage() {
                              onDropImage={handleDropImage}
                              side="back"
                              tshirtColor={tshirtColor}
-                             zoom={100}
+                             zoom={zoom} /* Pass global zoom to fix event scaling */
                              slot="shirt"
                           />
                        </div>

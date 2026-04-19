@@ -652,31 +652,6 @@ export default function DesignPage() {
       return newRedo;
     });
   }, [elements]);
-  const handleSnapToPosition = (preset: string) => {
-    if (!selectedId) return;
-    setElements((prev) => {
-      pushHistory(prev);
-      return prev.map((el) => {
-        if (el.id !== selectedId) return el;
-        const pos = getPresetPosition(preset, el.slot || "shirt");
-        
-        // Auto-switch side
-        const isBack = preset.includes("back") || preset.includes("neck");
-        const targetSide = isBack ? "back" : "front";
-        if (targetSide !== side) setSide(targetSide);
-
-        return {
-          ...el,
-          side: targetSide,
-          x: pos.x,
-          y: pos.y,
-          width: pos.w,
-          height: pos.h,
-          rotation: 0
-        };
-      });
-    });
-  };
   const fonts = [
     // Sans Serif
     "Inter", "Roboto", "Open Sans", "Montserrat", "Poppins", "Nunito", "Raleway", "Oswald", "Ubuntu", "Quicksand",
@@ -815,7 +790,7 @@ export default function DesignPage() {
           rotation: 0,
           side: effectiveSide,
           slot: activeSlot,
-          locked: false,
+          locked: true,
         };
 
         return [...prev, el];
@@ -850,11 +825,11 @@ export default function DesignPage() {
     setTextInput("");
   };
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
-    setElements((prev: DesignElement[]) => prev.map((el: DesignElement) => (el.id === id ? { ...el, x, y } : el)));
+    setElements((prev: DesignElement[]) => prev.map((el: DesignElement) => (el.id === id && !el.locked ? { ...el, x, y } : el)));
   }, []);
   const handleResizeElement = useCallback((id: string, width: number, height: number, x?: number, y?: number) => {
     setElements((prev: DesignElement[]) => prev.map((el: DesignElement) => (
-      el.id === id ? { ...el, width, height, ...(x !== undefined ? { x } : {}), ...(y !== undefined ? { y } : {}) } : el
+      (el.id === id && !el.locked) ? { ...el, width, height, ...(x !== undefined ? { x } : {}), ...(y !== undefined ? { y } : {}) } : el
     )));
   }, []);
   const handleDeleteSelected = useCallback(() => {
@@ -1552,19 +1527,8 @@ export default function DesignPage() {
             if (e.target === e.currentTarget) setSelectedId(null);
           }}
         >
-          {/* SNAP PLACEMENT TOOLBAR */}
-          {selectedId && (
-            <div className="canva-snap-toolbar">
-              <span className="canva-snap-label">Vị trí in chuẩn</span>
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("left-chest")} title="Ngực trái">Ngực trái</button>
-
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("center-chest")} title="Giữa ngực">Giữa ngực</button>
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-front")} title="Full Front">Full Front</button>
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("back-neck")} title="Sau gáy">Sau gáy</button>
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("upper-back")} title="Lưng trên">Lưng trên</button>
-              <button className="canva-snap-btn" onClick={() => handleSnapToPosition("full-back")} title="Full Back">Full Back</button>
-            </div>
-          )}
+          {/* SNAP PLACEMENT TOOLBAR REMOVED AS PER USER REQUEST */}
+          {/* Precision is now handled by the 3 technical drop slots at the bottom */}
 
           {/* Canvas area with Urban Core Layout */}
           <div
@@ -1668,28 +1632,27 @@ export default function DesignPage() {
                       <circle cx="315" cy="350" r="1.5" fill="#ef4444" />
                     </svg>
 
-                    {/* Thumbnails row at bottom — DEFINED POSITIONS FOR PRECISION */}
-                    <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/60 flex items-center justify-around z-50">
+                    {/* Thumbnails row at bottom — PRECISION TECHNICAL SLOTS */}
+                    <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-[#ccc] bg-white/80 flex items-center justify-around z-50">
                       {[
                         { label: "Front Print", x: 130, y: 150, w: 140, h: 140 },
                         { label: "Neck Tag", x: 175, y: 70, w: 50, h: 50 },
                         { label: "Woven Patch", x: 280, y: 380, w: 60, h: 40 }
                       ].map((slot) => (
                         <div key={slot.label} className="flex flex-col items-center gap-1">
-                          <div className="text-[7px] font-black uppercase tracking-widest opacity-50">{slot.label}</div>
+                          <div className="text-[7px] font-black uppercase tracking-widest text-black/40">{slot.label}</div>
                           <div
-                            className="w-[65px] h-[65px] border-2 border-dashed border-[#aaa] bg-white flex items-center justify-center overflow-hidden cursor-copy transition-colors hover:border-red-400 hover:bg-red-50"
+                            className="w-[65px] h-[65px] border-2 border-dashed border-red-200 bg-white flex items-center justify-center overflow-hidden cursor-copy transition-all hover:border-red-500 hover:bg-red-50 group"
                             onDragOver={(ev) => ev.preventDefault()}
                             onDrop={(ev) => {
                               ev.preventDefault();
                               try {
                                 const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
-                                // Point to EXACT technical coordinates
                                 handleDropImage(img, { x: slot.x, y: slot.y, w: slot.w, h: slot.h });
                               } catch {}
                             }}
                           >
-                            <span className="text-[6px] text-gray-300 uppercase">Drop here</span>
+                            <span className="text-[7px] text-red-300 font-bold uppercase group-hover:text-red-500 transition-colors">Drop</span>
                           </div>
                         </div>
                       ))}

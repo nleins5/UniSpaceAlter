@@ -1688,7 +1688,7 @@ export default function DesignPage() {
                               ev.preventDefault();
                               try {
                                 const img: AIImage = JSON.parse(ev.dataTransfer.getData("application/json"));
-                                handleDropImage(img, 150, 150);
+                                handleDropImage(img);
                               } catch {}
                             }}
                           >

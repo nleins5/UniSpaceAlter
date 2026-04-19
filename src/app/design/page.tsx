@@ -2,6 +2,7 @@
 import React, { useState, useRef, useCallback, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Logo } from "../../components/Logo";
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
@@ -510,7 +511,8 @@ export default function DesignPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [chatInput, setChatInput] = useState("");
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(85);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
   const [activePanel, setActivePanel] = useState<"ai" | "text" | "elements" | "layers" | "upload" | "position" | null>("ai");
   const [printLocation, setPrintLocation] = useState<string>("full-front");
   const [textInput, setTextInput] = useState("");
@@ -534,7 +536,6 @@ export default function DesignPage() {
   // Undo / Redo
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isPanningWrapper, setIsPanningWrapper] = useState(false);
   const workspaceRef = useRef<HTMLElement>(null);
@@ -556,24 +557,21 @@ export default function DesignPage() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [setIsSpacePressed]);
   // ─── Auto-fit Tech Pack to screen width/height ───
   useEffect(() => {
     const timer = setTimeout(() => {
       const el = workspaceRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const frameWidth = 1000;
-      const frameHeight = 1400;
-      // Fit with 40px padding
-      const scaleX = (rect.width - 80) / frameWidth;
-      const scaleY = (rect.height - 80) / frameHeight;
-      const fitZoom = Math.min(scaleX, scaleY) * 100;
-      setZoom(Math.min(100, Math.floor(fitZoom)));
+      const frameWidth = 1150;
+      // Fit to width with 40px side padding
+      const fitZoom = ((rect.width - 40) / frameWidth) * 100;
+      setZoom(Math.floor(fitZoom));
       setPan({ x: 0, y: 0 });
     }, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [setZoom, setPan]);
   // Non-passive wheel: Ctrl/Cmd + scroll/pinch = zoom, plain two-finger scroll = pan
   useEffect(() => {
     const el = workspaceRef.current;
@@ -604,7 +602,7 @@ export default function DesignPage() {
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
-  }, []);
+  }, [setZoom, setPan]);
   // Middle-mouse drag and Space+LMB drag or plain drag on background
   useEffect(() => {
     const el = workspaceRef.current;
@@ -1076,7 +1074,7 @@ export default function DesignPage() {
                 <div className="canva-topbar-divider" />
               </>
             )}
-            <button onClick={handleComplete} className="canva-btn-complete" disabled={elements.length === 0}>
+            <button onClick={handleComplete} className="canva-btn-complete magnetic-btn" disabled={elements.length === 0}>
               <span className="canva-complete-full">Hoàn thành thiết kế</span>
               <span className="canva-complete-short">Đặt hàng</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
@@ -1206,7 +1204,7 @@ export default function DesignPage() {
                       </div>
                     </div>
                     <button
-                      className="ai-canva-generate-btn"
+                      className="ai-canva-generate-btn magnetic-btn"
                       disabled={isLoading || !chatInput.trim()}
                       onClick={() => {
                         if (chatInput.trim() && !isLoading) {
@@ -1238,23 +1236,23 @@ export default function DesignPage() {
                         </div>
                       )}
                       <div className="canva-ai-grid mt-4">
-                        {messages.filter((m: ChatMessage) => m.role === "ai").slice().reverse().map((m: ChatMessage) => m.images && m.images.map((img: AIImage) => (
-                          <div key={img.id} className="canva-ai-grid-item-wrapper group">
-                            <div className="canva-ai-item" onClick={() => {
-                              // Professional Position Presets Logic
-                                handleDropImage(img);
-                              }}>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
-                              <div className="canva-ai-item-overlay">
-                                <span>Dùng mẫu này</span>
+                        {messages.filter(m => m.role === "ai").slice().reverse().map((m, mi) => (
+                           <React.Fragment key={mi}>
+                             {m.images?.map((img) => (
+                              <div key={img.id} className="canva-ai-grid-item-wrapper group">
+                                <div className="canva-ai-item" onClick={() => handleDropImage(img)}>
+                                  <Image src={img.url} alt={img.label} className="w-full h-full object-cover" width={100} height={100} unoptimized />
+                                  <div className="canva-ai-item-overlay">
+                                    <span>Dùng mẫu này</span>
+                                  </div>
+                                </div>
+                                <div className="canva-ai-item-label truncate text-[10px] mt-1 opacity-60 text-center px-1">
+                                  {img.label}
+                                </div>
                               </div>
-                            </div>
-                            <div className="canva-ai-item-label truncate text-[10px] mt-1 opacity-60 text-center px-1">
-                              {img.label}
-                            </div>
-                          </div>
-                        )))}
+                            ))}
+                           </React.Fragment>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -1321,8 +1319,7 @@ export default function DesignPage() {
                               onClick={() => addUploadedImageToCanvas(img)}
                               title={img.label}
                             >
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={img.url} alt={img.label} />
+                              <Image src={img.url} alt={img.label} width={80} height={80} unoptimized />
                               <div className="canva-ai-item-overlay">
                                 <span>Nhấn hoặc kéo</span>
                               </div>
@@ -1418,7 +1415,7 @@ export default function DesignPage() {
                         );
                       })()}
                     </div>
-                    <button onClick={handleAddText} className="canva-btn-add" disabled={!textInput.trim()}>
+                    <button onClick={handleAddText} className="canva-btn-add magnetic-btn" disabled={!textInput.trim()}>
                       Thêm chữ vào áo
                     </button>
                     <div className="canva-text-presets">
@@ -1639,6 +1636,21 @@ export default function DesignPage() {
             </div>
           </>
         )}
+        {/* Scoped Dynamic Styles to avoid Inline CSS Warnings */}
+        <style>{`
+          .tech-pack-frame-dynamic {
+            --pan-x: ${pan.x}px;
+            --pan-y: ${pan.y}px;
+            --tech-zoom: ${zoom / 100};
+            --swatch-color: ${tshirtColor};
+          }
+          .tech-pack-sheet-scale {
+            transform: scale(var(--tech-zoom));
+          }
+          .tech-pack-swatch-bg {
+            background-color: var(--swatch-color);
+          }
+        `}</style>
         {/* ═══ CENTER CANVAS ═══ */}
         <main
           ref={workspaceRef}
@@ -1669,35 +1681,11 @@ export default function DesignPage() {
               if (!isSpacePressed && e.target === e.currentTarget) setSelectedId(null);
             }}
           >
-            <div className="tech-pack-frame tech-pack-panned" style={{ backgroundColor: "transparent", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <style>{`
-                .tech-pack-panned {
-                  --pan-x: ${pan.x}px;
-                  --pan-y: ${pan.y}px;
-                  --tech-zoom: ${zoom / 100};
-                }
-                .cell-label {
-                  font-size: 10px;
-                  font-weight: 500;
-                  color: #333;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  background-color: #f8f9fa;
-                }
-                .cell-value {
-                  font-size: 11px;
-                  font-weight: 500;
-                  color: #111;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                }
-              `}</style>
+            <div 
+              className="tech-pack-frame tech-pack-panned bg-transparent flex items-center justify-center rounded-[2rem] tech-pack-frame-dynamic w-full h-full"
+            >
               
-              <div className="relative w-[1150px] h-[850px] bg-white border-[3px] border-[#111] shadow-2xl mx-auto origin-center overflow-hidden text-[#111] font-sans" style={{
-                transform: `scale(var(--tech-zoom))`
-              }}>
+              <div className="relative w-[1150px] h-[850px] bg-white border-[3px] border-[#111] shadow-2xl mx-auto origin-center overflow-hidden text-[#111] font-sans rounded-[2rem] tech-pack-sheet-scale">
                 {/* ═══ HEADER TABLE ═══ */}
                 <div className="flex border-b-[2px] border-[#111]">
                      {/* LOGO CELL */}
@@ -1711,31 +1699,31 @@ export default function DesignPage() {
                      <div className="flex-1 flex flex-col">
                         {/* ROW 1 */}
                         <div className="flex flex-1 border-b-[1px] border-[#111]">
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">SEASON</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">2026 SS / FW</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">SEASON</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">2026 SS / FW</div>
                            
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">CATEGORY</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] cell-value uppercase">{activeSlot === 'shirt' ? 'TOP' : activeSlot}</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">CATEGORY</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold uppercase text-[#111]">{activeSlot === 'shirt' ? 'TOP' : activeSlot}</div>
                            
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">FABRIC</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">100% COTTON</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FABRIC</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">100% COTTON</div>
                            
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">FACTORY</div>
-                           <div className="w-[120px] cell-value font-bold">UNISPACE</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">FACTORY</div>
+                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-[#111]">UNISPACE</div>
                         </div>
                         {/* ROW 2 */}
                         <div className="flex flex-1">
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">STYLE NO</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">HM230210TO</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">STYLE NO</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">HM230210TO</div>
                            
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">NAME</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">Graphic Logo Tee</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">NAME</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">Graphic Logo Tee</div>
                            
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">INPUT</div>
-                           <div className="flex-1 border-r-[2px] border-[#111] cell-value">04 / 18 / 2026</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">INPUT</div>
+                           <div className="flex-1 border-r-[2px] border-[#111] flex items-center justify-center text-[11px] font-bold text-[#111]">04 / 18 / 2026</div>
                            
-                           <div className="w-[100px] border-r-[1px] border-[#111] cell-label">OUTPUT</div>
-                           <div className="w-[120px] cell-value">05 / 20 / 2026</div>
+                           <div className="w-[100px] border-r-[1px] border-[#111] flex items-center justify-center bg-[#f8f9fa] text-[10px] font-medium uppercase text-[#333]">OUTPUT</div>
+                           <div className="w-[120px] flex items-center justify-center text-[11px] font-bold text-gray-400">05 / 20 / 2026</div>
                         </div>
                      </div>
                 </div>
@@ -1751,11 +1739,39 @@ export default function DesignPage() {
                   {/* LEFT PANE: FRONT VIEW */}
                   <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group" onClick={() => { setSide('front'); setActiveSlot('shirt'); }}>
                      {/* Red Center Line CF */}
-                     <div className="absolute top-[20px] bottom-[80px] left-1/2 w-[1px] bg-red-500 z-0"></div>
+                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
                      <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CF</div>
                      
+                     {/* NECK LABEL ZOOM DETAIL (Top Left) */}
+                     <div className="absolute top-[80px] left-[40px] z-20">
+                        <div className="w-[110px] h-[110px] rounded-full border-2 border-red-500 bg-white shadow-xl overflow-hidden relative">
+                           <div className="absolute inset-0 flex items-center justify-center scale-[2.5] opacity-20">
+                              <Logo />
+                           </div>
+                           <div className="absolute inset-0 flex flex-col items-center justify-center">
+                             <div className="w-10 h-6 bg-yellow-500/20 border border-yellow-600/30 flex items-center justify-center">
+                                <Logo scale={0.2} />
+                             </div>
+                           </div>
+                           {/* Target marker */}
+                        </div>
+                        <div className="absolute top-1/2 left-full w-12 h-[1px] bg-red-500 origin-left rotate-[-20deg]"></div>
+                     </div>
+
+                     {/* CARE LABEL ZOOM DETAIL (Bottom Left) */}
+                     <div className="absolute bottom-[100px] left-[50px] z-20">
+                        <div className="w-[80px] h-[100px] border-2 border-red-500 bg-white shadow-xl flex flex-col p-2 space-y-1">
+                           <div className="w-full h-1 bg-gray-200"></div>
+                           <div className="w-full h-8 bg-gray-50 border border-gray-200 flex items-center justify-center">
+                              <span className="text-[6px] font-mono leading-none text-center">100% COTTON<br/>WASH COLD</span>
+                           </div>
+                           <div className="w-full h-[1px] bg-gray-100 italic text-[4px]">Made in Japan</div>
+                        </div>
+                        <div className="absolute top-0 right-[-40px] w-12 h-[1px] bg-red-500 origin-left rotate-[-15deg]"></div>
+                     </div>
+                     
                      {/* Front Shirt Container */}
-                     <div className={`canva-canvas transition-all ${side === "front" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.85] relative`}>
+                     <div className={`canva-canvas transition-all ${side === "front" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.82] relative`}>
                         <DesignCanvas
                            elements={elements}
                            selectedId={selectedId}
@@ -1775,47 +1791,55 @@ export default function DesignPage() {
                      </div>
 
                      {/* Front Annotations */}
-                     <div className="absolute left-[30px] top-[20px] text-[10px] leading-tight text-[#333]">
-                        <div className="font-bold text-[#111]">NECK MAIN LABE (No fold)</div>
+                     <div className="absolute left-[30px] top-[20px] text-[9px] leading-tight text-[#555] uppercase tracking-tight">
+                        <div className="font-black text-[#111] mb-1">NECK MAIN LABE (No fold)</div>
                         <div>Flat Sewn Main Label</div>
                         <div>with Four-Sided Stitching</div>
                      </div>
-                     <div className="absolute left-[160px] top-[70px] text-[10px] leading-tight text-[#333]">
-                        <div className="font-bold text-[#111]">BINDING</div>
+                     
+                     <div className="absolute left-[165px] top-[75px] text-[9px] leading-tight text-[#555] uppercase">
+                        <div className="font-black text-[#111]">BINDING</div>
                         <div>2Needle bottom</div>
-                        <div>Cover Stitch 1/4"</div>
+                        <div>Cover Stitch 1/4&quot;</div>
+                        <div className="w-16 h-[1px] bg-red-500 mt-1"></div>
                      </div>
-                     <div className="absolute left-[300px] top-[70px] text-[10px] leading-tight text-[#333]">
-                        <div className="font-bold text-[#111]">Center Front</div>
+
+                     <div className="absolute left-[340px] top-[140px] text-[9px] leading-tight text-[#555] uppercase text-right">
+                        <div className="font-black text-[#111]">Center Front</div>
                         <div className="text-red-500 font-bold">4.5cm Down</div>
                         <div>From Neck Seam</div>
                         <div>Screen print</div>
+                        <div className="w-4 h-full absolute right-[-20px] top-0 border-r border-red-500"></div>
                      </div>
-                     <div className="absolute left-[30px] bottom-[200px] text-[10px] leading-tight text-[#333] text-right">
+
+                     {/* Measurement Girdle */}
+                     <div className="absolute bottom-[180px] left-[150px] w-[60px] h-[1px] bg-red-500/20 border-l border-r border-red-500"></div>
+
+                     <div className="absolute left-[30px] bottom-[220px] text-[9px] leading-tight text-gray-400 uppercase italic">
                         <div>Single needle</div>
-                        <div>Chain Stitch</div>
+                        <div className="font-medium">Chain Stitch</div>
                      </div>
                      
                      {/* Front Label */}
-                     <div className="absolute bottom-[30px] w-full text-center text-[10px] font-medium tracking-widest uppercase">
+                     <div className="absolute bottom-[40px] w-full text-center text-[11px] font-black tracking-[0.2em] uppercase text-[#222]">
                         FRONT VIEW
                      </div>
                   </div>
 
                   {/* RIGHT PANE: BACK VIEW */}
-                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group border-l-[1px] border-dashed border-gray-300" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
+                  <div className="flex-1 relative flex justify-center pt-24 cursor-pointer group border-l-2 border-black/10" onClick={() => { setSide('back'); setActiveSlot('shirt'); }}>
                      {/* Red Center Line CB */}
-                     <div className="absolute top-[20px] bottom-[80px] left-1/2 w-[1px] bg-red-500 z-0"></div>
+                     <div className="absolute top-[20px] bottom-[140px] left-1/2 w-[1px] bg-red-500/40 z-0"></div>
                      <div className="absolute top-[10px] left-1/2 -translate-x-1/2 text-red-500 text-[10px] font-bold">CB</div>
                      
                      {/* Red Measurement Line */}
-                     <div className="absolute top-[140px] right-[130px] w-[1px] h-[80px] bg-red-500 z-20"></div>
-                     <div className="absolute top-[140px] right-[125px] w-[10px] h-[1px] bg-red-500 z-20"></div>
-                     <div className="absolute top-[220px] right-[125px] w-[10px] h-[1px] bg-red-500 z-20"></div>
-                     <div className="absolute top-[175px] right-[140px] text-red-500 text-[10px] font-bold z-20">18cm</div>
+                     <div className="absolute top-[160px] right-[120px] w-[1px] h-[90px] bg-red-500 z-20"></div>
+                     <div className="absolute top-[160px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+                     <div className="absolute top-[250px] right-[115px] w-[10px] h-[1px] bg-red-500 z-20"></div>
+                     <div className="absolute top-[200px] right-[135px] text-red-500 text-[11px] font-black z-20 transform -rotate-90">18cm</div>
 
                      {/* Back Shirt Container */}
-                     <div className={`canva-canvas transition-all ${side === "back" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.85] relative`}>
+                     <div className={`canva-canvas transition-all ${side === "back" ? "ring-[2px] ring-red-500 ring-offset-4 z-10" : "opacity-90"} !bg-transparent !shadow-none filter-none origin-top scale-[0.82] relative`}>
                         <DesignCanvas
                            elements={elements}
                            selectedId={selectedId}
@@ -1835,38 +1859,59 @@ export default function DesignPage() {
                      </div>
 
                      {/* Back Annotations */}
-                     <div className="absolute left-[130px] top-[70px] text-[10px] leading-tight text-[#333]">
-                        <div className="font-bold text-[#111]">BINDING</div>
+                     <div className="absolute left-[130px] top-[70px] text-[9px] leading-tight text-[#555] uppercase">
+                        <div className="font-black text-[#111]">BINDING</div>
                         <div>2Needle bottom</div>
-                        <div>Cover Stitch 1/4"</div>
+                        <div>Cover Stitch 1/4&quot;</div>
                      </div>
-                     <div className="absolute right-[50px] top-[70px] text-[10px] leading-tight text-[#333]">
-                        <div className="font-bold text-[#111]">Center Back</div>
+                     <div className="absolute right-[50px] top-[75px] text-[9px] leading-tight text-[#555] uppercase text-right">
+                        <div className="font-black text-[#111]">Center Back</div>
                         <div className="text-red-500 font-bold">18cm Down</div>
                         <div>From Neck Seam</div>
                         <div>Screen print</div>
                      </div>
+
+                     <div className="absolute right-[30px] bottom-[220px] text-[9px] leading-tight text-gray-300 uppercase text-right italic">
+                        <div>Single needle</div>
+                        <div>Chain Stitch</div>
+                     </div>
                      
                      {/* Back Label */}
-                     <div className="absolute bottom-[30px] w-full text-center text-[10px] font-medium tracking-widest uppercase">
+                     <div className="absolute bottom-[40px] w-full text-center text-[11px] font-black tracking-[0.2em] uppercase text-[#222]">
                         BACK VIEW
                      </div>
                   </div>
 
                   {/* ═══ BOTTOM FABRIC SWATCH ═══ */}
-                  <div className="absolute bottom-[10px] right-[10px] w-[70px] border-[2px] border-[#111] bg-white flex flex-col items-center">
-                     <div className="w-full border-b-[1px] border-[#111] text-center text-[9px] font-bold p-[2px]">FABRIC</div>
-                     <div className="w-[54px] h-[64px] border-[1px] border-[#111] mt-2 mb-1" style={{ backgroundColor: tshirtColor }}></div>
-                     <div className="w-full text-[6px] text-center p-1 leading-tight">
-                        PANTONE<br/>11-0601 TCX<br/>{tshirtColor}
+                  <div className="absolute bottom-[20px] right-[20px] w-[80px] border-[2px] border-[#111] bg-white flex flex-col items-center shadow-lg">
+                     <div className="w-full bg-[#111] text-center text-[9px] font-black p-[3px] text-white uppercase tracking-tighter">FABRIC</div>
+                     <div className="w-[60px] h-[70px] border border-[#eee] mt-2 mb-1 shadow-inner tech-pack-swatch-bg"></div>
+                     <div className="w-full text-[7px] font-bold text-center p-1 leading-tight text-[#333]">
+                        PANTONE<br/>
+                        <span className="text-[#888] font-mono">11-0601 TCX</span><br/>
+                        BRIGHT WHITE
                      </div>
                   </div>
 
                 </div>
 
+                {/* Footer Copyright inside frame */}
+                <div className="absolute bottom-0 left-0 w-full flex justify-between items-center px-4 py-1 text-[8px] font-bold opacity-30 pointer-events-none">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse"></div>
+                    <span className="font-mono tracking-tighter uppercase">SYSTEM OPERATIONAL</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span>HYDNSTUDIO.COM</span>
+                    <span>© 2026 UNISPACE CO.</span>
+                  </div>
+                </div>
+
               </div>
+              
             </div>
           </div>
+
           {/* Bottom bar */}
           <div className="canva-bottombar">
             <div className="canva-zoom">
@@ -1944,13 +1989,13 @@ export default function DesignPage() {
           <span>Polo</span>
         </button>
         <div className="canva-mobile-tab-sep" />
-        {([
+        {[
           { id: "ai", label: "AI", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg> },
           { id: "upload", label: "Ảnh", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg> },
           { id: "text", label: "Chữ", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg> },
           { id: "elements", label: "Màu", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="13.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="10.5" r="2.5" /><circle cx="8.5" cy="7.5" r="2.5" /><circle cx="6.5" cy="12.5" r="2.5" /><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg> },
           { id: "layers", label: "Layer", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg> },
-        ] as const).map((tab: { id: string; label: string; icon: React.ReactNode }) => (
+        ].map((tab) => (
           <button
             key={tab.id}
             className={`canva-mobile-tab ${activePanel === tab.id ? "active" : ""}`}
@@ -1961,6 +2006,6 @@ export default function DesignPage() {
           </button>
         ))}
       </nav>
-    </div >
+    </div>
   );
 }

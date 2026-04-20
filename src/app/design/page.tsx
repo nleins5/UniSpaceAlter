@@ -430,12 +430,12 @@ export default function DesignPage() {
               {/* MAIN: 2 shirt rows that split height 50/50 */}
               <div className="flex-1 flex flex-col gap-2 overflow-hidden">
 
-                {/* ROW 1: BACK VIEW — fixed 300px height so shirt never clips */}
-                <div className="h-[300px] shrink-0 flex gap-2">
+                {/* ROW 1: BACK VIEW */}
+                <div className="h-[280px] shrink-0 flex gap-2 overflow-hidden">
                   {/* Back shirt — MAIN, fills all available space */}
                   <div className="flex-1 flex flex-col min-w-0 h-full">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">BACK VIEW</span>
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative overflow-hidden">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -453,8 +453,8 @@ export default function DesignPage() {
                   </div>
                 </div>
 
-                {/* ROW 2: FRONT VIEW — fixed 300px height so shirt never clips */}
-                <div className="h-[300px] shrink-0 flex gap-2 items-end">
+                {/* ROW 2: FRONT VIEW */}
+                <div className="h-[280px] shrink-0 flex gap-2 items-end overflow-hidden">
                   {/* Side view — small rectangle far left */}
                   <div className="shrink-0 flex flex-col items-start pb-0">
                     <span className="text-[5px] font-black uppercase text-[#FF69B4] mb-1 tracking-widest">SIDE VIEW</span>
@@ -466,7 +466,7 @@ export default function DesignPage() {
                   {/* Front shirt — MAIN */}
                   <div className="flex-1 flex flex-col min-w-0 h-full">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">FRONT VIEW</span>
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative overflow-hidden">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}

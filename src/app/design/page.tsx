@@ -114,7 +114,6 @@ function MiniPreview({ elements, side, tshirtColor, width, height, onDropImage }
     >
       <div ref={(el) => { if (el) { el.style.setProperty('width', `${baseW}px`); el.style.setProperty('height', `${baseH}px`); el.style.setProperty('transform', `scale(${scale})`); el.style.setProperty('transform-origin', 'top left'); }}} className="pointer-events-none">
         <div className="w-full h-full relative">
-          <TShirtSVG color={tshirtColor} side={displaySide} />
           {sideElements.map((el) => (
             <div key={el.id} className="absolute" ref={(node) => {
               if (!node) return;

@@ -1,105 +1,105 @@
-# UniSpace — Trạm Đồng Phục AI
+# UniSpace
 
-> Thiết kế áo lớp trực tuyến với AI · Kéo thả · Đặt hàng ngay
-
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
-[![Gemini AI](https://img.shields.io/badge/Gemini-AI-4285F4?logo=google)](https://ai.google.dev)
+UniSpace là công cụ thiết kế áo lớp trực tuyến, giúp học sinh và nhóm có thể tự tạo thiết kế áo ngay trên trình duyệt rồi đặt hàng luôn mà không cần qua bên thứ ba.
 
 ---
 
-## ✨ Tính năng
+## Tính năng chính
 
-| Tính năng | Mô tả |
-|-----------|-------|
-| 🤖 **AI Design** | Nhập mô tả → Gemini AI tạo thiết kế SVG/ảnh sẵn sàng in |
-| 🎨 **Canvas Editor** | Kéo thả hình ảnh lên áo, chỉnh vị trí, xoay, resize |
-| 🖊️ **Text Tool** | Thêm chữ, chọn font, cỡ chữ, 70+ màu sắc |
-| 👕 **Màu áo** | 80 màu chia theo bảng Material Design |
-| 📱 **Responsive** | Hoạt động trên cả mobile & desktop |
-| 📦 **Đặt hàng** | Form đặt hàng, chụp ảnh thiết kế, lưu đơn tự động |
-| 🏭 **Manufacturer View** | Người bán xem thiết kế + thông tin KH tại `/manufacturer/{orderId}` |
-| 📊 **Dashboard** | Quản lý đơn hàng, cập nhật trạng thái |
+- **Trình biên tập canvas**: Kéo thả hình ảnh lên mặt trước/sau của áo, chỉnh vị trí, kích thước và góc xoay tự do.
+- **Công cụ chữ**: Thêm text, chọn font, cỡ chữ và màu sắc trực tiếp trên áo.
+- **Màu áo**: Chọn từ bảng màu, hỗ trợ các kiểu áo khác nhau (thun, raglan, polo).
+- **Tạo ảnh bằng AI**: Mô tả thiết kế bằng tiếng Việt, Gemini sẽ tạo ảnh sẵn sàng để dán lên áo.
+- **Đặt hàng**: Điền thông tin, chụp ảnh thiết kế và gửi đơn — tất cả trong một luồng.
+- **Trang nhà sản xuất**: Người nhận đơn xem toàn bộ thông tin và thiết kế tại đường dẫn riêng.
+- **Dashboard quản lý**: Theo dõi và cập nhật trạng thái đơn hàng.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech stack
 
-- **Framework:** Next.js 16 (App Router, Turbopack)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS v4 + Custom CSS
-- **AI:** Google Gemini API (gemini-2.0-flash, gemini-2.5-flash)
-- **Canvas capture:** html2canvas-pro
-- **Storage:** File system (`/orders/{orderId}/`)
+- **Next.js 16** (App Router, Turbopack)
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Google Gemini API** — tạo ảnh AI và hỗ trợ thiết kế
+- **html2canvas-pro** — chụp canvas thành ảnh PNG khi đặt hàng
+
+Dữ liệu đơn hàng mặc định lưu trong bộ nhớ server (in-memory). Nếu cấu hình Supabase thì sẽ tự động chuyển sang lưu database + storage.
 
 ---
 
-## 🚀 Chạy local
+## Chạy local
 
 ```bash
-# Clone repo
 git clone https://github.com/nleins5/unispace.git
 cd unispace
 
-# Cài dependencies
 npm install
 
-# Tạo file .env.local
 cp .env.example .env.local
-# Điền GEMINI_API_KEY vào .env.local
+# Mở .env.local và điền GEMINI_API_KEY
 
-# Chạy dev server
 npm run dev
 ```
 
-Mở [http://localhost:3000](http://localhost:3000)
+Truy cập tại http://localhost:3000
 
 ---
 
-## 🔑 Biến môi trường
+## Biến môi trường
 
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
+Bắt buộc:
+
+```
+GEMINI_API_KEY=your_key_here
 ```
 
-Lấy API key tại: [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+Tùy chọn — nếu muốn dùng Supabase thay vì in-memory:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+```
+
+Lấy Gemini API key tại: https://aistudio.google.com/apikey
 
 ---
 
-## 📁 Cấu trúc thư mục
+## Cấu trúc thư mục
 
 ```
 src/app/
-├── page.tsx              # Landing page
-├── design/page.tsx       # Canvas editor + AI chat
-├── order/page.tsx        # Form đặt hàng
-├── dashboard/page.tsx    # Quản lý đơn (admin)
-├── manufacturer/[id]/    # Xem đơn + thiết kế (nhà sản xuất)
-└── api/
-    ├── generate/         # Gemini AI image generation
-    ├── orders/           # CRUD đơn hàng
-    └── auth/             # Login/logout
+  page.tsx                  Landing page
+  design/page.tsx           Canvas editor + AI chat
+  order/page.tsx            Form đặt hàng
+  dashboard/page.tsx        Quản lý đơn (admin)
+  manufacturer/[id]/        Xem đơn + thiết kế (nhà sản xuất)
+  api/
+    generate/               Gemini AI tạo ảnh
+    orders/                 CRUD đơn hàng
+    auth/                   Đăng nhập / đăng xuất
 
-orders/                   # Đơn hàng lưu tại đây (gitignored)
-├── ORD-{timestamp}/
-│   ├── order.json
-│   ├── front_design.png
-│   └── back_design.png
+src/lib/
+  authService.ts            Quản lý session phía server
+  orderService.ts           Logic đơn hàng (Supabase + in-memory fallback)
+  supabase.ts               Khởi tạo Supabase client
+
+public/mockups/             Vector mockup áo (SVG/PNG)
+orders/                     Thư mục đơn hàng — bị gitignore, không commit lên
 ```
 
 ---
 
-## 📱 Luồng hoạt động
+## Luồng hoạt động
 
 ```
-Khách → /design (vẽ áo + AI) → /order (điền thông tin) → Đặt hàng
-                                                              ↓
-Người bán → /dashboard → /manufacturer/{orderId} (xem thiết kế + thông tin)
+Khách vào /design → thiết kế áo → qua /order điền thông tin → đặt hàng
+                                                                    |
+Admin vào /dashboard → xem danh sách → mở /manufacturer/{id} để xem thiết kế + thông tin khách
 ```
 
 ---
 
-## 📄 License
+## License
 
-MIT © 2026 UniSpace — Trạm Đồng Phục
+MIT © 2026 UniSpace

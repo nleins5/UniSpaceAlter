@@ -537,37 +537,51 @@ export default function DesignPage() {
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, 600, 600);
 
-        // Draw shirt mockup
+        // Draw shirt mockup — fill canvas matching object-contain in design studio
         const shirtSrc = sideName === 'front' ? '/mockups/user_tshirt_front.png' : '/mockups/user_tshirt_back.png';
         try {
           const shirtImg = await loadImg(shirtSrc);
+          // Calculate object-contain dimensions
+          const imgRatio = shirtImg.width / shirtImg.height;
+          const canvasRatio = 600 / 600;
+          let drawW = 600, drawH = 600, drawX = 0, drawY = 0;
+          if (imgRatio > canvasRatio) {
+            drawH = 600 / imgRatio;
+            drawY = (600 - drawH) / 2;
+          } else {
+            drawW = 600 * imgRatio;
+            drawX = (600 - drawW) / 2;
+          }
           if (tshirtColor !== '#FFFFFF') {
             ctx.fillStyle = tshirtColor;
-            ctx.fillRect(0, 0, 600, 600);
+            ctx.fillRect(drawX, drawY, drawW, drawH);
             ctx.globalCompositeOperation = 'destination-in';
-            ctx.drawImage(shirtImg, 50, 20, 500, 560);
+            ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
             ctx.globalCompositeOperation = 'source-over';
           } else {
-            ctx.drawImage(shirtImg, 50, 20, 500, 560);
+            ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
           }
         } catch { /* shirt image not found */ }
 
-        // Draw design elements for this side
+        // Draw design elements — map from 400×480 design space to 600×600 export
+        // using same object-contain logic as the shirt
+        const scale = Math.min(600 / 400, 600 / 480); // = 1.25 (height-constrained)
+        const offsetX = (600 - 400 * scale) / 2; // = 50px padding on each side
+        const offsetY = (600 - 480 * scale) / 2; // = 0
+
         const sideElements = elements.filter(el => el.side === sideName);
         for (const el of sideElements) {
-          const scaleX = 600 / 400;
-          const scaleY = 600 / 480;
-          const x = el.x * scaleX;
-          const y = el.y * scaleY;
+          const x = el.x * scale + offsetX;
+          const y = el.y * scale + offsetY;
 
           if (el.type === 'image' && el.url) {
             try {
               const elImg = await loadImg(el.url);
-              ctx.drawImage(elImg, x, y, el.width * scaleX, el.height * scaleY);
+              ctx.drawImage(elImg, x, y, el.width * scale, el.height * scale);
             } catch { /* skip broken images */ }
           } else if (el.type === 'text' && el.text) {
             ctx.save();
-            const fontSize = (el.fontSize || 32) * scaleX;
+            const fontSize = (el.fontSize || 32) * scale;
             ctx.font = `${el.fontWeight || '900'} ${fontSize}px ${el.fontFamily || 'sans-serif'}`;
             ctx.fillStyle = el.textColor || '#000000';
             ctx.fillText(el.text, x, y + fontSize);

@@ -933,7 +933,7 @@ export default function DesignPage() {
           <div className="flex items-center justify-between px-4 pt-3 pb-1 md:hidden shrink-0">
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto absolute left-1/2 -translate-x-1/2" />
             <div />
-            <button onClick={() => setActiveTab(null)} className="ml-auto p-1.5 rounded-full hover:bg-black/10">
+            <button onClick={() => setActiveTab(null)} aria-label="Đóng bảng công cụ" className="ml-auto p-1.5 rounded-full hover:bg-black/10">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
           </div>

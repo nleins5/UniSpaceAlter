@@ -778,16 +778,26 @@ export default function DesignPage() {
             <div className="relative h-full flex p-3" onDragOver={(e) => e.preventDefault()} style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
               {/* FAR LEFT: Color Swatches */}
-              <div className="w-[55px] shrink-0 flex flex-col gap-3 pt-1 pr-2">
-                <span className="text-[5px] font-black uppercase text-black tracking-wider leading-tight block">COLOR<br/>SWATCHES</span>
-                <button onClick={() => setTshirtColor('#D4DF72')} className="text-left" title="Apply green">
-                  <div className="w-5 h-5 bg-[#D4DF72] border border-black mb-0.5" />
-                  <span className="text-[5px] font-black uppercase leading-tight block">CMYK: 21 0 85 7</span>
-                </button>
-                <button onClick={() => setTshirtColor('#FFFFFF')} className="text-left" title="Apply white">
-                  <div className="w-5 h-5 bg-white border border-black mb-0.5" />
-                  <span className="text-[5px] font-black uppercase leading-tight block">CMYK: 0 0 0 0</span>
-                </button>
+              <div className="w-[55px] shrink-0 flex flex-col gap-1.5 pt-1 pr-2">
+                <span className="text-[5px] font-black uppercase text-black tracking-wider leading-tight block mb-1">COLOR<br/>SWATCHES</span>
+                {[
+                  { hex: '#FFFFFF', cmyk: '0 0 0 0' },
+                  { hex: '#F2F0E9', cmyk: '3 2 8 0' },
+                  { hex: '#D4DF72', cmyk: '21 0 85 7' },
+                  { hex: '#2E4036', cmyk: '83 45 74 60' },
+                  { hex: '#CC5833', cmyk: '9 72 100 1' },
+                  { hex: '#1A1A1A', cmyk: '0 0 0 90' },
+                  { hex: '#7B61FF', cmyk: '65 66 0 0' },
+                  { hex: '#E63B2E', cmyk: '0 84 88 0' },
+                  { hex: '#87CEEB', cmyk: '42 11 0 0' },
+                  { hex: '#FFB6C1', cmyk: '0 29 24 0' },
+                ].map(c => (
+                  <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={c.hex} className="text-left group">
+                    <div className={`w-5 h-5 border mb-0.5 transition-all ${tshirtColor === c.hex ? 'border-black ring-1 ring-offset-1 ring-black scale-110' : 'border-black/30'}`}
+                      style={{ backgroundColor: c.hex }} />
+                    <span className="text-[4px] font-black uppercase leading-tight block text-gray-400 group-hover:text-black transition-colors">{c.cmyk}</span>
+                  </button>
+                ))}
               </div>
 
               {/* MAIN: 2 shirt rows — each takes half height */}

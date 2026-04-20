@@ -529,10 +529,14 @@ export default function DesignPage() {
         img.src = src;
       });
 
-      // Render one side to its own 800×960 canvas (= 2× design coord space 400×480)
-      // This gives perfect 1:1 positional mapping — no distortion
+      // Get actual rendered size of the design canvas to compute correct scale
+      const frontRect = frontCanvasRef.current?.getBoundingClientRect()
+        ?? { width: 400, height: 480 };
+      const backRect = backCanvasRef.current?.getBoundingClientRect()
+        ?? { width: 400, height: 480 };
+
+      // Export canvas: same 5:6 aspect ratio as virtual coord space 400×480
       const EXPORT_W = 800, EXPORT_H = 960;
-      const SCALE = 2; // 400→800, 480→960
 
       const renderSideCanvas = async (sideName: 'front' | 'back'): Promise<HTMLCanvasElement> => {
         const c = document.createElement('canvas');
@@ -566,20 +570,25 @@ export default function DesignPage() {
           }
         } catch { /* shirt image not found */ }
 
-        // Draw design elements — perfectly mapped: el coords × 2
+        // Draw design elements — scale from screen px to export px
+        // el.x/y are in virtual 400×480 units which approximate screen px
+        const rect = sideName === 'front' ? frontRect : backRect;
+        const scaleX = EXPORT_W / rect.width;
+        const scaleY = EXPORT_H / rect.height;
+
         const sideElements = elements.filter(el => el.side === sideName);
         for (const el of sideElements) {
-          const x = el.x * SCALE;
-          const y = el.y * SCALE;
+          const x = el.x * scaleX;
+          const y = el.y * scaleY;
 
           if (el.type === 'image' && el.url) {
             try {
               const elImg = await loadImg(el.url);
-              ctx.drawImage(elImg, x, y, el.width * SCALE, el.height * SCALE);
+              ctx.drawImage(elImg, x, y, el.width * scaleX, el.height * scaleY);
             } catch { /* skip broken images */ }
           } else if (el.type === 'text' && el.text) {
             ctx.save();
-            const fontSize = (el.fontSize || 32) * SCALE;
+            const fontSize = (el.fontSize || 32) * scaleX;
             ctx.font = `${el.fontWeight || '900'} ${fontSize}px ${el.fontFamily || 'sans-serif'}`;
             ctx.fillStyle = el.textColor || '#000000';
             ctx.fillText(el.text, x, y + fontSize);

@@ -272,7 +272,9 @@ function DesignCanvas({
       onDragLeave={() => setIsDropTarget(false)}
       onDrop={handleDrop}
     >
-      <TShirtSVG color={tshirtColor} side={side} />
+      <div className="absolute inset-0 pointer-events-none">
+        <TShirtSVG color={tshirtColor} side={side} />
+      </div>
       
       {sideElements.map((el) => <DesignElementItem key={el.id} el={el} selectedId={selectedId} isDragging={isDragging} onMouseDown={handleElementMouseDown} onResizeMouseDown={handleResizeMouseDown} />)}
     </div>
@@ -585,7 +587,7 @@ export default function DesignPage() {
           <div ref={blueprintRef} className="flex-1 relative overflow-hidden">
             <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-50" />
 
-            <div className="relative h-full flex p-3" style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
+            <div className="relative h-full flex p-3" onDragOver={(e) => e.preventDefault()} style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
               {/* FAR LEFT: Color Swatches */}
               <div className="w-[55px] shrink-0 flex flex-col gap-3 pt-1 pr-2">
@@ -808,6 +810,7 @@ export default function DesignPage() {
                       key={i}
                       draggable
                       onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'copy';
                         e.dataTransfer.setData('application/json', JSON.stringify({
                           dragType: 'font', text: item.text, font: item.font, weight: item.weight
                         }));
@@ -828,6 +831,7 @@ export default function DesignPage() {
                       key={font}
                       draggable
                       onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'copy';
                         e.dataTransfer.setData('application/json', JSON.stringify({
                           dragType: 'font', text: fontPreviewText || font, font, weight: 700
                         }));

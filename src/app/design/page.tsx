@@ -312,7 +312,7 @@ function DesignElementItem({
   }, [el]);
 
   return (
-    <div ref={ref} className="absolute design-element-layer z-20">
+    <div ref={ref} className={`absolute design-element-layer z-20 ${el.type === 'text' ? 'design-element-text' : ''}`}>
       <div
         className={`w-full h-full relative cursor-move ${selectedId === el.id ? "ring-2 ring-violet-500" : ""}`}
         onMouseDown={(e) => onMouseDown(e, el)}
@@ -320,7 +320,7 @@ function DesignElementItem({
         {el.type === "image" && el.url && (
           <Image src={el.url} alt={el.label} width={400} height={400} unoptimized className="w-full h-full object-contain pointer-events-none" />
         )}
-        {el.type === "text" && <div ref={textRef} className="whitespace-nowrap design-text-element">{el.text}</div>}
+        {el.type === "text" && <div ref={textRef} className="whitespace-nowrap design-text-element pointer-events-none select-none">{el.text}</div>}
         
         {selectedId === el.id && !isDragging && (
           <div 
@@ -885,6 +885,7 @@ export default function DesignPage() {
           left: var(--target-x); top: var(--target-y); width: var(--target-w); height: var(--target-h); transform: rotate(var(--target-rot));
         }
         .design-text-element { font-size: var(--text-size); font-family: var(--text-font); font-weight: var(--text-weight); color: var(--text-color); }
+        .design-element-text { width: auto !important; height: auto !important; }
       `}</style>
     </div>
   );

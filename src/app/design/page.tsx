@@ -524,9 +524,8 @@ export default function DesignPage() {
   const handleExportPack = useCallback(async () => {
     setIsExporting(true);
     try {
-      // Use dom-to-image-more (handles modern CSS better)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const domtoimage = (await import('dom-to-image-more')) as any;
+      // Use dom-to-image-more (handles modern CSS better than html2canvas)
+      const { toBlob } = await import('dom-to-image-more');
 
       const canvas = document.createElement('canvas');
       canvas.width = 1200;
@@ -537,13 +536,13 @@ export default function DesignPage() {
 
       // Capture front
       if (frontCanvasRef.current) {
-        const frontBlob = await domtoimage.toBlob(frontCanvasRef.current, { bgcolor: '#fff', width: 600, height: 600 });
+        const frontBlob = await toBlob(frontCanvasRef.current, { bgcolor: '#fff' });
         const frontImg = await createImageFromBlob(frontBlob);
         ctx.drawImage(frontImg, 0, 0, 600, 600);
       }
       // Capture back
       if (backCanvasRef.current) {
-        const backBlob = await domtoimage.toBlob(backCanvasRef.current, { bgcolor: '#fff', width: 600, height: 600 });
+        const backBlob = await toBlob(backCanvasRef.current, { bgcolor: '#fff' });
         const backImg = await createImageFromBlob(backBlob);
         ctx.drawImage(backImg, 600, 0, 600, 600);
       }

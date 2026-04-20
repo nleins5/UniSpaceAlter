@@ -560,7 +560,7 @@ export default function DesignPage() {
                   {/* Logo upload */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">LOGO</span>
-                    <label className="relative overflow-hidden border border-dashed border-gray-400 bg-[#1A1A1A] hover:border-violet-400 hover:bg-violet-900/10 transition-all cursor-pointer flex items-center justify-center" style={{ width: 55, height: 90 }}>
+                    <label className="relative overflow-hidden border border-dashed border-gray-400 bg-[#1A1A1A] hover:border-violet-400 hover:bg-violet-900/10 transition-all cursor-pointer flex items-center justify-center w-[55px] h-[90px]">
                       {elements.filter(el => el.side === 'side').length > 0 ? (
                         <Image src={elements.filter(el => el.side === 'side')[0].url || ''} alt="Logo" fill className="object-contain p-1" unoptimized />
                       ) : (

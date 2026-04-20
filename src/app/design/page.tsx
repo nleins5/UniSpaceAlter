@@ -345,294 +345,289 @@ export default function DesignPage() {
 
   return (
     <div className="flex flex-col h-screen bg-[#f3f4f6] overflow-hidden font-sans">
-      
-      {/* ─── NAV ─── */}
+
+      {/* NAV */}
       <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0 z-50">
         <div className="flex items-center gap-4">
           <Link href="/" className="font-black text-lg tracking-tight">Uni<span className="text-violet-600">Space</span></Link>
           <div className="h-6 w-px bg-gray-200 mx-2" />
           <div className="flex items-center gap-1">
-             <button onClick={handleUndo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Undo"><Undo2 size={16} /></button>
-             <button onClick={handleRedo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Redo"><Redo2 size={16} /></button>
+            <button onClick={handleUndo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Undo"><Undo2 size={16} /></button>
+            <button onClick={handleRedo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Redo"><Redo2 size={16} /></button>
           </div>
         </div>
         <div className="flex items-center gap-3">
-           <button onClick={() => setSide(side === "front" ? "back" : "front")} className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase rounded-full tracking-widest hover:scale-105 transition-all" title="Toggle Surface">Switch to {side === "front" ? "Back" : "Front"}</button>
-           <button className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all" title="Export Tech Pack">Export Pack</button>
+          <button onClick={() => setSide(side === "front" ? "back" : "front")} className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase rounded-full tracking-widest hover:scale-105 transition-all">Switch to {side === "front" ? "Back" : "Front"}</button>
+          <button className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all">Export Pack</button>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        
-        {/* ─── WORKSPACE (LEFT) ─── */}
-        <section className="flex-1 h-full p-6 overflow-y-auto scrollbar-hide bg-[#DADADA]/20 flex flex-col items-center">
-           
-           <div className="w-[680px] bg-white border border-gray-200 shadow-2xl relative">
-              
-              {/* IMAGE 2 ACCURATE HEADER */}
-              <div className="border-b-[1.5px] border-black pb-[1px]">
-                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] border-b border-black h-16">
-                    <div className="border-r border-black p-2 flex flex-col relative justify-center bg-white overflow-hidden">
-                    <span className="text-[6px] font-black text-gray-400 absolute top-2 left-2 uppercase tracking-[0.2em]">Brand Logo</span>
-                    <div className="flex flex-col items-center">
-                       <div className="w-16 h-8 bg-black rounded-full flex items-center justify-center text-white text-[8px] font-black uppercase tracking-tighter">STREET FACE</div>
-                       <span className="text-[5px] font-black uppercase tracking-[0.3em] mt-1">clothing.co</span>
-                    </div>
-                  </div>
-                  <div className="border-r border-black p-2 flex flex-col relative group">
-                    <span className="text-[6px] font-black text-gray-400 mb-1 uppercase tracking-widest">Project Name:</span>
-                    <span className="text-[11px] font-black leading-none group-hover:text-violet-600">FIRE HUSTLE 1995<br/>Short pants</span>
-                  </div>
-                  <div className="border-r border-black p-2 flex flex-col relative">
-                    <span className="text-[6px] font-black text-gray-400 mb-1 uppercase tracking-widest">Fabric:</span>
-                    <span className="text-[10px] font-black leading-none">HEAVY COTTON<br/>20S</span>
-                  </div>
-                  <div className="p-2 flex flex-col relative border-r-0">
-                    <span className="text-[6px] font-black text-gray-400 mb-1 uppercase tracking-widest">Category:</span>
-                    <span className="text-[10px] font-black">TOP</span>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] h-10">
-                  <div className="border-r border-black p-2 flex flex-col relative">
-                    <span className="text-[6px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">Color:</span>
-                    <span className="text-[9px] font-black">WHITE, GREEN</span>
-                  </div>
-                  <div className="border-r border-black p-2 flex flex-col relative">
-                    <span className="text-[6px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">Date:</span>
-                    <span className="text-[9px] font-black">JULY 2024</span>
-                  </div>
-                  <div className="border-r border-black p-2 flex flex-col relative">
-                    <span className="text-[6px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">Size Range:</span>
-                    <span className="text-[9px] font-black">L - XXL</span>
-                  </div>
-                  <div className="bg-gray-50 flex items-center justify-center p-2 text-[6px] text-gray-300 font-mono">CONFIDENTIAL_DOC.X</div>
+        {/* ── LEFT: BLUEPRINT PANEL (fixed 660px, fills full height) ── */}
+        <section className="w-[660px] shrink-0 h-full flex flex-col bg-white border-r border-gray-300 shadow-xl overflow-hidden">
+
+          {/* HEADER ROW 1 */}
+          <div className="grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[60px]">
+            <div className="border-r border-black p-2 flex flex-col justify-center items-center relative bg-white">
+              <span className="text-[5px] font-black text-gray-400 absolute top-1.5 left-2 uppercase tracking-widest">Brand Logo</span>
+              <div className="w-16 h-7 bg-black rounded-full flex items-center justify-center text-white text-[7px] font-black uppercase tracking-tighter">STREET FACE</div>
+              <span className="text-[4px] font-black uppercase tracking-[0.3em] mt-0.5 text-gray-500">clothing.co</span>
+            </div>
+            <div className="border-r border-black p-2 flex flex-col justify-center">
+              <span className="text-[5px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Project Name:</span>
+              <span className="text-[11px] font-black leading-none">FIRE HUSTLE 1995</span>
+              <span className="text-[8px] text-gray-500 mt-0.5">Short pants</span>
+            </div>
+            <div className="border-r border-black p-2 flex flex-col justify-center">
+              <span className="text-[5px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Fabric:</span>
+              <span className="text-[9px] font-black leading-tight">HEAVY COTTON<br/>20S</span>
+            </div>
+            <div className="p-2 flex flex-col justify-center">
+              <span className="text-[5px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Category:</span>
+              <span className="text-[9px] font-black">TOP</span>
+            </div>
+          </div>
+
+          {/* HEADER ROW 2 */}
+          <div className="grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
+            <div className="border-r border-black px-2 flex flex-col justify-center">
+              <span className="text-[5px] font-black text-gray-400 uppercase">Color:</span>
+              <span className="text-[8px] font-black">WHITE, GREEN</span>
+            </div>
+            <div className="border-r border-black px-2 flex flex-col justify-center">
+              <span className="text-[5px] font-black text-gray-400 uppercase">Date:</span>
+              <span className="text-[8px] font-black">JULY 2024</span>
+            </div>
+            <div className="border-r border-black px-2 flex flex-col justify-center">
+              <span className="text-[5px] font-black text-gray-400 uppercase">Size Range:</span>
+              <span className="text-[8px] font-black">L - XXL</span>
+            </div>
+            <div className="px-2 flex items-center justify-center">
+              <span className="text-[5px] text-gray-300 font-mono">CONFIDENTIAL</span>
+            </div>
+          </div>
+
+          {/* BLUEPRINT BODY — fills remaining height */}
+          <div className="flex-1 relative overflow-hidden bg-[#FCFBFF]">
+            <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-40" />
+
+            <div className="relative h-full flex gap-0 p-2">
+
+              {/* FAR LEFT: Color Swatches */}
+              <div className="w-[58px] shrink-0 flex flex-col gap-3 pt-2 pr-2">
+                <span className="text-[5px] font-black uppercase text-black tracking-wider leading-tight block">COLOR<br/>SWATCHES</span>
+                <div>
+                  <div className="w-5 h-5 bg-[#D4DF72] border border-black mb-0.5" />
+                  <span className="text-[5px] font-black uppercase leading-tight block">CMYK: 21 0 85 7</span>
+                </div>
+                <div>
+                  <div className="w-5 h-5 bg-white border border-black mb-0.5" />
+                  <span className="text-[5px] font-black uppercase leading-tight block">CMYK: 0 0 0 0</span>
                 </div>
               </div>
 
-              {/* TECH BODY */}
-              <div className="relative bg-[#FCFBFF] py-3 px-4 overflow-hidden">
-                 <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-40" />
-                 
-                 <div className="relative z-10 flex gap-3 items-start">
-                    
-                    {/* LEFT: COLOR SWATCHES */}
-                    <div className="flex flex-col gap-3 shrink-0 w-[60px] pt-1">
-                       <span className="text-[6px] font-black uppercase text-black tracking-widest leading-tight">COLOR<br/>SWATCHES</span>
-                       <div>
-                          <div className="w-5 h-5 bg-[#D4DF72] border border-black mb-0.5" />
-                          <span className="text-[5px] font-black uppercase">CMYK: 21 0 85 7</span>
-                       </div>
-                       <div>
-                          <div className="w-5 h-5 bg-white border border-black mb-0.5" />
-                          <span className="text-[5px] font-black uppercase">CMYK: 0 0 0 0</span>
-                       </div>
+              {/* MAIN: 2 shirt rows that split height 50/50 */}
+              <div className="flex-1 flex flex-col gap-2 overflow-hidden">
+
+                {/* ROW 1: BACK VIEW */}
+                <div className="flex-1 flex gap-2 overflow-hidden min-h-0">
+                  {/* Back shirt — MAIN, fills all available space */}
+                  <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+                    <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">BACK VIEW</span>
+                    <div className="flex-1 relative overflow-hidden">
+                      <DesignCanvas
+                        elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
+                        onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
+                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
+                        side="back" tshirtColor={tshirtColor}
+                      />
                     </div>
-
-                    {/* CENTER: 2 SHIRTS STACKED */}
-                    <div className="flex flex-col gap-3 flex-1 min-w-0">
-                       
-                       {/* BACK VIEW */}
-                       <div className="flex gap-3 items-start">
-                          <div className="flex flex-col items-center shrink-0">
-                             <span className="text-[7px] font-black uppercase text-black mb-1 tracking-widest">BACK VIEW</span>
-                             <div className="w-[300px] h-[300px] overflow-hidden border border-gray-100">
-                                <DesignCanvas
-                                   elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
-                                   onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
-                                   onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
-                                   side="back" tshirtColor={tshirtColor}
-                                />
-                             </div>
-                          </div>
-                          {/* Back extract */}
-                          <div className="flex flex-col items-center shrink-0 pt-5">
-                             <span className="text-[5px] font-black uppercase text-black mb-1 tracking-widest">BACK VIEW</span>
-                             <div className="w-[80px] h-[80px] border border-black relative overflow-hidden bg-white">
-                                <Image src="/mockups/user_tshirt_back.png" alt="Back extract" fill style={{objectFit:'contain'}} />
-                             </div>
-                          </div>
-                       </div>
-
-                       {/* FRONT VIEW */}
-                       <div className="flex gap-3 items-end">
-                          {/* Side view */}
-                          <div className="flex flex-col items-center shrink-0">
-                             <span className="text-[5px] font-black uppercase text-black mb-1 tracking-widest">SIDE VIEW</span>
-                             <div className="w-[45px] h-[80px] border border-black relative overflow-hidden bg-white">
-                                <Image src="/mockups/user_tshirt_front.png" alt="Side view" fill style={{objectFit:'contain'}} />
-                             </div>
-                          </div>
-
-                          <div className="flex flex-col items-center shrink-0">
-                             <span className="text-[7px] font-black uppercase text-black mb-1 tracking-widest">FRONT VIEW</span>
-                             <div className="w-[300px] h-[300px] overflow-hidden border border-gray-100">
-                                <DesignCanvas
-                                   elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
-                                   onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
-                                   onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
-                                   side="front" tshirtColor={tshirtColor}
-                                />
-                             </div>
-                          </div>
-
-                          {/* Front extract */}
-                          <div className="flex flex-col items-center shrink-0">
-                             <span className="text-[5px] font-black uppercase text-black mb-1 tracking-widest">FRONT VIEW</span>
-                             <div className="w-[65px] h-[65px] border border-black relative overflow-hidden bg-white">
-                                <Image src="/mockups/user_tshirt_front.png" alt="Front extract" fill style={{objectFit:'contain'}} />
-                             </div>
-                          </div>
-                       </div>
+                  </div>
+                  {/* Back extract — small square top-right */}
+                  <div className="shrink-0 flex flex-col items-center pt-[18px]">
+                    <span className="text-[5px] font-black uppercase text-[#FF69B4] mb-1 tracking-widest">BACK VIEW</span>
+                    <div className="w-[120px] h-[120px] bg-[#1A1A1A] relative overflow-hidden border border-gray-800">
+                      <Image src="/mockups/user_tshirt_back.png" alt="Back extract" fill style={{objectFit:'contain'}} />
                     </div>
-                 </div>
+                  </div>
+                </div>
+
+                {/* ROW 2: FRONT VIEW */}
+                <div className="flex-1 flex gap-2 overflow-hidden min-h-0 items-end">
+                  {/* Side view — small rectangle far left */}
+                  <div className="shrink-0 flex flex-col items-start pb-0">
+                    <span className="text-[5px] font-black uppercase text-[#FF69B4] mb-1 tracking-widest">SIDE VIEW</span>
+                    <div className="w-[58px] h-[100px] bg-[#1A1A1A] relative overflow-hidden border border-gray-800">
+                      <Image src="/mockups/user_tshirt_front.png" alt="Side view" fill style={{objectFit:'contain'}} />
+                    </div>
+                  </div>
+
+                  {/* Front shirt — MAIN */}
+                  <div className="flex-1 flex flex-col overflow-hidden min-w-0 h-full">
+                    <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">FRONT VIEW</span>
+                    <div className="flex-1 relative overflow-hidden">
+                      <DesignCanvas
+                        elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
+                        onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
+                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
+                        side="front" tshirtColor={tshirtColor}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Front extract — small square bottom-right */}
+                  <div className="shrink-0 flex flex-col items-center pb-0">
+                    <span className="text-[5px] font-black uppercase text-[#FF69B4] mb-1 tracking-widest">FRONT VIEW</span>
+                    <div className="w-[100px] h-[100px] bg-[#1A1A1A] relative overflow-hidden border border-gray-800">
+                      <Image src="/mockups/user_tshirt_front.png" alt="Front extract" fill style={{objectFit:'contain'}} />
+                    </div>
+                  </div>
+                </div>
+
               </div>
-           </div>
+            </div>
+          </div>
         </section>
 
-        {/* ─── SIDEBAR (RIGHT) ─── */}
-        <aside className="w-96 h-full bg-white border-l border-gray-100 flex flex-col shadow-xl z-40 overflow-hidden">
-           <div className="flex bg-gray-50 p-1">
-              {([
-                { id: "ai", icon: Zap, label: "AI" },
-                { id: "assets", icon: ImageIcon, label: "Guide" },
-                { id: "color", icon: PaletteIcon, label: "Palette" },
-                { id: "layers", icon: LayersIcon, label: "List" }
-              ] as const).map((t) => (
-                <button
-                  key={t.id} onClick={() => setActiveTab(t.id)}
-                  className={`flex-1 flex flex-col items-center py-2.5 rounded-lg transition-all ${activeTab === t.id ? 'bg-white text-violet-600 shadow-sm' : 'text-gray-400 hover:bg-gray-100 hover:text-black'}`}
-                  title={t.label} aria-label={t.label}
-                >
-                  <t.icon size={16} />
-                  <span className="text-[8px] font-black mt-1 uppercase tracking-tighter">{t.label}</span>
-                </button>
-              ))}
-           </div>
+        {/* ── RIGHT: AI PANEL (fills remaining width) ── */}
+        <aside className="flex-1 h-full flex flex-col bg-[#F0EFF4] overflow-hidden">
 
-           <div className="flex-1 overflow-y-auto scrollbar-hide p-4 bg-[#F8F9FA]">
-              {activeTab === "ai" && (
-                 <div className="space-y-6">
-                    <div className="p-6 bg-black rounded-3xl text-white relative overflow-hidden group">
-                       <span className="text-[8px] font-black uppercase tracking-[0.4em] text-violet-400">Gen-V4 Protocol</span>
-                       <p className="text-[10px] text-gray-500 mt-2 font-medium">Precision industrial asset generation engaged.</p>
-                       <Zap className="absolute -right-4 -bottom-4 w-24 h-24 text-white/5 group-hover:text-violet-600/20 transition-all duration-1000" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                       {messages.filter(m => m.role === "ai").flatMap(m => m.images || []).map((img) => (
-                          <button key={img.id} onClick={() => handleDropImage(img, 120, 150)} className="group relative aspect-square bg-white border border-gray-100 rounded-2xl overflow-hidden hover:scale-105 transition-all shadow-sm" title={`Add ${img.label}`}>
-                             <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-cover grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
-                             <div className="absolute inset-0 bg-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><Plus size={20} className="text-white shadow-lg" /></div>
-                          </button>
-                       ))}
-                    </div>
+          {/* Tab bar */}
+          <div className="flex bg-white/60 border-b border-gray-200 px-2 pt-1 shrink-0 gap-1">
+            {([
+              { id: "ai", icon: Zap, label: "AI" },
+              { id: "assets", icon: ImageIcon, label: "Guide" },
+              { id: "color", icon: PaletteIcon, label: "Palette" },
+              { id: "layers", icon: LayersIcon, label: "Layers" }
+            ] as const).map((t) => (
+              <button
+                key={t.id} onClick={() => setActiveTab(t.id)}
+                className={`flex items-center gap-1.5 px-3 py-2 text-[10px] font-black uppercase tracking-wide rounded-t-lg transition-all ${activeTab === t.id ? 'bg-white text-violet-600 border border-b-0 border-gray-200' : 'text-gray-400 hover:text-black'}`}
+              >
+                <t.icon size={12} />{t.label}
+              </button>
+            ))}
+          </div>
 
-                    <div className="relative mt-8">
-                       <input 
-                          value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                          placeholder="Synthesize design..." 
-                          className="w-full bg-white border-2 border-transparent focus:border-violet-600 rounded-2xl px-5 py-3 text-[11px] shadow-sm outline-none transition-all" />
-                       <button onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))} disabled={isLoading} className="absolute right-2 top-2 w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg" title="Synthesize"><Zap size={14} /></button>
-                    </div>
-                 </div>
-              )}
+          {/* Content area */}
+          <div className="flex-1 overflow-y-auto scrollbar-hide p-4">
 
-              {activeTab === "assets" && (
-                 /* IMAGE 2 ACCURATE FONT PAIRING GUIDE SIDEBAR */
-                 <div className="bg-[#f0f0f0] rounded-[2.5rem] border border-gray-200 p-6 shadow-inner flex flex-col h-[750px] animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
-                    <div className="flex items-center justify-between gap-3 mb-8">
-                       <div className="w-10 h-6 border-[1.5px] border-black rounded-full flex items-center justify-center text-[8px] font-black bg-white">000</div>
-                       <div className="flex-1 h-px border-t border-dashed border-black/20" />
-                       <div className="px-5 py-1.5 border-[1.5px] border-black rounded-full text-[10px] font-black uppercase tracking-widest bg-white">FONT PAIRING GUIDE</div>
-                       <div className="flex-1 h-px border-t border-dashed border-black/20" />
-                       <div className="w-10 h-6 border-[1.5px] border-black rounded-full flex items-center justify-center text-[8px] font-black bg-white">000</div>
-                    </div>
-
-                    <p className="text-[7.5px] font-black uppercase text-center mb-10 tracking-[0.1em] text-gray-500 leading-relaxed px-6">
-                       AND REMEMBER THAT EVEN WITH THE BEST INSTRUCTIONS<br/>YOU ALWAYS HAVE TO LEARN ON THE GO
-                    </p>
-
-                    <div className="flex-1 overflow-y-auto scrollbar-hide space-y-16 pb-12">
-                       <div className="grid grid-cols-2 gap-8 items-end px-2">
-                          <button onClick={() => handleAddText("Font", "Cormorant Garamond")} className="text-left group cursor-pointer" title="Add Font Design">
-                             <div className="text-[52px] font-serif italic leading-[0.7] group-hover:text-violet-600 transition-colors">Font</div>
-                             <div className="text-[9px] font-black uppercase tracking-[0.2em] mt-2 border-t border-black pt-1">PAIRING + GUIDE</div>
-                          </button>
-                          <button onClick={() => handleAddText("Get Ready", "Permanent Marker")} className="text-right group cursor-pointer flex flex-col items-end" title="Add Get Ready Design">
-                             <span className="text-[7px] font-black uppercase tracking-tighter opacity-40 mb-1">ALL TICKETS AVAILABLE</span>
-                             <div className="text-[38px] font-marker leading-none -rotate-2 group-hover:text-violet-600 transition-colors">Get Ready</div>
-                          </button>
-                       </div>
-
-                       <div className="grid grid-cols-2 gap-8 items-center border-y border-dashed border-black/20 py-12 px-2">
-                          <button onClick={() => handleAddText("BROKEN HEART", "Space Grotesk")} className="text-left group cursor-pointer flex flex-col" title="Add Broken Heart Design">
-                             <div className="text-[28px] font-black tracking-tighter leading-none group-hover:text-violet-600 transition-colors">BROKEN</div>
-                             <div className="flex items-center gap-1 my-1.5"><div className="h-px flex-1 bg-black"/><span className="text-[6px] font-black">W / S 2025</span><div className="h-px flex-1 bg-black"/></div>
-                             <div className="text-[32px] font-black tracking-tighter leading-none group-hover:text-violet-600 transition-colors">HEART</div>
-                          </button>
-                          <button onClick={() => handleAddText("MILK & HONEY", "Space Grotesk")} className="text-right group cursor-pointer flex flex-col items-end" title="Add Milk & Honey Design">
-                             <div className="text-[42px] font-black leading-[0.8] tracking-tighter group-hover:text-violet-600 transition-colors">MILK</div>
-                             <div className="text-[38px] font-black leading-[0.8] tracking-tighter group-hover:text-violet-600 transition-colors">& HONEY</div>
-                          </button>
-                       </div>
-
-                       <div className="grid grid-cols-2 gap-8 items-end px-2">
-                          <button onClick={() => handleAddText("Learn", "Cormorant Garamond")} className="text-left group cursor-pointer flex flex-col" title="Add Learn Design">
-                             <div className="text-[48px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Learn</div>
-                             <div className="flex items-center gap-2 mt-[-8px]">
-                                <span className="text-[12px] font-marker text-gray-400">free font</span>
-                                <span className="text-[7px] font-black uppercase tracking-widest text-black">to Listen</span>
-                             </div>
-                          </button>
-                          <button onClick={() => handleAddText("Weird", "Cormorant Garamond")} className="text-right group cursor-pointer flex flex-col items-end" title="Add Weird Design">
-                             <div className="text-[52px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Weird</div>
-                             <div className="text-[7px] font-black uppercase tracking-[0.1em] text-center mt-1">MAY 2025 PEOPLE RULE THE WORLD</div>
-                          </button>
-                       </div>
-
-                       <div className="pt-10 border-t border-dashed border-black/20 flex flex-col items-center gap-6">
-                           <div className="flex gap-8 items-center w-full px-2">
-                              <div className="w-20 h-20 border-2 border-black bg-white flex items-center justify-center p-1.5 grayscale shrink-0">
-                                 <div className="w-full h-full bg-black grid grid-cols-5 grid-rows-5 gap-0.5 p-0.5 opacity-80">
-                                    {Array.from({length: 25}).map((_, i) => (<div key={i} className={`bg-white ${(i % 3 === 0 || i % 4 === 1) ? 'opacity-100' : 'opacity-0'}`} />))}
-                                 </div>
-                              </div>
-                              <div className="flex-1 flex flex-col gap-3">
-                                 <div className="px-6 py-2 border-[1.5px] border-black rounded-full text-[9px] font-black uppercase bg-white text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">MADE BY AMTAKETHAT</div>
-                                 <div className="w-full flex items-center justify-center gap-2">
-                                    <div className="flex-1 h-px border-t border-dashed border-black/20" />
-                                    <span className="text-[8px] font-black uppercase tracking-widest px-3 border border-black rounded-full bg-white">MAY</span>
-                                    <div className="flex-1 h-px border-t border-dashed border-black/20" />
-                                 </div>
-                              </div>
-                           </div>
-                       </div>
-                    </div>
-                 </div>
-              )}
-
-              {activeTab === "layers" && (
-                <div className="space-y-3 animate-in fade-in duration-300">
-                   {elements.length === 0 ? (
-                      <div className="py-20 text-center opacity-10"><LayersIcon size={32} className="mx-auto" /><p className="text-[8px] font-black uppercase mt-4">Empty stack</p></div>
-                   ) : (
-                      <div className="space-y-2">
-                        {elements.slice().reverse().map((el) => (
-                           <div key={el.id} className={`flex items-center gap-3 p-3 rounded-2xl bg-white border transition-all ${selectedId === el.id ? 'border-violet-600 ring-4 ring-violet-50' : 'border-gray-50 hover:border-gray-100'}`}>
-                              <div className="flex-1 min-w-0" onClick={() => setSelectedId(el.id)}>
-                                 <div className="text-[9px] font-black uppercase truncate">{el.label || el.text}</div>
-                                 <div className="text-[7px] font-mono text-gray-400 uppercase">{el.type} / {el.side}</div>
-                              </div>
-                              <button onClick={() => setElements(prev => prev.filter(item => item.id !== el.id))} className="p-2 text-gray-300 hover:text-red-500 transition-colors" title="Delete Layer" aria-label="Delete Layer"><Trash2 size={14}/></button>
-                           </div>
-                        ))}
-                      </div>
-                   )}
+            {activeTab === "ai" && (
+              <div className="flex flex-col gap-4 h-full">
+                {/* Header */}
+                <div className="p-4 bg-black rounded-2xl text-white relative overflow-hidden">
+                  <span className="text-[8px] font-black uppercase tracking-[0.4em] text-violet-400">Gen-V4 Protocol</span>
+                  <p className="text-[9px] text-gray-500 mt-1">Precision industrial asset generation engaged.</p>
+                  <Zap className="absolute -right-3 -bottom-3 w-16 h-16 text-white/5" />
                 </div>
-              )}
-           </div>
+
+                {/* AI Image grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  {messages.filter(m => m.role === "ai").flatMap(m => m.images || []).map((img) => (
+                    <button key={img.id}
+                      onClick={() => handleDropImage(img, 120, 150)}
+                      className="group relative aspect-square bg-white rounded-2xl overflow-hidden hover:scale-105 transition-all shadow-sm border border-white/50"
+                      draggable
+                      onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
+                      title={`Add ${img.label}`}
+                    >
+                      <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+                      <div className="absolute inset-0 bg-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Plus size={20} className="text-white shadow-lg" />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-1.5 bg-black/60 text-[6px] font-mono text-white uppercase tracking-wider text-center">{img.label}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {isLoading && (
+                  <div className="flex items-center gap-2 p-3 bg-white rounded-xl">
+                    <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce" />
+                    <span className="text-[9px] font-black uppercase text-gray-400">Generating...</span>
+                  </div>
+                )}
+
+                {/* Chat input */}
+                <div className="relative mt-auto">
+                  <input
+                    value={chatInput} onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
+                    placeholder="Describe your design idea..."
+                    className="w-full bg-white border-2 border-transparent focus:border-violet-500 rounded-2xl px-4 py-3 text-[11px] shadow-sm outline-none transition-all pr-12"
+                  />
+                  <button
+                    onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
+                    disabled={isLoading}
+                    title="Generate AI design"
+                    aria-label="Generate AI design"
+                    className="absolute right-2 top-2 w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+                  >
+                    <Zap size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "assets" && (
+              <div className="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm flex flex-col gap-6 animate-in fade-in duration-300">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-8 h-5 border border-black rounded-full flex items-center justify-center text-[7px] font-black">000</div>
+                  <div className="flex-1 h-px border-t border-dashed border-black/20" />
+                  <div className="px-3 py-1 border border-black rounded-full text-[8px] font-black uppercase">FONT PAIRING GUIDE</div>
+                  <div className="flex-1 h-px border-t border-dashed border-black/20" />
+                  <div className="w-8 h-5 border border-black rounded-full flex items-center justify-center text-[7px] font-black">000</div>
+                </div>
+                <p className="text-[7px] font-black uppercase text-center tracking-widest text-gray-400">AND REMEMBER THAT EVEN WITH THE BEST INSTRUCTIONS<br/>YOU ALWAYS HAVE TO LEARN ON THE GO</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <button onClick={() => handleAddText("Font", "Cormorant Garamond")} className="text-left group"><div className="text-[42px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Font</div><div className="text-[7px] font-black uppercase tracking-wide border-t border-black pt-1">PAIRING + GUIDE</div></button>
+                  <button onClick={() => handleAddText("Get Ready", "Impact")} className="text-right group flex flex-col items-end"><div className="text-[28px] font-black -rotate-2 leading-none group-hover:text-violet-600 transition-colors">Get<br/>Ready</div></button>
+                  <button onClick={() => handleAddText("BROKEN HEART", "Space Grotesk")} className="group text-left"><div className="text-[22px] font-black tracking-tight leading-none group-hover:text-violet-600 transition-colors">BROKEN<br/>HEART</div></button>
+                  <button onClick={() => handleAddText("MILK & HONEY", "Space Grotesk")} className="group text-right"><div className="text-[22px] font-black tracking-tight leading-none text-right group-hover:text-violet-600 transition-colors">MILK<br/>&HONEY</div></button>
+                  <button onClick={() => handleAddText("Learn", "Cormorant Garamond")} className="group text-left"><div className="text-[38px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Learn</div></button>
+                  <button onClick={() => handleAddText("Weird", "Cormorant Garamond")} className="group text-right"><div className="text-[38px] font-serif italic leading-none group-hover:text-violet-600 transition-colors text-right">Weird</div></button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "color" && (
+              <div className="space-y-4 animate-in fade-in duration-300">
+                <span className="text-[8px] font-black uppercase tracking-widest text-gray-500 block">Color Palette</span>
+                {[
+                  { name: "Moss Green", hex: "#2E4036" }, { name: "Clay", hex: "#CC5833" },
+                  { name: "Cream", hex: "#F2F0E9" }, { name: "Charcoal", hex: "#1A1A1A" },
+                  { name: "D4DF72", hex: "#D4DF72" }, { name: "White", hex: "#FFFFFF" },
+                  { name: "Plasma", hex: "#7B61FF" }, { name: "Signal Red", hex: "#E63B2E" },
+                ].map(c => (
+                  <div key={c.hex} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-violet-300 transition-all">
+                    <div className="w-8 h-8 rounded-lg border border-gray-200 shrink-0 swatch-color" data-color={c.hex} ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
+                    <div>
+                      <div className="text-[8px] font-black uppercase">{c.name}</div>
+                      <div className="text-[7px] font-mono text-gray-400">{c.hex}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === "layers" && (
+              <div className="space-y-3 animate-in fade-in duration-300">
+                {elements.length === 0 ? (
+                  <div className="py-20 text-center opacity-20"><LayersIcon size={32} className="mx-auto" /><p className="text-[8px] font-black uppercase mt-4">No layers yet</p></div>
+                ) : (
+                  elements.slice().reverse().map((el) => (
+                    <div key={el.id} onClick={() => setSelectedId(el.id)} className={`flex items-center gap-3 p-3 rounded-xl bg-white border cursor-pointer transition-all ${selectedId === el.id ? 'border-violet-500 ring-4 ring-violet-50' : 'border-gray-100 hover:border-gray-200'}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[9px] font-black uppercase truncate">{el.label || el.text}</div>
+                        <div className="text-[7px] font-mono text-gray-400">{el.type} / {el.side}</div>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); setElements(prev => prev.filter(item => item.id !== el.id)); }} title="Delete layer" aria-label="Delete layer" className="p-1.5 text-gray-300 hover:text-red-500 transition-colors"><Trash2 size={13}/></button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </aside>
       </main>
 
@@ -647,8 +642,8 @@ export default function DesignPage() {
           left: var(--target-x); top: var(--target-y); width: var(--target-w); height: var(--target-h); transform: rotate(var(--target-rot));
         }
         .design-text-element { font-size: var(--text-size); font-family: var(--text-font); font-weight: var(--text-weight); color: var(--text-color); }
-        .palette-swatch { background-color: var(--swatch-bg); }
       `}</style>
     </div>
   );
 }
+

@@ -479,18 +479,6 @@ export default function DesignPage() {
     });
   }, [side, pushHistory]);
 
-  // Drop text from font guide onto canvas at specific position
-  const handleDropText = useCallback((text: string, font: string, weight: number, x: number, y: number) => {
-    setElements(prev => {
-      pushHistory(prev);
-      return [...prev, {
-        id: `el-${Date.now()}`, type: "text", label: "Type Artifact", text,
-        fontSize: 32, fontFamily: font, fontWeight: String(weight), textColor: "#000000",
-        x, y, width: 200, height: 60, rotation: 0, side, locked: false
-      }];
-    });
-  }, [side, pushHistory]);
-
   // Side-specific text drop handlers for each canvas
   const handleDropTextFront = useCallback((text: string, font: string, weight: number, x: number, y: number) => {
     setElements(prev => {

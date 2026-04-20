@@ -1,50 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir, readFile } from 'fs/promises';
-import path from 'path';
+import { createOrder } from '@/lib/orderService';
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const designBlob = formData.get('design') as File;
-    const elementsJson = formData.get('elements') as string;
-    const tshirtColor = formData.get('tshirtColor') as string;
+    const orderInfoRaw = formData.get('orderInfo') as string;
+    const tshirtColor = (formData.get('tshirtColor') as string) || '#FFFFFF';
 
     if (!designBlob) {
       return NextResponse.json({ error: 'No design file' }, { status: 400 });
     }
 
-    const timestamp = Date.now();
-    const filename = `design-${timestamp}.png`;
-    const exportsDir = path.join(process.cwd(), 'public', 'exports');
-    
-    // Ensure exports directory exists
-    await mkdir(exportsDir, { recursive: true });
+    let orderInfo: {
+      name: string; phone: string; address: string;
+      className: string; note: string;
+      sizes: { XS: number; S: number; M: number; L: number; XL: number; XXL: number };
+    } = { name: 'Unknown', phone: '', address: '', className: '', note: '', sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XXL: 0 } };
 
-    // Save PNG
-    const buffer = Buffer.from(await designBlob.arrayBuffer());
-    await writeFile(path.join(exportsDir, filename), buffer);
+    if (orderInfoRaw) {
+      try { orderInfo = JSON.parse(orderInfoRaw); } catch { /* use defaults */ }
+    }
 
-    // Save metadata
-    const metaPath = path.join(exportsDir, 'submissions.json');
-    let submissions: unknown[] = [];
-    try {
-      const existing = await readFile(metaPath, 'utf-8');
-      submissions = JSON.parse(existing);
-    } catch { /* first submission */ }
+    const totalQty = Object.values(orderInfo.sizes).reduce((a, b) => a + b, 0);
+    const sizeLabel = Object.entries(orderInfo.sizes)
+      .filter(([, v]) => v > 0)
+      .map(([k, v]) => `${k}×${v}`)
+      .join(', ') || 'N/A';
 
-    submissions.push({
-      id: timestamp,
-      filename,
-      url: `/exports/${filename}`,
-      tshirtColor,
-      elements: JSON.parse(elementsJson || '[]'),
-      submittedAt: new Date().toISOString(),
-      status: 'pending'
-    });
+    // Convert design blob to Buffer for Supabase upload
+    const designBuffer = Buffer.from(await designBlob.arrayBuffer());
 
-    await writeFile(metaPath, JSON.stringify(submissions, null, 2));
+    // Save to Supabase via existing createOrder service
+    const result = await createOrder(
+      {
+        customerName: orderInfo.name,
+        phone: orderInfo.phone,
+        address: orderInfo.address,
+        color: tshirtColor,
+        size: sizeLabel,
+        quantity: totalQty || 1,
+        notes: [
+          orderInfo.className ? `Lớp: ${orderInfo.className}` : '',
+          orderInfo.note || '',
+        ].filter(Boolean).join(' | '),
+        status: 'pending',
+        hasFrontDesign: true,
+        hasBackDesign: true,
+      },
+      designBuffer,  // front = composite design PNG
+      undefined,     // back already included in composite
+    );
 
-    return NextResponse.json({ success: true, url: `/exports/${filename}` });
+    return NextResponse.json({ success: true, orderId: result.orderId });
   } catch (err) {
     console.error('Submit design error:', err);
     return NextResponse.json({ error: 'Failed to save' }, { status: 500 });

@@ -470,7 +470,7 @@ export default function DesignPage() {
       return [...prev, {
         id: `el-${Date.now()}`, type: "text", label: "Type Artifact", text,
         fontSize: 32, fontFamily: font, fontWeight: "900", textColor: "#000000",
-        x: 120, y: 150, width: 200, height: 60, rotation: 0, side, locked: false
+        x: 200, y: 200, width: 200, height: 60, rotation: 0, side, locked: false
       }];
     });
   }, [side, pushHistory]);

@@ -60,6 +60,53 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
+// ─── Component: MiniPreview (scaled-down live preview of DesignCanvas) ─────
+function MiniPreview({ elements, side, tshirtColor, width, height }: {
+  elements: DesignElement[];
+  side: "front" | "back";
+  tshirtColor: string;
+  width: number;
+  height: number;
+}) {
+  const baseW = 400, baseH = 480;
+  const scaleX = width / baseW;
+  const scaleY = height / baseH;
+  const scale = Math.min(scaleX, scaleY);
+  const sideElements = elements.filter(el => el.side === side);
+
+  return (
+    <div style={{ width, height }} className="relative overflow-hidden border border-gray-300 bg-[#1A1A1A]">
+      <div style={{ 
+        width: baseW, height: baseH, 
+        transform: `scale(${scale})`, 
+        transformOrigin: 'top left' 
+      }} className="pointer-events-none">
+        <div className="w-full h-full relative">
+          <TShirtSVG color={tshirtColor} side={side} />
+          {sideElements.map((el) => (
+            <div key={el.id} className="absolute" style={{
+              left: el.x, top: el.y, width: el.width, height: el.height,
+              transform: `rotate(${el.rotation || 0}deg)`
+            }}>
+              {el.type === 'image' && el.url && (
+                <Image src={el.url} alt={el.label || ''} fill className="object-contain" unoptimized />
+              )}
+              {el.type === 'text' && (
+                <span style={{
+                  fontSize: el.fontSize || 32,
+                  fontFamily: el.fontFamily || 'sans-serif',
+                  fontWeight: el.fontWeight || '900',
+                  color: el.textColor || '#000'
+                }} className="whitespace-nowrap">{el.text}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Component: DesignCanvas ──────────────────────────────────────────
 interface DesignCanvasProps {
   elements: DesignElement[];
@@ -449,23 +496,19 @@ export default function DesignPage() {
                       />
                     </div>
                   </div>
-                  {/* Back extract thumbnail */}
+                  {/* Back extract thumbnail — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 pt-4">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">BACK VIEW</span>
-                    <div className="w-[100px] h-[100px] border border-gray-300 relative bg-[#1A1A1A]">
-                      <Image src="/mockups/user_tshirt_back.png" alt="Back extract" fill className="object-contain" />
-                    </div>
+                    <MiniPreview elements={elements} side="back" tshirtColor={tshirtColor} width={100} height={100} />
                   </div>
                 </div>
 
                 {/* ROW 2: FRONT VIEW */}
                 <div className="h-[50%] flex gap-3 items-end overflow-hidden">
-                  {/* Side view */}
+                  {/* Side view — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">SIDE VIEW</span>
-                    <div className="w-[55px] h-[90px] border border-gray-300 relative bg-[#1A1A1A]">
-                      <Image src="/mockups/user_tshirt_front.png" alt="Side view" fill className="object-contain" />
-                    </div>
+                    <MiniPreview elements={elements} side="front" tshirtColor={tshirtColor} width={55} height={90} />
                   </div>
                   {/* Front shirt */}
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
@@ -479,12 +522,10 @@ export default function DesignPage() {
                       />
                     </div>
                   </div>
-                  {/* Front extract thumbnail */}
+                  {/* Front extract thumbnail — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">FRONT VIEW</span>
-                    <div className="w-[80px] h-[80px] border border-gray-300 relative bg-[#1A1A1A]">
-                      <Image src="/mockups/user_tshirt_front.png" alt="Front extract" fill className="object-contain" />
-                    </div>
+                    <MiniPreview elements={elements} side="front" tshirtColor={tshirtColor} width={80} height={80} />
                   </div>
                 </div>
 

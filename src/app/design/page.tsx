@@ -405,10 +405,10 @@ export default function DesignPage() {
         const now = Date.now();
         const size = 70;
         return [...prev,
-          { id: `el-${now}-fl`, type: "image", label: image.label, url: image.url, x: 15, y: 130, width: size, height: size, rotation: 0, side: "front" as const, locked: false },
-          { id: `el-${now}-fr`, type: "image", label: image.label, url: image.url, x: 330, y: 130, width: size, height: size, rotation: 0, side: "front" as const, locked: false },
-          { id: `el-${now}-bl`, type: "image", label: image.label, url: image.url, x: 15, y: 130, width: size, height: size, rotation: 0, side: "back" as const, locked: false },
-          { id: `el-${now}-br`, type: "image", label: image.label, url: image.url, x: 330, y: 130, width: size, height: size, rotation: 0, side: "back" as const, locked: false },
+          { id: `el-${now}-fl`, type: "image", label: image.label, url: image.url, x: 40, y: 180, width: size, height: size, rotation: 0, side: "front" as const, locked: false },
+          { id: `el-${now}-fr`, type: "image", label: image.label, url: image.url, x: 355, y: 180, width: size, height: size, rotation: 0, side: "front" as const, locked: false },
+          { id: `el-${now}-bl`, type: "image", label: image.label, url: image.url, x: 40, y: 180, width: size, height: size, rotation: 0, side: "back" as const, locked: false },
+          { id: `el-${now}-br`, type: "image", label: image.label, url: image.url, x: 355, y: 180, width: size, height: size, rotation: 0, side: "back" as const, locked: false },
         ];
       }
       return [...prev, {

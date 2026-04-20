@@ -751,9 +751,12 @@ export default function DesignPage() {
 
           {/* HEADER ROW 2 */}
           <div className="grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
-            <div className="border-r border-black px-2 flex flex-col justify-center">
-              <span className="text-[5px] font-black text-gray-400 uppercase">Color:</span>
-              <span className="text-[8px] font-black">WHITE, GREEN</span>
+            <div className="border-r border-black px-2 flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded border border-black/20 shrink-0" style={{ backgroundColor: tshirtColor }} />
+              <div className="flex flex-col justify-center">
+                <span className="text-[5px] font-black text-gray-400 uppercase">Color:</span>
+                <span className="text-[7px] font-black font-mono">{tshirtColor.toUpperCase()}</span>
+              </div>
             </div>
             <div className="border-r border-black px-2 flex flex-col justify-center">
               <span className="text-[5px] font-black text-gray-400 uppercase">Date:</span>

@@ -618,9 +618,32 @@ export default function DesignPage() {
           } else if (el.type === 'text' && el.text) {
             ctx.save();
             const fontSize = (el.fontSize || 32) * scaleX;
-            ctx.font = `${el.fontWeight || '900'} ${fontSize}px ${el.fontFamily || 'sans-serif'}`;
+            const fontFamily = el.fontFamily || 'sans-serif';
+            const fontWeight = el.fontWeight || '900';
+            const fontStr = `${fontWeight} ${fontSize}px ${fontFamily}`;
+            // Ensure font is loaded in canvas context
+            try { await document.fonts.load(fontStr); } catch {/* ignore */}
+            ctx.font = fontStr;
             ctx.fillStyle = el.textColor || '#000000';
-            ctx.fillText(el.text, x, y + fontSize);
+            ctx.textBaseline = 'top'; // Match CSS top-based positioning
+            // Word-wrap text to fit within element width
+            const words = el.text.split(' ');
+            let line = '';
+            const lineHeight = fontSize * 1.2;
+            let drawY = y;
+            for (const word of words) {
+              const testLine = line ? `${line} ${word}` : word;
+              const testW = ctx.measureText(testLine).width;
+              if (testW > boxW && line) {
+                ctx.fillText(line, x, drawY);
+                line = word;
+                drawY += lineHeight;
+              } else {
+                line = testLine;
+              }
+            }
+            if (line) ctx.fillText(line, x, drawY);
+            ctx.textBaseline = 'alphabetic';
             ctx.restore();
           }
         }

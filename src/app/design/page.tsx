@@ -438,7 +438,7 @@ export default function DesignPage() {
                        <div className="flex gap-3 items-start">
                           <div className="flex flex-col items-center flex-1">
                              <span className="text-[8px] font-black uppercase text-black mb-1 tracking-widest">BACK VIEW</span>
-                             <div className="w-[260px] h-[260px] relative">
+                             <div className="w-[200px] h-[200px] relative">
                                 <DesignCanvas
                                    elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                                    onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -469,7 +469,7 @@ export default function DesignPage() {
                           {/* FRONT VIEW — main */}
                           <div className="flex flex-col items-center flex-1">
                              <span className="text-[8px] font-black uppercase text-black mb-1 tracking-widest">FRONT VIEW</span>
-                             <div className="w-[260px] h-[260px] relative">
+                             <div className="w-[200px] h-[200px] relative">
                                 <DesignCanvas
                                    elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                                    onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}

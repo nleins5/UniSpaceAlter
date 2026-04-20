@@ -401,6 +401,17 @@ export default function DesignPage() {
   const handleDropImageToSide = useCallback((image: AIImage, x: number, y: number, targetSide: "front" | "back" | "side") => {
     setElements(prev => {
       pushHistory(prev);
+      if (targetSide === 'side') {
+        // Side drop → 4 small elements: left+right sleeve on front AND back
+        const now = Date.now();
+        const size = 70;
+        return [...prev,
+          { id: `el-${now}-fl`, type: "image", label: image.label, url: image.url, x: 15, y: 130, width: size, height: size, rotation: 0, side: "front" as const, locked: false },
+          { id: `el-${now}-fr`, type: "image", label: image.label, url: image.url, x: 330, y: 130, width: size, height: size, rotation: 0, side: "front" as const, locked: false },
+          { id: `el-${now}-bl`, type: "image", label: image.label, url: image.url, x: 15, y: 130, width: size, height: size, rotation: 0, side: "back" as const, locked: false },
+          { id: `el-${now}-br`, type: "image", label: image.label, url: image.url, x: 330, y: 130, width: size, height: size, rotation: 0, side: "back" as const, locked: false },
+        ];
+      }
       return [...prev, {
         id: `el-${Date.now()}`, type: "image", label: image.label, url: image.url, 
         x, y, width: 160, height: 160, rotation: 0, side: targetSide, locked: false

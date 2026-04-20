@@ -375,6 +375,7 @@ export default function DesignPage() {
   const [fontPreviewText, setFontPreviewText] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [projectName, setProjectName] = useState('');
   const [orderInfo, setOrderInfo] = useState({
     name: '', phone: '', address: '', className: '', note: '',
     sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XXL: 0 }
@@ -729,8 +730,14 @@ export default function DesignPage() {
             </div>
             <div className="border-r border-black p-2 flex flex-col justify-center">
               <span className="text-[5px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Project Name:</span>
-              <span className="text-[11px] font-black leading-none">FIRE HUSTLE 1995</span>
-              <span className="text-[8px] text-gray-500 mt-0.5">Short pants</span>
+              <input
+                type="text"
+                value={projectName}
+                onChange={e => setProjectName(e.target.value)}
+                placeholder="Tên đồng phục..."
+                className="text-[11px] font-black leading-none bg-transparent border-none outline-none w-full placeholder:text-gray-300 uppercase"
+              />
+              <span className="text-[8px] text-gray-500 mt-0.5">Áo đồng phục</span>
             </div>
             <div className="border-r border-black p-2 flex flex-col justify-center">
               <span className="text-[5px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Fabric:</span>
@@ -750,7 +757,7 @@ export default function DesignPage() {
             </div>
             <div className="border-r border-black px-2 flex flex-col justify-center">
               <span className="text-[5px] font-black text-gray-400 uppercase">Date:</span>
-              <span className="text-[8px] font-black">JULY 2024</span>
+              <span className="text-[8px] font-black">{new Date().toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' }).toUpperCase()}</span>
             </div>
             <div className="border-r border-black px-2 flex flex-col justify-center">
               <span className="text-[5px] font-black text-gray-400 uppercase">Size Range:</span>

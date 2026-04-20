@@ -175,6 +175,13 @@ function DesignCanvas({
         x: (clientX - rect.left) / (rect.width / 400) - el.x,
         y: (clientY - rect.top) / (rect.height / 480) - el.y,
       });
+      setIsDragging(true);
+
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+      document.addEventListener('mouseup', handleMouseUp);
     },
     [onSelectElement]
   );

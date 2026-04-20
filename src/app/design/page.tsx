@@ -90,9 +90,9 @@ function MiniPreview({ elements, side, width, height, onDropImage }: {
     if (!data) return;
     try {
       const image: AIImage = JSON.parse(data);
-      // Side/Front drops -> shift right and down; Back -> even further right
-      const dropX = side === 'back' ? 280 : 260;
-      const dropY = 180;
+      // Front/Back → original positions; Side → independent
+      const dropX = side === 'back' ? 245 : side === 'side' ? 220 : 220;
+      const dropY = side === 'side' ? 100 : 100;
       onDropImage(image, dropX, dropY, side);
     } catch (err) { console.error(err); }
   }, [onDropImage, side]);

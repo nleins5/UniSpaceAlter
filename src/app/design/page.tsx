@@ -383,6 +383,11 @@ export default function DesignPage() {
   const [panY, setPanY] = useState(0);
   const [fontPreviewText, setFontPreviewText] = useState("");
   const [isExporting, setIsExporting] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [orderInfo, setOrderInfo] = useState({
+    name: '', phone: '', address: '', className: '', note: '',
+    sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XXL: 0 }
+  });
   const frontCanvasRef = useRef<HTMLDivElement>(null);
   const backCanvasRef = useRef<HTMLDivElement>(null);
 
@@ -521,8 +526,9 @@ export default function DesignPage() {
   }, [pushHistory]);
 
   // Export: capture front+back as PNG, download + submit to admin
-  const handleExportPack = useCallback(async () => {
+  const handleExportPack = useCallback(async (order: typeof orderInfo) => {
     setIsExporting(true);
+    setShowOrderModal(false);
     try {
       // Use dom-to-image-more (handles modern CSS better than html2canvas)
       const { toBlob } = await import('dom-to-image-more');
@@ -560,8 +566,10 @@ export default function DesignPage() {
         fd.append('design', blob, 'design.png');
         fd.append('elements', JSON.stringify(elements));
         fd.append('tshirtColor', tshirtColor);
+        fd.append('orderInfo', JSON.stringify(orderInfo));
         await fetch('/api/submit-design', { method: 'POST', body: fd });
-        alert('✅ Thiết kế đã gửi cho admin!');
+        alert('✅ Thiết kế và đơn hàng đã gửi cho admin!');
+        setShowOrderModal(false);
       }, 'image/png');
     } catch (err) {
       console.error('Export failed:', err);
@@ -594,7 +602,7 @@ export default function DesignPage() {
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setSide(side === "front" ? "back" : "front")} className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase rounded-full tracking-widest hover:scale-105 transition-all">Switch to {side === "front" ? "Back" : "Front"}</button>
-          <button onClick={handleExportPack} disabled={isExporting} className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all disabled:opacity-50">{isExporting ? 'Exporting...' : 'Export Pack'}</button>
+          <button onClick={() => setShowOrderModal(true)} disabled={isExporting} className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all disabled:opacity-50">{isExporting ? 'Exporting...' : 'Export Pack'}</button>
         </div>
       </header>
 
@@ -975,6 +983,91 @@ export default function DesignPage() {
         .design-text-element { font-size: var(--text-size); font-family: var(--text-font); font-weight: var(--text-weight); color: var(--text-color); }
         .design-element-text { width: auto !important; height: auto !important; }
       `}</style>
+
+      {/* ── ORDER FORM MODAL ── */}
+      {showOrderModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-black text-white px-6 py-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-black uppercase tracking-widest">Thông Tin Đơn Hàng</h2>
+                <p className="text-[10px] text-gray-400 font-mono mt-0.5">Điền thông tin trước khi gửi thiết kế cho admin</p>
+              </div>
+              <button onClick={() => setShowOrderModal(false)} className="text-gray-400 hover:text-white text-lg leading-none">✕</button>
+            </div>
+
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              {/* Personal info */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Họ tên *</label>
+                  <input type="text" value={orderInfo.name} onChange={e => setOrderInfo(p => ({...p, name: e.target.value}))}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-black transition-colors" placeholder="Nguyễn Văn A" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Số điện thoại *</label>
+                  <input type="tel" value={orderInfo.phone} onChange={e => setOrderInfo(p => ({...p, phone: e.target.value}))}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-black transition-colors" placeholder="0901 234 567" />
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Địa chỉ giao hàng *</label>
+                <input type="text" value={orderInfo.address} onChange={e => setOrderInfo(p => ({...p, address: e.target.value}))}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-black transition-colors" placeholder="123 Đường ABC, Quận 1, TP.HCM" />
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Lớp / Trường</label>
+                <input type="text" value={orderInfo.className} onChange={e => setOrderInfo(p => ({...p, className: e.target.value}))}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-black transition-colors" placeholder="12A1 - THPT Nguyễn Trãi" />
+              </div>
+
+              {/* Size quantities */}
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-2">Số lượng theo size</label>
+                <div className="grid grid-cols-6 gap-2">
+                  {(['XS','S','M','L','XL','XXL'] as const).map(size => (
+                    <div key={size} className="text-center">
+                      <div className="text-[9px] font-black uppercase text-gray-500 mb-1">{size}</div>
+                      <input
+                        type="number" min="0" max="999"
+                        value={orderInfo.sizes[size]}
+                        onChange={e => setOrderInfo(p => ({...p, sizes: {...p.sizes, [size]: parseInt(e.target.value)||0}}))}
+                        className="w-full border border-gray-200 rounded-xl px-1 py-2 text-sm font-black text-center outline-none focus:border-black transition-colors"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-gray-400 font-mono mt-2">
+                  Tổng: <span className="font-black text-black">{Object.values(orderInfo.sizes).reduce((a,b) => a+b, 0)} áo</span>
+                </p>
+              </div>
+
+              {/* Note */}
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Ghi chú</label>
+                <textarea value={orderInfo.note} onChange={e => setOrderInfo(p => ({...p, note: e.target.value}))}
+                  rows={2} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-black transition-colors resize-none"
+                  placeholder="Yêu cầu thêm, màu sắc đặc biệt..." />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 pb-6 flex gap-3">
+              <button onClick={() => setShowOrderModal(false)}
+                className="flex-1 py-2.5 border border-gray-200 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:border-black transition-colors">
+                Hủy
+              </button>
+              <button
+                onClick={() => handleExportPack(orderInfo)}
+                disabled={!orderInfo.name || !orderInfo.phone || !orderInfo.address || isExporting}
+                className="flex-1 py-2.5 bg-black text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors disabled:opacity-40">
+                {isExporting ? 'Đang xử lý...' : '📦 Gửi Đơn Hàng'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

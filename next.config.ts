@@ -1,10 +1,24 @@
 import type { NextConfig } from "next";
 
+// Supabase hostname is derived from the env var — never hardcoded.
+// Set NEXT_PUBLIC_SUPABASE_URL in .env.local or your hosting dashboard.
+const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : null;
+
+const supabasePatterns = supabaseHostname
+  ? [{ protocol: "https" as const, hostname: supabaseHostname }]
+  : [];
+
+const supabaseCSP = supabaseHostname
+  ? ` https://${supabaseHostname}`
+  : "";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "xuwufmqcsdgbuinkncwd.supabase.co" },
+      ...supabasePatterns,
     ],
   },
   async headers() {
@@ -23,8 +37,8 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://images.unsplash.com https://xuwufmqcsdgbuinkncwd.supabase.co",
-              "connect-src 'self' https://xuwufmqcsdgbuinkncwd.supabase.co",
+              `img-src 'self' data: blob: https://images.unsplash.com${supabaseCSP}`,
+              `connect-src 'self'${supabaseCSP}`,
               "frame-ancestors 'none'",
             ].join("; "),
           },

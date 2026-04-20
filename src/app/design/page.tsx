@@ -92,7 +92,7 @@ function MiniPreview({ elements, side, width, height, onDropImage }: {
       const image: AIImage = JSON.parse(data);
       // Front/Back → original positions; Side → independent
       const dropX = side === 'back' ? 245 : side === 'side' ? 220 : 220;
-      const dropY = side === 'side' ? 100 : 100;
+      const dropY = side === 'back' ? 70 : 100;
       onDropImage(image, dropX, dropY, side);
     } catch (err) { console.error(err); }
   }, [onDropImage, side]);

@@ -71,20 +71,14 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
-// ─── Component: MiniPreview (scaled-down live preview, NOW DROPPABLE) ─────
-function MiniPreview({ elements, side, tshirtColor, width, height, onDropImage }: {
+// ─── Component: MiniPreview (droppable thumbnail, shows components only) ─────
+function MiniPreview({ elements, side, width, height, onDropImage }: {
   elements: DesignElement[];
   side: "front" | "back" | "side";
-  tshirtColor: string;
   width: number;
   height: number;
   onDropImage?: (image: AIImage, x: number, y: number, targetSide: "front" | "back" | "side") => void;
 }) {
-  const baseW = 400, baseH = 480;
-  const scaleX = width / baseW;
-  const scaleY = height / baseH;
-  const scale = Math.min(scaleX, scaleY);
-  const displaySide = side === "side" ? "front" : side;
   const sideElements = elements.filter(el => el.side === side);
   const [isDropTarget, setIsDropTarget] = React.useState(false);
 
@@ -534,7 +528,7 @@ export default function DesignPage() {
                   {/* Back extract thumbnail — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 pt-4">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">BACK VIEW</span>
-                    <MiniPreview elements={elements} side="back" tshirtColor={tshirtColor} width={100} height={100} onDropImage={handleDropImageToSide} />
+                    <MiniPreview elements={elements} side="back" width={100} height={100} onDropImage={handleDropImageToSide} />
                   </div>
                 </div>
 
@@ -543,7 +537,7 @@ export default function DesignPage() {
                   {/* Side view — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">SIDE VIEW</span>
-                    <MiniPreview elements={elements} side="side" tshirtColor={tshirtColor} width={55} height={90} onDropImage={handleDropImageToSide} />
+                    <MiniPreview elements={elements} side="side" width={55} height={90} onDropImage={handleDropImageToSide} />
                   </div>
                   {/* Front shirt */}
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
@@ -560,7 +554,7 @@ export default function DesignPage() {
                   {/* Front extract thumbnail — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">FRONT VIEW</span>
-                    <MiniPreview elements={elements} side="front" tshirtColor={tshirtColor} width={80} height={80} onDropImage={handleDropImageToSide} />
+                    <MiniPreview elements={elements} side="front" width={80} height={80} onDropImage={handleDropImageToSide} />
                   </div>
                 </div>
 

@@ -348,6 +348,7 @@ export default function DesignPage() {
   const [chatInput, setChatInput] = useState("");
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
+  const [zoom, setZoom] = useState(1);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -369,6 +370,27 @@ export default function DesignPage() {
     setElements(next);
     setRedoStack(r => r.slice(0, -1));
   }, [redoStack, elements]);
+
+  // Delete selected element
+  const handleDeleteSelected = useCallback(() => {
+    if (!selectedId) return;
+    pushHistory(elements);
+    setElements(prev => prev.filter(el => el.id !== selectedId));
+    setSelectedId(null);
+  }, [selectedId, elements, pushHistory]);
+
+  // Keyboard: Delete/Backspace to remove selected
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        handleDeleteSelected();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleDeleteSelected]);
 
   const handleSendMessage = useCallback(async (content: string) => {
     const userMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content };
@@ -495,7 +517,7 @@ export default function DesignPage() {
           <div className="flex-1 relative overflow-hidden">
             <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-50" />
 
-            <div className="relative h-full flex p-3 overflow-hidden">
+            <div className="relative h-full flex p-3 overflow-hidden" style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}>
 
               {/* FAR LEFT: Color Swatches */}
               <div className="w-[55px] shrink-0 flex flex-col gap-3 pt-1 pr-2">
@@ -582,6 +604,22 @@ export default function DesignPage() {
 
               </div>
             </div>
+
+            {/* Zoom controls + Delete — bottom right of blueprint */}
+            <div className="absolute bottom-3 right-3 flex items-center gap-1 z-30">
+              {selectedId && (
+                <button onClick={handleDeleteSelected} className="w-8 h-8 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center shadow-lg transition-all" title="Delete selected (Del)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              )}
+              <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg text-sm font-bold transition-all">−</button>
+              <span className="text-[10px] font-mono text-black bg-white/80 px-2 py-1 rounded-lg shadow min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
+              <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg text-sm font-bold transition-all">+</button>
+              <button onClick={() => setZoom(1)} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg transition-all" title="Reset zoom">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+              </button>
+            </div>
+
           </div>
         </section>
 

@@ -1039,14 +1039,14 @@ export default function DesignPage() {
                 <p className="text-[7px] font-black uppercase text-center tracking-widest text-gray-400">DRAG ANY STYLE ONTO THE SHIRT</p>
 
                 {/* Draggable font samples */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-3">
                   {[
-                    { text: fontPreviewText || "Font", font: "Cormorant Garamond", style: "text-[42px] font-serif italic leading-none", weight: 400 },
-                    { text: fontPreviewText || "Get Ready", font: "Impact", style: "text-[28px] font-black -rotate-2 leading-none", weight: 900 },
-                    { text: fontPreviewText || "BROKEN HEART", font: "Space Grotesk", style: "text-[22px] font-black tracking-tight leading-none", weight: 900 },
-                    { text: fontPreviewText || "MILK &HONEY", font: "Space Grotesk", style: "text-[22px] font-black tracking-tight leading-none text-right", weight: 900 },
-                    { text: fontPreviewText || "Learn", font: "Cormorant Garamond", style: "text-[38px] font-serif italic leading-none", weight: 400 },
-                    { text: fontPreviewText || "Weird", font: "Cormorant Garamond", style: "text-[38px] font-serif italic leading-none text-right", weight: 400 },
+                    { text: fontPreviewText || 'Semester', font: 'Cormorant Garamond', weight: 400, size: '46px', style: 'italic', desc: 'Elegant Serif' },
+                    { text: fontPreviewText || 'CLASS 2025', font: 'Impact', weight: 900, size: '28px', style: 'normal', desc: 'Bold Impact' },
+                    { text: fontPreviewText || 'BROKEN HEART', font: 'Space Grotesk', weight: 900, size: '22px', style: 'normal', desc: 'Modern Sans' },
+                    { text: fontPreviewText || 'Get Weird', font: 'Sora', weight: 800, size: '28px', style: 'normal', desc: 'Rounded Tech' },
+                    { text: fontPreviewText || 'MILK & HONEY', font: 'Bebas Neue', weight: 400, size: '32px', style: 'normal', desc: 'Condensed Display' },
+                    { text: fontPreviewText || 'Authentic', font: 'Dancing Script', weight: 700, size: '38px', style: 'normal', desc: 'Script Hand' },
                   ].map((item, i) => (
                     <div
                       key={i}
@@ -1058,10 +1058,18 @@ export default function DesignPage() {
                         }));
                       }}
                       onClick={() => handleAddText(item.text, item.font)}
-                      className={`group cursor-grab active:cursor-grabbing hover:bg-violet-50 p-2 rounded-xl transition-all border border-transparent hover:border-violet-200 ${i % 2 === 0 ? 'text-left' : 'text-right'}`}
+                      className="group cursor-grab active:cursor-grabbing bg-white hover:bg-violet-50 px-4 py-3 rounded-2xl transition-all border border-gray-100 hover:border-violet-300 flex flex-col gap-1"
                     >
-                      <div className={`${item.style} group-hover:text-violet-600 transition-colors`}>{item.text}</div>
-                      {i === 0 && <div className="text-[7px] font-black uppercase tracking-wide border-t border-black pt-1">PAIRING + GUIDE</div>}
+                      <div
+                        className="leading-tight text-black group-hover:text-violet-700 transition-colors truncate"
+                        style={{ fontFamily: item.font, fontSize: item.size, fontWeight: item.weight, fontStyle: item.style }}
+                      >
+                        {item.text}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[7px] font-black uppercase tracking-widest text-gray-400">{item.desc}</span>
+                        <span className="text-[7px] font-mono text-gray-300">{item.font}</span>
+                      </div>
                     </div>
                   ))}
                 </div>

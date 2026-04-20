@@ -38,5 +38,28 @@
     ],
     "submittedAt": "2026-04-20T09:44:08.901Z",
     "status": "pending"
+  },
+  {
+    "id": 1776678833307,
+    "filename": "design-1776678833307.png",
+    "url": "/exports/design-1776678833307.png",
+    "tshirtColor": "#FFFFFF",
+    "elements": [
+      {
+        "id": "el-1776678817252",
+        "type": "image",
+        "label": "STREET_2025",
+        "url": "/mockups/ai_streetart.png",
+        "x": 245,
+        "y": 70,
+        "width": 160,
+        "height": 160,
+        "rotation": 0,
+        "side": "back",
+        "locked": false
+      }
+    ],
+    "submittedAt": "2026-04-20T09:53:53.308Z",
+    "status": "pending"
   }
 ]

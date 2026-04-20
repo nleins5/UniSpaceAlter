@@ -437,7 +437,7 @@ export default function DesignPage() {
               <div className="flex-1 flex flex-col gap-1 overflow-hidden h-full min-h-0">
 
                 {/* ROW 1: BACK VIEW */}
-                <div className="flex-1 min-h-0 flex gap-3 items-start overflow-hidden">
+                <div className="h-[50%] flex gap-3 items-start overflow-hidden">
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">BACK VIEW</span>
                     <div className="flex-1 w-full min-h-0 relative">
@@ -459,7 +459,7 @@ export default function DesignPage() {
                 </div>
 
                 {/* ROW 2: FRONT VIEW */}
-                <div className="flex-1 min-h-0 flex gap-3 items-end overflow-hidden">
+                <div className="h-[50%] flex gap-3 items-end overflow-hidden">
                   {/* Side view */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">SIDE VIEW</span>

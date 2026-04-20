@@ -365,7 +365,7 @@ export default function DesignPage() {
       <main className="flex-1 flex overflow-hidden">
 
         {/* ── LEFT: BLUEPRINT PANEL (fixed 660px, fills full height) ── */}
-        <section className="w-[660px] shrink-0 h-full flex flex-col bg-white border-r border-gray-300 shadow-xl overflow-hidden">
+        <section className="w-[820px] shrink-0 h-full flex flex-col bg-white border-r border-gray-300 shadow-xl overflow-hidden">
 
           {/* HEADER ROW 1 */}
           <div className="grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[60px]">
@@ -412,7 +412,7 @@ export default function DesignPage() {
           <div className="flex-1 relative overflow-hidden bg-[#FCFBFF]">
             <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-40" />
 
-            <div className="relative h-full flex gap-0 p-2">
+            <div className="relative h-full flex gap-0 p-2 overflow-hidden">
 
               {/* FAR LEFT: Color Swatches */}
               <div className="w-[58px] shrink-0 flex flex-col gap-3 pt-2 pr-2">
@@ -430,12 +430,12 @@ export default function DesignPage() {
               {/* MAIN: 2 shirt rows that split height 50/50 */}
               <div className="flex-1 flex flex-col gap-2 overflow-hidden">
 
-                {/* ROW 1: BACK VIEW */}
-                <div className="flex-1 flex gap-2 overflow-hidden min-h-0">
+                {/* ROW 1: BACK VIEW — fixed 300px height so shirt never clips */}
+                <div className="h-[300px] shrink-0 flex gap-2">
                   {/* Back shirt — MAIN, fills all available space */}
-                  <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+                  <div className="flex-1 flex flex-col min-w-0 h-full">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">BACK VIEW</span>
-                    <div className="flex-1 relative overflow-hidden">
+                    <div className="flex-1 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -453,8 +453,8 @@ export default function DesignPage() {
                   </div>
                 </div>
 
-                {/* ROW 2: FRONT VIEW */}
-                <div className="flex-1 flex gap-2 overflow-hidden min-h-0 items-end">
+                {/* ROW 2: FRONT VIEW — fixed 300px height so shirt never clips */}
+                <div className="h-[300px] shrink-0 flex gap-2 items-end">
                   {/* Side view — small rectangle far left */}
                   <div className="shrink-0 flex flex-col items-start pb-0">
                     <span className="text-[5px] font-black uppercase text-[#FF69B4] mb-1 tracking-widest">SIDE VIEW</span>
@@ -464,9 +464,9 @@ export default function DesignPage() {
                   </div>
 
                   {/* Front shirt — MAIN */}
-                  <div className="flex-1 flex flex-col overflow-hidden min-w-0 h-full">
+                  <div className="flex-1 flex flex-col min-w-0 h-full">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">FRONT VIEW</span>
-                    <div className="flex-1 relative overflow-hidden">
+                    <div className="flex-1 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -633,8 +633,11 @@ export default function DesignPage() {
 
       <style jsx global>{`
         .blueprint-lattice {
-          background-image: radial-gradient(#FBCFE8 1.5px, transparent 1.5px);
+          background-image: 
+            linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
           background-size: 20px 20px;
+          background-color: transparent;
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

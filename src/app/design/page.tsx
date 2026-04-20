@@ -97,12 +97,10 @@ function MiniPreview({ elements, side, tshirtColor, width, height, onDropImage }
     if (!data) return;
     try {
       const image: AIImage = JSON.parse(data);
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      const localX = (e.clientX - rect.left) / scale;
-      const localY = (e.clientY - rect.top) / scale;
-      onDropImage(image, localX - 50, localY - 50, side);
+      // Always center element on the shirt (thumbnail is too small for precise positioning)
+      onDropImage(image, 120, 160, side);
     } catch (err) { console.error(err); }
-  }, [onDropImage, scale, side]);
+  }, [onDropImage, side]);
 
   return (
     <div 
@@ -323,7 +321,7 @@ function DesignElementItem({
   }, [el]);
 
   return (
-    <div ref={ref} className="absolute design-element-layer">
+    <div ref={ref} className="absolute design-element-layer z-20">
       <div
         className={`w-full h-full relative cursor-move ${selectedId === el.id ? "ring-2 ring-violet-500" : ""}`}
         onMouseDown={(e) => onMouseDown(e, el)}

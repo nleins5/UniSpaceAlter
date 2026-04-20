@@ -346,10 +346,10 @@ export default function DesignPage() {
       role: "ai",
       content: "Initial suggested artifacts.",
       images: [
-         { id: 'h1', url: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=500&q=80', label: 'HUSTLE_V1' },
-         { id: 'h2', url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=500&q=80', label: 'FLAME_GFX' },
-         { id: 'h3', url: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&q=80', label: 'GEO_PATT' },
-         { id: 'h4', url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&q=80', label: 'NEON_SIG' }
+         { id: 'h1', url: '/mockups/ai_streetart.png', label: 'STREET_2025' },
+         { id: 'h2', url: '/mockups/ai_kawaii.png', label: 'KAWAII_CREW' },
+         { id: 'h3', url: '/mockups/ai_minimal.png', label: 'JAPAN_MIN' },
+         { id: 'h4', url: '/mockups/ai_cosmic.png', label: 'COSMIC_VIBE' }
       ]
     }
   ]);

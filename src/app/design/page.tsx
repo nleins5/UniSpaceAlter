@@ -47,7 +47,6 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
     <div className="w-full h-full relative">
       {/* Color layer masked to shirt silhouette — never bleeds onto grid */}
       {!isWhite && (
-        // eslint-disable-next-line
         <div className="absolute inset-0" style={{
           backgroundColor: color,
           WebkitMaskImage: `url(${imgSrc})`,

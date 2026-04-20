@@ -247,22 +247,17 @@ function DesignCanvas({
       const x = ((e.clientX - rect.left) / rect.width) * 400 - 50;
       const y = ((e.clientY - rect.top) / rect.height) * 480 - 50;
 
-      // Check for font drag first
-      const fontData = e.dataTransfer.getData('text/font-drag');
-      if (fontData && onDropText) {
-        try {
-          const { text, font, weight } = JSON.parse(fontData);
-          onDropText(text, font, weight, x, y);
-        } catch (err) { console.error(err); }
-        return;
-      }
-
-      // Then check for image drag
+      // Check for any drag data
       const data = e.dataTransfer.getData("application/json");
       if (!data) return;
       try {
-        const image: AIImage = JSON.parse(data);
-        onDropImage(image, x, y);
+        const parsed = JSON.parse(data);
+        if (parsed.dragType === 'font' && onDropText) {
+          onDropText(parsed.text, parsed.font, parsed.weight, x, y);
+        } else {
+          // Image drop
+          onDropImage(parsed, x, y);
+        }
       } catch (err) { console.error(err); }
     },
     [onDropImage, onDropText]
@@ -790,8 +785,8 @@ export default function DesignPage() {
                       key={i}
                       draggable
                       onDragStart={(e) => {
-                        e.dataTransfer.setData('text/font-drag', JSON.stringify({
-                          text: item.text, font: item.font, weight: item.weight
+                        e.dataTransfer.setData('application/json', JSON.stringify({
+                          dragType: 'font', text: item.text, font: item.font, weight: item.weight
                         }));
                       }}
                       onClick={() => handleAddText(item.text, item.font)}
@@ -810,8 +805,8 @@ export default function DesignPage() {
                       key={font}
                       draggable
                       onDragStart={(e) => {
-                        e.dataTransfer.setData('text/font-drag', JSON.stringify({
-                          text: fontPreviewText || font, font, weight: 700
+                        e.dataTransfer.setData('application/json', JSON.stringify({
+                          dragType: 'font', text: fontPreviewText || font, font, weight: 700
                         }));
                       }}
                       onClick={() => handleAddText(fontPreviewText || font, font)}

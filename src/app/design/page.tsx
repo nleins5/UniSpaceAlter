@@ -90,11 +90,10 @@ function MiniPreview({ elements, side, width, height, onDropImage }: {
     if (!data) return;
     try {
       const image: AIImage = JSON.parse(data);
-      // Side drops → front canvas at sleeve area; back/front → chest center
-      const targetSide = side === 'side' ? 'front' as const : side;
-      const dropX = side === 'back' ? 245 : side === 'side' ? 330 : 220;
-      const dropY = side === 'side' ? 120 : 100;
-      onDropImage(image, dropX, dropY, targetSide);
+      // Pass original side so handleDropImageToSide can create 4 sleeve elements for 'side'
+      const dropX = side === 'back' ? 245 : 220;
+      const dropY = 100;
+      onDropImage(image, dropX, dropY, side);
     } catch (err) { console.error(err); }
   }, [onDropImage, side]);
 

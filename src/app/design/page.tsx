@@ -97,7 +97,7 @@ function MiniPreview({ elements, side, tshirtColor, width, height, onDropImage }
     try {
       const image: AIImage = JSON.parse(data);
       // Always center element on the shirt (thumbnail is too small for precise positioning)
-      onDropImage(image, 140, 100, side);
+      onDropImage(image, 220, 100, side);
     } catch (err) { console.error(err); }
   }, [onDropImage, side]);
 

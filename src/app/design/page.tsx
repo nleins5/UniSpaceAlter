@@ -135,6 +135,7 @@ interface DesignCanvasProps {
   onResizeElement: (id: string, width: number, height: number, x?: number, y?: number) => void;
   onPushHistory: () => void;
   onDropImage: (image: AIImage, x: number, y: number) => void;
+  onDropText?: (text: string, font: string, weight: number, x: number, y: number) => void;
   side: "front" | "back";
   tshirtColor: string;
   slot?: string;
@@ -148,6 +149,7 @@ function DesignCanvas({
   onResizeElement,
   onPushHistory,
   onDropImage,
+  onDropText,
   side,
   tshirtColor,
   slot = "shirt",
@@ -241,17 +243,29 @@ function DesignCanvas({
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDropTarget(false);
+      const rect = canvasRef.current!.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 400 - 50;
+      const y = ((e.clientY - rect.top) / rect.height) * 480 - 50;
+
+      // Check for font drag first
+      const fontData = e.dataTransfer.getData('text/font-drag');
+      if (fontData && onDropText) {
+        try {
+          const { text, font, weight } = JSON.parse(fontData);
+          onDropText(text, font, weight, x, y);
+        } catch (err) { console.error(err); }
+        return;
+      }
+
+      // Then check for image drag
       const data = e.dataTransfer.getData("application/json");
       if (!data) return;
       try {
         const image: AIImage = JSON.parse(data);
-        const rect = canvasRef.current!.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 400 - 50;
-        const y = ((e.clientY - rect.top) / rect.height) * 480 - 50;
         onDropImage(image, x, y);
       } catch (err) { console.error(err); }
     },
-    [onDropImage]
+    [onDropImage, onDropText]
   );
 
   return (
@@ -351,6 +365,7 @@ export default function DesignPage() {
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
+  const [fontPreviewText, setFontPreviewText] = useState("");
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -463,6 +478,18 @@ export default function DesignPage() {
     });
   }, [side, pushHistory]);
 
+  // Drop text from font guide onto canvas at specific position
+  const handleDropText = useCallback((text: string, font: string, weight: number, x: number, y: number) => {
+    setElements(prev => {
+      pushHistory(prev);
+      return [...prev, {
+        id: `el-${Date.now()}`, type: "text", label: "Type Artifact", text,
+        fontSize: 32, fontFamily: font, fontWeight: String(weight), textColor: "#000000",
+        x, y, width: 200, height: 60, rotation: 0, side, locked: false
+      }];
+    });
+  }, [side, pushHistory]);
+
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
     setElements(prev => prev.map(el => el.id === id ? { ...el, x, y } : el));
   }, []);
@@ -566,7 +593,7 @@ export default function DesignPage() {
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
+                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropText}
                         side="back" tshirtColor={tshirtColor}
                       />
                     </div>
@@ -613,7 +640,7 @@ export default function DesignPage() {
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
+                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropText}
                         side="front" tshirtColor={tshirtColor}
                       />
                     </div>
@@ -734,14 +761,66 @@ export default function DesignPage() {
                   <div className="flex-1 h-px border-t border-dashed border-black/20" />
                   <div className="w-8 h-5 border border-black rounded-full flex items-center justify-center text-[7px] font-black">000</div>
                 </div>
-                <p className="text-[7px] font-black uppercase text-center tracking-widest text-gray-400">AND REMEMBER THAT EVEN WITH THE BEST INSTRUCTIONS<br/>YOU ALWAYS HAVE TO LEARN ON THE GO</p>
+
+                {/* Editable text input */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[7px] font-black uppercase tracking-widest text-gray-400">TYPE YOUR TEXT</span>
+                  <input
+                    type="text"
+                    value={fontPreviewText}
+                    onChange={(e) => setFontPreviewText(e.target.value)}
+                    placeholder="Type here..."
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 bg-gray-50"
+                  />
+                </div>
+
+                <p className="text-[7px] font-black uppercase text-center tracking-widest text-gray-400">DRAG ANY STYLE ONTO THE SHIRT</p>
+
+                {/* Draggable font samples */}
                 <div className="grid grid-cols-2 gap-4">
-                  <button onClick={() => handleAddText("Font", "Cormorant Garamond")} className="text-left group"><div className="text-[42px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Font</div><div className="text-[7px] font-black uppercase tracking-wide border-t border-black pt-1">PAIRING + GUIDE</div></button>
-                  <button onClick={() => handleAddText("Get Ready", "Impact")} className="text-right group flex flex-col items-end"><div className="text-[28px] font-black -rotate-2 leading-none group-hover:text-violet-600 transition-colors">Get<br/>Ready</div></button>
-                  <button onClick={() => handleAddText("BROKEN HEART", "Space Grotesk")} className="group text-left"><div className="text-[22px] font-black tracking-tight leading-none group-hover:text-violet-600 transition-colors">BROKEN<br/>HEART</div></button>
-                  <button onClick={() => handleAddText("MILK & HONEY", "Space Grotesk")} className="group text-right"><div className="text-[22px] font-black tracking-tight leading-none text-right group-hover:text-violet-600 transition-colors">MILK<br/>&HONEY</div></button>
-                  <button onClick={() => handleAddText("Learn", "Cormorant Garamond")} className="group text-left"><div className="text-[38px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Learn</div></button>
-                  <button onClick={() => handleAddText("Weird", "Cormorant Garamond")} className="group text-right"><div className="text-[38px] font-serif italic leading-none group-hover:text-violet-600 transition-colors text-right">Weird</div></button>
+                  {[
+                    { text: fontPreviewText || "Font", font: "Cormorant Garamond", style: "text-[42px] font-serif italic leading-none", weight: 400 },
+                    { text: fontPreviewText || "Get Ready", font: "Impact", style: "text-[28px] font-black -rotate-2 leading-none", weight: 900 },
+                    { text: fontPreviewText || "BROKEN HEART", font: "Space Grotesk", style: "text-[22px] font-black tracking-tight leading-none", weight: 900 },
+                    { text: fontPreviewText || "MILK &HONEY", font: "Space Grotesk", style: "text-[22px] font-black tracking-tight leading-none text-right", weight: 900 },
+                    { text: fontPreviewText || "Learn", font: "Cormorant Garamond", style: "text-[38px] font-serif italic leading-none", weight: 400 },
+                    { text: fontPreviewText || "Weird", font: "Cormorant Garamond", style: "text-[38px] font-serif italic leading-none text-right", weight: 400 },
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/font-drag', JSON.stringify({
+                          text: item.text, font: item.font, weight: item.weight
+                        }));
+                      }}
+                      onClick={() => handleAddText(item.text, item.font)}
+                      className={`group cursor-grab active:cursor-grabbing hover:bg-violet-50 p-2 rounded-xl transition-all border border-transparent hover:border-violet-200 ${i % 2 === 0 ? 'text-left' : 'text-right'}`}
+                    >
+                      <div className={`${item.style} group-hover:text-violet-600 transition-colors`}>{item.text}</div>
+                      {i === 0 && <div className="text-[7px] font-black uppercase tracking-wide border-t border-black pt-1">PAIRING + GUIDE</div>}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Draggable font tags */}
+                <div className="flex flex-wrap gap-2">
+                  {["Cormorant Garamond", "Space Grotesk", "Impact", "Sora", "Fira Code", "Instrument Serif"].map(font => (
+                    <div
+                      key={font}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/font-drag', JSON.stringify({
+                          text: fontPreviewText || font, font, weight: 700
+                        }));
+                      }}
+                      onClick={() => handleAddText(fontPreviewText || font, font)}
+                      className="px-3 py-1.5 border border-gray-200 rounded-full text-[8px] font-black uppercase cursor-grab active:cursor-grabbing hover:bg-violet-50 hover:border-violet-300 transition-all"
+                      style={{ fontFamily: font }}
+                    >
+                      {font}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

@@ -580,11 +580,25 @@ export default function DesignPage() {
         for (const el of sideElements) {
           const x = el.x * scaleX;
           const y = el.y * scaleY;
+          // Use uniform scale for element box to prevent stretching
+          const boxW = el.width * scaleX;
+          const boxH = el.height * scaleY;
 
           if (el.type === 'image' && el.url) {
             try {
               const elImg = await loadImg(el.url);
-              ctx.drawImage(elImg, x, y, el.width * scaleX, el.height * scaleY);
+              // Draw with object-contain to match CSS rendering in design studio
+              const imgRatio = elImg.naturalWidth / elImg.naturalHeight;
+              const boxRatio = boxW / boxH;
+              let imgDrawW = boxW, imgDrawH = boxH, imgDrawX = x, imgDrawY = y;
+              if (imgRatio > boxRatio) {
+                imgDrawH = boxW / imgRatio;
+                imgDrawY = y + (boxH - imgDrawH) / 2;
+              } else {
+                imgDrawW = boxH * imgRatio;
+                imgDrawX = x + (boxW - imgDrawW) / 2;
+              }
+              ctx.drawImage(elImg, imgDrawX, imgDrawY, imgDrawW, imgDrawH);
             } catch { /* skip broken images */ }
           } else if (el.type === 'text' && el.text) {
             ctx.save();

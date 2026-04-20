@@ -397,12 +397,12 @@ export default function DesignPage() {
   }, [side, pushHistory]);
 
   // Drop image to a specific side (used by MiniPreview thumbnails)
-  const handleDropImageToSide = useCallback((image: AIImage, x: number, y: number, targetSide: "front" | "back" | "side") => {
+  const handleDropImageToSide = useCallback((image: AIImage, x: number, y: number, targetSide: "front" | "back" | "side", size = 160) => {
     setElements(prev => {
       pushHistory(prev);
       return [...prev, {
         id: `el-${Date.now()}`, type: "image", label: image.label, url: image.url, 
-        x, y, width: 160, height: 160, rotation: 0, side: targetSide, locked: false
+        x, y, width: size, height: size, rotation: 0, side: targetSide, locked: false
       }];
     });
   }, [pushHistory]);
@@ -553,7 +553,7 @@ export default function DesignPage() {
                         const reader = new FileReader();
                         reader.onload = (ev) => {
                           const dataUrl = ev.target?.result as string;
-                          handleDropImageToSide({ id: `logo-${Date.now()}`, url: dataUrl, label: 'LOGO' }, 160, 80, 'front');
+                          handleDropImageToSide({ id: `logo-${Date.now()}`, url: dataUrl, label: 'LOGO' }, 230, 100, 'front', 80);
                           // Also store in 'side' for thumbnail preview
                           setElements(prev => [...prev, { id: `logo-thumb-${Date.now()}`, type: 'image', label: 'LOGO', url: dataUrl, x: 0, y: 0, width: 55, height: 90, rotation: 0, side: 'side' as const, locked: false }]);
                         };

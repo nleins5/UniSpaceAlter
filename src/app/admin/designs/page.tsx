@@ -184,6 +184,7 @@ export default function AdminDesignsPage() {
                         value={order.status}
                         disabled={updatingId === order.orderId}
                         onChange={e => handleStatusUpdate(order.orderId, e.target.value)}
+                        aria-label="Cập nhật trạng thái đơn hàng"
                         className="text-[10px] font-black border border-gray-200 rounded-lg px-2 py-1 bg-white cursor-pointer hover:border-black transition-colors"
                       >
                         {VALID_STATUSES.map(s => (
@@ -297,6 +298,7 @@ export default function AdminDesignsPage() {
                           handleStatusUpdate(selected.orderId, e.target.value);
                           setSelected(prev => prev ? { ...prev, status: e.target.value as Order['status'] } : null);
                         }}
+                        aria-label="Cập nhật trạng thái đơn hàng"
                         className="text-[10px] font-black border border-gray-200 rounded-lg px-2 py-1 bg-white cursor-pointer"
                       >
                         {VALID_STATUSES.map(s => (

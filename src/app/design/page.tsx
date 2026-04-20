@@ -41,16 +41,14 @@ interface ChatMessage {
 // ─── Component: TShirtMockup (Image-Based Mechanical Flat) ───────────────
 function TShirtSVG({ side = "front" }: { color: string; side?: "front" | "back" }) {
   const isFront = side === "front";
-
   return (
-    <div className="w-full h-full relative flex items-center justify-center p-4">
+    <div className="w-full h-full relative">
       <Image 
         src={isFront ? "/mockups/user_tshirt_front.png" : "/mockups/user_tshirt_back.png"} 
         alt={`Shirt ${side}`} 
-        width={500}
-        height={500}
+        fill
         priority
-        className="w-full h-full object-contain"
+        style={{ objectFit: "contain" }}
       />
     </div>
   );
@@ -438,7 +436,7 @@ export default function DesignPage() {
                        <div className="flex gap-3 items-start">
                           <div className="flex flex-col items-center shrink-0">
                              <span className="text-[7px] font-black uppercase text-black mb-1 tracking-widest">BACK VIEW</span>
-                             <div className="w-[180px] h-[180px] overflow-hidden border border-gray-100">
+                             <div className="w-[300px] h-[300px] overflow-hidden border border-gray-100">
                                 <DesignCanvas
                                    elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                                    onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -468,7 +466,7 @@ export default function DesignPage() {
 
                           <div className="flex flex-col items-center shrink-0">
                              <span className="text-[7px] font-black uppercase text-black mb-1 tracking-widest">FRONT VIEW</span>
-                             <div className="w-[180px] h-[180px] overflow-hidden border border-gray-100">
+                             <div className="w-[300px] h-[300px] overflow-hidden border border-gray-100">
                                 <DesignCanvas
                                    elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                                    onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}

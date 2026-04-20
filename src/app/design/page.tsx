@@ -112,33 +112,21 @@ function MiniPreview({ elements, side, tshirtColor, width, height, onDropImage }
       onDragLeave={() => setIsDropTarget(false)}
       onDrop={handleDrop}
     >
-      <div ref={(el) => { if (el) { el.style.setProperty('width', `${baseW}px`); el.style.setProperty('height', `${baseH}px`); el.style.setProperty('transform', `scale(${scale})`); el.style.setProperty('transform-origin', 'top left'); }}} className="pointer-events-none">
-        <div className="w-full h-full relative">
-          {sideElements.map((el) => (
-            <div key={el.id} className="absolute" ref={(node) => {
-              if (!node) return;
-              node.style.setProperty('left', `${el.x}px`);
-              node.style.setProperty('top', `${el.y}px`);
-              node.style.setProperty('width', `${el.width}px`);
-              node.style.setProperty('height', `${el.height}px`);
-              node.style.setProperty('transform', `rotate(${el.rotation || 0}deg)`);
-            }}>
-              {el.type === 'image' && el.url && (
-                <Image src={el.url} alt={el.label || ''} fill className="object-contain" unoptimized />
-              )}
-              {el.type === 'text' && (
-                <span ref={(s) => {
-                  if (!s) return;
-                  s.style.setProperty('font-size', `${el.fontSize || 32}px`);
-                  s.style.setProperty('font-family', el.fontFamily || 'sans-serif');
-                  s.style.setProperty('font-weight', String(el.fontWeight || '900'));
-                  s.style.setProperty('color', el.textColor || '#000');
-                }} className="whitespace-nowrap">{el.text}</span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Show dropped elements full-bleed */}
+      {sideElements.length > 0 ? (
+        sideElements.map((el) => (
+          <div key={el.id} className="absolute inset-0">
+            {el.type === 'image' && el.url && (
+              <Image src={el.url} alt={el.label || ''} fill className="object-cover" unoptimized />
+            )}
+            {el.type === 'text' && (
+              <div className="w-full h-full flex items-center justify-center text-white text-xs font-bold">{el.text}</div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-gray-600 text-[8px] uppercase tracking-widest">Drop</div>
+      )}
     </div>
   );
 }

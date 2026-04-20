@@ -348,7 +348,7 @@ export default function DesignPage() {
       images: [
          { id: 'h1', url: '/mockups/ai_streetart.png', label: 'STREET_2025' },
          { id: 'h2', url: '/mockups/ai_kawaii.png', label: 'KAWAII_CREW' },
-         { id: 'h3', url: '/mockups/ai_minimal.png', label: 'JAPAN_MIN' },
+         { id: 'h3', url: '/mockups/ai_squad.png', label: 'ANIME_SQUAD' },
          { id: 'h4', url: '/mockups/ai_cosmic.png', label: 'COSMIC_VIBE' }
       ]
     }

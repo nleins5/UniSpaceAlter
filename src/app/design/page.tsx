@@ -686,7 +686,15 @@ export default function DesignPage() {
       {/* NAV */}
       <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0 z-50">
         <div className="flex items-center gap-4">
-          <Link href="/" className="font-black text-lg tracking-tight">Uni<span className="text-violet-600">Space</span></Link>
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center shrink-0">
+              <span className="text-white text-[8px] font-black tracking-tighter leading-none">US</span>
+            </div>
+            <div className="leading-none">
+              <span className="font-black text-[13px] tracking-tight">Uni<span className="text-violet-600">Space</span></span>
+              <span className="text-[7px] text-gray-400 font-medium block tracking-wide">Trạm đồng phục</span>
+            </div>
+          </Link>
           <div className="h-6 w-px bg-gray-200 mx-2" />
           <div className="flex items-center gap-1">
             <button onClick={handleUndo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Undo"><Undo2 size={16} /></button>
@@ -706,10 +714,18 @@ export default function DesignPage() {
 
           {/* HEADER ROW 1 */}
           <div className="grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[60px]">
-            <div className="border-r border-black p-2 flex flex-col justify-center items-center relative bg-white">
-              <span className="text-[5px] font-black text-gray-400 absolute top-1.5 left-2 uppercase tracking-widest">Brand Logo</span>
-              <div className="w-16 h-7 bg-black rounded-full flex items-center justify-center text-white text-[7px] font-black uppercase tracking-tighter">STREET FACE</div>
-              <span className="text-[4px] font-black uppercase tracking-[0.3em] mt-0.5 text-gray-500">clothing.co</span>
+            <div className="border-r border-black p-2 flex flex-col justify-center items-center relative bg-white gap-0.5">
+              <span className="text-[5px] font-black text-gray-400 absolute top-1.5 left-2 uppercase tracking-widest">Brand</span>
+              {/* UniSpace logo mark */}
+              <div className="flex items-center gap-1">
+                <div className="w-5 h-5 bg-black rounded-md flex items-center justify-center shrink-0">
+                  <span className="text-white text-[7px] font-black leading-none">U</span>
+                </div>
+                <div className="leading-none">
+                  <span className="text-[9px] font-black tracking-tight leading-none block">UniSpace</span>
+                  <span className="text-[4.5px] font-bold uppercase tracking-[0.15em] text-gray-500 block">Trạm Đồng Phục</span>
+                </div>
+              </div>
             </div>
             <div className="border-r border-black p-2 flex flex-col justify-center">
               <span className="text-[5px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Project Name:</span>

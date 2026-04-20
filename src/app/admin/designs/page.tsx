@@ -211,7 +211,7 @@ export default function AdminDesignsPage() {
                   {selected.customerName} — {selected.createdAt ? new Date(selected.createdAt).toLocaleString('vi-VN') : ''}
                 </p>
               </div>
-              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-white text-xl">✕</button>
+              <button onClick={() => setSelected(null)} type="button" className="text-gray-400 hover:text-white text-xl">✕</button>
             </div>
 
             <div className="p-6">

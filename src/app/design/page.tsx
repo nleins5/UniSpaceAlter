@@ -314,23 +314,24 @@ function DesignElementItem({
   }, [el]);
 
   return (
-    <div ref={ref} className={`absolute design-element-layer z-20 ${el.type === 'text' ? 'design-element-text' : ''}`}>
-      <div
-        className={`w-full h-full relative cursor-move ${selectedId === el.id ? "ring-2 ring-violet-500" : ""}`}
-        onMouseDown={(e) => onMouseDown(e, el)}
-      >
-        {el.type === "image" && el.url && (
+    <div
+      ref={ref}
+      className={`absolute design-element-layer z-20 cursor-move ${el.type === 'text' ? 'design-element-text' : ''} ${selectedId === el.id ? 'ring-2 ring-violet-500' : ''}`}
+      onMouseDown={(e) => onMouseDown(e, el)}
+    >
+      {el.type === "image" && el.url && (
+        <div className="w-full h-full relative">
           <Image src={el.url} alt={el.label} width={400} height={400} unoptimized className="w-full h-full object-contain pointer-events-none" />
-        )}
-        {el.type === "text" && <div ref={textRef} className="whitespace-nowrap design-text-element pointer-events-none select-none">{el.text}</div>}
-        
-        {selectedId === el.id && !isDragging && (
-          <div 
-            className="absolute -right-2 -bottom-2 w-4 h-4 bg-violet-600 rounded-full border-2 border-white cursor-nwse-resize shadow-lg z-50"
-            onMouseDown={(e) => { e.stopPropagation(); onResizeMouseDown(e, el); }}
-          />
-        )}
-      </div>
+        </div>
+      )}
+      {el.type === "text" && <div ref={textRef} className="whitespace-nowrap design-text-element select-none pointer-events-none">{el.text}</div>}
+
+      {selectedId === el.id && !isDragging && (
+        <div
+          className="absolute -right-2 -bottom-2 w-4 h-4 bg-violet-600 rounded-full border-2 border-white cursor-nwse-resize shadow-lg z-50"
+          onMouseDown={(e) => { e.stopPropagation(); onResizeMouseDown(e, el); }}
+        />
+      )}
     </div>
   );
 }
@@ -363,6 +364,9 @@ export default function DesignPage() {
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
   const [fontPreviewText, setFontPreviewText] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
+  const frontCanvasRef = useRef<HTMLDivElement>(null);
+  const backCanvasRef = useRef<HTMLDivElement>(null);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -510,6 +514,53 @@ export default function DesignPage() {
     });
   }, [pushHistory]);
 
+  // Export: capture front+back as PNG, download + submit to admin
+  const handleExportPack = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 600;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, 1200, 600);
+
+      // Capture front
+      if (frontCanvasRef.current) {
+        const frontCanvas = await html2canvas(frontCanvasRef.current, { backgroundColor: '#fff', scale: 2, useCORS: true });
+        ctx.drawImage(frontCanvas, 0, 0, 600, 600);
+      }
+      // Capture back
+      if (backCanvasRef.current) {
+        const backCanvas = await html2canvas(backCanvasRef.current, { backgroundColor: '#fff', scale: 2, useCORS: true });
+        ctx.drawImage(backCanvas, 600, 0, 600, 600);
+      }
+
+      // Download locally
+      const link = document.createElement('a');
+      link.download = `unispace-design-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+
+      // Submit to admin
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const fd = new FormData();
+        fd.append('design', blob, 'design.png');
+        fd.append('elements', JSON.stringify(elements));
+        fd.append('tshirtColor', tshirtColor);
+        await fetch('/api/submit-design', { method: 'POST', body: fd });
+        alert('✅ Thiết kế đã gửi cho admin!');
+      }, 'image/png');
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert('Export thất bại, thử lại!');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [elements, tshirtColor]);
+
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
     setElements(prev => prev.map(el => el.id === id ? { ...el, x, y } : el));
   }, []);
@@ -533,7 +584,7 @@ export default function DesignPage() {
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setSide(side === "front" ? "back" : "front")} className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase rounded-full tracking-widest hover:scale-105 transition-all">Switch to {side === "front" ? "Back" : "Front"}</button>
-          <button className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all">Export Pack</button>
+          <button onClick={handleExportPack} disabled={isExporting} className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all disabled:opacity-50">{isExporting ? 'Exporting...' : 'Export Pack'}</button>
         </div>
       </header>
 
@@ -609,7 +660,7 @@ export default function DesignPage() {
                 <div className="h-[50%] flex gap-3 items-start overflow-hidden">
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">BACK VIEW</span>
-                    <div className="flex-1 w-full min-h-0 relative">
+                    <div ref={backCanvasRef} className="flex-1 w-full min-h-0 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -656,7 +707,7 @@ export default function DesignPage() {
                   {/* Front shirt */}
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">FRONT VIEW</span>
-                    <div className="flex-1 w-full min-h-0 relative">
+                    <div ref={frontCanvasRef} className="flex-1 w-full min-h-0 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}

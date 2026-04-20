@@ -535,10 +535,31 @@ export default function DesignPage() {
 
                 {/* ROW 2: FRONT VIEW */}
                 <div className="h-[50%] flex gap-3 items-end overflow-hidden">
-                  {/* Side view — LIVE PREVIEW */}
+                  {/* Logo upload */}
                   <div className="flex flex-col items-center shrink-0 self-end">
-                    <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">SIDE VIEW</span>
-                    <MiniPreview elements={elements} side="side" width={55} height={90} onDropImage={handleDropImageToSide} />
+                    <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">LOGO</span>
+                    <label className="relative overflow-hidden border border-dashed border-gray-400 bg-[#1A1A1A] hover:border-violet-400 hover:bg-violet-900/10 transition-all cursor-pointer flex items-center justify-center" style={{ width: 55, height: 90 }}>
+                      {elements.filter(el => el.side === 'side').length > 0 ? (
+                        <Image src={elements.filter(el => el.side === 'side')[0].url || ''} alt="Logo" fill className="object-contain p-1" unoptimized />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-500"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                          <span className="text-[6px] text-gray-500 uppercase tracking-wider">Upload</span>
+                        </div>
+                      )}
+                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          const dataUrl = ev.target?.result as string;
+                          handleDropImageToSide({ id: `logo-${Date.now()}`, url: dataUrl, label: 'LOGO' }, 160, 80, 'front');
+                          // Also store in 'side' for thumbnail preview
+                          setElements(prev => [...prev, { id: `logo-thumb-${Date.now()}`, type: 'image', label: 'LOGO', url: dataUrl, x: 0, y: 0, width: 55, height: 90, rotation: 0, side: 'side' as const, locked: false }]);
+                        };
+                        reader.readAsDataURL(file);
+                      }} />
+                    </label>
                   </div>
                   {/* Front shirt */}
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">

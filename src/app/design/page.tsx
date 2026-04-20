@@ -31,6 +31,17 @@ interface AIImage {
   url: string;
 }
 
+// Helper: Blob → HTMLImageElement
+function createImageFromBlob(blob: Blob): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const img = new window.Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
 interface ChatMessage {
   id: string;
   role: "user" | "ai";
@@ -513,7 +524,10 @@ export default function DesignPage() {
   const handleExportPack = useCallback(async () => {
     setIsExporting(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
+      // Use dom-to-image-more (handles modern CSS better)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const domtoimage = (await import('dom-to-image-more')) as any;
+
       const canvas = document.createElement('canvas');
       canvas.width = 1200;
       canvas.height = 600;
@@ -523,13 +537,15 @@ export default function DesignPage() {
 
       // Capture front
       if (frontCanvasRef.current) {
-        const frontCanvas = await html2canvas(frontCanvasRef.current, { backgroundColor: '#fff', scale: 2, useCORS: true });
-        ctx.drawImage(frontCanvas, 0, 0, 600, 600);
+        const frontBlob = await domtoimage.toBlob(frontCanvasRef.current, { bgcolor: '#fff', width: 600, height: 600 });
+        const frontImg = await createImageFromBlob(frontBlob);
+        ctx.drawImage(frontImg, 0, 0, 600, 600);
       }
       // Capture back
       if (backCanvasRef.current) {
-        const backCanvas = await html2canvas(backCanvasRef.current, { backgroundColor: '#fff', scale: 2, useCORS: true });
-        ctx.drawImage(backCanvas, 600, 0, 600, 600);
+        const backBlob = await domtoimage.toBlob(backCanvasRef.current, { bgcolor: '#fff', width: 600, height: 600 });
+        const backImg = await createImageFromBlob(backBlob);
+        ctx.drawImage(backImg, 600, 0, 600, 600);
       }
 
       // Download locally

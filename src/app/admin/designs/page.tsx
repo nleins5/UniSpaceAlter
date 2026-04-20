@@ -1,47 +1,97 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-interface SizeMap { XS: number; S: number; M: number; L: number; XL: number; XXL: number; }
-interface OrderInfo { name: string; phone: string; address: string; className: string; note: string; sizes: SizeMap; }
-interface Submission {
-  id: number;
-  filename: string;
-  url: string;
-  tshirtColor: string;
-  submittedAt: string;
-  status: "pending" | "approved" | "rejected";
-  orderInfo?: OrderInfo;
+interface Order {
+  orderId: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  color: string;
+  size: string;
+  quantity: number;
+  status: "pending" | "confirmed" | "manufacturing" | "completed" | "cancelled";
+  notes?: string;
+  className?: string;
+  createdAt: string;
+  frontDesignUrl?: string;
+  backDesignUrl?: string;
+  hasFrontDesign?: boolean;
+  hasBackDesign?: boolean;
 }
 
-const SIZE_KEYS: (keyof SizeMap)[] = ['XS','S','M','L','XL','XXL'];
-const STATUS_COLORS = { pending: 'bg-amber-100 text-amber-700', approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700' };
-const STATUS_LABELS = { pending: '⏳ Chờ xử lý', approved: '✅ Đã duyệt', rejected: '❌ Từ chối' };
+const STATUS_COLORS: Record<string, string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  manufacturing: 'bg-sky-100 text-sky-700',
+  completed: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
+};
+const STATUS_LABELS: Record<string, string> = {
+  pending: '⏳ Chờ xử lý',
+  confirmed: '✅ Đã xác nhận',
+  manufacturing: '🖨️ Đang in',
+  completed: '✅ Hoàn thành',
+  cancelled: '❌ Đã huỷ',
+};
+const VALID_STATUSES = ["pending", "confirmed", "manufacturing", "completed", "cancelled"] as const;
 
 export default function AdminDesignsPage() {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<Submission | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Order | null>(null);
 
   useEffect(() => {
-    fetch('/exports/submissions.json')
-      .then(r => r.json())
-      .then((data: Submission[]) => { setSubmissions(data.reverse()); setLoading(false); })
+    const userData = sessionStorage.getItem("user");
+    if (!userData) { router.push("/login"); return; }
+    const parsedUser = JSON.parse(userData);
+    if (!parsedUser.admin) { router.push("/dashboard"); return; }
+
+    const token = parsedUser.token;
+    fetch("/api/orders", {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {}
+    })
+      .then(r => {
+        if (r.status === 401) { sessionStorage.removeItem("user"); router.push("/login"); return null; }
+        return r.json();
+      })
+      .then((data: { orders: Order[] } | null) => {
+        if (data) setOrders(data.orders || []);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
-  }, []);
+  }, [router]);
 
-  const totalSizes = submissions.reduce((acc, s) => {
-    if (!s.orderInfo?.sizes) return acc;
-    SIZE_KEYS.forEach(k => { acc[k] = (acc[k] || 0) + (s.orderInfo!.sizes[k] || 0); });
-    return acc;
-  }, {} as Partial<SizeMap>);
+  const totalQuantity = orders.reduce((sum, o) => sum + o.quantity, 0);
+  const pending = orders.filter(o => !o.status || o.status === 'pending').length;
 
-  const totalShirts = Object.values(totalSizes).reduce((a, b) => a + b, 0);
-  const pending = submissions.filter(s => !s.status || s.status === 'pending').length;
+  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    if (!VALID_STATUSES.includes(newStatus as (typeof VALID_STATUSES)[number])) return;
+    setUpdatingId(orderId);
+    setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, status: newStatus as Order['status'] } : o));
+    try {
+      const userData = sessionStorage.getItem("user");
+      const token = userData ? JSON.parse(userData).token : null;
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...(token ? { "Authorization": `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) { alert("Không thể cập nhật trạng thái."); }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi kết nối.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F4F1] font-sans">
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <header className="bg-black text-white px-8 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <span className="text-lg font-black uppercase tracking-tighter">UniSpace</span>
@@ -54,11 +104,11 @@ export default function AdminDesignsPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* ── STATS ROW ── */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        {/* STATS */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Tổng Đơn</p>
-            <p className="text-3xl font-black">{submissions.length}</p>
+            <p className="text-3xl font-black">{orders.length}</p>
           </div>
           <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Chờ Xử Lý</p>
@@ -66,139 +116,202 @@ export default function AdminDesignsPage() {
           </div>
           <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Tổng Áo</p>
-            <p className="text-3xl font-black">{totalShirts}</p>
-          </div>
-          <div className="bg-black rounded-2xl p-5 shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Breakdown Sizes</p>
-            <div className="flex gap-3">
-              {SIZE_KEYS.map(k => (
-                <div key={k} className="text-center">
-                  <p className="text-[9px] text-gray-500 uppercase">{k}</p>
-                  <p className="text-sm font-black text-white">{totalSizes[k] || 0}</p>
-                </div>
-              ))}
-            </div>
+            <p className="text-3xl font-black">{totalQuantity}</p>
           </div>
         </div>
 
-        {/* ── TABLE ── */}
+        {/* TABLE */}
         {loading ? (
-          <div className="text-center py-32 text-gray-400 font-mono text-sm">Loading submissions...</div>
-        ) : submissions.length === 0 ? (
+          <div className="text-center py-32 text-gray-400 font-mono text-sm">Loading...</div>
+        ) : orders.length === 0 ? (
           <div className="text-center py-32 text-gray-400 font-mono text-sm">Chưa có đơn nào</div>
         ) : (
           <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['#','Thiết kế','Khách hàng','Lớp/Trường','Số lượng','Màu áo','Thời gian','Trạng thái',''].map(h => (
+                  {['#', 'Thiết kế', 'Khách hàng', 'Lớp/Trường', 'Số lượng', 'Size', 'Màu áo', 'Thời gian', 'Trạng thái', ''].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-gray-500">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {submissions.map((sub, i) => {
-                  const total = sub.orderInfo?.sizes ? Object.values(sub.orderInfo.sizes).reduce((a,b)=>a+b,0) : '—';
-                  const status = sub.status || 'pending';
-                  return (
-                    <tr key={sub.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => setSelected(sub)}>
-                      <td className="px-4 py-3 text-[11px] font-mono text-gray-400">{submissions.length - i}</td>
-                      <td className="px-4 py-3">
-                        <div className="w-10 h-12 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                          <Image src={sub.url} alt="design" fill className="object-contain p-1" unoptimized />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-sm font-bold text-gray-900">{sub.orderInfo?.name || '—'}</p>
-                        <p className="text-[11px] text-gray-400 font-mono">{sub.orderInfo?.phone || ''}</p>
-                      </td>
-                      <td className="px-4 py-3 text-[11px] text-gray-600">{sub.orderInfo?.className || '—'}</td>
-                      <td className="px-4 py-3 text-sm font-black">{total} <span className="text-[10px] font-normal text-gray-400">áo</span></td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-4 h-4 rounded border border-gray-200 shrink-0" style={{backgroundColor: sub.tshirtColor}} />
-                          <span className="text-[10px] font-mono text-gray-400">{sub.tshirtColor}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-[11px] text-gray-400 font-mono">{new Date(sub.submittedAt).toLocaleString('vi-VN')}</td>
-                      <td className="px-4 py-3">
-                        <span className={`text-[10px] font-black px-2 py-1 rounded-full ${STATUS_COLORS[status]}`}>{STATUS_LABELS[status]}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <a href={sub.url} download onClick={e => e.stopPropagation()}
-                          className="px-3 py-1.5 bg-black text-white text-[10px] font-black uppercase rounded-full hover:bg-gray-800 transition-all whitespace-nowrap">
-                          ↓ PNG
-                        </a>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {orders.map((order, i) => (
+                  <tr key={order.orderId}
+                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => setSelected(order)}>
+                    <td className="px-4 py-3 text-[11px] font-mono text-gray-400">{orders.length - i}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1">
+                        {order.frontDesignUrl && (
+                          <div className="w-8 h-10 relative rounded overflow-hidden border border-gray-200 bg-gray-50">
+                            <Image src={order.frontDesignUrl} alt="front" fill className="object-contain" unoptimized />
+                          </div>
+                        )}
+                        {order.backDesignUrl && (
+                          <div className="w-8 h-10 relative rounded overflow-hidden border border-gray-200 bg-gray-50">
+                            <Image src={order.backDesignUrl} alt="back" fill className="object-contain" unoptimized />
+                          </div>
+                        )}
+                        {!order.frontDesignUrl && !order.backDesignUrl && (
+                          <span className="text-[9px] text-gray-300 font-mono">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm font-bold text-gray-900">{order.customerName || '—'}</p>
+                      <p className="text-[11px] text-gray-400 font-mono">{order.phone || ''}</p>
+                    </td>
+                    <td className="px-4 py-3 text-[11px] text-gray-600">{order.className || '—'}</td>
+                    <td className="px-4 py-3 text-sm font-black">{order.quantity} <span className="text-[10px] font-normal text-gray-400">áo</span></td>
+                    <td className="px-4 py-3 text-[10px] font-mono text-gray-500">{order.size || '—'}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-4 rounded border border-gray-200 shrink-0" style={{ backgroundColor: order.color }} />
+                        <span className="text-[10px] font-mono text-gray-400">{order.color}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-[11px] text-gray-400 font-mono">
+                      {order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`text-[10px] font-black px-2 py-1 rounded-full ${STATUS_COLORS[order.status] || STATUS_COLORS.pending}`}>
+                        {STATUS_LABELS[order.status] || STATUS_LABELS.pending}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                      <select
+                        value={order.status}
+                        disabled={updatingId === order.orderId}
+                        onChange={e => handleStatusUpdate(order.orderId, e.target.value)}
+                        className="text-[10px] font-black border border-gray-200 rounded-lg px-2 py-1 bg-white cursor-pointer hover:border-black transition-colors"
+                      >
+                        {VALID_STATUSES.map(s => (
+                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
       </main>
 
-      {/* ── ORDER DETAIL MODAL ── */}
+      {/* ORDER DETAIL MODAL */}
       {selected && (
         <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setSelected(null)}>
-          <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-3xl max-w-3xl w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="bg-black text-white px-6 py-4 flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-black uppercase tracking-widest">Chi Tiết Đơn Hàng</h2>
-                <p className="text-[10px] text-gray-400 font-mono mt-0.5">{selected.orderInfo?.name} — {new Date(selected.submittedAt).toLocaleString('vi-VN')}</p>
+                <p className="text-[10px] text-gray-400 font-mono mt-0.5">
+                  {selected.customerName} — {selected.createdAt ? new Date(selected.createdAt).toLocaleString('vi-VN') : ''}
+                </p>
               </div>
               <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-white text-xl">✕</button>
             </div>
 
-            <div className="p-6 grid grid-cols-2 gap-6">
-              {/* Design preview */}
-              <div className="relative w-full aspect-[5/6] rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
-                <Image src={selected.url} alt="design" fill className="object-contain p-2" unoptimized />
+            <div className="p-6">
+              {/* Design previews: front + back side by side */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">Mặt trước</p>
+                  {selected.frontDesignUrl ? (
+                    <div className="relative w-full aspect-[5/6] rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
+                      <Image src={selected.frontDesignUrl} alt="front design" fill className="object-contain p-2" unoptimized />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-[5/6] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex items-center justify-center">
+                      <span className="text-[10px] text-gray-300 font-mono">Không có thiết kế</span>
+                    </div>
+                  )}
+                  {selected.frontDesignUrl && (
+                    <a href={selected.frontDesignUrl} download
+                      className="mt-2 w-full block text-center py-2 bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors">
+                      ↓ Tải mặt trước
+                    </a>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">Mặt sau</p>
+                  {selected.backDesignUrl ? (
+                    <div className="relative w-full aspect-[5/6] rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
+                      <Image src={selected.backDesignUrl} alt="back design" fill className="object-contain p-2" unoptimized />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-[5/6] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex items-center justify-center">
+                      <span className="text-[10px] text-gray-300 font-mono">Không có thiết kế</span>
+                    </div>
+                  )}
+                  {selected.backDesignUrl && (
+                    <a href={selected.backDesignUrl} download
+                      className="mt-2 w-full block text-center py-2 bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors">
+                      ↓ Tải mặt sau
+                    </a>
+                  )}
+                </div>
               </div>
 
               {/* Order info */}
-              <div className="space-y-3">
-                {[
-                  ['Họ tên', selected.orderInfo?.name],
-                  ['Điện thoại', selected.orderInfo?.phone],
-                  ['Địa chỉ', selected.orderInfo?.address],
-                  ['Lớp/Trường', selected.orderInfo?.className],
-                  ['Ghi chú', selected.orderInfo?.note],
-                ].map(([label, val]) => val ? (
-                  <div key={label}>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">{label}</p>
-                    <p className="text-sm font-medium text-gray-900">{val}</p>
-                  </div>
-                ) : null)}
-              </div>
-
-              {/* Sizes full row */}
-              <div className="col-span-2 bg-gray-50 rounded-2xl p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Số lượng theo size</p>
-                <div className="grid grid-cols-6 gap-3">
-                  {SIZE_KEYS.map(k => (
-                    <div key={k} className="text-center bg-white rounded-xl py-3 border border-gray-200">
-                      <p className="text-[9px] font-black uppercase text-gray-400">{k}</p>
-                      <p className="text-xl font-black mt-1">{selected.orderInfo?.sizes?.[k] || 0}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  {([
+                    ['Họ tên', selected.customerName],
+                    ['Điện thoại', selected.phone],
+                    ['Địa chỉ', selected.address],
+                    ['Lớp/Trường', selected.className],
+                    ['Ghi chú', selected.notes],
+                  ] as [string, string | undefined][]).map(([label, val]) => val ? (
+                    <div key={label}>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">{label}</p>
+                      <p className="text-sm font-medium text-gray-900">{val}</p>
                     </div>
-                  ))}
+                  ) : null)}
                 </div>
-                <p className="text-right text-[11px] font-mono text-gray-500 mt-2">
-                  Tổng: <span className="font-black text-black text-sm">
-                    {selected.orderInfo?.sizes ? Object.values(selected.orderInfo.sizes).reduce((a,b)=>a+b,0) : 0} áo
-                  </span>
-                </p>
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Thông tin đơn hàng</p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-[10px] text-gray-500">Số lượng</span>
+                      <span className="text-sm font-black">{selected.quantity} áo</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[10px] text-gray-500">Size</span>
+                      <span className="text-[11px] font-mono">{selected.size || '—'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] text-gray-500">Màu áo</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-4 rounded border border-gray-200" style={{ backgroundColor: selected.color }} />
+                        <span className="text-[10px] font-mono">{selected.color}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                      <span className="text-[10px] text-gray-500">Trạng thái</span>
+                      <select
+                        value={selected.status}
+                        disabled={updatingId === selected.orderId}
+                        onChange={e => {
+                          handleStatusUpdate(selected.orderId, e.target.value);
+                          setSelected(prev => prev ? { ...prev, status: e.target.value as Order['status'] } : null);
+                        }}
+                        className="text-[10px] font-black border border-gray-200 rounded-lg px-2 py-1 bg-white cursor-pointer"
+                      >
+                        {VALID_STATUSES.map(s => (
+                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="px-6 pb-6 flex gap-3">
-              <a href={selected.url} download
-                className="flex-1 text-center py-2.5 bg-black text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors">
-                ↓ Download PNG
-              </a>
+            <div className="px-6 pb-6">
               <button onClick={() => setSelected(null)}
-                className="flex-1 py-2.5 border border-gray-200 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:border-black transition-colors">
+                className="w-full py-2.5 border border-gray-200 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:border-black transition-colors">
                 Đóng
               </button>
             </div>

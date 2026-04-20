@@ -485,6 +485,29 @@ export default function DesignPage() {
     });
   }, [side, pushHistory]);
 
+  // Side-specific text drop handlers for each canvas
+  const handleDropTextFront = useCallback((text: string, font: string, weight: number, x: number, y: number) => {
+    setElements(prev => {
+      pushHistory(prev);
+      return [...prev, {
+        id: `el-${Date.now()}`, type: "text", label: "Type Artifact", text,
+        fontSize: 32, fontFamily: font, fontWeight: String(weight), textColor: "#000000",
+        x, y, width: 200, height: 60, rotation: 0, side: 'front' as const, locked: false
+      }];
+    });
+  }, [pushHistory]);
+
+  const handleDropTextBack = useCallback((text: string, font: string, weight: number, x: number, y: number) => {
+    setElements(prev => {
+      pushHistory(prev);
+      return [...prev, {
+        id: `el-${Date.now()}`, type: "text", label: "Type Artifact", text,
+        fontSize: 32, fontFamily: font, fontWeight: String(weight), textColor: "#000000",
+        x, y, width: 200, height: 60, rotation: 0, side: 'back' as const, locked: false
+      }];
+    });
+  }, [pushHistory]);
+
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
     setElements(prev => prev.map(el => el.id === id ? { ...el, x, y } : el));
   }, []);
@@ -588,7 +611,7 @@ export default function DesignPage() {
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropText}
+                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropTextBack}
                         side="back" tshirtColor={tshirtColor}
                       />
                     </div>
@@ -635,7 +658,7 @@ export default function DesignPage() {
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
-                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropText}
+                        onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropTextFront}
                         side="front" tshirtColor={tshirtColor}
                       />
                     </div>

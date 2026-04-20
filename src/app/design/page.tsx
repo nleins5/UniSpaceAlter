@@ -433,14 +433,14 @@ export default function DesignPage() {
                 </button>
               </div>
 
-              {/* MAIN: 2 shirt rows — flex-1 fills available height evenly */}
-              <div className="flex-1 flex flex-col justify-between overflow-hidden h-full">
+              {/* MAIN: 2 shirt rows — each takes half height */}
+              <div className="flex-1 flex flex-col gap-1 overflow-hidden h-full min-h-0">
 
                 {/* ROW 1: BACK VIEW */}
-                <div className="flex gap-3 items-start">
-                  <div className="flex flex-col items-center flex-1 min-w-0">
-                    <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1">BACK VIEW</span>
-                    <div className="w-full max-w-[460px] aspect-[4/3.5] relative">
+                <div className="flex-1 min-h-0 flex gap-3 items-start overflow-hidden">
+                  <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
+                    <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">BACK VIEW</span>
+                    <div className="flex-1 w-full min-h-0 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -459,18 +459,18 @@ export default function DesignPage() {
                 </div>
 
                 {/* ROW 2: FRONT VIEW */}
-                <div className="flex gap-3 items-end">
+                <div className="flex-1 min-h-0 flex gap-3 items-end overflow-hidden">
                   {/* Side view */}
-                  <div className="flex flex-col items-center shrink-0">
+                  <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">SIDE VIEW</span>
                     <div className="w-[55px] h-[90px] border border-gray-300 relative bg-[#1A1A1A]">
                       <Image src="/mockups/user_tshirt_front.png" alt="Side view" fill className="object-contain" />
                     </div>
                   </div>
                   {/* Front shirt */}
-                  <div className="flex flex-col items-center flex-1 min-w-0">
-                    <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1">FRONT VIEW</span>
-                    <div className="w-full max-w-[460px] aspect-[4/3.5] relative">
+                  <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
+                    <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">FRONT VIEW</span>
+                    <div className="flex-1 w-full min-h-0 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -480,7 +480,7 @@ export default function DesignPage() {
                     </div>
                   </div>
                   {/* Front extract thumbnail */}
-                  <div className="flex flex-col items-center shrink-0">
+                  <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">FRONT VIEW</span>
                     <div className="w-[80px] h-[80px] border border-gray-300 relative bg-[#1A1A1A]">
                       <Image src="/mockups/user_tshirt_front.png" alt="Front extract" fill className="object-contain" />

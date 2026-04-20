@@ -369,12 +369,12 @@ export default function DesignPage() {
         {/* ─── WORKSPACE (LEFT) ─── */}
         <section className="flex-1 h-full p-6 overflow-y-auto scrollbar-hide bg-[#DADADA]/20 flex flex-col items-center">
            
-           <div className="w-[850px] bg-white border border-gray-200 shadow-2xl relative mb-20">
+           <div className="w-[680px] bg-white border border-gray-200 shadow-2xl relative">
               
               {/* IMAGE 2 ACCURATE HEADER */}
               <div className="border-b-[1.5px] border-black pb-[1px]">
-                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] border-b border-black h-24">
-                  <div className="border-r border-black p-3 flex flex-col relative justify-center bg-white overflow-hidden">
+                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] border-b border-black h-16">
+                    <div className="border-r border-black p-2 flex flex-col relative justify-center bg-white overflow-hidden">
                     <span className="text-[6px] font-black text-gray-400 absolute top-2 left-2 uppercase tracking-[0.2em]">Brand Logo</span>
                     <div className="flex flex-col items-center">
                        <div className="w-16 h-8 bg-black rounded-full flex items-center justify-center text-white text-[8px] font-black uppercase tracking-tighter">STREET FACE</div>
@@ -395,7 +395,7 @@ export default function DesignPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] h-14">
+                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] h-10">
                   <div className="border-r border-black p-2 flex flex-col relative">
                     <span className="text-[6px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">Color:</span>
                     <span className="text-[9px] font-black">WHITE, GREEN</span>
@@ -412,37 +412,33 @@ export default function DesignPage() {
                 </div>
               </div>
 
-              {/* 1:1 TECHNICAL PAGE — MATCHES REFERENCE LAYOUT */}
-              <div className="relative bg-[#FCFBFF] py-10 px-6 overflow-visible">
+              {/* 1:1 TECHNICAL PAGE — FITS VIEWPORT */}
+              <div className="relative bg-[#FCFBFF] py-4 px-4">
                  <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-40" />
                  
-                 <div className="relative z-10 flex gap-4">
+                 <div className="relative z-10 flex gap-3">
                     
                     {/* LEFT COLUMN: COLOR SWATCHES */}
-                    <div className="flex flex-col gap-4 pt-6 shrink-0 w-[90px]">
-                       <span className="text-[8px] font-black uppercase text-black tracking-widest leading-tight">COLOR<br/>SWATCHES</span>
-                       <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                             <div className="w-6 h-6 bg-[#D4DF72] border border-black shrink-0" />
-                          </div>
-                          <span className="text-[7px] font-black uppercase">CMYK: 21 0 85 7</span>
+                    <div className="flex flex-col gap-3 pt-2 shrink-0 w-[70px]">
+                       <span className="text-[7px] font-black uppercase text-black tracking-widest leading-tight">COLOR<br/>SWATCHES</span>
+                       <div className="flex flex-col gap-1">
+                          <div className="w-5 h-5 bg-[#D4DF72] border border-black" />
+                          <span className="text-[6px] font-black uppercase">CMYK: 21 0 85 7</span>
                        </div>
-                       <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                             <div className="w-6 h-6 bg-white border border-black shrink-0" />
-                          </div>
-                          <span className="text-[7px] font-black uppercase">CMYK: 0 0 0 0</span>
+                       <div className="flex flex-col gap-1">
+                          <div className="w-5 h-5 bg-white border border-black" />
+                          <span className="text-[6px] font-black uppercase">CMYK: 0 0 0 0</span>
                        </div>
                     </div>
 
                     {/* CENTER COLUMN: MAIN ELEVATIONS */}
-                    <div className="flex flex-col gap-10 flex-1">
+                    <div className="flex flex-col gap-4 flex-1">
                        
                        {/* BACK VIEW — TOP */}
-                       <div className="flex gap-6 items-start">
+                       <div className="flex gap-3 items-start">
                           <div className="flex flex-col items-center flex-1">
-                             <span className="text-[9px] font-black uppercase text-black mb-3 tracking-widest">BACK VIEW</span>
-                             <div className="w-full max-w-[420px] aspect-square relative">
+                             <span className="text-[8px] font-black uppercase text-black mb-1 tracking-widest">BACK VIEW</span>
+                             <div className="w-[260px] h-[260px] relative">
                                 <DesignCanvas
                                    elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                                    onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -451,29 +447,29 @@ export default function DesignPage() {
                                 />
                              </div>
                           </div>
-                          {/* BACK VIEW EXTRACT — small square */}
-                          <div className="flex flex-col items-center shrink-0 pt-8">
-                             <span className="text-[7px] font-black uppercase text-black mb-2 tracking-widest">BACK VIEW</span>
-                             <div className="w-[160px] h-[160px] bg-white border border-black relative">
+                          {/* BACK VIEW EXTRACT */}
+                          <div className="flex flex-col items-center shrink-0 pt-4">
+                             <span className="text-[6px] font-black uppercase text-black mb-1 tracking-widest">BACK VIEW</span>
+                             <div className="w-[100px] h-[100px] bg-white border border-black relative">
                                 <Image src="/mockups/user_tshirt_back.png" alt="Back extract" fill style={{objectFit:'contain'}} />
                              </div>
                           </div>
                        </div>
 
                        {/* FRONT VIEW + SIDE VIEW — BOTTOM */}
-                       <div className="flex gap-6 items-end">
-                          {/* SIDE VIEW — small rectangle at left */}
-                          <div className="flex flex-col items-center shrink-0 pb-4">
-                             <span className="text-[7px] font-black uppercase text-black mb-2 tracking-widest">SIDE VIEW</span>
-                             <div className="w-[90px] h-[160px] bg-white border border-black relative">
+                       <div className="flex gap-3 items-end">
+                          {/* SIDE VIEW */}
+                          <div className="flex flex-col items-center shrink-0 pb-2">
+                             <span className="text-[6px] font-black uppercase text-black mb-1 tracking-widest">SIDE VIEW</span>
+                             <div className="w-[55px] h-[100px] bg-white border border-black relative">
                                 <Image src="/mockups/user_tshirt_front.png" alt="Side view" fill style={{objectFit:'contain'}} />
                              </div>
                           </div>
 
-                          {/* FRONT VIEW — main large */}
+                          {/* FRONT VIEW — main */}
                           <div className="flex flex-col items-center flex-1">
-                             <span className="text-[9px] font-black uppercase text-black mb-3 tracking-widest">FRONT VIEW</span>
-                             <div className="w-full max-w-[420px] aspect-square relative">
+                             <span className="text-[8px] font-black uppercase text-black mb-1 tracking-widest">FRONT VIEW</span>
+                             <div className="w-[260px] h-[260px] relative">
                                 <DesignCanvas
                                    elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                                    onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -483,10 +479,10 @@ export default function DesignPage() {
                              </div>
                           </div>
 
-                          {/* FRONT DETAIL — small square at right */}
-                          <div className="flex flex-col items-center shrink-0 pb-4">
-                             <span className="text-[7px] font-black uppercase text-black mb-2 tracking-widest">FRONT VIEW</span>
-                             <div className="w-[130px] h-[130px] bg-white border border-black relative">
+                          {/* FRONT DETAIL */}
+                          <div className="flex flex-col items-center shrink-0 pb-2">
+                             <span className="text-[6px] font-black uppercase text-black mb-1 tracking-widest">FRONT VIEW</span>
+                             <div className="w-[80px] h-[80px] bg-white border border-black relative">
                                 <Image src="/mockups/user_tshirt_front.png" alt="Front extract" fill style={{objectFit:'contain'}} />
                              </div>
                           </div>

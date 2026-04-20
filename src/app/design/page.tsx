@@ -349,6 +349,8 @@ export default function DesignPage() {
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
   const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -392,15 +394,21 @@ export default function DesignPage() {
     return () => window.removeEventListener('keydown', handler);
   }, [handleDeleteSelected]);
 
-  // Trackpad pinch-to-zoom (native listener with passive: false)
+  // Trackpad: pinch-to-zoom + two-finger-scroll-to-pan (Canva style)
   const blueprintRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = blueprintRef.current;
     if (!el) return;
     const handler = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) {
+        // Pinch zoom
         e.preventDefault();
         setZoom(z => Math.min(3, Math.max(0.3, z - e.deltaY * 0.005)));
+      } else {
+        // Two-finger scroll → pan
+        e.preventDefault();
+        setPanX(x => x - e.deltaX);
+        setPanY(y => y - e.deltaY);
       }
     };
     el.addEventListener('wheel', handler, { passive: false });
@@ -532,7 +540,7 @@ export default function DesignPage() {
           <div ref={blueprintRef} className="flex-1 relative overflow-hidden">
             <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-50" />
 
-            <div className="relative h-full flex p-3 overflow-hidden" style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}>
+            <div className="relative h-full flex p-3" style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
               {/* FAR LEFT: Color Swatches */}
               <div className="w-[55px] shrink-0 flex flex-col gap-3 pt-1 pr-2">
@@ -630,7 +638,7 @@ export default function DesignPage() {
               <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg text-sm font-bold transition-all">−</button>
               <span className="text-[10px] font-mono text-black bg-white/80 px-2 py-1 rounded-lg shadow min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
               <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg text-sm font-bold transition-all">+</button>
-              <button onClick={() => setZoom(1)} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg transition-all" title="Reset zoom">
+              <button onClick={() => { setZoom(1); setPanX(0); setPanY(0); }} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg transition-all" title="Reset zoom & pan">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
               </button>
             </div>

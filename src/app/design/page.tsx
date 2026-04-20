@@ -1,11 +1,8 @@
 "use client";
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
-
 import Link from "next/link";
 import Image from "next/image";
-import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Type as TypeIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Maximize2 } from "lucide-react";
-
-
+import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
@@ -26,7 +23,6 @@ interface DesignElement {
   side: "front" | "back";
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging" | "front-artwork" | "back-artwork";
   locked?: boolean;
-  techSlot?: string;
 }
 
 interface AIImage {
@@ -35,9 +31,6 @@ interface AIImage {
   url: string;
 }
 
-// Removed unused TechSlotConfig interface
-
-
 interface ChatMessage {
   id: string;
   role: "user" | "ai";
@@ -45,92 +38,25 @@ interface ChatMessage {
   images?: AIImage[];
 }
 
-// ─── Component: TShirtSVG (High-Fidelity Vector) ───────────────
-function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
+// ─── Component: TShirtMockup (Image-Based Mechanical Flat) ───────────────
+function TShirtSVG({ side = "front" }: { color: string; side?: "front" | "back" }) {
   const isFront = side === "front";
-  const uid = React.useId().replace(/:/g, '_');
 
   return (
-    <svg viewBox="0 0 500 520" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <defs>
-        <filter id={`sh_${uid}`} x="-4%" y="-4%" width="108%" height="108%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" />
-          <feOffset dx="0" dy="1.5" result="offsetblur" />
-          <feComponentTransfer><feFuncA type="linear" slope="0.05" /></feComponentTransfer>
-          <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-        <pattern id={`rib_${uid}`} patternUnits="userSpaceOnUse" width="3.5" height="3.5">
-          <line x1="1.75" y1="0" x2="1.75" y2="3.5" stroke="#777" strokeWidth="0.5"/>
-        </pattern>
-      </defs>
-
-      {/* 1. EXTREME BOXY SILHOUETTE */}
-      <g filter={`url(#sh_${uid})`}>
-        <path
-          d={isFront ?
-            "M 80,140 L 180,95 C 220,135 280,135 320,95 L 420,140 L 480,240 L 420,270 L 390,215 L 390,480 L 110,480 L 110,215 L 80,270 L 20,240 Z" :
-            "M 80,140 L 180,95 C 220,80 280,80 320,95 L 420,140 L 480,240 L 420,270 L 390,215 L 390,480 L 110,480 L 110,215 L 80,270 L 20,240 Z"
-          }
-          fill={color}
-          stroke="#111"
-          strokeWidth="1.3"
-          strokeLinejoin="round"
-        />
-      </g>
-
-      {/* 2. INNER CONJUNCTION */}
-      {isFront && (
-        <path
-          d="M 180,95 C 220,78 280,78 320,95 C 290,110 210,110 180,95 Z"
-          fill="#e8e8e8"
-          stroke="#444"
-          strokeWidth="0.4"
-        />
-      )}
-
-      {/* 3. HEAVY RIB BAND */}
-      <g>
-        <path
-          d={isFront ?
-            "M 180,95 C 220,135 280,135 320,95 C 320,85 180,85 180,95 Z" :
-            "M 180,95 C 220,80 280,80 320,95 C 320,110 180,110 180,95 Z"
-          }
-          fill={color}
-          stroke="#111"
-          strokeWidth="1.1"
-        />
-        <path
-          d={isFront ?
-            "M 180,95 C 220,135 280,135 320,95 C 320,85 180,85 180,95 Z" :
-            "M 180,95 C 220,80 280,80 320,95 C 320,110 180,110 180,95 Z"
-          }
-          fill={`url(#rib_${uid})`}
-          opacity="0.3"
-        />
-      </g>
-
-      {/* 4. TECHNICAL STITCHING */}
-      <g fill="none" stroke="#111" strokeWidth="0.4">
-        <path
-          d={isFront ? "M 175,102 C 220,142 280,142 325,102" : "M 175,88 C 220,75 280,75 325,88"}
-          strokeDasharray="2.5 1.5" opacity="0.6"
-        />
-        <path d="M 80,140 L 110,215" opacity="0.2"/>
-        <path d="M 420,140 L 390,215" opacity="0.2"/>
-        <g strokeDasharray="3 2" opacity="0.5">
-          <path d="M 110,472 L 390,472" />
-          <path d="M 110,476 L 390,476" />
-          <path d="M 42,248 L 88,274" />
-          <path d="M 46,252 L 92,278" />
-          <path d="M 458,248 L 412,274" />
-          <path d="M 454,252 L 408,278" />
-        </g>
-      </g>
-    </svg>
+    <div className="w-full h-full relative flex items-center justify-center p-4">
+      <Image 
+        src={isFront ? "/mockups/user_tshirt_front.png" : "/mockups/user_tshirt_back.png"} 
+        alt={`Shirt ${side}`} 
+        width={500}
+        height={500}
+        priority
+        className="w-full h-full object-contain"
+      />
+    </div>
   );
 }
 
-// ─── Component: DesignCanvas (Interactive Surface) ──────────────
+// ─── Component: DesignCanvas ──────────────────────────────────────────
 interface DesignCanvasProps {
   elements: DesignElement[];
   selectedId: string | null;
@@ -141,7 +67,6 @@ interface DesignCanvasProps {
   onDropImage: (image: AIImage, x: number, y: number) => void;
   side: "front" | "back";
   tshirtColor: string;
-  zoom: number;
   slot?: string;
 }
 
@@ -155,44 +80,36 @@ function DesignCanvas({
   onDropImage,
   side,
   tshirtColor,
-  zoom,
   slot = "shirt",
 }: DesignCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDropTarget, setIsDropTarget] = useState(false);
 
   const sideElements = elements.filter((el) => el.side === side && (el.slot === slot || !el.slot));
   const pushHistoryRef = useRef(onPushHistory);
   useEffect(() => { pushHistoryRef.current = onPushHistory; });
-  const hasMovedRef = useRef(false);
 
   const handleElementMouseDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
       e.stopPropagation();
       onSelectElement(el.id);
       if (el.locked) return;
-      hasMovedRef.current = false;
       const rect = canvasRef.current!.getBoundingClientRect();
-      const scale = zoom / 100;
       const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
       setDragOffset({
-        x: (clientX - rect.left) / scale - el.x,
-        y: (clientY - rect.top) / scale - el.y,
+        x: (clientX - rect.left) / (rect.width / 400) - el.x,
+        y: (clientY - rect.top) / (rect.height / 480) - el.y,
       });
-      setIsDragging(true);
     },
-    [onSelectElement, zoom]
+    [onSelectElement]
   );
 
   const handleResizeMouseDown = useCallback(
-    (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'tl' | 'tr' | 'bl' | 'br' = 'br') => {
+    (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
       if (el.locked) return;
-      setIsResizing(true);
       onSelectElement(el.id);
       const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
@@ -202,22 +119,19 @@ function DesignCanvas({
       const startHeight = el.height;
       const startElX = el.x;
       const startElY = el.y;
-      const scale = zoom / 100;
+      const rect = canvasRef.current!.getBoundingClientRect();
+      const scale = rect.width / 400;
       
       const handleMouseMove = (moveE: MouseEvent) => {
         const dx = (moveE.clientX - startX) / scale;
         const dy = (moveE.clientY - startY) / scale;
-        let newWidth = startWidth, newHeight = startHeight, newX = startElX, newY = startElY;
-        if (corner === 'br') { newWidth = Math.max(20, startWidth + dx); newHeight = Math.max(20, startHeight + dy); }
-        if (corner === 'bl') { newWidth = Math.max(20, startWidth - dx); newHeight = Math.max(20, startHeight + dy); newX = startElX + dx; }
-        if (corner === 'tr') { newWidth = Math.max(20, startWidth + dx); newHeight = Math.max(20, startHeight - dy); newY = startElY + dy; }
-        if (corner === 'tl') { newWidth = Math.max(20, startWidth - dx); newHeight = Math.max(20, startHeight - dy); newX = startElX + dx; newY = startElY + dy; }
-        onResizeElement(el.id, newWidth, newHeight, newX, newY);
+        const newWidth = Math.max(20, startWidth + dx);
+        const newHeight = Math.max(20, startHeight + dy);
+        onResizeElement(el.id, newWidth, newHeight, startElX, startElY);
       };
       
       const handleMouseUp = () => {
         pushHistoryRef.current();
-        setIsResizing(false);
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
       };
@@ -225,20 +139,20 @@ function DesignCanvas({
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
     },
-    [onSelectElement, onResizeElement, zoom]
+    [onSelectElement, onResizeElement]
   );
 
   useEffect(() => {
     if (!isDragging || !selectedId) return;
-    const scale = zoom / 100;
     const handleMouseMove = (e: MouseEvent) => {
       if (!canvasRef.current) return;
       const el = elements.find(item => item.id === selectedId);
       if (!el || el.locked) return;
-      hasMovedRef.current = true;
       const rect = canvasRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / scale - dragOffset.x;
-      const y = (e.clientY - rect.top) / scale - dragOffset.y;
+      const widthScale = rect.width / 400;
+      const heightScale = rect.height / 480;
+      const x = (e.clientX - rect.left) / widthScale - dragOffset.x;
+      const y = (e.clientY - rect.top) / heightScale - dragOffset.y;
       onMoveElement(selectedId, x, y);
     };
     const handleMouseUp = () => {
@@ -251,7 +165,7 @@ function DesignCanvas({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, selectedId, dragOffset, onMoveElement, zoom, elements]);
+  }, [isDragging, selectedId, dragOffset, onMoveElement, elements]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -262,10 +176,8 @@ function DesignCanvas({
       try {
         const image: AIImage = JSON.parse(data);
         const rect = canvasRef.current!.getBoundingClientRect();
-        const internalWidth = 400;
-        const internalHeight = 480;
-        const x = ((e.clientX - rect.left) / rect.width) * internalWidth - 50;
-        const y = ((e.clientY - rect.top) / rect.height) * internalHeight - 50;
+        const x = ((e.clientX - rect.left) / rect.width) * 400 - 50;
+        const y = ((e.clientY - rect.top) / rect.height) * 480 - 50;
         onDropImage(image, x, y);
       } catch (err) { console.error(err); }
     },
@@ -283,41 +195,8 @@ function DesignCanvas({
     >
       <TShirtSVG color={tshirtColor} side={side} />
       
-      {/* Design Guides */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
-         <div className="absolute left-[80px] top-[130px] w-[240px] h-[100px] border border-red-500/50" />
-         <div className="absolute left-[100px] top-[70px] w-[200px] h-[180px] border border-blue-500/50" />
-      </div>
-
-      <DesignElementsRenderer 
-        elements={sideElements} 
-        selectedId={selectedId} 
-        isDragging={isDragging} 
-        onMouseDown={handleElementMouseDown}
-        onResizeMouseDown={handleResizeMouseDown}
-      />
+      {sideElements.map((el) => <DesignElementItem key={el.id} el={el} selectedId={selectedId} isDragging={isDragging} onMouseDown={handleElementMouseDown} onResizeMouseDown={handleResizeMouseDown} />)}
     </div>
-  );
-}
-
-// ─── Sub-Component: High-Performance Renderer ──────────────────
-function DesignElementsRenderer({ 
-  elements, 
-  selectedId, 
-  isDragging, 
-  onMouseDown,
-  onResizeMouseDown 
-}: { 
-  elements: DesignElement[], 
-  selectedId: string | null,
-  isDragging: boolean,
-  onMouseDown: (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => void,
-  onResizeMouseDown: (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'br') => void
-}) {
-  return (
-    <>
-      {elements.map((el) => <DesignElementItem key={el.id} el={el} selectedId={selectedId} isDragging={isDragging} onMouseDown={onMouseDown} onResizeMouseDown={onResizeMouseDown} />)}
-    </>
   );
 }
 
@@ -332,7 +211,7 @@ function DesignElementItem({
   selectedId: string | null,
   isDragging: boolean,
   onMouseDown: (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => void,
-  onResizeMouseDown: (e: React.MouseEvent | React.TouchEvent, el: DesignElement, corner: 'br') => void
+  onResizeMouseDown: (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => void
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -354,27 +233,20 @@ function DesignElementItem({
   }, [el]);
 
   return (
-    <div 
-      ref={ref}
-      className="absolute design-element-layer"
-    >
+    <div ref={ref} className="absolute design-element-layer">
       <div
-        className={`w-full h-full relative cursor-move ${selectedId === el.id ? "ring-2 ring-violet-500 ring-offset-2" : ""}`}
+        className={`w-full h-full relative cursor-move ${selectedId === el.id ? "ring-2 ring-violet-500" : ""}`}
         onMouseDown={(e) => onMouseDown(e, el)}
       >
         {el.type === "image" && el.url && (
           <Image src={el.url} alt={el.label} width={400} height={400} unoptimized className="w-full h-full object-contain pointer-events-none" />
         )}
-        {el.type === "text" && (
-          <div ref={textRef} className="whitespace-nowrap design-text-element">
-            {el.text}
-          </div>
-        )}
+        {el.type === "text" && <div ref={textRef} className="whitespace-nowrap design-text-element">{el.text}</div>}
         
         {selectedId === el.id && !isDragging && (
           <div 
             className="absolute -right-2 -bottom-2 w-4 h-4 bg-violet-600 rounded-full border-2 border-white cursor-nwse-resize shadow-lg z-50"
-            onMouseDown={(e) => { e.stopPropagation(); onResizeMouseDown(e, el, 'br'); }}
+            onMouseDown={(e) => { e.stopPropagation(); onResizeMouseDown(e, el); }}
           />
         )}
       </div>
@@ -386,34 +258,26 @@ function DesignElementItem({
 export default function DesignPage() {
   const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers">("ai");
   const [side, setSide] = useState<"front" | "back">("front");
-  const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
+  const [tshirtColor] = useState("#333333");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "init_suggest",
       role: "ai",
-      content: "Initial suggested artifacts for your project.",
+      content: "Initial suggested artifacts.",
       images: [
-        { id: 's1', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=500&q=80', label: 'NEON_SIG' },
-        { id: 's2', url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?w=500&q=80', label: 'URBAN_TEX' },
-        { id: 's3', url: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=500&q=80', label: 'BLUEPRINT' },
-        { id: 's4', url: 'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?w=500&q=80', label: 'CYBER_GRID' },
-        { id: 's5', url: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=500&q=80', label: 'SYNTH_WAVE' },
-        { id: 's6', url: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&q=80', label: 'PLASMA_FLX' },
-        { id: 's7', url: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=500&q=80', label: 'MONO_STR' },
-        { id: 's8', url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&q=80', label: 'GEO_ARTI' },
-        { id: 's9', url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=500&q=80', label: 'VIBRANT_GR' },
-        { id: 's10', url: 'https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=500&q=80', label: 'ABSTRACT_P' }
+         { id: 'h1', url: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=500&q=80', label: 'HUSTLE_V1' },
+         { id: 'h2', url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=500&q=80', label: 'FLAME_GFX' },
+         { id: 'h3', url: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&q=80', label: 'GEO_PATT' },
+         { id: 'h4', url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&q=80', label: 'NEON_SIG' }
       ]
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [chatInput, setChatInput] = useState("");
-  const workspaceRef = useRef<HTMLElement>(null);
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -447,31 +311,17 @@ export default function DesignPage() {
         body: JSON.stringify({ prompt: content }),
       });
       const data = await res.json();
-      const aiMsg: ChatMessage = {
-        id: `msg-${Date.now()}-ai`,
-        role: "ai",
-        content: `Intelligence Protocol Online — extracted ${data.images.length} creative artifacts.`,
-        images: data.images,
-      };
+      const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Protocol Engaged.`, images: data.images };
       setMessages((prev) => [...prev, aiMsg]);
-    } catch (err) {
-       console.error(err);
-    } finally { setIsLoading(false); }
+    } catch (err) { console.error(err); } finally { setIsLoading(false); }
   }, []);
 
   const handleDropImage = useCallback((image: AIImage, x: number, y: number) => {
     setElements(prev => {
       pushHistory(prev);
       return [...prev, {
-        id: `el-${Date.now()}`,
-        type: "image",
-        label: image.label,
-        url: image.url,
-        x, y,
-        width: 140, height: 140,
-        rotation: 0,
-        side,
-        locked: false
+        id: `el-${Date.now()}`, type: "image", label: image.label, url: image.url, 
+        x, y, width: 160, height: 160, rotation: 0, side, locked: false
       }];
     });
   }, [side, pushHistory]);
@@ -480,25 +330,14 @@ export default function DesignPage() {
     setElements(prev => {
       pushHistory(prev);
       return [...prev, {
-        id: `el-${Date.now()}`,
-        type: "text",
-        label: "Typography Artifact",
-        text,
-        fontSize: 32,
-        fontFamily: font,
-        fontWeight: "900",
-        textColor: "#000000",
-        x: 100, y: 150,
-        width: 250, height: 60,
-        rotation: 0,
-        side,
-        locked: false
+        id: `el-${Date.now()}`, type: "text", label: "Type Artifact", text,
+        fontSize: 32, fontFamily: font, fontWeight: "900", textColor: "#000000",
+        x: 120, y: 150, width: 200, height: 60, rotation: 0, side, locked: false
       }];
     });
   }, [side, pushHistory]);
 
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
-
     setElements(prev => prev.map(el => el.id === id ? { ...el, x, y } : el));
   }, []);
 
@@ -506,529 +345,317 @@ export default function DesignPage() {
     setElements(prev => prev.map(el => (el.id === id ? { ...el, width, height, ...(x !== undefined ? { x } : {}), ...(y !== undefined ? { y } : {}) } : el)));
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   return (
-    <div className="flex flex-col h-screen bg-[#f8f9fa] overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#f3f4f6] overflow-hidden font-sans">
       
-      {/* ─── TECHNICAL HEADER ─── */}
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shrink-0 z-50">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="font-black text-xl tracking-tighter">Uni<span className="text-violet-600">Space</span></Link>
-          <div className="h-8 w-[1px] bg-gray-200" />
-          <nav className="flex items-center gap-2">
-             <button onClick={handleUndo} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Undo (Ctrl+Z)" aria-label="Undo"><Undo2 size={18} /></button>
-             <button onClick={handleRedo} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><Redo2 size={18} /></button>
-          </nav>
-        </div>
-        
+      {/* ─── NAV ─── */}
+      <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0 z-50">
         <div className="flex items-center gap-4">
-           <button onClick={() => setSide(side === "front" ? "back" : "front")} className="px-6 py-2 bg-black text-white rounded-full text-[11px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all" title="Toggle Side" aria-label="Toggle Side">
-              Switch to {side === "front" ? "Back" : "Front"}
-           </button>
-           <button className="px-6 py-2 border-2 border-black text-black rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all" title="Export Design" aria-label="Export Design">
-              Export Tech Pack
-           </button>
+          <Link href="/" className="font-black text-lg tracking-tight">Uni<span className="text-violet-600">Space</span></Link>
+          <div className="h-6 w-px bg-gray-200 mx-2" />
+          <div className="flex items-center gap-1">
+             <button onClick={handleUndo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Undo"><Undo2 size={16} /></button>
+             <button onClick={handleRedo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Redo"><Redo2 size={16} /></button>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+           <button onClick={() => setSide(side === "front" ? "back" : "front")} className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase rounded-full tracking-widest hover:scale-105 transition-all" title="Toggle Surface">Switch to {side === "front" ? "Back" : "Front"}</button>
+           <button className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all" title="Export Tech Pack">Export Pack</button>
         </div>
       </header>
 
-      {/* ─── MAIN WORKSPACE SPLIT ─── */}
       <main className="flex-1 flex overflow-hidden">
         
-        <section ref={workspaceRef} className="flex-[0.70] h-full bg-[#E5E7EB] p-8 overflow-y-auto scrollbar-hide flex flex-col items-center">
+        {/* ─── WORKSPACE (LEFT) ─── */}
+        <section className="flex-1 h-full p-6 overflow-y-auto scrollbar-hide bg-[#DADADA]/20 flex flex-col items-center">
            
-           <div className="relative w-[1000px] bg-white border border-gray-300 shadow-2xl overflow-hidden font-sans mb-32 p-1 bg-grid-slate-100">
+           <div className="w-[850px] bg-white border border-gray-200 shadow-2xl overflow-hidden relative mb-20">
               
-              {/* 1:1 PIXEL PERFECT TECHNICAL HEADER */}
-              <div className="border border-gray-900 mb-1">
-                {/* TOP ROW: 4 COLS */}
-                <div className="grid grid-cols-4 border-b border-gray-900">
-                  <div className="border-r border-gray-900 p-3 h-28 flex flex-col">
-                    <span className="text-[7px] font-black uppercase text-gray-400 mb-3 tracking-widest">Brand Logo</span>
-                    <div className="flex-1 flex flex-col items-center justify-center">
-                      <div className="bg-black text-white px-5 py-2 text-[14px] font-black uppercase tracking-tighter rounded-full leading-none">Street Face</div>
-                      <span className="text-[6px] font-black uppercase tracking-[0.3em] mt-2 text-gray-400">clothing.co</span>
+              {/* IMAGE 2 ACCURATE HEADER */}
+              <div className="border-b-[1.5px] border-black pb-[1px]">
+                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] border-b border-black h-24">
+                  <div className="border-r border-black p-3 flex flex-col relative justify-center bg-white overflow-hidden">
+                    <span className="text-[6px] font-black text-gray-400 absolute top-2 left-2 uppercase tracking-[0.2em]">Brand Logo</span>
+                    <div className="flex flex-col items-center">
+                       <div className="w-16 h-8 bg-black rounded-full flex items-center justify-center text-white text-[8px] font-black uppercase tracking-tighter">STREET FACE</div>
+                       <span className="text-[5px] font-black uppercase tracking-[0.3em] mt-1">clothing.co</span>
                     </div>
                   </div>
-                  <div className="border-r border-gray-900 p-3 h-28 flex flex-col">
-                    <span className="text-[7px] font-black uppercase text-gray-400 mb-2 tracking-widest">Project Name:</span>
-                    <span className="text-[11px] font-black leading-tight uppercase">Fire Hustle 1995<br/>Short pants</span>
+                  <div className="border-r border-black p-2 flex flex-col relative group">
+                    <span className="text-[6px] font-black text-gray-400 mb-1 uppercase tracking-widest">Project Name:</span>
+                    <span className="text-[11px] font-black leading-none group-hover:text-violet-600">FIRE HUSTLE 1995<br/>Short pants</span>
                   </div>
-                  <div className="border-r border-gray-900 p-3 h-28 flex flex-col">
-                    <span className="text-[7px] font-black uppercase text-gray-400 mb-2 tracking-widest">Fabric:</span>
-                    <span className="text-[11px] font-black leading-tight uppercase">Heavy Cotton<br/>20S</span>
+                  <div className="border-r border-black p-2 flex flex-col relative">
+                    <span className="text-[6px] font-black text-gray-400 mb-1 uppercase tracking-widest">Fabric:</span>
+                    <span className="text-[10px] font-black leading-none">HEAVY COTTON<br/>20S</span>
                   </div>
-                  <div className="p-3 h-28 flex flex-col">
-                    <span className="text-[7px] font-black uppercase text-gray-400 mb-2 tracking-widest">Category:</span>
-                    <span className="text-[11px] font-black uppercase">Top</span>
+                  <div className="p-2 flex flex-col relative border-r-0">
+                    <span className="text-[6px] font-black text-gray-400 mb-1 uppercase tracking-widest">Category:</span>
+                    <span className="text-[10px] font-black">TOP</span>
                   </div>
                 </div>
 
-                {/* BOTTOM ROW: 3 COLS */}
-                <div className="grid grid-cols-3">
-                  <div className="border-r border-gray-900 p-3 h-20 flex flex-col">
-                    <span className="text-[7px] font-black uppercase text-gray-400 mb-2 tracking-widest">Color:</span>
-                    <span className="text-[10px] font-black uppercase">White, Green</span>
+                <div className="grid grid-cols-[1.2fr_1.5fr_1.2fr_1.2fr] h-14">
+                  <div className="border-r border-black p-2 flex flex-col relative">
+                    <span className="text-[6px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">Color:</span>
+                    <span className="text-[9px] font-black">WHITE, GREEN</span>
                   </div>
-                  <div className="border-r border-gray-900 p-3 h-20 flex flex-col">
-                    <span className="text-[7px] font-black uppercase text-gray-400 mb-2 tracking-widest">Date:</span>
-                    <span className="text-[10px] font-black uppercase leading-tight">July 2024</span>
+                  <div className="border-r border-black p-2 flex flex-col relative">
+                    <span className="text-[6px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">Date:</span>
+                    <span className="text-[9px] font-black">JULY 2024</span>
                   </div>
-                  <div className="p-3 h-20 flex flex-col">
-                    <span className="text-[7px] font-black uppercase text-gray-400 mb-2 tracking-widest">Size Range:</span>
-                    <span className="text-[11px] font-black uppercase">L - XXL</span>
+                  <div className="border-r border-black p-2 flex flex-col relative">
+                    <span className="text-[6px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">Size Range:</span>
+                    <span className="text-[9px] font-black">L - XXL</span>
                   </div>
+                  <div className="bg-gray-50 flex items-center justify-center p-2 text-[6px] text-gray-300 font-mono">CONFIDENTIAL_DOC.X</div>
                 </div>
               </div>
 
-              {/* VERTICAL STACKED INTERACTION AREA (Matches Screenshot) */}
-              <div className="relative bg-[#fcfcfc] overflow-hidden group mb-1 border border-gray-900 p-12 space-y-32">
-                 <div className="absolute inset-0 blueprint-grid opacity-60 pointer-events-none" />
+              {/* 1:1 TECHNICAL PAGE — MATCHES REFERENCE LAYOUT */}
+              <div className="relative bg-[#FCFBFF] py-10 px-6 overflow-visible">
+                 <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-40" />
                  
-                 {/* STICKY LEFT COLUMN ARTIFACTS (Swatches & Side View) */}
-                 <div className="absolute left-10 top-10 space-y-12 z-20">
-                    <div>
-                       <span className="text-[8px] font-black uppercase text-violet-600 block mb-2 tracking-widest">Color<br/>Swatches</span>
-                       <div className="space-y-1">
+                 <div className="relative z-10 flex gap-4">
+                    
+                    {/* LEFT COLUMN: COLOR SWATCHES */}
+                    <div className="flex flex-col gap-4 pt-6 shrink-0 w-[90px]">
+                       <span className="text-[8px] font-black uppercase text-black tracking-widest leading-tight">COLOR<br/>SWATCHES</span>
+                       <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
-                             <div className="w-6 h-3 overflow-hidden">
-                                <TshirtSwatch color={tshirtColor} />
-                             </div>
-                             <span className="text-[6px] font-mono font-bold">CMYK: 21 0 85 7</span>
+                             <div className="w-6 h-6 bg-[#D4DF72] border border-black shrink-0" />
                           </div>
+                          <span className="text-[7px] font-black uppercase">CMYK: 21 0 85 7</span>
+                       </div>
+                       <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
-                             <div className="w-6 h-3 border border-gray-300 rounded-sm bg-gray-100" />
-                             <span className="text-[6px] font-mono font-bold text-gray-400">CMYK: 0 0 0 0</span>
+                             <div className="w-6 h-6 bg-white border border-black shrink-0" />
                           </div>
+                          <span className="text-[7px] font-black uppercase">CMYK: 0 0 0 0</span>
                        </div>
                     </div>
 
-                    <div className="border border-gray-900 p-2 bg-white w-32 shadow-sm">
-                       <span className="text-[7px] font-black uppercase text-gray-400 block mb-2 tracking-widest">Side View</span>
-                       <div className="w-full aspect-video bg-gray-50 flex items-center justify-center opacity-30">
-                          <LayersIcon size={10} className="text-gray-400" />
-                       </div>
-                       <div className="mt-2 h-[1px] w-full bg-violet-200" />
-                    </div>
-                 </div>
-
-                 {/* 3-ELEVATION TECHNICAL ECOSYSTEM (Front, Back, Side) */}
-                 <div className="relative flex flex-col items-center gap-16 py-8">
-                    {/* TOP SECTION: BACK & SIDE */}
-                    <div className="flex items-center gap-12">
-                       {/* SIDE VIEW ARTIFACT */}
-                       <div className="w-56 h-80 bg-white border border-gray-900 p-2 shadow-sm relative">
-                          <span className="absolute -top-6 left-0 text-[10px] font-black uppercase text-violet-600 tracking-widest">Side Profile 0.3</span>
-                          <div className="w-full h-full bg-[#f9f9f9] flex flex-col items-center justify-center opacity-40">
-                             <LayersIcon size={32} className="text-gray-300 mb-4" />
-                             <div className="w-12 h-1 bg-violet-200 mb-2" />
-                             <span className="text-[7px] font-mono text-gray-400">OFFSET_PROFILE_L</span>
-                          </div>
-                          {/* Pointer line to main body */}
-                          <div className="absolute top-1/2 -right-12 w-12 h-[1px] bg-violet-600/30" />
-                       </div>
-
-                       {/* BACK VIEW MAIN */}
-                       <div className="w-[350px] aspect-square relative design-container bg-white/50 border border-gray-900/10 shadow-lg">
-                          <DesignCanvas
-                            elements={elements}
-                            selectedId={selectedId}
-                            onSelectElement={setSelectedId}
-                            onMoveElement={handleMoveElement}
-                            onResizeElement={handleResizeElement}
-                            onPushHistory={() => pushHistory(elements)}
-                            onDropImage={handleDropImage}
-                            side="back"
-                            tshirtColor={tshirtColor}
-                            zoom={65}
-                          />
-                          <span className="absolute top-3 left-3 px-2 py-1 bg-black text-white text-[9px] font-black uppercase tracking-tighter">Back Elevation</span>
-                       </div>
-                    </div>
-
-                    <div className="h-[2px] w-full max-w-4xl bg-gray-900/10 border-dashed border-t" />
-
-                    {/* BOTTOM SECTION: FRONT VIEW */}
-                    <div className="w-[350px] aspect-square relative design-container bg-white/50 border border-gray-900/10 shadow-lg transition-all hover:border-violet-600/30">
-                       <DesignCanvas
-                         elements={elements}
-                         selectedId={selectedId}
-                         onSelectElement={setSelectedId}
-                         onMoveElement={handleMoveElement}
-                         onResizeElement={handleResizeElement}
-                         onPushHistory={() => pushHistory(elements)}
-                         onDropImage={handleDropImage}
-                         side="front"
-                         tshirtColor={tshirtColor}
-                         zoom={65}
-                       />
-                       <span className="absolute top-3 left-3 px-2 py-1 bg-black text-white text-[9px] font-black uppercase tracking-tighter">Front Elevation</span>
+                    {/* CENTER COLUMN: MAIN ELEVATIONS */}
+                    <div className="flex flex-col gap-10 flex-1">
                        
-                       {/* Zoom/Detail Indicator Front */}
-                       <div className="absolute -right-24 top-1/2 -translate-y-1/2 w-20 h-20 border border-gray-900 p-1 bg-white flex items-center justify-center opacity-30">
-                          <Maximize2 size={12} />
+                       {/* BACK VIEW — TOP */}
+                       <div className="flex gap-6 items-start">
+                          <div className="flex flex-col items-center flex-1">
+                             <span className="text-[9px] font-black uppercase text-black mb-3 tracking-widest">BACK VIEW</span>
+                             <div className="w-full max-w-[420px] aspect-square relative">
+                                <DesignCanvas
+                                   elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
+                                   onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
+                                   onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
+                                   side="back" tshirtColor={tshirtColor}
+                                />
+                             </div>
+                          </div>
+                          {/* BACK VIEW EXTRACT — small square */}
+                          <div className="flex flex-col items-center shrink-0 pt-8">
+                             <span className="text-[7px] font-black uppercase text-black mb-2 tracking-widest">BACK VIEW</span>
+                             <div className="w-[160px] h-[160px] bg-white border border-black relative">
+                                <Image src="/mockups/user_tshirt_back.png" alt="Back extract" fill style={{objectFit:'contain'}} />
+                             </div>
+                          </div>
                        </div>
-                    </div>
-                 </div>
 
-              </div>
+                       {/* FRONT VIEW + SIDE VIEW — BOTTOM */}
+                       <div className="flex gap-6 items-end">
+                          {/* SIDE VIEW — small rectangle at left */}
+                          <div className="flex flex-col items-center shrink-0 pb-4">
+                             <span className="text-[7px] font-black uppercase text-black mb-2 tracking-widest">SIDE VIEW</span>
+                             <div className="w-[90px] h-[160px] bg-white border border-black relative">
+                                <Image src="/mockups/user_tshirt_front.png" alt="Side view" fill style={{objectFit:'contain'}} />
+                             </div>
+                          </div>
 
-              {/* Sheet Footer */}
-              <div className="bg-white p-4 flex justify-between items-center border border-gray-900">
-                 <div className="text-[7px] font-mono opacity-60 uppercase leading-none space-y-1">
-                    <div>TECHNICAL PROPERTY OF UNISPACE STUDIO</div>
-                    <div className="text-violet-600 font-bold">STRICTLY CONFIDENTIAL / NON-REPLICABLE</div>
-                 </div>
-                 <div className="flex items-center gap-8">
-                    <div className="flex flex-col items-end">
-                       <span className="text-[7px] font-black uppercase text-gray-500">Protocol</span>
-                       <span className="text-[10px] font-bold font-mono text-green-600 animate-pulse">ACTIVE_STATE</span>
-                    </div>
-                    <div className="w-[1px] h-8 bg-gray-200" />
-                    <div className="text-right">
-                       <span className="text-[7px] font-black uppercase text-gray-500">Sheet</span>
-                       <span className="text-[12px] font-bold font-mono">01 OF 01</span>
+                          {/* FRONT VIEW — main large */}
+                          <div className="flex flex-col items-center flex-1">
+                             <span className="text-[9px] font-black uppercase text-black mb-3 tracking-widest">FRONT VIEW</span>
+                             <div className="w-full max-w-[420px] aspect-square relative">
+                                <DesignCanvas
+                                   elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
+                                   onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
+                                   onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage}
+                                   side="front" tshirtColor={tshirtColor}
+                                />
+                             </div>
+                          </div>
+
+                          {/* FRONT DETAIL — small square at right */}
+                          <div className="flex flex-col items-center shrink-0 pb-4">
+                             <span className="text-[7px] font-black uppercase text-black mb-2 tracking-widest">FRONT VIEW</span>
+                             <div className="w-[130px] h-[130px] bg-white border border-black relative">
+                                <Image src="/mockups/user_tshirt_front.png" alt="Front extract" fill style={{objectFit:'contain'}} />
+                             </div>
+                          </div>
+                       </div>
                     </div>
                  </div>
               </div>
            </div>
         </section>
 
-        {/* RIGHT: MULTI-TAB INTELLIGENCE SIDEBAR (30%) */}
-        <aside className="flex-[0.30] h-full bg-white border-l border-gray-200 flex flex-col shadow-2xl z-40 overflow-hidden">
-           
-           {/* Tab Navigation (Horizontal Strip) */}
-           <div className="flex bg-black p-1 shrink-0 overflow-x-auto scrollbar-hide">
+        {/* ─── SIDEBAR (RIGHT) ─── */}
+        <aside className="w-96 h-full bg-white border-l border-gray-100 flex flex-col shadow-xl z-40 overflow-hidden">
+           <div className="flex bg-gray-50 p-1">
               {([
                 { id: "ai", icon: Zap, label: "AI" },
-                { id: "assets", icon: ImageIcon, label: "Library" },
-                { id: "type", icon: TypeIcon, label: "Type" },
-                { id: "color", icon: PaletteIcon, label: "Color" },
-                { id: "layers", icon: LayersIcon, label: "Layers" }
+                { id: "assets", icon: ImageIcon, label: "Guide" },
+                { id: "color", icon: PaletteIcon, label: "Palette" },
+                { id: "layers", icon: LayersIcon, label: "List" }
               ] as const).map((t) => (
                 <button
-                  key={t.id}
-                  onClick={() => setActiveTab(t.id)}
-                  className={`flex-1 flex flex-col items-center py-3 px-1 rounded-xl transition-all ${activeTab === t.id ? 'bg-violet-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-                  title={t.label}
-                  aria-label={t.label}
+                  key={t.id} onClick={() => setActiveTab(t.id)}
+                  className={`flex-1 flex flex-col items-center py-2.5 rounded-lg transition-all ${activeTab === t.id ? 'bg-white text-violet-600 shadow-sm' : 'text-gray-400 hover:bg-gray-100 hover:text-black'}`}
+                  title={t.label} aria-label={t.label}
                 >
-                  <t.icon size={18} />
-                  <span className="text-[8px] font-bold uppercase mt-1 tracking-widest">{t.label}</span>
+                  <t.icon size={16} />
+                  <span className="text-[8px] font-black mt-1 uppercase tracking-tighter">{t.label}</span>
                 </button>
               ))}
            </div>
 
-           {/* ADDED: Side Selector for adding elements */}
-           <div className="bg-gray-50 border-b border-gray-200 p-2 flex gap-1">
-              <button 
-                onClick={() => setSide("front")}
-                className={`flex-1 py-1 text-[8px] font-black uppercase rounded-lg border transition-all ${side === 'front' ? 'bg-black text-white border-black' : 'bg-white text-gray-400 border-gray-200'}`}
-              >
-                Front View Active
-              </button>
-              <button 
-                onClick={() => setSide("back")}
-                className={`flex-1 py-1 text-[8px] font-black uppercase rounded-lg border transition-all ${side === 'back' ? 'bg-black text-white border-black' : 'bg-white text-gray-400 border-gray-200'}`}
-              >
-                Back View Active
-              </button>
-           </div>
-
-           <div className="flex-1 overflow-y-auto scrollbar-hide p-6 bg-[#fcfcfc]">
-              
-              {/* Tab Content: AI GENERATION */}
+           <div className="flex-1 overflow-y-auto scrollbar-hide p-4 bg-[#F8F9FA]">
               {activeTab === "ai" && (
-                 <div className="flex flex-col h-full animate-in fade-in duration-300">
-                   <div className="px-6 py-4 bg-black/95 text-white">
-                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-violet-400 block mb-1">Intelligence Engine v4</span>
-                      <p className="text-[10px] text-gray-500 font-medium leading-relaxed">System pre-loaded with high-fidelity streetwear artifacts.</p>
-                   </div>
-                   
-                   <div className="flex-1 overflow-y-auto p-4 scrollbar-hide space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
-                        {messages.filter(m => m.role === "ai").flatMap(m => m.images || []).map((img) => (
-                           <button 
-                              key={img.id} 
-                              onClick={() => handleDropImage(img, 130, 150)} 
-                              className="group relative aspect-square rounded-2xl bg-white border border-gray-100 overflow-hidden hover:scale-105 transition-all shadow-sm"
-                              title={`Add ${img.label}`}
-                              aria-label={`Add ${img.label}`}
-                           >
-                              <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" />
-                              <div className="absolute inset-0 bg-violet-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                 <Plus size={20} className="text-white" />
-                              </div>
-                              <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/80 text-[6px] font-black text-white uppercase tracking-widest">{img.label}</div>
-                           </button>
-                        ))}
-                      </div>
-                   </div>
+                 <div className="space-y-6">
+                    <div className="p-6 bg-black rounded-3xl text-white relative overflow-hidden group">
+                       <span className="text-[8px] font-black uppercase tracking-[0.4em] text-violet-400">Gen-V4 Protocol</span>
+                       <p className="text-[10px] text-gray-500 mt-2 font-medium">Precision industrial asset generation engaged.</p>
+                       <Zap className="absolute -right-4 -bottom-4 w-24 h-24 text-white/5 group-hover:text-violet-600/20 transition-all duration-1000" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                       {messages.filter(m => m.role === "ai").flatMap(m => m.images || []).map((img) => (
+                          <button key={img.id} onClick={() => handleDropImage(img, 120, 150)} className="group relative aspect-square bg-white border border-gray-100 rounded-2xl overflow-hidden hover:scale-105 transition-all shadow-sm" title={`Add ${img.label}`}>
+                             <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-cover grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                             <div className="absolute inset-0 bg-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><Plus size={20} className="text-white shadow-lg" /></div>
+                          </button>
+                       ))}
+                    </div>
 
-                   {isLoading && (
-                     <div className="py-8 flex flex-col items-center justify-center animate-pulse text-violet-600 gap-2 bg-gray-50 border-y border-gray-100">
-                        <Zap className="animate-bounce" size={16} />
-                        <span className="text-[8px] font-black uppercase tracking-[0.2em]">Synthesizing Artifacts...</span>
-                     </div>
-                   )}
-
-                   <div className="p-4 bg-white border-t border-gray-100">
-                      <div className="relative">
-                         <input 
-                           value={chatInput}
-                           onChange={(e) => setChatInput(e.target.value)}
-                           onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                           placeholder="Describe new motif (e.g. Chrome Lotus)..." 
-                           className="w-full bg-gray-50 border border-gray-200 rounded-full pl-6 pr-12 py-3 text-[11px] text-black focus:ring-2 focus:ring-violet-500 outline-none transition-all" 
-                         />
-                         <button 
-                           onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                           disabled={isLoading}
-                           className="absolute right-1.5 top-1.5 w-7 h-7 rounded-full bg-violet-600 flex items-center justify-center hover:scale-110 active:scale-95 transition-all disabled:opacity-30 shadow-lg text-white"
-                           title="Generate Designs"
-                           aria-label="Generate Designs"
-                         >
-                            <Zap size={12} fill="currentColor" />
-                         </button>
-                      </div>
-                   </div>
+                    <div className="relative mt-8">
+                       <input 
+                          value={chatInput} onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
+                          placeholder="Synthesize design..." 
+                          className="w-full bg-white border-2 border-transparent focus:border-violet-600 rounded-2xl px-5 py-3 text-[11px] shadow-sm outline-none transition-all" />
+                       <button onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))} disabled={isLoading} className="absolute right-2 top-2 w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg" title="Synthesize"><Zap size={14} /></button>
+                    </div>
                  </div>
-               )}
+              )}
 
-              {/* Tab Content: IMAGE LIBRARY (STREETWEAR GRID - 1:1 PARITY) */}
               {activeTab === "assets" && (
-                <div className="flex flex-col h-[750px] bg-[#f8f8f8] p-4 rounded-[3rem] border border-gray-200 shadow-inner animate-in fade-in duration-500">
-                   
-                   {/* Header Pill */}
-                   <div className="flex items-center justify-between mb-8 px-4 mt-2">
-                      <div className="flex gap-2 items-center">
-                         <div className="w-10 h-6 border-[2px] border-black rounded-full flex items-center justify-center text-[10px] font-black">000</div>
-                         <div className="w-6 h-0.5 border-t border-dashed border-gray-400" />
-                         <div className="px-8 py-2 border-[2px] border-black rounded-full text-[12px] font-black uppercase tracking-widest bg-white">Font Pairing Guide</div>
-                         <div className="w-6 h-0.5 border-t border-dashed border-gray-400" />
-                         <div className="w-10 h-6 border-[2px] border-black rounded-full flex items-center justify-center text-[10px] font-black">000</div>
-                      </div>
-                   </div>
+                 /* IMAGE 2 ACCURATE FONT PAIRING GUIDE SIDEBAR */
+                 <div className="bg-[#f0f0f0] rounded-[2.5rem] border border-gray-200 p-6 shadow-inner flex flex-col h-[750px] animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
+                    <div className="flex items-center justify-between gap-3 mb-8">
+                       <div className="w-10 h-6 border-[1.5px] border-black rounded-full flex items-center justify-center text-[8px] font-black bg-white">000</div>
+                       <div className="flex-1 h-px border-t border-dashed border-black/20" />
+                       <div className="px-5 py-1.5 border-[1.5px] border-black rounded-full text-[10px] font-black uppercase tracking-widest bg-white">FONT PAIRING GUIDE</div>
+                       <div className="flex-1 h-px border-t border-dashed border-black/20" />
+                       <div className="w-10 h-6 border-[1.5px] border-black rounded-full flex items-center justify-center text-[8px] font-black bg-white">000</div>
+                    </div>
 
-                   <p className="text-[10px] font-black uppercase text-center mb-10 tracking-widest leading-relaxed text-gray-400 px-12">
-                      AND REMEMBER THAT EVEN WITH THE BEST INSTRUCTIONS<br/>YOU ALWAYS HAVE TO LEARN ON THE GO
-                   </p>
+                    <p className="text-[7.5px] font-black uppercase text-center mb-10 tracking-[0.1em] text-gray-500 leading-relaxed px-6">
+                       AND REMEMBER THAT EVEN WITH THE BEST INSTRUCTIONS<br/>YOU ALWAYS HAVE TO LEARN ON THE GO
+                    </p>
 
-                   <div className="flex-1 overflow-y-auto scrollbar-hide px-6 space-y-20 pb-12">
-                      {/* ROW 1: Font & Get Ready */}
-                      <div className="grid grid-cols-2 gap-12 items-end">
-                         <div className="cursor-pointer group flex flex-col" onClick={() => handleAddText("Font", "Cormorant Garamond")}>
-                            <div className="text-[64px] font-serif italic leading-[0.8] group-hover:text-violet-600 transition-colors">Font</div>
-                            <div className="text-[16px] font-black uppercase tracking-widest mt-1 text-black">Pairing + Guide</div>
-                            <div className="text-[8px] font-mono mt-2 opacity-40">TM 2024</div>
-                         </div>
-                         <div className="cursor-pointer group text-right flex flex-col items-end" onClick={() => handleAddText("Get Ready", "Permanent Marker")}>
-                            <div className="text-[10px] font-black uppercase tracking-tighter mb-2 opacity-40">All tickets available</div>
-                            <div className="text-[48px] font-marker leading-none group-hover:text-violet-600 transition-colors -rotate-2">Get Ready</div>
-                            <div className="text-[10px] font-black mt-2 opacity-40">MAY 15TH</div>
-                         </div>
-                      </div>
+                    <div className="flex-1 overflow-y-auto scrollbar-hide space-y-16 pb-12">
+                       <div className="grid grid-cols-2 gap-8 items-end px-2">
+                          <button onClick={() => handleAddText("Font", "Cormorant Garamond")} className="text-left group cursor-pointer" title="Add Font Design">
+                             <div className="text-[52px] font-serif italic leading-[0.7] group-hover:text-violet-600 transition-colors">Font</div>
+                             <div className="text-[9px] font-black uppercase tracking-[0.2em] mt-2 border-t border-black pt-1">PAIRING + GUIDE</div>
+                          </button>
+                          <button onClick={() => handleAddText("Get Ready", "Permanent Marker")} className="text-right group cursor-pointer flex flex-col items-end" title="Add Get Ready Design">
+                             <span className="text-[7px] font-black uppercase tracking-tighter opacity-40 mb-1">ALL TICKETS AVAILABLE</span>
+                             <div className="text-[38px] font-marker leading-none -rotate-2 group-hover:text-violet-600 transition-colors">Get Ready</div>
+                          </button>
+                       </div>
 
-                      {/* ROW 2: Broken Heart & Milk & Honey */}
-                      <div className="grid grid-cols-2 gap-12 items-center border-y-2 border-dashed border-gray-200 py-16">
-                         <div className="cursor-pointer group flex flex-col" onClick={() => handleAddText("BROKEN HEART", "Space Grotesk")}>
-                            <div className="text-[38px] font-black leading-none tracking-tighter group-hover:text-violet-600 transition-colors uppercase">BROKEN</div>
-                            <div className="flex items-center gap-2 my-2 w-full">
-                               <div className="h-[2px] flex-1 bg-black" />
-                               <span className="text-[8px] font-mono font-bold">W / S 2025</span>
-                               <div className="h-[2px] flex-1 bg-black" />
-                            </div>
-                            <div className="text-[42px] font-black leading-none tracking-tighter group-hover:text-violet-600 transition-colors uppercase text-black">HEART</div>
-                            <div className="text-[7px] font-black uppercase text-center mt-2 tracking-widest opacity-40">The Open Theater Comedy</div>
-                         </div>
-                         <div className="cursor-pointer group flex flex-col" onClick={() => handleAddText("MILK & HONEY", "Space Grotesk")}>
-                             <div className="text-[52px] font-black leading-[0.85] tracking-tighter group-hover:text-violet-600 transition-colors">MILK</div>
-                             <div className="text-[48px] font-black leading-[0.85] tracking-tighter group-hover:text-violet-600 transition-colors">& HONEY</div>
-                             <div className="text-[9px] font-mono font-bold mt-2 text-right opacity-40 uppercase">RESERVED</div>
-                         </div>
-                      </div>
+                       <div className="grid grid-cols-2 gap-8 items-center border-y border-dashed border-black/20 py-12 px-2">
+                          <button onClick={() => handleAddText("BROKEN HEART", "Space Grotesk")} className="text-left group cursor-pointer flex flex-col" title="Add Broken Heart Design">
+                             <div className="text-[28px] font-black tracking-tighter leading-none group-hover:text-violet-600 transition-colors">BROKEN</div>
+                             <div className="flex items-center gap-1 my-1.5"><div className="h-px flex-1 bg-black"/><span className="text-[6px] font-black">W / S 2025</span><div className="h-px flex-1 bg-black"/></div>
+                             <div className="text-[32px] font-black tracking-tighter leading-none group-hover:text-violet-600 transition-colors">HEART</div>
+                          </button>
+                          <button onClick={() => handleAddText("MILK & HONEY", "Space Grotesk")} className="text-right group cursor-pointer flex flex-col items-end" title="Add Milk & Honey Design">
+                             <div className="text-[42px] font-black leading-[0.8] tracking-tighter group-hover:text-violet-600 transition-colors">MILK</div>
+                             <div className="text-[38px] font-black leading-[0.8] tracking-tighter group-hover:text-violet-600 transition-colors">& HONEY</div>
+                          </button>
+                       </div>
 
-                      {/* ROW 3: Learn & Weird */}
-                      <div className="grid grid-cols-2 gap-12 items-start">
-                         <div className="cursor-pointer group flex flex-col" onClick={() => handleAddText("Learn", "Cormorant Garamond")}>
-                            <div className="text-[64px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Learn</div>
-                            <div className="text-[18px] font-black uppercase tracking-widest -mt-2">free font to LISTEN</div>
-                         </div>
-                         <div className="cursor-pointer group text-right flex flex-col items-end" onClick={() => handleAddText("Weird", "DM Serif Display")}>
-                            <div className="text-[58px] font-serif leading-none group-hover:text-violet-600 transition-colors">Weird</div>
-                            <div className="text-[10px] font-black uppercase mt-1 tracking-widest text-black">People rule the world</div>
-                            <div className="text-[8px] font-mono opacity-40 mt-1 uppercase">May 2025</div>
-                         </div>
-                      </div>
-
-                      {/* Footer Artifacts (QR + Made By) */}
-                      <div className="pt-16 border-t border-dashed border-gray-200 flex flex-col items-center gap-10">
-                          <div className="flex gap-10 items-center">
-                             <div className="w-28 h-28 border-[3px] border-black p-2 bg-white flex items-center justify-center">
-                                <div className="w-full h-full relative">
-                                   <div className="absolute inset-0 grid grid-cols-5 grid-rows-5 gap-1 p-1">
-                                      {Array.from({length: 25}).map((_, i) => (
-                                         <div key={i} className={`bg-black ${ (i % 3 === 0 || i % 4 === 1 || i === 22) ? 'opacity-100' : 'opacity-0' }`} />
-                                      ))}
-                                   </div>
-                                </div>
+                       <div className="grid grid-cols-2 gap-8 items-end px-2">
+                          <button onClick={() => handleAddText("Learn", "Cormorant Garamond")} className="text-left group cursor-pointer flex flex-col" title="Add Learn Design">
+                             <div className="text-[48px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Learn</div>
+                             <div className="flex items-center gap-2 mt-[-8px]">
+                                <span className="text-[12px] font-marker text-gray-400">free font</span>
+                                <span className="text-[7px] font-black uppercase tracking-widest text-black">to Listen</span>
                              </div>
-                             <div className="flex-1 text-left">
-                                <p className="text-[10px] font-black uppercase text-gray-400 mb-6 leading-relaxed">
-                                   YOUR DESIGN IS SPECIAL ONLY BECAUSE<br/>
-                                   S MADE BY YOU, SO PUT SOME OF YOUR SOUL INTO IT
-                                </p>
-                                <div className="flex gap-3 items-center">
-                                   <div className="px-10 py-3 border-[3px] border-black rounded-full text-[12px] font-black uppercase tracking-widest bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MADE BY AMTAKETHAT</div>
-                                   <div className="w-10 h-0.5 border-t border-dashed border-gray-400" />
-                                   <div className="px-6 py-3 border-[3px] border-black rounded-full text-[10px] font-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MAY</div>
-                                </div>
-                             </div>
-                          </div>
-                      </div>
-                   </div>
-                </div>
+                          </button>
+                          <button onClick={() => handleAddText("Weird", "Cormorant Garamond")} className="text-right group cursor-pointer flex flex-col items-end" title="Add Weird Design">
+                             <div className="text-[52px] font-serif italic leading-none group-hover:text-violet-600 transition-colors">Weird</div>
+                             <div className="text-[7px] font-black uppercase tracking-[0.1em] text-center mt-1">MAY 2025 PEOPLE RULE THE WORLD</div>
+                          </button>
+                       </div>
+
+                       <div className="pt-10 border-t border-dashed border-black/20 flex flex-col items-center gap-6">
+                           <div className="flex gap-8 items-center w-full px-2">
+                              <div className="w-20 h-20 border-2 border-black bg-white flex items-center justify-center p-1.5 grayscale shrink-0">
+                                 <div className="w-full h-full bg-black grid grid-cols-5 grid-rows-5 gap-0.5 p-0.5 opacity-80">
+                                    {Array.from({length: 25}).map((_, i) => (<div key={i} className={`bg-white ${(i % 3 === 0 || i % 4 === 1) ? 'opacity-100' : 'opacity-0'}`} />))}
+                                 </div>
+                              </div>
+                              <div className="flex-1 flex flex-col gap-3">
+                                 <div className="px-6 py-2 border-[1.5px] border-black rounded-full text-[9px] font-black uppercase bg-white text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">MADE BY AMTAKETHAT</div>
+                                 <div className="w-full flex items-center justify-center gap-2">
+                                    <div className="flex-1 h-px border-t border-dashed border-black/20" />
+                                    <span className="text-[8px] font-black uppercase tracking-widest px-3 border border-black rounded-full bg-white">MAY</span>
+                                    <div className="flex-1 h-px border-t border-dashed border-black/20" />
+                                 </div>
+                              </div>
+                           </div>
+                       </div>
+                    </div>
+                 </div>
               )}
 
-              {/* Tab Content: COLORS */}
-              {activeTab === "color" && (
-                <div className="space-y-8 animate-in fade-in duration-300">
-                   <div className="flex items-center justify-between mb-4">
-                      <span className="text-[11px] font-black uppercase tracking-widest border-l-4 border-violet-600 pl-3">Apparel Colorway</span>
-                      <span className="text-[10px] font-mono font-bold text-gray-400">{tshirtColor.toUpperCase()}</span>
-                   </div>
-                   <PaletteContainer current={tshirtColor} onSelect={setTshirtColor} />
-                </div>
-              )}
-
-              {/* Tab Content: LAYERS */}
               {activeTab === "layers" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                   <div className="flex items-center justify-between mb-4">
-                      <span className="text-[11px] font-black uppercase tracking-widest border-l-4 border-violet-600 pl-3">Design Stack</span>
-                      <span className="text-[10px] text-gray-400 font-bold">{elements.length} Elements</span>
-                   </div>
+                <div className="space-y-3 animate-in fade-in duration-300">
                    {elements.length === 0 ? (
-                      <div className="py-20 text-center opacity-20 grayscale">
-                         <LayersIcon size={32} className="mx-auto" />
-                         <p className="text-[10px] font-black uppercase tracking-widest mt-4">Empty stack</p>
-                      </div>
+                      <div className="py-20 text-center opacity-10"><LayersIcon size={32} className="mx-auto" /><p className="text-[8px] font-black uppercase mt-4">Empty stack</p></div>
                    ) : (
                       <div className="space-y-2">
                         {elements.slice().reverse().map((el) => (
-                           <div key={el.id} className={`flex items-center gap-4 p-4 rounded-2xl bg-white border transition-all ${selectedId === el.id ? 'border-violet-600 shadow-md translate-x-1' : 'border-gray-100 hover:border-gray-200'}`}>
-                              <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                                 {el.type === "image" ? <ImageIcon size={16} className="text-gray-400"/> : <TypeIcon size={16} className="text-gray-400"/>}
-                              </div>
+                           <div key={el.id} className={`flex items-center gap-3 p-3 rounded-2xl bg-white border transition-all ${selectedId === el.id ? 'border-violet-600 ring-4 ring-violet-50' : 'border-gray-50 hover:border-gray-100'}`}>
                               <div className="flex-1 min-w-0" onClick={() => setSelectedId(el.id)}>
-                                 <div className="text-[10px] font-black uppercase truncate">{el.label || el.text || "Element"}</div>
-                                 <div className="text-[8px] font-mono text-gray-400 uppercase">{el.type} / {el.side}</div>
+                                 <div className="text-[9px] font-black uppercase truncate">{el.label || el.text}</div>
+                                 <div className="text-[7px] font-mono text-gray-400 uppercase">{el.type} / {el.side}</div>
                               </div>
-                              <button onClick={() => setElements(prev => prev.filter(item => item.id !== el.id))} className="p-2 text-gray-300 hover:text-red-500 transition-colors" title="Delete Layer"><Trash2 size={16}/></button>
+                              <button onClick={() => setElements(prev => prev.filter(item => item.id !== el.id))} className="p-2 text-gray-300 hover:text-red-500 transition-colors" title="Delete Layer" aria-label="Delete Layer"><Trash2 size={14}/></button>
                            </div>
                         ))}
                       </div>
                    )}
                 </div>
               )}
-
-              {/* Tab Content: TYPE (Quick Add) */}
-              {activeTab === "type" && (
-                <div className="space-y-8 animate-in fade-in duration-300 text-center">
-                   <div className="flex items-center justify-between mb-4 text-left">
-                      <span className="text-[11px] font-black uppercase tracking-widest border-l-4 border-violet-600 pl-3">Typography Engine</span>
-                   </div>
-                   <button 
-                     onClick={() => handleAddText("SAMPLE TEXT", "Space Grotesk")}
-                     className="w-full py-6 border-2 border-dashed border-gray-200 rounded-[2rem] hover:border-violet-600 hover:bg-violet-50 transition-all group"
-                   >
-                     <Plus size={24} className="mx-auto text-gray-300 group-hover:text-violet-600 mb-2 transition-colors" />
-                     <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-violet-600 transition-colors">Add Typography Artifact</span>
-                   </button>
-                </div>
-              )}
-
            </div>
         </aside>
-
       </main>
 
       <style jsx global>{`
-        .blueprint-grid {
-          background-size: 32px 32px;
-          background-image:
-            linear-gradient(to right, rgba(0, 0, 0, 0.08) 1.5px, transparent 1.5px),
-            linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1.5px, transparent 1.5px);
-          mask-image: radial-gradient(circle, black 80%, transparent 100%);
+        .blueprint-lattice {
+          background-image: radial-gradient(#FBCFE8 1.5px, transparent 1.5px);
+          background-size: 20px 20px;
         }
-        
-        .design-container {
-          box-shadow: inset 0 0 40px rgba(0,0,0,0.02);
-        }
-
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
         .design-element-layer {
-          left: var(--target-x);
-          top: var(--target-y);
-          width: var(--target-w);
-          height: var(--target-h);
-          transform: rotate(var(--target-rot));
+          left: var(--target-x); top: var(--target-y); width: var(--target-w); height: var(--target-h); transform: rotate(var(--target-rot));
         }
-        
-        .design-text-element {
-          font-size: var(--text-size);
-          font-family: var(--text-font);
-          font-weight: var(--text-weight);
-          color: var(--text-color);
-        }
-        
-        .palette-swatch {
-          background-color: var(--swatch-bg);
-        }
+        .design-text-element { font-size: var(--text-size); font-family: var(--text-font); font-weight: var(--text-weight); color: var(--text-color); }
+        .palette-swatch { background-color: var(--swatch-bg); }
       `}</style>
     </div>
-  );
-}
-
-function PaletteContainer({ current, onSelect }: { current: string, onSelect: (c: string) => void }) {
-  const colors = ["#FFFFFF", "#F5F5F5", "#E0E0E0", "#BDBDBD", "#757575", "#212121", "#F44336", "#FF9800", "#4CAF50", "#2196F3"];
-  return (
-    <div className="grid grid-cols-5 gap-3">
-      {colors.map((c) => <SwatchItem key={c} color={c} active={current === c} onClick={() => onSelect(c)} />)}
-    </div>
-  );
-}
-
-function SwatchItem({ color, active, onClick }: { color: string, active: boolean, onClick: () => void }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  useLayoutEffect(() => {
-    ref.current?.style.setProperty("--swatch-bg", color);
-  }, [color]);
-  return (
-    <button 
-      ref={ref}
-      onClick={onClick}
-      className={`w-full aspect-square rounded-xl border border-gray-100 transition-all hover:scale-110 shadow-sm palette-swatch ${active ? 'ring-2 ring-violet-600 ring-offset-2 scale-110' : ''}`}
-      title={`Select Color ${color}`}
-      aria-label={`Select Color ${color}`}
-    />
-  );
-}
-
-function TshirtSwatch({ color }: { color: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    ref.current?.style.setProperty("--swatch-bg", color);
-  }, [color]);
-  return (
-    <div 
-      ref={ref}
-      className="w-full h-full border border-gray-300 rounded-sm palette-swatch"
-      title={`Current Palette: ${color}`}
-    />
   );
 }

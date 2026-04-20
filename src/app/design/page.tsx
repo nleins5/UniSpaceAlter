@@ -41,15 +41,27 @@ interface ChatMessage {
 // ─── Component: TShirtMockup (Image-Based Mechanical Flat) ───────────────
 function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const isFront = side === "front";
+  const imgSrc = isFront ? "/mockups/user_tshirt_front.png" : "/mockups/user_tshirt_back.png";
   const isWhite = color === "#FFFFFF" || color === "#ffffff" || color === "#F2F0E9";
   return (
     <div className="w-full h-full relative">
-      {/* Color underlay — shows through white areas of the PNG via multiply blend */}
+      {/* Color layer masked to shirt silhouette — never bleeds onto grid */}
       {!isWhite && (
-        <div className="absolute inset-[8%] rounded-sm" style={{ backgroundColor: color, opacity: 0.35 }} />
+        <div className="absolute inset-0" style={{ 
+          backgroundColor: color,
+          WebkitMaskImage: `url(${imgSrc})`,
+          maskImage: `url(${imgSrc})`,
+          WebkitMaskSize: 'contain',
+          maskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          maskPosition: 'center',
+          opacity: 0.45
+        }} />
       )}
       <Image 
-        src={isFront ? "/mockups/user_tshirt_front.png" : "/mockups/user_tshirt_back.png"} 
+        src={imgSrc}
         alt={`Shirt ${side}`} 
         fill
         priority

@@ -39,16 +39,22 @@ interface ChatMessage {
 }
 
 // ─── Component: TShirtMockup (Image-Based Mechanical Flat) ───────────────
-function TShirtSVG({ side = "front" }: { color: string; side?: "front" | "back" }) {
+function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
   const isFront = side === "front";
+  const isWhite = color === "#FFFFFF" || color === "#ffffff" || color === "#F2F0E9";
   return (
     <div className="w-full h-full relative">
+      {/* Color underlay — shows through white areas of the PNG via multiply blend */}
+      {!isWhite && (
+        <div className="absolute inset-[8%] rounded-sm" style={{ backgroundColor: color, opacity: 0.35 }} />
+      )}
       <Image 
         src={isFront ? "/mockups/user_tshirt_front.png" : "/mockups/user_tshirt_back.png"} 
         alt={`Shirt ${side}`} 
         fill
         priority
-        style={{ objectFit: "contain" }}
+        className="relative z-10"
+        style={{ objectFit: "contain", mixBlendMode: isWhite ? 'normal' : 'multiply' }}
       />
     </div>
   );
@@ -256,7 +262,7 @@ function DesignElementItem({
 export default function DesignPage() {
   const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers">("ai");
   const [side, setSide] = useState<"front" | "back">("front");
-  const [tshirtColor] = useState("#333333");
+  const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -411,31 +417,30 @@ export default function DesignPage() {
           {/* BLUEPRINT BODY — fills remaining height */}
           <div className="flex-1 relative overflow-hidden">
             <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-50" />
-            <div className="absolute inset-0 bg-[#FAFAFA]/30" />
 
             <div className="relative h-full flex p-3 overflow-hidden">
 
               {/* FAR LEFT: Color Swatches */}
               <div className="w-[55px] shrink-0 flex flex-col gap-3 pt-1 pr-2">
                 <span className="text-[5px] font-black uppercase text-black tracking-wider leading-tight block">COLOR<br/>SWATCHES</span>
-                <div>
+                <button onClick={() => setTshirtColor('#D4DF72')} className="text-left" title="Apply green">
                   <div className="w-5 h-5 bg-[#D4DF72] border border-black mb-0.5" />
                   <span className="text-[5px] font-black uppercase leading-tight block">CMYK: 21 0 85 7</span>
-                </div>
-                <div>
+                </button>
+                <button onClick={() => setTshirtColor('#FFFFFF')} className="text-left" title="Apply white">
                   <div className="w-5 h-5 bg-white border border-black mb-0.5" />
                   <span className="text-[5px] font-black uppercase leading-tight block">CMYK: 0 0 0 0</span>
-                </div>
+                </button>
               </div>
 
-              {/* MAIN: 2 shirt rows stacked */}
-              <div className="flex-1 flex flex-col gap-1 overflow-hidden">
+              {/* MAIN: 2 shirt rows — flex-1 fills available height evenly */}
+              <div className="flex-1 flex flex-col justify-between overflow-hidden h-full">
 
                 {/* ROW 1: BACK VIEW */}
-                <div className="flex gap-3 items-start shrink-0">
-                  <div className="flex flex-col items-center">
+                <div className="flex gap-3 items-start">
+                  <div className="flex flex-col items-center flex-1 min-w-0">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1">BACK VIEW</span>
-                    <div className="w-[280px] h-[260px] relative">
+                    <div className="w-full max-w-[460px] aspect-[4/3.5] relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -445,27 +450,27 @@ export default function DesignPage() {
                     </div>
                   </div>
                   {/* Back extract thumbnail */}
-                  <div className="flex flex-col items-center pt-4">
+                  <div className="flex flex-col items-center shrink-0 pt-4">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">BACK VIEW</span>
-                    <div className="w-[90px] h-[90px] border border-gray-300 relative bg-[#1A1A1A]">
+                    <div className="w-[100px] h-[100px] border border-gray-300 relative bg-[#1A1A1A]">
                       <Image src="/mockups/user_tshirt_back.png" alt="Back extract" fill className="object-contain" />
                     </div>
                   </div>
                 </div>
 
                 {/* ROW 2: FRONT VIEW */}
-                <div className="flex gap-3 items-end shrink-0">
+                <div className="flex gap-3 items-end">
                   {/* Side view */}
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center shrink-0">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">SIDE VIEW</span>
-                    <div className="w-[50px] h-[80px] border border-gray-300 relative bg-[#1A1A1A]">
+                    <div className="w-[55px] h-[90px] border border-gray-300 relative bg-[#1A1A1A]">
                       <Image src="/mockups/user_tshirt_front.png" alt="Side view" fill className="object-contain" />
                     </div>
                   </div>
                   {/* Front shirt */}
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center flex-1 min-w-0">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1">FRONT VIEW</span>
-                    <div className="w-[280px] h-[260px] relative">
+                    <div className="w-full max-w-[460px] aspect-[4/3.5] relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
@@ -475,9 +480,9 @@ export default function DesignPage() {
                     </div>
                   </div>
                   {/* Front extract thumbnail */}
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center shrink-0">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">FRONT VIEW</span>
-                    <div className="w-[70px] h-[70px] border border-gray-300 relative bg-[#1A1A1A]">
+                    <div className="w-[80px] h-[80px] border border-gray-300 relative bg-[#1A1A1A]">
                       <Image src="/mockups/user_tshirt_front.png" alt="Front extract" fill className="object-contain" />
                     </div>
                   </div>
@@ -589,21 +594,31 @@ export default function DesignPage() {
             )}
 
             {activeTab === "color" && (
-              <div className="space-y-4 animate-in fade-in duration-300">
-                <span className="text-[8px] font-black uppercase tracking-widest text-gray-500 block">Color Palette</span>
+              <div className="space-y-3 animate-in fade-in duration-300">
+                <span className="text-[8px] font-black uppercase tracking-widest text-gray-500 block">Click a color to apply to shirt</span>
+                <div className="flex items-center gap-2 p-2 bg-violet-50 rounded-xl border border-violet-200">
+                  <div className="w-6 h-6 rounded-md border-2 border-violet-400 shrink-0" ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
+                  <span className="text-[8px] font-black uppercase">Active: {tshirtColor}</span>
+                </div>
                 {[
-                  { name: "Moss Green", hex: "#2E4036" }, { name: "Clay", hex: "#CC5833" },
-                  { name: "Cream", hex: "#F2F0E9" }, { name: "Charcoal", hex: "#1A1A1A" },
-                  { name: "D4DF72", hex: "#D4DF72" }, { name: "White", hex: "#FFFFFF" },
+                  { name: "White", hex: "#FFFFFF" }, { name: "Cream", hex: "#F2F0E9" },
+                  { name: "Lime Green", hex: "#D4DF72" }, { name: "Moss Green", hex: "#2E4036" },
+                  { name: "Clay", hex: "#CC5833" }, { name: "Charcoal", hex: "#1A1A1A" },
                   { name: "Plasma", hex: "#7B61FF" }, { name: "Signal Red", hex: "#E63B2E" },
+                  { name: "Sky Blue", hex: "#87CEEB" }, { name: "Blush Pink", hex: "#FFB6C1" },
                 ].map(c => (
-                  <div key={c.hex} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-violet-300 transition-all">
-                    <div className="w-8 h-8 rounded-lg border border-gray-200 shrink-0 swatch-color" data-color={c.hex} ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
-                    <div>
-                      <div className="text-[8px] font-black uppercase">{c.name}</div>
+                  <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={`Apply ${c.name}`}
+                    className={`w-full flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
+                      tshirtColor === c.hex ? 'bg-violet-50 border-violet-400 ring-2 ring-violet-200' : 'bg-white border-gray-100 hover:border-violet-300'
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-lg border border-gray-200 shrink-0" ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
+                    <div className="text-left">
+                      <div className="text-[9px] font-black uppercase">{c.name}</div>
                       <div className="text-[7px] font-mono text-gray-400">{c.hex}</div>
                     </div>
-                  </div>
+                    {tshirtColor === c.hex && <div className="ml-auto w-2 h-2 bg-violet-500 rounded-full" />}
+                  </button>
                 ))}
               </div>
             )}

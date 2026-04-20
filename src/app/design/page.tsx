@@ -47,18 +47,18 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
     <div className="w-full h-full relative">
       {/* Color layer masked to shirt silhouette — never bleeds onto grid */}
       {!isWhite && (
-        <div className="absolute inset-0 shirt-color-mask" ref={(el) => {
-          if (!el) return;
-          el.style.setProperty('background-color', color);
-          el.style.setProperty('-webkit-mask-image', `url(${imgSrc})`);
-          el.style.setProperty('mask-image', `url(${imgSrc})`);
-          el.style.setProperty('-webkit-mask-size', 'contain');
-          el.style.setProperty('mask-size', 'contain');
-          el.style.setProperty('-webkit-mask-repeat', 'no-repeat');
-          el.style.setProperty('mask-repeat', 'no-repeat');
-          el.style.setProperty('-webkit-mask-position', 'center');
-          el.style.setProperty('mask-position', 'center');
-          el.style.setProperty('opacity', '0.45');
+        // eslint-disable-next-line
+        <div className="absolute inset-0" style={{
+          backgroundColor: color,
+          WebkitMaskImage: `url(${imgSrc})`,
+          maskImage: `url(${imgSrc})`,
+          WebkitMaskSize: 'contain',
+          maskSize: 'contain' as string,
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat' as string,
+          WebkitMaskPosition: 'center',
+          maskPosition: 'center' as string,
+          opacity: 0.5
         }} />
       )}
       <Image 

@@ -392,6 +392,21 @@ export default function DesignPage() {
     return () => window.removeEventListener('keydown', handler);
   }, [handleDeleteSelected]);
 
+  // Trackpad pinch-to-zoom (native listener with passive: false)
+  const blueprintRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = blueprintRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setZoom(z => Math.min(3, Math.max(0.3, z - e.deltaY * 0.005)));
+      }
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
+  }, []);
+
   const handleSendMessage = useCallback(async (content: string) => {
     const userMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content };
     setMessages((prev) => [...prev, userMsg]);
@@ -514,13 +529,7 @@ export default function DesignPage() {
           </div>
 
           {/* BLUEPRINT BODY — fills remaining height */}
-          <div className="flex-1 relative overflow-hidden" onWheel={(e) => {
-            // Trackpad pinch-to-zoom (ctrlKey) or Cmd+scroll
-            if (e.ctrlKey || e.metaKey) {
-              e.preventDefault();
-              setZoom(z => Math.min(3, Math.max(0.3, z - e.deltaY * 0.005)));
-            }
-          }}>
+          <div ref={blueprintRef} className="flex-1 relative overflow-hidden">
             <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-50" />
 
             <div className="relative h-full flex p-3 overflow-hidden" style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}>

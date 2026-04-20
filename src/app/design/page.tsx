@@ -553,7 +553,7 @@ export default function DesignPage() {
                         const reader = new FileReader();
                         reader.onload = (ev) => {
                           const dataUrl = ev.target?.result as string;
-                          handleDropImageToSide({ id: `logo-${Date.now()}`, url: dataUrl, label: 'LOGO' }, 230, 100, 'front', 80);
+                          handleDropImageToSide({ id: `logo-${Date.now()}`, url: dataUrl, label: 'LOGO' }, 300, 70, 'front', 80);
                           // Also store in 'side' for thumbnail preview
                           setElements(prev => [...prev, { id: `logo-thumb-${Date.now()}`, type: 'image', label: 'LOGO', url: dataUrl, x: 0, y: 0, width: 55, height: 90, rotation: 0, side: 'side' as const, locked: false }]);
                         };

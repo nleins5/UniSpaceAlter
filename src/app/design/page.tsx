@@ -31,16 +31,6 @@ interface AIImage {
   url: string;
 }
 
-// Helper: Blob → HTMLImageElement
-function createImageFromBlob(blob: Blob): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(blob);
-    const img = new window.Image();
-    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = reject;
-    img.src = url;
-  });
-}
 
 interface ChatMessage {
   id: string;
@@ -1077,7 +1067,7 @@ export default function DesignPage() {
                     <div key={size} className="text-center">
                       <div className="text-[9px] font-black uppercase text-gray-500 mb-1">{size}</div>
                       <input
-                        type="number" min="0" max="999"
+                        type="number" min="0" max="999" aria-label={`Số lượng size ${size}`}
                         value={orderInfo.sizes[size]}
                         onChange={e => setOrderInfo(p => ({...p, sizes: {...p.sizes, [size]: parseInt(e.target.value)||0}}))}
                         className="w-full border border-gray-200 rounded-xl px-1 py-2 text-sm font-black text-center outline-none focus:border-black transition-colors"

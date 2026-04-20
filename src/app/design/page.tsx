@@ -20,7 +20,7 @@ interface DesignElement {
   width: number;
   height: number;
   rotation: number;
-  side: "front" | "back";
+  side: "front" | "back" | "side";
   slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging" | "front-artwork" | "back-artwork";
   locked?: boolean;
 }
@@ -72,25 +72,51 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
-// ─── Component: MiniPreview (scaled-down live preview of DesignCanvas) ─────
-function MiniPreview({ elements, side, tshirtColor, width, height }: {
+// ─── Component: MiniPreview (scaled-down live preview, NOW DROPPABLE) ─────
+function MiniPreview({ elements, side, tshirtColor, width, height, onDropImage }: {
   elements: DesignElement[];
-  side: "front" | "back";
+  side: "front" | "back" | "side";
   tshirtColor: string;
   width: number;
   height: number;
+  onDropImage?: (image: AIImage, x: number, y: number, targetSide: "front" | "back" | "side") => void;
 }) {
   const baseW = 400, baseH = 480;
   const scaleX = width / baseW;
   const scaleY = height / baseH;
   const scale = Math.min(scaleX, scaleY);
+  const displaySide = side === "side" ? "front" : side;
   const sideElements = elements.filter(el => el.side === side);
+  const [isDropTarget, setIsDropTarget] = React.useState(false);
+
+  const handleDrop = React.useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDropTarget(false);
+    if (!onDropImage) return;
+    const data = e.dataTransfer.getData('application/json');
+    if (!data) return;
+    try {
+      const image: AIImage = JSON.parse(data);
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const localX = (e.clientX - rect.left) / scale;
+      const localY = (e.clientY - rect.top) / scale;
+      onDropImage(image, localX - 50, localY - 50, side);
+    } catch (err) { console.error(err); }
+  }, [onDropImage, scale, side]);
 
   return (
-    <div ref={(el) => { if (el) { el.style.setProperty('width', `${width}px`); el.style.setProperty('height', `${height}px`); }}} className="relative overflow-hidden border border-gray-300 bg-[#1A1A1A]">
+    <div 
+      ref={(el) => { if (el) { el.style.setProperty('width', `${width}px`); el.style.setProperty('height', `${height}px`); }}}
+      className={`relative overflow-hidden border transition-all cursor-pointer ${
+        isDropTarget ? 'border-violet-400 ring-2 ring-violet-300 bg-violet-900/20' : 'border-gray-300 bg-[#1A1A1A]'
+      }`}
+      onDragOver={(e) => { e.preventDefault(); setIsDropTarget(true); }}
+      onDragLeave={() => setIsDropTarget(false)}
+      onDrop={handleDrop}
+    >
       <div ref={(el) => { if (el) { el.style.setProperty('width', `${baseW}px`); el.style.setProperty('height', `${baseH}px`); el.style.setProperty('transform', `scale(${scale})`); el.style.setProperty('transform-origin', 'top left'); }}} className="pointer-events-none">
         <div className="w-full h-full relative">
-          <TShirtSVG color={tshirtColor} side={side} />
+          <TShirtSVG color={tshirtColor} side={displaySide} />
           {sideElements.map((el) => (
             <div key={el.id} className="absolute" ref={(node) => {
               if (!node) return;
@@ -390,6 +416,17 @@ export default function DesignPage() {
     });
   }, [side, pushHistory]);
 
+  // Drop image to a specific side (used by MiniPreview thumbnails)
+  const handleDropImageToSide = useCallback((image: AIImage, x: number, y: number, targetSide: "front" | "back" | "side") => {
+    setElements(prev => {
+      pushHistory(prev);
+      return [...prev, {
+        id: `el-${Date.now()}`, type: "image", label: image.label, url: image.url, 
+        x, y, width: 160, height: 160, rotation: 0, side: targetSide, locked: false
+      }];
+    });
+  }, [pushHistory]);
+
   const handleAddText = useCallback((text: string, font: string) => {
     setElements(prev => {
       pushHistory(prev);
@@ -512,7 +549,7 @@ export default function DesignPage() {
                   {/* Back extract thumbnail — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 pt-4">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">BACK VIEW</span>
-                    <MiniPreview elements={elements} side="back" tshirtColor={tshirtColor} width={100} height={100} />
+                    <MiniPreview elements={elements} side="back" tshirtColor={tshirtColor} width={100} height={100} onDropImage={handleDropImageToSide} />
                   </div>
                 </div>
 
@@ -521,7 +558,7 @@ export default function DesignPage() {
                   {/* Side view — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">SIDE VIEW</span>
-                    <MiniPreview elements={elements} side="front" tshirtColor={tshirtColor} width={55} height={90} />
+                    <MiniPreview elements={elements} side="side" tshirtColor={tshirtColor} width={55} height={90} onDropImage={handleDropImageToSide} />
                   </div>
                   {/* Front shirt */}
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
@@ -538,7 +575,7 @@ export default function DesignPage() {
                   {/* Front extract thumbnail — LIVE PREVIEW */}
                   <div className="flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">FRONT VIEW</span>
-                    <MiniPreview elements={elements} side="front" tshirtColor={tshirtColor} width={80} height={80} />
+                    <MiniPreview elements={elements} side="front" tshirtColor={tshirtColor} width={80} height={80} onDropImage={handleDropImageToSide} />
                   </div>
                 </div>
 

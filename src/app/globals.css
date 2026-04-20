@@ -1849,9 +1849,9 @@ body::after {
 .spec-main-shirt .canva-canvas {
   position: relative !important;
   transform: none !important;
-  width: 400px;
-  height: 480px;
-  margin-top: 40px;
+  width: 100%;
+  height: 100%;
+  margin-top: 0;
 }
 
 /* Annotation Lines for Tech Pack look */
@@ -2081,17 +2081,13 @@ body::after {
 /* ─── Canvas (T-shirt) ─── */
 .canva-canvas {
   position: relative;
-  width: 400px;
-  height: 480px;
-  transform: scale(var(--canvas-scale, 1));
-  transform-origin: top left;
+  width: 100%;
+  height: 100%;
   -webkit-user-select: none;
   user-select: none;
   touch-action: none;
-  background: #ffffff;
-  border-radius: 16px;
+  background: transparent;
   overflow: hidden;
-  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12));
 }
 
 .canva-canvas-drop-active {
@@ -7945,11 +7941,9 @@ body::after {
 
 .tech-view-col .canva-canvas {
   width: 100%;
-  max-width: 340px;
-  height: auto;
-  aspect-ratio: 400 / 480;
+  height: 100%;
   position: relative !important;
-  transform: scale(0.9) !important;
+  transform: none !important;
 }
 
 .measure-lines {

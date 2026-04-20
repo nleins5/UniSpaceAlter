@@ -104,8 +104,8 @@ export default function AdminDesignsPage() {
                     <tr key={sub.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => setSelected(sub)}>
                       <td className="px-4 py-3 text-[11px] font-mono text-gray-400">{submissions.length - i}</td>
                       <td className="px-4 py-3">
-                        <div className="w-16 h-10 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                          <Image src={sub.url} alt="design" fill className="object-contain" unoptimized />
+                        <div className="w-10 h-12 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                          <Image src={sub.url} alt="design" fill className="object-contain p-1" unoptimized />
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -153,7 +153,7 @@ export default function AdminDesignsPage() {
 
             <div className="p-6 grid grid-cols-2 gap-6">
               {/* Design preview */}
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
+              <div className="relative w-full aspect-[5/6] rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
                 <Image src={selected.url} alt="design" fill className="object-contain p-2" unoptimized />
               </div>
 

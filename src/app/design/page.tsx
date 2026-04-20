@@ -560,14 +560,27 @@ export default function DesignPage() {
             drawW = EXPORT_H * imgRatio;
             drawX = (EXPORT_W - drawW) / 2;
           }
-          if (tshirtColor !== '#FFFFFF') {
+          // Layer 1: draw shirt PNG normally (preserves collar, outline details)
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
+
+          // Layer 2: color overlay with multiply blend — matches CSS mix-blend-mode: multiply
+          if (tshirtColor !== '#FFFFFF' && tshirtColor !== '#ffffff') {
+            ctx.globalCompositeOperation = 'multiply';
             ctx.fillStyle = tshirtColor;
-            ctx.fillRect(drawX, drawY, drawW, drawH);
-            ctx.globalCompositeOperation = 'destination-in';
-            ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
+
+            // Tint only the shirt silhouette using a temp offscreen canvas
+            const tmpCanvas = document.createElement('canvas');
+            tmpCanvas.width = EXPORT_W; tmpCanvas.height = EXPORT_H;
+            const tmpCtx = tmpCanvas.getContext('2d')!;
+            tmpCtx.fillStyle = tshirtColor;
+            tmpCtx.fillRect(drawX, drawY, drawW, drawH);
+            tmpCtx.globalCompositeOperation = 'destination-in';
+            tmpCtx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
+
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.drawImage(tmpCanvas, 0, 0);
             ctx.globalCompositeOperation = 'source-over';
-          } else {
-            ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
           }
         } catch { /* shirt image not found */ }
 

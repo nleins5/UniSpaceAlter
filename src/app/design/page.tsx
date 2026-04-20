@@ -90,9 +90,11 @@ function MiniPreview({ elements, side, width, height, onDropImage }: {
     if (!data) return;
     try {
       const image: AIImage = JSON.parse(data);
-      // Always center element on the shirt (thumbnail is too small for precise positioning)
-      const dropX = side === 'back' ? 245 : 220;
-      onDropImage(image, dropX, 100, side);
+      // Side drops → front canvas at sleeve area; back/front → chest center
+      const targetSide = side === 'side' ? 'front' as const : side;
+      const dropX = side === 'back' ? 245 : side === 'side' ? 330 : 220;
+      const dropY = side === 'side' ? 120 : 100;
+      onDropImage(image, dropX, dropY, targetSide);
     } catch (err) { console.error(err); }
   }, [onDropImage, side]);
 

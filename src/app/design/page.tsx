@@ -529,28 +529,31 @@ export default function DesignPage() {
         img.src = src;
       });
 
-      // Render one side to its own 600x600 canvas
+      // Render one side to its own 800×960 canvas (= 2× design coord space 400×480)
+      // This gives perfect 1:1 positional mapping — no distortion
+      const EXPORT_W = 800, EXPORT_H = 960;
+      const SCALE = 2; // 400→800, 480→960
+
       const renderSideCanvas = async (sideName: 'front' | 'back'): Promise<HTMLCanvasElement> => {
         const c = document.createElement('canvas');
-        c.width = 600; c.height = 600;
+        c.width = EXPORT_W; c.height = EXPORT_H;
         const ctx = c.getContext('2d')!;
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, 600, 600);
+        ctx.fillRect(0, 0, EXPORT_W, EXPORT_H);
 
-        // Draw shirt mockup — fill canvas matching object-contain in design studio
+        // Draw shirt mockup with object-contain inside 800×960
         const shirtSrc = sideName === 'front' ? '/mockups/user_tshirt_front.png' : '/mockups/user_tshirt_back.png';
         try {
           const shirtImg = await loadImg(shirtSrc);
-          // Calculate object-contain dimensions
           const imgRatio = shirtImg.width / shirtImg.height;
-          const canvasRatio = 600 / 600;
-          let drawW = 600, drawH = 600, drawX = 0, drawY = 0;
+          const canvasRatio = EXPORT_W / EXPORT_H;
+          let drawW = EXPORT_W, drawH = EXPORT_H, drawX = 0, drawY = 0;
           if (imgRatio > canvasRatio) {
-            drawH = 600 / imgRatio;
-            drawY = (600 - drawH) / 2;
+            drawH = EXPORT_W / imgRatio;
+            drawY = (EXPORT_H - drawH) / 2;
           } else {
-            drawW = 600 * imgRatio;
-            drawX = (600 - drawW) / 2;
+            drawW = EXPORT_H * imgRatio;
+            drawX = (EXPORT_W - drawW) / 2;
           }
           if (tshirtColor !== '#FFFFFF') {
             ctx.fillStyle = tshirtColor;
@@ -563,25 +566,20 @@ export default function DesignPage() {
           }
         } catch { /* shirt image not found */ }
 
-        // Draw design elements — map from 400×480 design space to 600×600 export
-        // using same object-contain logic as the shirt
-        const scale = Math.min(600 / 400, 600 / 480); // = 1.25 (height-constrained)
-        const offsetX = (600 - 400 * scale) / 2; // = 50px padding on each side
-        const offsetY = (600 - 480 * scale) / 2; // = 0
-
+        // Draw design elements — perfectly mapped: el coords × 2
         const sideElements = elements.filter(el => el.side === sideName);
         for (const el of sideElements) {
-          const x = el.x * scale + offsetX;
-          const y = el.y * scale + offsetY;
+          const x = el.x * SCALE;
+          const y = el.y * SCALE;
 
           if (el.type === 'image' && el.url) {
             try {
               const elImg = await loadImg(el.url);
-              ctx.drawImage(elImg, x, y, el.width * scale, el.height * scale);
+              ctx.drawImage(elImg, x, y, el.width * SCALE, el.height * SCALE);
             } catch { /* skip broken images */ }
           } else if (el.type === 'text' && el.text) {
             ctx.save();
-            const fontSize = (el.fontSize || 32) * scale;
+            const fontSize = (el.fontSize || 32) * SCALE;
             ctx.font = `${el.fontWeight || '900'} ${fontSize}px ${el.fontFamily || 'sans-serif'}`;
             ctx.fillStyle = el.textColor || '#000000';
             ctx.fillText(el.text, x, y + fontSize);
@@ -590,10 +588,10 @@ export default function DesignPage() {
         }
 
         // Label
-        ctx.fillStyle = '#999';
-        ctx.font = '600 14px sans-serif';
+        ctx.fillStyle = '#aaa';
+        ctx.font = '700 18px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(sideName === 'front' ? 'FRONT' : 'BACK', 300, 590);
+        ctx.fillText(sideName === 'front' ? 'FRONT' : 'BACK', EXPORT_W / 2, EXPORT_H - 16);
         ctx.textAlign = 'start';
         return c;
       };
@@ -601,14 +599,14 @@ export default function DesignPage() {
       const frontCanvas = await renderSideCanvas('front');
       const backCanvas = await renderSideCanvas('back');
 
-      // Composite 1200x600 for local download
+      // Composite 1600×960 for local download
       const composite = document.createElement('canvas');
-      composite.width = 1200; composite.height = 600;
+      composite.width = 1600; composite.height = 960;
       const compCtx = composite.getContext('2d')!;
       compCtx.drawImage(frontCanvas, 0, 0);
-      compCtx.drawImage(backCanvas, 600, 0);
-      compCtx.strokeStyle = '#ddd'; compCtx.lineWidth = 1;
-      compCtx.beginPath(); compCtx.moveTo(600, 0); compCtx.lineTo(600, 600); compCtx.stroke();
+      compCtx.drawImage(backCanvas, 800, 0);
+      compCtx.strokeStyle = '#ddd'; compCtx.lineWidth = 2;
+      compCtx.beginPath(); compCtx.moveTo(800, 0); compCtx.lineTo(800, 960); compCtx.stroke();
 
       // Download composite locally
       const link = document.createElement('a');

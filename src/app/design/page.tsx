@@ -168,7 +168,8 @@ function DesignCanvas({
     (e: React.MouseEvent | React.TouchEvent, el: DesignElement) => {
       e.stopPropagation();
       onSelectElement(el.id);
-      if (el.locked) return;
+      // Only text elements are draggable; images stay fixed
+      if (el.locked || el.type !== 'text') return;
       const rect = canvasRef.current!.getBoundingClientRect();
       const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
@@ -324,7 +325,7 @@ function DesignElementItem({
   return (
     <div
       ref={ref}
-      className={`absolute design-element-layer z-20 cursor-move ${el.type === 'text' ? 'design-element-text' : ''} ${selectedId === el.id ? 'ring-2 ring-violet-500' : ''}`}
+      className={`absolute design-element-layer z-20 ${el.type === 'text' ? 'design-element-text cursor-move' : 'cursor-default'} ${selectedId === el.id ? 'ring-2 ring-violet-500' : ''}`}
       onMouseDown={(e) => onMouseDown(e, el)}
     >
       {el.type === "image" && el.url && (

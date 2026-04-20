@@ -347,7 +347,7 @@ function DesignElementItem({
 
 // ─── Main Design Page ──────────────────────────────────────────
 export default function DesignPage() {
-  const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers">("ai");
+  const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers" | null>(null);
   const [side, setSide] = useState<"front" | "back">("front");
   const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
   const [elements, setElements] = useState<DesignElement[]>([]);
@@ -682,39 +682,46 @@ export default function DesignPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-[#f3f4f6] overflow-hidden font-sans">
+    <div className="flex flex-col h-[100dvh] bg-[#f3f4f6] overflow-hidden font-sans">
 
       {/* NAV */}
-      <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0 z-50">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 group">
+      <header className="h-12 md:h-14 bg-white border-b border-gray-100 flex items-center justify-between px-3 md:px-6 shrink-0 z-50">
+        <div className="flex items-center gap-2 md:gap-4">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center shrink-0">
               <span className="text-white text-[8px] font-black tracking-tighter leading-none">US</span>
             </div>
-            <div className="leading-none">
+            <div className="leading-none hidden sm:block">
               <span className="font-black text-[13px] tracking-tight">Uni<span className="text-violet-600">Space</span></span>
               <span className="text-[7px] text-gray-400 font-medium block tracking-wide">Trạm đồng phục</span>
             </div>
+            <span className="font-black text-[13px] tracking-tight sm:hidden">Uni<span className="text-violet-600">Space</span></span>
           </Link>
-          <div className="h-6 w-px bg-gray-200 mx-2" />
-          <div className="flex items-center gap-1">
-            <button onClick={handleUndo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Undo"><Undo2 size={16} /></button>
-            <button onClick={handleRedo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Redo"><Redo2 size={16} /></button>
+          <div className="h-5 w-px bg-gray-200 hidden sm:block" />
+          <div className="flex items-center gap-0.5">
+            <button onClick={handleUndo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Undo"><Undo2 size={14} /></button>
+            <button onClick={handleRedo} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Redo"><Redo2 size={14} /></button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setSide(side === "front" ? "back" : "front")} className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase rounded-full tracking-widest hover:scale-105 transition-all">Switch to {side === "front" ? "Back" : "Front"}</button>
-          <button onClick={() => setShowOrderModal(true)} disabled={isExporting} className="px-4 py-1.5 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-widest hover:bg-black hover:text-white transition-all disabled:opacity-50">{isExporting ? 'Exporting...' : 'Export Pack'}</button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSide(side === "front" ? "back" : "front")}
+            className="px-3 py-1 bg-black text-white text-[10px] font-black uppercase rounded-full tracking-wider hover:scale-105 transition-all">
+            {side === "front" ? "→ Back" : "→ Front"}
+          </button>
+          <button onClick={() => setShowOrderModal(true)} disabled={isExporting}
+            className="px-3 py-1 border-2 border-black text-black text-[10px] font-black uppercase rounded-full tracking-wider hover:bg-black hover:text-white transition-all disabled:opacity-50">
+            {isExporting ? '...' : 'Export'}
+          </button>
         </div>
       </header>
 
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
-        {/* ── LEFT: BLUEPRINT PANEL (fixed 660px, fills full height) ── */}
-        <section className="w-[820px] shrink-0 h-full flex flex-col bg-white border-r border-gray-300 shadow-xl overflow-hidden">
+        {/* ── BLUEPRINT PANEL: full-width on mobile, fixed 820px on desktop ── */}
+        <section className="w-full md:w-[820px] shrink-0 flex flex-col bg-white border-b md:border-b-0 md:border-r border-gray-300 md:shadow-xl overflow-hidden" style={{ height: 'calc(100dvh - 48px)', maxHeight: 'calc(100dvh - 48px)' }}>
 
-          {/* HEADER ROW 1 */}
-          <div className="grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[60px]">
+          {/* HEADER ROW 1 — hidden on mobile, shown on desktop */}
+          <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[60px]">
             <div className="border-r border-black p-2 flex flex-col justify-center items-center relative bg-white gap-0.5">
               <span className="text-[5px] font-black text-gray-400 absolute top-1.5 left-2 uppercase tracking-widest">Brand</span>
               {/* UniSpace logo mark */}
@@ -749,8 +756,8 @@ export default function DesignPage() {
             </div>
           </div>
 
-          {/* HEADER ROW 2 */}
-          <div className="grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
+          {/* HEADER ROW 2 — hidden on mobile */}
+          <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
             <div className="border-r border-black px-2 flex items-center gap-1.5">
               <div className="w-3 h-3 rounded border border-black/20 shrink-0" style={{ backgroundColor: tshirtColor }} />
               <div className="flex flex-col justify-center">
@@ -777,8 +784,8 @@ export default function DesignPage() {
 
             <div className="relative h-full flex p-3" onDragOver={(e) => e.preventDefault()} style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
-              {/* FAR LEFT: Color Swatches */}
-              <div className="w-[55px] shrink-0 flex flex-col gap-1.5 pt-1 pr-2">
+              {/* FAR LEFT: Color Swatches — hidden on mobile */}
+              <div className="hidden md:flex w-[55px] shrink-0 flex-col gap-1.5 pt-1 pr-2">
                 <span className="text-[5px] font-black uppercase text-black tracking-wider leading-tight block mb-1">COLOR<br/>SWATCHES</span>
                 {[
                   { hex: '#FFFFFF', cmyk: '0 0 0 0' },
@@ -800,11 +807,11 @@ export default function DesignPage() {
                 ))}
               </div>
 
-              {/* MAIN: 2 shirt rows — each takes half height */}
+              {/* MAIN: desktop = 2 rows (back + front), mobile = active side only */}
               <div className="flex-1 flex flex-col gap-1 overflow-hidden h-full min-h-0">
 
-                {/* ROW 1: BACK VIEW */}
-                <div className="h-[50%] flex gap-3 items-start overflow-hidden">
+                {/* ── BACK VIEW — shown always on desktop, mobile only when side=back ── */}
+                <div className={`flex gap-3 items-start overflow-hidden ${side === 'back' ? 'flex-1' : 'md:h-[50%] hidden md:flex'}`}>
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
                     <span className="text-[7px] font-black uppercase text-black tracking-widest mb-1 shrink-0">BACK VIEW</span>
                     <div ref={backCanvasRef} className="flex-1 w-full min-h-0 relative">
@@ -816,17 +823,17 @@ export default function DesignPage() {
                       />
                     </div>
                   </div>
-                  {/* Back extract thumbnail — LIVE PREVIEW */}
-                  <div className="flex flex-col items-center shrink-0 pt-4">
+                  {/* Back thumbnail — desktop only */}
+                  <div className="hidden md:flex flex-col items-center shrink-0 pt-4">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">BACK VIEW</span>
                     <MiniPreview elements={elements} side="back" width={100} height={100} onDropImage={handleDropImageToSide} />
                   </div>
                 </div>
 
-                {/* ROW 2: FRONT VIEW */}
-                <div className="h-[50%] flex gap-3 items-end overflow-hidden">
-                  {/* Logo upload */}
-                  <div className="flex flex-col items-center shrink-0 self-end">
+                {/* ── FRONT VIEW — shown always on desktop, mobile only when side=front ── */}
+                <div className={`flex gap-3 items-end overflow-hidden ${side === 'front' ? 'flex-1' : 'md:h-[50%] hidden md:flex'}`}>
+                  {/* Logo upload — desktop only */}
+                  <div className="hidden md:flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">LOGO</span>
                     <label className="relative overflow-hidden border border-dashed border-gray-400 bg-[#1A1A1A] hover:border-violet-400 hover:bg-violet-900/10 transition-all cursor-pointer flex items-center justify-center w-[55px] h-[90px]">
                       {elements.filter(el => el.side === 'side').length > 0 ? (
@@ -844,7 +851,6 @@ export default function DesignPage() {
                         reader.onload = (ev) => {
                           const dataUrl = ev.target?.result as string;
                           handleDropImageToSide({ id: `logo-${Date.now()}`, url: dataUrl, label: 'LOGO' }, 300, 70, 'front', 80);
-                          // Also store in 'side' for thumbnail preview
                           setElements(prev => [...prev, { id: `logo-thumb-${Date.now()}`, type: 'image', label: 'LOGO', url: dataUrl, x: 0, y: 0, width: 55, height: 90, rotation: 0, side: 'side' as const, locked: false }]);
                         };
                         reader.readAsDataURL(file);
@@ -863,8 +869,8 @@ export default function DesignPage() {
                       />
                     </div>
                   </div>
-                  {/* Front extract thumbnail — LIVE PREVIEW */}
-                  <div className="flex flex-col items-center shrink-0 self-end">
+                  {/* Front thumbnail — desktop only */}
+                  <div className="hidden md:flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">FRONT VIEW</span>
                     <MiniPreview elements={elements} side="front" width={80} height={80} onDropImage={handleDropImageToSide} />
                   </div>
@@ -891,8 +897,23 @@ export default function DesignPage() {
           </div>
         </section>
 
-        {/* ── RIGHT: AI PANEL (fills remaining width) ── */}
-        <aside className="flex-1 h-full flex flex-col bg-[#F0EFF4] overflow-hidden">
+        {/* ── RIGHT: AI PANEL — sidebar on desktop, bottom sheet on mobile ── */}
+        <aside className={`
+          fixed md:static inset-x-0 bottom-0 md:inset-auto
+          flex-1 md:h-full flex flex-col bg-[#F0EFF4] overflow-hidden
+          transition-transform duration-300 z-40 md:z-auto
+          ${activeTab !== null ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
+          md:translate-y-0 h-[72vh] md:h-full
+          rounded-t-3xl md:rounded-none shadow-2xl md:shadow-none
+        `}>
+          {/* Mobile drag handle + close */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-1 md:hidden shrink-0">
+            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto absolute left-1/2 -translate-x-1/2" />
+            <div />
+            <button onClick={() => setActiveTab(null)} className="ml-auto p-1.5 rounded-full hover:bg-black/10">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
 
           {/* Tab bar */}
           <div className="flex bg-white/60 border-b border-gray-200 px-2 pt-1 shrink-0 gap-1">
@@ -903,7 +924,7 @@ export default function DesignPage() {
               { id: "layers", icon: LayersIcon, label: "Layers" }
             ] as const).map((t) => (
               <button
-                key={t.id} onClick={() => setActiveTab(t.id)}
+                key={t.id} onClick={() => setActiveTab(prev => prev === t.id ? null : t.id)}
                 className={`flex items-center gap-1.5 px-3 py-2 text-[10px] font-black uppercase tracking-wide rounded-t-lg transition-all ${activeTab === t.id ? 'bg-white text-violet-600 border border-b-0 border-gray-200' : 'text-gray-400 hover:text-black'}`}
               >
                 <t.icon size={12} />{t.label}
@@ -1094,6 +1115,22 @@ export default function DesignPage() {
             )}
           </div>
         </aside>
+
+        {/* Mobile: backdrop to dismiss panel */}
+        {activeTab !== null && (
+          <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setActiveTab(null)} />
+        )}
+
+        {/* Mobile: floating tool button (opens AI panel) */}
+        {activeTab === null && (
+          <button
+            onClick={() => setActiveTab('ai')}
+            className="fixed bottom-5 right-5 z-50 md:hidden w-12 h-12 bg-black text-white rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform"
+            aria-label="Mở công cụ thiết kế"
+          >
+            <Zap size={20} />
+          </button>
+        )}
       </main>
 
       <style jsx global>{`

@@ -369,7 +369,7 @@ export default function DesignPage() {
         {/* ─── WORKSPACE (LEFT) ─── */}
         <section className="flex-1 h-full p-6 overflow-y-auto scrollbar-hide bg-[#DADADA]/20 flex flex-col items-center">
            
-           <div className="w-[850px] bg-white border border-gray-200 shadow-2xl overflow-hidden relative mb-20">
+           <div className="w-[850px] bg-white border border-gray-200 shadow-2xl relative mb-20">
               
               {/* IMAGE 2 ACCURATE HEADER */}
               <div className="border-b-[1.5px] border-black pb-[1px]">

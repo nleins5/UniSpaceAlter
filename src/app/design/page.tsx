@@ -47,17 +47,18 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
     <div className="w-full h-full relative">
       {/* Color layer masked to shirt silhouette — never bleeds onto grid */}
       {!isWhite && (
-        <div className="absolute inset-0" style={{ 
-          backgroundColor: color,
-          WebkitMaskImage: `url(${imgSrc})`,
-          maskImage: `url(${imgSrc})`,
-          WebkitMaskSize: 'contain',
-          maskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-          maskPosition: 'center',
-          opacity: 0.45
+        <div className="absolute inset-0 shirt-color-mask" ref={(el) => {
+          if (!el) return;
+          el.style.setProperty('background-color', color);
+          el.style.setProperty('-webkit-mask-image', `url(${imgSrc})`);
+          el.style.setProperty('mask-image', `url(${imgSrc})`);
+          el.style.setProperty('-webkit-mask-size', 'contain');
+          el.style.setProperty('mask-size', 'contain');
+          el.style.setProperty('-webkit-mask-repeat', 'no-repeat');
+          el.style.setProperty('mask-repeat', 'no-repeat');
+          el.style.setProperty('-webkit-mask-position', 'center');
+          el.style.setProperty('mask-position', 'center');
+          el.style.setProperty('opacity', '0.45');
         }} />
       )}
       <Image 
@@ -65,8 +66,7 @@ function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | 
         alt={`Shirt ${side}`} 
         fill
         priority
-        className="relative z-10"
-        style={{ objectFit: "contain", mixBlendMode: isWhite ? 'normal' : 'multiply' }}
+        className={`relative z-10 object-contain ${isWhite ? '' : 'mix-blend-multiply'}`}
       />
     </div>
   );
@@ -87,28 +87,29 @@ function MiniPreview({ elements, side, tshirtColor, width, height }: {
   const sideElements = elements.filter(el => el.side === side);
 
   return (
-    <div style={{ width, height }} className="relative overflow-hidden border border-gray-300 bg-[#1A1A1A]">
-      <div style={{ 
-        width: baseW, height: baseH, 
-        transform: `scale(${scale})`, 
-        transformOrigin: 'top left' 
-      }} className="pointer-events-none">
+    <div ref={(el) => { if (el) { el.style.setProperty('width', `${width}px`); el.style.setProperty('height', `${height}px`); }}} className="relative overflow-hidden border border-gray-300 bg-[#1A1A1A]">
+      <div ref={(el) => { if (el) { el.style.setProperty('width', `${baseW}px`); el.style.setProperty('height', `${baseH}px`); el.style.setProperty('transform', `scale(${scale})`); el.style.setProperty('transform-origin', 'top left'); }}} className="pointer-events-none">
         <div className="w-full h-full relative">
           <TShirtSVG color={tshirtColor} side={side} />
           {sideElements.map((el) => (
-            <div key={el.id} className="absolute" style={{
-              left: el.x, top: el.y, width: el.width, height: el.height,
-              transform: `rotate(${el.rotation || 0}deg)`
+            <div key={el.id} className="absolute" ref={(node) => {
+              if (!node) return;
+              node.style.setProperty('left', `${el.x}px`);
+              node.style.setProperty('top', `${el.y}px`);
+              node.style.setProperty('width', `${el.width}px`);
+              node.style.setProperty('height', `${el.height}px`);
+              node.style.setProperty('transform', `rotate(${el.rotation || 0}deg)`);
             }}>
               {el.type === 'image' && el.url && (
                 <Image src={el.url} alt={el.label || ''} fill className="object-contain" unoptimized />
               )}
               {el.type === 'text' && (
-                <span style={{
-                  fontSize: el.fontSize || 32,
-                  fontFamily: el.fontFamily || 'sans-serif',
-                  fontWeight: el.fontWeight || '900',
-                  color: el.textColor || '#000'
+                <span ref={(s) => {
+                  if (!s) return;
+                  s.style.setProperty('font-size', `${el.fontSize || 32}px`);
+                  s.style.setProperty('font-family', el.fontFamily || 'sans-serif');
+                  s.style.setProperty('font-weight', String(el.fontWeight || '900'));
+                  s.style.setProperty('color', el.textColor || '#000');
                 }} className="whitespace-nowrap">{el.text}</span>
               )}
             </div>

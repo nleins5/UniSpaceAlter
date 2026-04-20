@@ -515,18 +515,11 @@ export default function DesignPage() {
     });
   }, [pushHistory]);
 
-  // Export: manually render front+back as PNG using Canvas API
+  // Export: render front+back as separate PNGs using Canvas API
   const handleExportPack = useCallback(async (order: typeof orderInfo) => {
     setIsExporting(true);
     setShowOrderModal(false);
     try {
-      const canvas = document.createElement('canvas');
-      canvas.width = 1200;
-      canvas.height = 600;
-      const ctx = canvas.getContext('2d')!;
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, 1200, 600);
-
       // Helper: load image from URL
       const loadImg = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
         const img = new window.Image();
@@ -536,41 +529,48 @@ export default function DesignPage() {
         img.src = src;
       });
 
-      // Render one side (front or back)
-      const renderSide = async (offsetX: number, sideName: 'front' | 'back') => {
+      // Render one side to its own 600x600 canvas
+      const renderSideCanvas = async (sideName: 'front' | 'back'): Promise<HTMLCanvasElement> => {
+        const c = document.createElement('canvas');
+        c.width = 600; c.height = 600;
+        const ctx = c.getContext('2d')!;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, 600, 600);
+
         // Draw shirt mockup
         const shirtSrc = sideName === 'front' ? '/mockups/user_tshirt_front.png' : '/mockups/user_tshirt_back.png';
         try {
           const shirtImg = await loadImg(shirtSrc);
-          // Tint: draw colored rect + shirt on top with multiply-like effect
           if (tshirtColor !== '#FFFFFF') {
             ctx.fillStyle = tshirtColor;
-            ctx.fillRect(offsetX, 0, 600, 600);
+            ctx.fillRect(0, 0, 600, 600);
             ctx.globalCompositeOperation = 'destination-in';
-            ctx.drawImage(shirtImg, offsetX + 50, 20, 500, 560);
+            ctx.drawImage(shirtImg, 50, 20, 500, 560);
             ctx.globalCompositeOperation = 'source-over';
           } else {
-            ctx.drawImage(shirtImg, offsetX + 50, 20, 500, 560);
+            ctx.drawImage(shirtImg, 50, 20, 500, 560);
           }
         } catch { /* shirt image not found */ }
 
-        // Draw design elements
+        // Draw design elements for this side
         const sideElements = elements.filter(el => el.side === sideName);
         for (const el of sideElements) {
-          const scale = 600 / 400; // canvas is 600px, design coords based on 400px
-          const x = offsetX + el.x * scale;
-          const y = el.y * (600 / 480);
+          const scaleX = 600 / 400;
+          const scaleY = 600 / 480;
+          const x = el.x * scaleX;
+          const y = el.y * scaleY;
 
           if (el.type === 'image' && el.url) {
             try {
               const elImg = await loadImg(el.url);
-              ctx.drawImage(elImg, x, y, el.width * scale, el.height * (600 / 480));
+              ctx.drawImage(elImg, x, y, el.width * scaleX, el.height * scaleY);
             } catch { /* skip broken images */ }
           } else if (el.type === 'text' && el.text) {
             ctx.save();
-            ctx.font = `${el.fontWeight || '900'} ${(el.fontSize || 32) * scale}px ${el.fontFamily || 'sans-serif'}`;
+            const fontSize = (el.fontSize || 32) * scaleX;
+            ctx.font = `${el.fontWeight || '900'} ${fontSize}px ${el.fontFamily || 'sans-serif'}`;
             ctx.fillStyle = el.textColor || '#000000';
-            ctx.fillText(el.text, x, y + (el.fontSize || 32) * scale);
+            ctx.fillText(el.text, x, y + fontSize);
             ctx.restore();
           }
         }
@@ -579,35 +579,42 @@ export default function DesignPage() {
         ctx.fillStyle = '#999';
         ctx.font = '600 14px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(sideName === 'front' ? 'FRONT' : 'BACK', offsetX + 300, 590);
+        ctx.fillText(sideName === 'front' ? 'FRONT' : 'BACK', 300, 590);
         ctx.textAlign = 'start';
+        return c;
       };
 
-      await renderSide(0, 'front');
-      await renderSide(600, 'back');
+      const frontCanvas = await renderSideCanvas('front');
+      const backCanvas = await renderSideCanvas('back');
 
-      // Divider line
-      ctx.strokeStyle = '#ddd';
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(600, 0); ctx.lineTo(600, 600); ctx.stroke();
+      // Composite 1200x600 for local download
+      const composite = document.createElement('canvas');
+      composite.width = 1200; composite.height = 600;
+      const compCtx = composite.getContext('2d')!;
+      compCtx.drawImage(frontCanvas, 0, 0);
+      compCtx.drawImage(backCanvas, 600, 0);
+      compCtx.strokeStyle = '#ddd'; compCtx.lineWidth = 1;
+      compCtx.beginPath(); compCtx.moveTo(600, 0); compCtx.lineTo(600, 600); compCtx.stroke();
 
-      // Download locally
+      // Download composite locally
       const link = document.createElement('a');
       link.download = `unispace-design-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = composite.toDataURL('image/png');
       link.click();
 
-      // Submit to admin
-      canvas.toBlob(async (blob) => {
-        if (!blob) return;
-        const fd = new FormData();
-        fd.append('design', blob, 'design.png');
-        fd.append('elements', JSON.stringify(elements));
-        fd.append('tshirtColor', tshirtColor);
-        fd.append('orderInfo', JSON.stringify(order));
-        await fetch('/api/submit-design', { method: 'POST', body: fd });
-        alert('✅ Thiết kế và đơn hàng đã gửi cho admin!');
-      }, 'image/png');
+      // Convert each side to blob and submit
+      const toBlob = (cvs: HTMLCanvasElement): Promise<Blob> => new Promise(res => cvs.toBlob(b => res(b!), 'image/png'));
+      const frontBlob = await toBlob(frontCanvas);
+      const backBlob = await toBlob(backCanvas);
+
+      const fd = new FormData();
+      fd.append('frontDesign', frontBlob, 'front_design.png');
+      fd.append('backDesign', backBlob, 'back_design.png');
+      fd.append('elements', JSON.stringify(elements));
+      fd.append('tshirtColor', tshirtColor);
+      fd.append('orderInfo', JSON.stringify(order));
+      await fetch('/api/submit-design', { method: 'POST', body: fd });
+      alert('✅ Thiết kế và đơn hàng đã gửi cho admin!');
     } catch (err) {
       console.error('Export failed:', err);
       alert('Export thất bại, thử lại!');

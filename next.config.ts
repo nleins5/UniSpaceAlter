@@ -3,10 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "xuwufmqcsdgbuinkncwd.supabase.co" },
     ],
   },
   async headers() {
@@ -25,8 +23,8 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://images.unsplash.com",
-              "connect-src 'self'",
+              "img-src 'self' data: blob: https://images.unsplash.com https://xuwufmqcsdgbuinkncwd.supabase.co",
+              "connect-src 'self' https://xuwufmqcsdgbuinkncwd.supabase.co",
               "frame-ancestors 'none'",
             ].join("; "),
           },

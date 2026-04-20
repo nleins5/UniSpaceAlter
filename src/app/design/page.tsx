@@ -90,9 +90,9 @@ function MiniPreview({ elements, side, width, height, onDropImage }: {
     if (!data) return;
     try {
       const image: AIImage = JSON.parse(data);
-      // Pass original side so handleDropImageToSide can create 4 sleeve elements for 'side'
-      const dropX = side === 'back' ? 245 : 220;
-      const dropY = 100;
+      // Side/Front drops -> shift right and down; Back -> even further right
+      const dropX = side === 'back' ? 280 : 260;
+      const dropY = 180;
       onDropImage(image, dropX, dropY, side);
     } catch (err) { console.error(err); }
   }, [onDropImage, side]);

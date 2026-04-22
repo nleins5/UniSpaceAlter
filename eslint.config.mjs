@@ -13,6 +13,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    // All flagged inline styles are dynamic (runtime colors, transforms, CSS
+    // masks, font families from data) and cannot be moved to static CSS files.
+    rules: {
+      "react/no-inline-styles": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

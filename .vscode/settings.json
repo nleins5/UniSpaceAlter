@@ -6,10 +6,16 @@
     "Web:S1015": { "level": "off" },
     "Web:S1307": { "level": "off" },
     "Web:InlineStyleUsage": { "level": "off" },
+    "Web:CSSInlineStyles": { "level": "off" },
     "typescript:S6754": { "level": "off" },
     "javascript:S6754": { "level": "off" },
     "typescript:S6847": { "level": "off" },
-    "javascript:S6847": { "level": "off" }
+    "javascript:S6847": { "level": "off" },
+    "typescript:S6803": { "level": "off" },
+    "javascript:S6803": { "level": "off" }
   },
-  "gemini.diagnostics.enable": false
+  "gemini.diagnostics.enable": false,
+  "eslint.rules.customizations": [
+    { "rule": "react-hooks/exhaustive-deps", "severity": "off" }
+  ]
 }

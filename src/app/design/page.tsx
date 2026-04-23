@@ -1613,7 +1613,7 @@ export default function DesignPage() {
                     >
                               <div
                         className="leading-tight text-white group-hover:text-violet-300 transition-colors truncate"
-                        ref={(el) => { if (el) { el.style.fontFamily = item.font; el.style.fontSize = String(item.size); el.style.fontWeight = item.weight; el.style.fontStyle = item.style; } }}
+                        ref={(el) => { if (el) { el.style.fontFamily = item.font; el.style.fontSize = String(item.size); el.style.fontWeight = String(item.weight); el.style.fontStyle = item.style; } }}
                       >
                         {item.text}
                       </div>

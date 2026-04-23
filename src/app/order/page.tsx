@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -105,25 +105,21 @@ function ColorSwatch({ color }: { color: string }) {
   );
 }
 
+function readDesignData(): DesignData | null {
+  if (typeof window === "undefined") return null;
+  const raw = sessionStorage.getItem("designData");
+  if (!raw) return null;
+  try { return JSON.parse(raw) as DesignData; } catch { return null; }
+}
+
 export default function OrderReviewPage() {
   const router = useRouter();
-  const [designData, setDesignData] = useState<DesignData | null>(null);
-  const [shirtType, setShirtType] = useState("tshirt");
+  const [designData] = useState<DesignData | null>(readDesignData);
+  const shirtType = designData?.shirtType ?? "tshirt";
   const [previewSide, setPreviewSide] = useState<"front" | "back">("front");
   const [qty, setQty] = useState<Record<string, number>>({ S: 0, M: 0, L: 0, XL: 0, XXL: 0 });
   const totalQty = Object.values(qty).reduce((a, b) => a + b, 0);
   const [sysId] = useState(() => `SYS-${Math.floor(1000 + Math.random() * 8999)}-${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`);
-
-  // Load from sessionStorage once on mount — using startTransition-equivalent pattern
-  useEffect(() => {
-    const raw = sessionStorage.getItem("designData");
-    if (!raw) return;
-    const parsed: DesignData = JSON.parse(raw);
-    // Batch both state updates to avoid cascading renders
-    const type = parsed.shirtType ?? "tshirt";
-    setDesignData(parsed);
-    setShirtType(type);
-  }, []);
 
   const handleProceed = () => {
     sessionStorage.setItem("orderQty", JSON.stringify(qty));

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 
 interface DesignElement {
@@ -62,13 +62,20 @@ function MiniPreview({ elements, side, tshirtColor, shirtType }: {
   );
 }
 
-/* Suppress unused-var: shirtType is passed through but MiniPreview doesn't render polo variants */
-void (0 as unknown as typeof MiniPreview);
+function readCheckoutData() {
+  if (typeof window === "undefined") return { design: null, shirtType: "tshirt", qty: { S:0, M:0, L:0, XL:0, XXL:0 } };
+  const raw = sessionStorage.getItem("designData");
+  const qtyRaw = sessionStorage.getItem("orderQty");
+  const design: DesignData | null = raw ? (() => { try { return JSON.parse(raw); } catch { return null; } })() : null;
+  const qty = qtyRaw ? (() => { try { return JSON.parse(qtyRaw); } catch { return { S:0, M:0, L:0, XL:0, XXL:0 }; } })() : { S:0, M:0, L:0, XL:0, XXL:0 };
+  return { design, shirtType: design?.shirtType ?? "tshirt", qty };
+}
 
 export default function CheckoutPage() {
-  const [designData, setDesignData] = useState<DesignData | null>(null);
-  const [shirtType, setShirtType] = useState("tshirt");
-  const [qty, setQty] = useState<Record<string, number>>({ S: 0, M: 0, L: 0, XL: 0, XXL: 0 });
+  const initData = useState(readCheckoutData)[0];
+  const [designData] = useState<DesignData | null>(initData.design);
+  const shirtType = designData?.shirtType ?? "tshirt";
+  const [qty, setQty] = useState<Record<string, number>>(initData.qty);
   const [previewSide, setPreviewSide] = useState<"front" | "back">("front");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -77,17 +84,6 @@ export default function CheckoutPage() {
   const backRef = useRef<HTMLDivElement>(null);
   const [form, setForm] = useState({ name: "", phone: "", entity: "", address: "", notes: "" });
   const totalQty = Object.values(qty).reduce((a, b) => a + b, 0);
-
-  useEffect(() => {
-    const raw = sessionStorage.getItem("designData");
-    const qtyRaw = sessionStorage.getItem("orderQty");
-    if (raw) {
-      const parsed: DesignData = JSON.parse(raw);
-      setDesignData(parsed);
-      setShirtType(parsed.shirtType ?? "tshirt");
-    }
-    if (qtyRaw) setQty(JSON.parse(qtyRaw));
-  }, []);
 
   const captureCanvas = useCallback(async (ref: React.RefObject<HTMLDivElement | null>): Promise<Blob | null> => {
     if (!ref.current) return null;

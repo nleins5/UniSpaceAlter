@@ -46,39 +46,62 @@ const MOCKUP_MAP: Record<string, { front: string; back: string; maskFront: strin
   'POLO':    { front: '/mockups/v_polo_front.png',    back: '/mockups/v_polo_back.png',    maskFront: '/mockups/raglan_front_mask.png',  maskBack: '/mockups/raglan_back_mask.png' },
 };
 
-// ─── Component: TShirtMockup — PNG + color overlay ────────────────────────────
+// ─── Component: TShirtMockup — Canvas composite (color fill + linework) ───────
+// Step 1: Draw transparent PNG → gets shirt shape on canvas
+// Step 2: source-atop → fill color ONLY inside opaque pixels (= shirt silhouette)
+// Step 3: multiply → draw PNG again so black lines show on top of color
 function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: string; side?: "front" | "back"; garmentType?: string }) {
   const isFront = side === "front";
   const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
   const imgSrc = isFront ? mockup.front : mockup.back;
-  const isWhite = color === "#FFFFFF" || color === "#ffffff";
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    const img = new window.Image();
+    img.onload = () => {
+      const W = container.clientWidth || 400;
+      const H = container.clientHeight || 480;
+      canvas.width = W;
+      canvas.height = H;
+
+      // object-contain math
+      const imgR = img.width / img.height;
+      const boxR = W / H;
+      let dw = W, dh = H, dx = 0, dy = 0;
+      if (imgR > boxR) { dh = W / imgR; dy = (H - dh) / 2; }
+      else { dw = H * imgR; dx = (W - dw) / 2; }
+
+      const ctx = canvas.getContext('2d')!;
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. Draw the transparent PNG (establishes alpha mask)
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(img, dx, dy, dw, dh);
+
+      // 2. Fill color ONLY where PNG is opaque (source-atop)
+      //    → white fabric becomes color, black lines become color, transparent stays transparent
+      if (color !== '#FFFFFF' && color !== '#ffffff') {
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, W, H);
+
+        // 3. Draw PNG again with multiply → restore black linework
+        //    multiply: black line × color = black, white × color = color (no change)
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.drawImage(img, dx, dy, dw, dh);
+      }
+    };
+    img.src = imgSrc;
+  }, [imgSrc, color]);
 
   return (
-    <div className="w-full h-full relative">
-      {/* Layer 1: The shirt PNG */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imgSrc}
-        alt={`Shirt ${side}`}
-        className="absolute inset-0 w-full h-full object-contain"
-      />
-
-      {/* Layer 2: Color overlay ON TOP — masked to shirt shape.
-          multiply: color × white fabric = color, color × black lines = black */}
-      {!isWhite && (
-        <div className="absolute inset-0" style={{
-          backgroundColor: color,
-          mixBlendMode: 'multiply',
-          WebkitMaskImage: `url(${imgSrc})`,
-          maskImage: `url(${imgSrc})`,
-          WebkitMaskSize: 'contain',
-          maskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-          maskPosition: 'center',
-        }} />
-      )}
+    <div ref={containerRef} className="w-full h-full">
+      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
     </div>
   );
 }

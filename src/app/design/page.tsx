@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles, RefreshCw } from "lucide-react";
+import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles, RefreshCw, Type } from "lucide-react";
 
 // ─── Fixed Snap Slots ─────────────────────────────────────────
 // All coords are in virtual canvas units (400 wide × 480 tall)
@@ -1441,17 +1441,23 @@ export default function DesignPage() {
             }`} title="AI Generate">
             <Zap size={14} />
           </button>
+          <button onClick={() => setActiveTab(prev => prev === 'gallery' ? null : 'gallery')}
+            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
+              activeTab === 'gallery' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
+            }`} title="Gallery">
+            <ImageIcon size={14} />
+          </button>
           <button onClick={() => setActiveTab(prev => prev === 'assets' ? null : 'assets')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
               activeTab === 'assets' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
-            }`} title="Design">
-            <ImageIcon size={14} />
+            }`} title="Text Tool">
+            <span className="text-[13px] font-black">T</span>
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'layers' ? null : 'layers')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
               activeTab === 'layers' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
-            }`} title="Text">
-            <span className="text-[13px] font-black">T</span>
+            }`} title="Layers">
+            <LayersIcon size={14} />
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'color' ? null : 'color')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
@@ -1501,8 +1507,8 @@ export default function DesignPage() {
           <div className="flex px-2 pt-1.5 shrink-0 gap-0 gl-panel-deep gl-border-dim">
             {([
               { id: "ai", icon: Zap, label: "AI" },
-              { id: "gallery", icon: Sparkles, label: "GALLERY" },
-              { id: "assets", icon: ImageIcon, label: "DESIGN" },
+              { id: "gallery", icon: ImageIcon, label: "GALLERY" },
+              { id: "assets", icon: Type, label: "TEXT" },
               { id: "color", icon: PaletteIcon, label: "PALETTE" },
               { id: "layers", icon: LayersIcon, label: "LAYERS" }
             ] as const).map((t) => (

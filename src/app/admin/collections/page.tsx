@@ -48,8 +48,8 @@ export default function CollectionsPage() {
               <div className="flex justify-between items-start mb-3">
                 <span className="adm-mono text-[10px] text-[#9ca3af] uppercase tracking-widest">{c.id}</span>
                 <span className="adm-mono text-[10px] uppercase tracking-widest px-2 py-0.5"
-                  style={{ color: c.color, background: `${c.color}20`, border: `1px solid ${c.color}50` }}>
-                    <span className="inline-block w-1.5 h-1.5 mr-1.5" style={{ background: c.color }} />{c.status}
+                  ref={(el) => { if (el) { el.style.color = c.color; el.style.background = `${c.color}20`; el.style.border = `1px solid ${c.color}50`; } }}>
+                    <span className="inline-block w-1.5 h-1.5 mr-1.5" ref={(el) => { if (el) el.style.background = c.color; }} />{c.status}
                 </span>
               </div>
               <h3 className="text-lg font-black uppercase tracking-wider mb-2">{c.name}</h3>

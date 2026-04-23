@@ -53,8 +53,8 @@ export default function UsersPage() {
                 <td className={`adm-mono py-3 px-4 text-right adm-col-border ${u.suspended ? 'opacity-50' : ''}`}>{u.spent}</td>
                 <td className="py-3 px-4 adm-col-border">
                   <span className="adm-mono inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] uppercase tracking-widest"
-                    style={{ color: u.statusColor, background: `${u.statusColor}20`, border: `1px solid ${u.statusColor}50` }}>
-                      <span className="w-1.5 h-1.5" style={{ background: u.statusColor, boxShadow: u.status === 'ACTIVE_LINK' ? `0 0 5px ${u.statusColor}` : 'none' }} />
+                    ref={(el) => { if (el) { el.style.color = u.statusColor; el.style.background = `${u.statusColor}20`; el.style.border = `1px solid ${u.statusColor}50`; } }}>
+                      <span className="w-1.5 h-1.5" ref={(el) => { if (el) { el.style.background = u.statusColor; el.style.boxShadow = u.status === 'ACTIVE_LINK' ? `0 0 5px ${u.statusColor}` : 'none'; } }} />
                     {u.status}
                   </span>
                 </td>

@@ -35,19 +35,15 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-start mb-4">
               <span className="adm-mono text-[10px] font-bold text-[#9ca3af] uppercase tracking-widest">METRIC_ID: {k.id}</span>
               <span className="adm-mono text-[10px] font-bold uppercase tracking-widest px-2 py-1 border"
-                style={{
-                  color: k.color,
-                  background: k.color === '#fff' ? 'rgba(255,255,255,0.1)' : `${k.color}15`,
-                  borderColor: k.color === '#fff' ? 'rgba(255,255,255,0.2)' : `${k.color}30`,
-                }}>STATUS: {k.status}</span>
+                ref={(el) => { if (el) { el.style.color = k.color; el.style.background = k.color === '#fff' ? 'rgba(255,255,255,0.1)' : `${k.color}15`; el.style.borderColor = k.color === '#fff' ? 'rgba(255,255,255,0.2)' : `${k.color}30`; } }}>STATUS: {k.status}</span>
             </div>
             <div className="text-sm font-bold mb-1 uppercase tracking-wider">{k.label}</div>
-            <div className="adm-mono text-4xl font-bold mb-2" style={{ color: k.color === '#fff' ? '#fff' : k.color }}>{k.value}</div>
-            <div className="adm-mono flex items-center text-xs" style={{ color: k.color === '#fff' ? '#9ca3af' : k.color }}>
+            <div className="adm-mono text-4xl font-bold mb-2" ref={(el) => { if (el) el.style.color = k.color === '#fff' ? '#fff' : k.color; }}>{k.value}</div>
+            <div className="adm-mono flex items-center text-xs" ref={(el) => { if (el) el.style.color = k.color === '#fff' ? '#9ca3af' : k.color; }}>
               <span className="material-symbols-outlined text-[14px] mr-1">{k.up ? 'trending_up' : k.trend.startsWith('-') ? 'trending_down' : 'trending_flat'}</span>
               {k.trend} / CYCL
             </div>
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderColor: `${k.color}80` }} />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r opacity-0 group-hover:opacity-100 transition-opacity" ref={(el) => { if (el) el.style.borderColor = `${k.color}80`; }} />
           </div>
         ))}
       </div>

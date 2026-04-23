@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "oss.filenest.top" },
+      { protocol: "https", hostname: "*.filenest.top" },
+      { protocol: "https", hostname: "oaidalleapiprodscus.blob.core.windows.net" },
+      { protocol: "https", hostname: "*.blob.core.windows.net" },
       ...supabasePatterns,
     ],
   },
@@ -37,8 +41,8 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              `img-src 'self' data: blob: https://images.unsplash.com${supabaseCSP}`,
-              `connect-src 'self'${supabaseCSP}`,
+              `img-src 'self' data: blob: https://images.unsplash.com https://oss.filenest.top https://*.filenest.top https://*.blob.core.windows.net${supabaseCSP}`,
+              `connect-src 'self' https://ai.t8star.cn https://api.cloudflare.com https://api.remove.bg${supabaseCSP}`,
               "frame-ancestors 'none'",
             ].join("; "),
           },

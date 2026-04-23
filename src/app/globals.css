@@ -203,6 +203,40 @@ body::after {
 }
 .gl-thumb-idle { border: 1px solid rgba(167, 139, 250, 0.15); }
 
+/* Admin page utility classes */
+.admin-grid-bg {
+  background-image:
+    linear-gradient(rgba(167, 139, 250, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167, 139, 250, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.admin-card-glass {
+  background: rgba(20, 12, 40, 0.92);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+.admin-card-header {
+  background: rgba(12, 8, 28, 0.8);
+}
+.admin-status-bg {
+  background: rgba(124, 58, 237, 0.08);
+}
+.admin-warning-bg {
+  background: rgba(234, 179, 8, 0.05);
+}
+.admin-cta-btn {
+  background: linear-gradient(135deg, #7C3AED 0%, #a78bfa 100%);
+  box-shadow: 0 0 32px rgba(124, 58, 237, 0.35);
+}
+.admin-nav-link {
+  background: rgba(124, 58, 237, 0.06);
+}
+
+/* Design studio: garment tab active */
+.gl-tab-active {
+  background: #a78bfa;
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.25);
+}
 
 
 /* ═══════════════════════════════════════════════════════

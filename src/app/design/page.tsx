@@ -1059,23 +1059,22 @@ export default function DesignPage() {
           </div>
 
           {/* Garment type tabs — Glacier style */}
-          <div className="flex px-2 pt-2.5 shrink-0 gap-1.5 gl-panel-deep" style={{borderBottom:'1px solid rgba(125,211,252,0.06)'}}>
+          <div className="flex px-2 pt-2.5 shrink-0 gap-1.5 gl-panel-deep gl-border-dim">
             {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
               <button key={type}
                 onClick={() => setGarmentType(type)}
                 className={`px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] transition-all relative overflow-hidden rounded-t ${
                   type === garmentType
-                    ? 'text-[#0a0e1a]'
+                    ? 'text-[#0c081c] gl-tab-active'
                     : 'text-gray-400 hover:text-violet-300'
-                }`}
-                style={type===garmentType?{background:'#a78bfa',boxShadow:'0 0 16px rgba(124,58,237,0.25)'}:{}}>
+                }`}>
                 <span className="relative z-10">{type}</span>
               </button>
             ))}
           </div>
 
-          {/* Tab bar — Glacier ice-blue underline */}
-          <div className="flex px-2 pt-1.5 shrink-0 gap-0 gl-panel-deep" style={{borderBottom:'1px solid rgba(125,211,252,0.08)'}}>
+          {/* Tab bar — violet underline */}
+          <div className="flex px-2 pt-1.5 shrink-0 gap-0 gl-panel-deep gl-border-dim">
             {([
               { id: "ai", icon: Zap, label: "AI GENERATE" },
               { id: "assets", icon: ImageIcon, label: "DESIGN" },

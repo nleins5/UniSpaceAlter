@@ -39,6 +39,176 @@ interface ChatMessage {
   images?: AIImage[];
 }
 
+// ─── Annotation types ─────────────────────────────────────────────────────
+interface AnnotationLine {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+interface AnnotationLabel {
+  x: number;
+  y: number;
+  text: string;
+}
+
+interface AnnotationGroup {
+  lines: AnnotationLine[];
+  labels: AnnotationLabel[];
+}
+
+interface GarmentAnnotations {
+  front: AnnotationGroup[];
+  back: AnnotationGroup[];
+}
+
+// ─── Annotations per garment type (coordinates in 990×1100 viewBox) ────────
+const ANNOTATIONS_BY_TYPE: Record<string, GarmentAnnotations> = {
+  T_SHIRT: {
+    front: [
+      {
+        lines: [{ x1: 550, y1: 60, x2: 680, y2: 35 }],
+        labels: [
+          { x: 690, y: 28, text: "NECK RIB:" },
+          { x: 690, y: 48, text: "1X1 COTTON/SPANDEX" }
+        ]
+      },
+      {
+        lines: [{ x1: 600, y1: 1070, x2: 720, y2: 1080 }],
+        labels: [
+          { x: 640, y: 1095, text: "DOUBLE NEEDLE HEM" }
+        ]
+      }
+    ],
+    back: [
+      {
+        lines: [{ x1: 350, y1: 1080, x2: 450, y2: 1050 }],
+        labels: [
+          { x: 250, y: 1095, text: "BOTTOM HEM:" },
+          { x: 300, y: 1115, text: "DOUBLE STITCH" }
+        ]
+      }
+    ]
+  },
+  RAGLAN: {
+    front: [
+      {
+        lines: [{ x1: 550, y1: 60, x2: 680, y2: 35 }],
+        labels: [
+          { x: 690, y: 28, text: "NECK RIB:" },
+          { x: 690, y: 48, text: "1X1 COTTON/SPANDEX" }
+        ]
+      },
+      {
+        lines: [{ x1: 530, y1: 450, x2: 700, y2: 420 }],
+        labels: [
+          { x: 710, y: 415, text: "FULL-LENGTH" },
+          { x: 710, y: 435, text: "BUTTON PLACKET" }
+        ]
+      },
+      {
+        lines: [{ x1: 850, y1: 350, x2: 920, y2: 380 }],
+        labels: [
+          { x: 880, y: 405, text: "SET-IN" },
+          { x: 880, y: 425, text: "SLEEVES" }
+        ]
+      },
+      {
+        lines: [{ x1: 600, y1: 1070, x2: 720, y2: 1080 }],
+        labels: [
+          { x: 640, y: 1095, text: "DOUBLE NEEDLE HEM" }
+        ]
+      }
+    ],
+    back: [
+      {
+        lines: [{ x1: 80, y1: 400, x2: 180, y2: 300 }],
+        labels: [
+          { x: 10, y: 420, text: "RAGLAN SLEEVE" },
+          { x: 10, y: 440, text: "CONSTRUCTION" }
+        ]
+      },
+      {
+        lines: [{ x1: 300, y1: 90, x2: 380, y2: 55 }],
+        labels: [
+          { x: 200, y: 75, text: "SUBLIMATED PIPING" }
+        ]
+      },
+      {
+        lines: [{ x1: 900, y1: 260, x2: 960, y2: 290 }],
+        labels: [
+          { x: 860, y: 240, text: "SLEEVE LENGTH:" },
+          { x: 890, y: 260, text: "24CM" }
+        ]
+      },
+      {
+        lines: [{ x1: 100, y1: 680, x2: 300, y2: 650 }],
+        labels: [
+          { x: 10, y: 710, text: "EMBROIDERED" },
+          { x: 10, y: 730, text: "PATCH AREA" }
+        ]
+      },
+      {
+        lines: [{ x1: 100, y1: 830, x2: 200, y2: 800 }],
+        labels: [
+          { x: 10, y: 850, text: "MESH VENTILATION" },
+          { x: 10, y: 870, text: "PANEL" }
+        ]
+      },
+      {
+        lines: [{ x1: 350, y1: 1080, x2: 450, y2: 1050 }],
+        labels: [
+          { x: 250, y: 1095, text: "BOTTOM HEM:" },
+          { x: 300, y: 1115, text: "DOUBLE STITCH" }
+        ]
+      }
+    ]
+  },
+  POLO: {
+    front: [
+      {
+        lines: [{ x1: 550, y1: 60, x2: 680, y2: 35 }],
+        labels: [
+          { x: 690, y: 28, text: "COLLAR:" },
+          { x: 690, y: 48, text: "2-BUTTON PLACKET" }
+        ]
+      },
+      {
+        lines: [{ x1: 530, y1: 200, x2: 700, y2: 170 }],
+        labels: [
+          { x: 710, y: 190, text: "BUTTON PLACKET" }
+        ]
+      },
+      {
+        lines: [{ x1: 600, y1: 1070, x2: 720, y2: 1080 }],
+        labels: [
+          { x: 640, y: 1095, text: "DOUBLE NEEDLE HEM" }
+        ]
+      }
+    ],
+    back: [
+      {
+        lines: [{ x1: 350, y1: 1080, x2: 450, y2: 1050 }],
+        labels: [
+          { x: 250, y: 1095, text: "BOTTOM HEM:" },
+          { x: 300, y: 1115, text: "DOUBLE STITCH" }
+        ]
+      }
+    ]
+  }
+};
+
+// Normalize garment type key to match ANNOTATIONS_BY_TYPE keys
+function getGarmentTypeKey(type: string): string {
+  switch (type) {
+    case 'T-SHIRT': return 'T_SHIRT';
+    case 'RAGLAN': return 'RAGLAN';
+    case 'POLO': return 'POLO';
+    default: return 'RAGLAN';
+  }
+}
+
 // ─── Mockup image map per garment type ───────────────────────────────────
 const MOCKUP_MAP: Record<string, { front: string; back: string; maskFront: string; maskBack: string }> = {
   'T-SHIRT': { front: '/mockups/v_tshirt_front.png',  back: '/mockups/v_tshirt_back.png',  maskFront: '/mockups/tshirt_front_mask.png',  maskBack: '/mockups/tshirt_back_mask.png' },
@@ -421,6 +591,26 @@ export default function DesignPage() {
   const [suggestedDesigns, setSuggestedDesigns] = useState<AIImage[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const suggestionsLoaded = useRef(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const genCountRef = useRef(0);
+
+  // Restore gen count from sessionStorage
+  useEffect(() => {
+    const saved = sessionStorage.getItem('ai_gen_count');
+    if (saved) genCountRef.current = parseInt(saved, 10);
+  }, []);
+
+  const isLoggedIn = () => {
+    try { const u = sessionStorage.getItem('user'); return u ? JSON.parse(u)?.token : false; } catch { return false; }
+  };
+
+  const checkGenLimit = (): boolean => {
+    if (isLoggedIn()) return true;
+    if (genCountRef.current >= 4) { setShowLoginModal(true); return false; }
+    genCountRef.current += 1;
+    sessionStorage.setItem('ai_gen_count', String(genCountRef.current));
+    return true;
+  };
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
@@ -499,6 +689,7 @@ export default function DesignPage() {
   }, []);
 
   const handleSendMessage = useCallback(async (content: string) => {
+    if (!checkGenLimit()) return;
     const userMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
@@ -512,6 +703,7 @@ export default function DesignPage() {
       const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Protocol Engaged.`, images: data.images };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err) { console.error(err); } finally { setIsLoading(false); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Auto-load AI design suggestions on mount ──────────────────
@@ -963,33 +1155,16 @@ export default function DesignPage() {
                       />
                       {/* Back view annotations — mapped to 990×1100 canvas coords */}
                       <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 hidden md:block" viewBox="0 0 990 1100" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
-                        {/* RAGLAN SLEEVE CONSTRUCTION — left raglan seam at armpit */}
-                        <line x1="80" y1="400" x2="180" y2="300" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="10" y="420" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">RAGLAN SLEEVE</text>
-                        <text x="10" y="440" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">CONSTRUCTION</text>
-
-                        {/* SUBLIMATED PIPING — shoulder/neckline seam */}
-                        <line x1="300" y1="90" x2="380" y2="55" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="200" y="75" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SUBLIMATED PIPING</text>
-
-                        {/* SLEEVE LENGTH — right sleeve */}
-                        <line x1="900" y1="260" x2="960" y2="290" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="860" y="240" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SLEEVE LENGTH:</text>
-                        <text x="890" y="260" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">24CM</text>
-
-                        {/* EMBROIDERED PATCH AREA — mid-back body */}
-                        <line x1="100" y1="680" x2="300" y2="650" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="10" y="710" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">EMBROIDERED</text>
-                        <text x="10" y="730" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">PATCH AREA</text>
-
-                        {/* MESH VENTILATION PANEL — lower side panel */}
-                        <line x1="100" y1="830" x2="200" y2="800" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="10" y="850" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">MESH VENTILATION</text>
-                        <text x="10" y="870" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">PANEL</text>
-
-                        {/* BOTTOM HEM: DOUBLE STITCH — hem at y≈1050 */}
-                        <line x1="350" y1="1080" x2="450" y2="1050" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="250" y="1095" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">BOTTOM HEM: DOUBLE STITCH</text>
+                        {ANNOTATIONS_BY_TYPE[getGarmentTypeKey(garmentType)].back.map((group, gi) => (
+                          <React.Fragment key={`back-${gi}`}>
+                            {group.lines.map((line, li) => (
+                              <line key={`line-${li}`} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                            ))}
+                            {group.labels.map((label, li) => (
+                              <text key={`label-${li}`} x={label.x} y={label.y} fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">{label.text}</text>
+                            ))}
+                          </React.Fragment>
+                        ))}
                       </svg>
                     </div>
                   </div>
@@ -1008,24 +1183,16 @@ export default function DesignPage() {
                       />
                       {/* Front view annotations — mapped to 990×1100 canvas coords */}
                       <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 hidden md:block" viewBox="0 0 990 1100" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
-                        {/* NECK RIB — collar at neckline y≈25 */}
-                        <line x1="550" y1="60" x2="680" y2="35" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="690" y="28" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">NECK RIB:</text>
-                        <text x="690" y="48" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">1X1 COTTON/SPANDEX</text>
-
-                        {/* FRONT BUTTON PLACKET — center buttons at x≈495 */}
-                        <line x1="530" y1="450" x2="700" y2="420" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="710" y="415" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">FULL-LENGTH</text>
-                        <text x="710" y="435" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">BUTTON PLACKET</text>
-
-                        {/* SET-IN SLEEVES — right arm junction at armpit y≈464 */}
-                        <line x1="850" y1="350" x2="920" y2="380" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="880" y="405" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SET-IN</text>
-                        <text x="880" y="425" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SLEEVES</text>
-
-                        {/* DOUBLE NEEDLE HEM — hem at y≈1050 */}
-                        <line x1="600" y1="1070" x2="720" y2="1080" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
-                        <text x="640" y="1095" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">DOUBLE NEEDLE HEM</text>
+                        {ANNOTATIONS_BY_TYPE[getGarmentTypeKey(garmentType)].front.map((group, gi) => (
+                          <React.Fragment key={`front-${gi}`}>
+                            {group.lines.map((line, li) => (
+                              <line key={`line-${li}`} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                            ))}
+                            {group.labels.map((label, li) => (
+                              <text key={`label-${li}`} x={label.x} y={label.y} fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">{label.text}</text>
+                            ))}
+                          </React.Fragment>
+                        ))}
                       </svg>
                     </div>
                   </div>
@@ -1527,6 +1694,41 @@ export default function DesignPage() {
                 disabled={!orderInfo.name || !orderInfo.phone || !orderInfo.address || isExporting}
                 className="flex-1 py-2.5 bg-[#7C3AED] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#6d28d9] transition-colors disabled:opacity-40">
                 {isExporting ? 'Đang xử lý...' : '📦 Gửi Đơn Hàng'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Login Gate Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-sm mx-4 rounded-2xl overflow-hidden border border-violet-400/20" style={{ background: 'rgba(12,8,28,0.95)' }}>
+            <div className="px-6 py-5 border-b border-violet-400/10">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-400/60" style={{ fontFamily: "'JetBrains Mono',monospace" }}>AUTH_REQUIRED</span>
+              </div>
+              <h2 className="text-xl font-black text-white tracking-tight">Đăng nhập để tiếp tục</h2>
+              <p className="text-[11px] text-violet-300/50 mt-1" style={{ fontFamily: "'JetBrains Mono',monospace" }}>
+                Bạn đã dùng hết 4 lượt AI miễn phí. Đăng nhập để tiếp tục tạo design.
+              </p>
+            </div>
+            <div className="px-6 py-6 flex flex-col gap-3">
+              <input className="w-full px-4 py-3 rounded-xl bg-white/5 border border-violet-400/15 text-sm text-white placeholder:text-violet-300/30 focus:outline-none focus:border-violet-400/40" placeholder="Email / Username" />
+              <input type="password" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-violet-400/15 text-sm text-white placeholder:text-violet-300/30 focus:outline-none focus:border-violet-400/40" placeholder="Password" />
+              <button
+                onClick={() => {
+                  sessionStorage.setItem('user', JSON.stringify({ username: 'user', token: 'user-token-2026' }));
+                  genCountRef.current = 0;
+                  sessionStorage.setItem('ai_gen_count', '0');
+                  setShowLoginModal(false);
+                }}
+                className="w-full py-3 rounded-xl bg-[#7C3AED] text-white text-[12px] font-black uppercase tracking-[0.15em] hover:bg-[#6d28d9] transition-colors">
+                🔓 Đăng Nhập
+              </button>
+              <button onClick={() => setShowLoginModal(false)} className="text-[11px] text-violet-300/40 hover:text-violet-300/60 transition-colors">
+                Để sau
               </button>
             </div>
           </div>

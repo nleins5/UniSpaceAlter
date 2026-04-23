@@ -1,108 +1,120 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+const mono = { fontFamily: "'JetBrains Mono',monospace" };
 
-export default function AdminHubPage() {
-  const router = useRouter();
-  const [status, setStatus] = useState("Đang khởi tạo phiên admin...");
+const KPIS = [
+  { id: "082", label: "Revenue Stream", value: "$1.24M", trend: "+14.2%", status: "OPTIMIZED", color: "#7C3AED", up: true },
+  { id: "104", label: "Active Orders", value: "8,492", trend: "-0.4%", status: "STABLE", color: "#fff", up: false },
+  { id: "019", label: "Total Users", value: "142.5K", trend: "+22.8%", status: "SURGE", color: "#7C3AED", up: true },
+  { id: "211", label: "Conversion Rate", value: "4.12%", trend: "-1.2%", status: "DEVIATION", color: "#ff6b6b", up: false },
+];
 
-  const enterAsAdmin = () => {
-    // Inject a mock admin session so auth guards pass
-    sessionStorage.setItem("user", JSON.stringify({
-      username: "admin",
-      admin: true,
-      token: "dev-test-token-unispace-admin-2026",
-    }));
-    setStatus("✅ Phiên admin đã được tạo. Đang chuyển hướng...");
-    setTimeout(() => router.push("/admin/designs"), 800);
-  };
+const LOGS = [
+  { time: "14:02:11", msg: "AUTH_SUCCESS: User_ID #9021", type: "normal" },
+  { time: "14:01:45", msg: "SYNC_INIT: Node_Alpha → Node_Beta", type: "normal" },
+  { time: "13:59:02", msg: "WARN: Payload size exceeds threshold (8.2MB)", type: "error" },
+  { time: "13:55:18", msg: "DB_QUERY: Index optimized (+14ms)", type: "normal" },
+  { time: "13:50:00", msg: "CRON: Scheduled backup complete.", type: "accent" },
+];
 
-  useEffect(() => {
-    // Auto-enter if already has admin session
-    const raw = sessionStorage.getItem("user");
-    if (raw) {
-      try {
-        const u = JSON.parse(raw);
-        if (u.admin) { router.push("/admin/designs"); return; }
-      } catch { /* continue */ }
-    }
-    setStatus("Chưa có phiên admin. Nhấn nút bên dưới để vào test.");
-  }, [router]);
-
+export default function AdminDashboard() {
   return (
-    <div className="min-h-screen bg-[#0c081c] flex items-center justify-center p-6">
-      {/* Blueprint grid */}
-      <div className="fixed inset-0 pointer-events-none admin-grid-bg" />
+    <div className="max-w-[1600px] mx-auto">
+      {/* Header */}
+      <div className="mb-8 border-b border-[#333] pb-4">
+        <h1 className="text-3xl font-black tracking-tighter uppercase">SYSTEM OVERVIEW // REAL-TIME METRICS</h1>
+        <div className="flex items-center mt-2 gap-4 text-xs text-[#9ca3af]" style={mono}>
+          <span className="flex items-center"><span className="w-2 h-2 bg-[#7C3AED] mr-2" /> TERMINAL_ACTIVE</span>
+          <span>|</span><span>UPTIME: 94:12:08</span><span>|</span>
+          <span className="text-[#7C3AED]">SECURE_CONNECTION</span>
+        </div>
+      </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Card */}
-        <div className="rounded-3xl overflow-hidden border border-violet-400/15 admin-card-glass">
-
-          {/* Header */}
-          <div className="px-8 py-6 border-b border-violet-400/10 admin-card-header">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-400/60 font-mono">
-                UniSpace Admin
-              </span>
+      {/* KPI Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-[#333] p-px mb-8">
+        {KPIS.map(k => (
+          <div key={k.id} className="p-6 relative group" style={{ background: 'rgba(26,26,26,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(51,51,51,1)' }}>
+            <div className="flex justify-between items-start mb-4">
+              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-widest" style={mono}>METRIC_ID: {k.id}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 border" style={{
+                ...mono,
+                color: k.color,
+                background: k.color === '#fff' ? 'rgba(255,255,255,0.1)' : `${k.color}15`,
+                borderColor: k.color === '#fff' ? 'rgba(255,255,255,0.2)' : `${k.color}30`,
+              }}>STATUS: {k.status}</span>
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">
-              Admin Panel
-            </h1>
-            <p className="text-[12px] text-violet-300/50 mt-1 font-mono">
-              Development Test Mode
-            </p>
+            <div className="text-sm font-bold mb-1 uppercase tracking-wider">{k.label}</div>
+            <div className="text-4xl font-bold mb-2" style={{ ...mono, color: k.color === '#fff' ? '#fff' : k.color }}>{k.value}</div>
+            <div className="flex items-center text-xs" style={{ ...mono, color: k.color === '#fff' ? '#9ca3af' : k.color }}>
+              <span className="material-symbols-outlined text-[14px] mr-1">{k.up ? 'trending_up' : k.trend.startsWith('-') ? 'trending_down' : 'trending_flat'}</span>
+              {k.trend} / CYCL
+            </div>
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderColor: `${k.color}80` }} />
           </div>
+        ))}
+      </div>
 
-          {/* Body */}
-          <div className="px-8 py-8 flex flex-col gap-5">
-            {/* Status message */}
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-violet-400/15 admin-status-bg">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/>
-              </svg>
-              <span className="text-[11px] text-violet-300/70 font-mono">{status}</span>
+      {/* Chart + Logs */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Chart */}
+        <div className="lg:col-span-2 p-6 flex flex-col" style={{ background: 'rgba(26,26,26,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(51,51,51,1)' }}>
+          <div className="flex justify-between items-center mb-6 border-b border-[#333] pb-4">
+            <div>
+              <h3 className="text-lg font-black uppercase tracking-widest">Performance Growth</h3>
+              <p className="text-xs text-[#9ca3af] mt-1" style={mono}>DATA_SET: Q3_AGGREGATE // INTERVAL: H1</p>
             </div>
-
-            {/* Warning */}
-            <div className="px-4 py-3 rounded-xl border border-yellow-400/15 admin-warning-bg">
-              <p className="text-[10px] text-yellow-400/60 font-mono leading-relaxed">
-                ⚠️ Trang này chỉ dùng để test. Phiên admin giả sẽ được tạo trong sessionStorage và mất khi đóng tab.
-              </p>
-            </div>
-
-            {/* Enter button */}
-            <button
-              onClick={enterAsAdmin}
-              className="w-full py-4 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] text-white transition-all hover:scale-[1.02] active:scale-[0.98] admin-cta-btn"
-            >
-              🚀 Vào Admin Panel
-            </button>
-
-            {/* Nav links */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              {[
-                { label: "📋 Đơn hàng", href: "/admin/designs" },
-                { label: "👥 Người dùng", href: "/admin/users" },
-                { label: "🎨 Design Studio", href: "/design" },
-                { label: "🏠 Trang chủ", href: "/" },
-              ].map(({ label, href }) => (
-                <a key={href} href={href}
-                  className="flex items-center justify-center py-2.5 px-3 rounded-xl text-[11px] font-bold text-violet-300/60 hover:text-violet-200 transition-all border border-violet-400/10 hover:border-violet-400/25 admin-nav-link">
-                  {label}
-                </a>
+            <div className="flex gap-2">
+              {["1D","7D","30D"].map((t,i) => (
+                <button key={t} className={`px-3 py-1 text-xs border transition-colors ${i===1 ? 'border-[#7C3AED] bg-[#7C3AED]/10 text-[#7C3AED]' : 'border-[#333] text-[#9ca3af] hover:bg-[#333] hover:text-white'}`} style={mono}>{t}</button>
               ))}
             </div>
           </div>
+          <div className="flex-1 relative min-h-[300px] border-l border-b border-[#333] ml-10">
+            {/* Y axis */}
+            <div className="absolute left-[-40px] top-0 bottom-0 flex flex-col justify-between text-[10px] text-[#9ca3af] text-right w-8" style={mono}>
+              <span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
+            </div>
+            {/* Grid */}
+            <div className="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+              {[0,1,2,3].map(i => <div key={i} className="w-full border-t border-white border-dashed" />)}
+              <div className="w-full" />
+            </div>
+            {/* SVG Chart */}
+            <svg className="absolute inset-0 w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M0,80 L20,60 L40,65 L60,30 L80,45 L100,10" fill="none" stroke="rgba(124,58,237,0.3)" strokeWidth="4" filter="url(#blur)" />
+              <path d="M0,80 L20,60 L40,65 L60,30 L80,45 L100,10" fill="none" stroke="#7C3AED" strokeWidth="2" />
+              <circle cx="80" cy="45" r="4" fill="#1a1a1a" stroke="#7C3AED" strokeWidth="2" />
+              <circle cx="80" cy="45" r="8" fill="none" stroke="#7C3AED" strokeWidth="1" strokeDasharray="2,2">
+                <animateTransform attributeName="transform" type="rotate" from="0 80 45" to="360 80 45" dur="4s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+            {/* Tooltip */}
+            <div className="absolute left-[80%] top-[35%] -translate-x-1/2 -translate-y-full mb-2 bg-[#1a1a1a] border border-[#7C3AED]/50 p-2 text-xs shadow-lg" style={mono}>
+              <div className="text-[#7C3AED] mb-1">VAL: 84.2K</div>
+              <div className="text-[#9ca3af]">TME: 14:00</div>
+            </div>
+            {/* X axis */}
+            <div className="absolute bottom-[-24px] left-0 right-0 flex justify-between text-[10px] text-[#9ca3af] px-4" style={mono}>
+              {["MON","TUE","WED","THU","FRI","SAT"].map((d,i) => (
+                <span key={d} className={i===4 ? 'text-[#7C3AED] font-bold' : ''}>{d}</span>
+              ))}
+            </div>
+          </div>
+        </div>
 
-          {/* Footer */}
-          <div className="px-8 py-4 border-t border-violet-400/[0.08] flex items-center justify-between">
-            <span className="text-[9px] font-mono text-violet-400/30 uppercase tracking-widest">
-              UniSpace Admin v1.0
-            </span>
-            <span className="text-[9px] font-mono text-violet-400/30">
-              DEV BUILD
-            </span>
+        {/* System Logs */}
+        <div className="p-6 flex flex-col" style={{ background: 'rgba(26,26,26,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(51,51,51,1)' }}>
+          <h3 className="text-lg font-black uppercase tracking-widest border-b border-[#333] pb-4 mb-4">System Logs</h3>
+          <div className="flex-1 overflow-hidden space-y-3 text-xs" style={mono}>
+            {LOGS.map((l,i) => (
+              <div key={i} className="flex items-start">
+                <span className={`mr-2 ${l.type === 'error' ? 'text-[#ff6b6b]' : l.type === 'accent' ? 'text-[#7C3AED]' : 'text-white'}`}>[{l.time}]</span>
+                <span className={l.type === 'error' ? 'text-[#ff6b6b]' : l.type === 'accent' ? 'text-[#7C3AED]' : 'text-[#9ca3af]'}>{l.msg}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t border-[#333] flex justify-between items-center">
+            <span className="text-[10px] text-[#9ca3af]" style={mono}>STATUS: LISTENING...</span>
+            <button className="text-xs font-bold uppercase hover:text-[#7C3AED] transition-colors">Export Logs</button>
           </div>
         </div>
       </div>

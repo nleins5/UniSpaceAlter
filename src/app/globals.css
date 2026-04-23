@@ -126,82 +126,84 @@ body::after {
 }
 
 /* ─── Glacier Design System ─── */
-/* Frozen Light — ice-blue (#7dd3fc) glassmorphism tokens */
+/* Violet Prism — purple (#a78bfa / #7C3AED) glassmorphism tokens */
 
 /* Glass surfaces */
 .gl-panel {
-  background: rgba(15, 21, 36, 0.75);
-  border: 1px solid rgba(125, 211, 252, 0.1);
+  background: rgba(20, 12, 40, 0.80);
+  border: 1px solid rgba(167, 139, 250, 0.12);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
 }
 .gl-panel-deep {
-  background: rgba(10, 14, 26, 0.95);
-  border: 1px solid rgba(125, 211, 252, 0.08);
+  background: rgba(12, 8, 28, 0.96);
+  border: 1px solid rgba(167, 139, 250, 0.08);
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
 }
 .gl-surface {
-  background: rgba(10, 14, 26, 0.6);
-  border: 1px solid rgba(125, 211, 252, 0.08);
+  background: rgba(12, 8, 28, 0.65);
+  border: 1px solid rgba(167, 139, 250, 0.08);
 }
 .gl-surface-mid {
-  background: rgba(15, 21, 36, 0.6);
-  border: 1px solid rgba(125, 211, 252, 0.08);
+  background: rgba(20, 12, 40, 0.65);
+  border: 1px solid rgba(167, 139, 250, 0.08);
 }
 .gl-input {
-  background: rgba(10, 14, 26, 0.8);
-  border: 1px solid rgba(125, 211, 252, 0.15);
+  background: rgba(12, 8, 28, 0.85);
+  border: 1px solid rgba(167, 139, 250, 0.18);
 }
 .gl-input-main {
-  background: rgba(15, 21, 36, 0.75);
-  border: 1px solid rgba(125, 211, 252, 0.15);
+  background: rgba(20, 12, 40, 0.80);
+  border: 1px solid rgba(167, 139, 250, 0.18);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
 }
 
 /* Borders */
-.gl-border { border: 1px solid rgba(125, 211, 252, 0.1); }
-.gl-border-bright { border: 1px solid rgba(125, 211, 252, 0.15); }
-.gl-border-dim { border: 1px solid rgba(125, 211, 252, 0.08); }
-.gl-border-accent { border: 1px solid rgba(125, 211, 252, 0.25); }
-.gl-border-top { border-top: 1px solid rgba(125, 211, 252, 0.08); }
+.gl-border { border: 1px solid rgba(167, 139, 250, 0.10); }
+.gl-border-bright { border: 1px solid rgba(167, 139, 250, 0.18); }
+.gl-border-dim { border: 1px solid rgba(167, 139, 250, 0.07); }
+.gl-border-accent { border: 1px solid rgba(167, 139, 250, 0.30); }
+.gl-border-top { border-top: 1px solid rgba(167, 139, 250, 0.08); }
 
 /* Active selected state */
 .gl-active {
-  background: rgba(125, 211, 252, 0.1);
-  border: 1px solid rgba(125, 211, 252, 0.3);
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.35);
 }
 .gl-active-glow {
-  background: rgba(125, 211, 252, 0.08);
-  border: 1px solid rgba(125, 211, 252, 0.2);
+  background: rgba(124, 58, 237, 0.10);
+  border: 1px solid rgba(167, 139, 250, 0.22);
 }
-.gl-hover-ring:hover { box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.2); }
-.gl-active-ring { box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.4); }
+.gl-hover-ring:hover { box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.22); }
+.gl-active-ring { box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.45); }
 
 /* Icon/accent containers */
-.gl-icon-bg { background: rgba(125, 211, 252, 0.1); }
-.gl-icon-bg-dim { background: rgba(125, 211, 252, 0.05); }
+.gl-icon-bg { background: rgba(124, 58, 237, 0.15); }
+.gl-icon-bg-dim { background: rgba(124, 58, 237, 0.07); }
 .gl-accent-badge {
-  background: #7dd3fc;
-  color: #0a0e1a;
-  box-shadow: 0 0 12px rgba(125, 211, 252, 0.3);
+  background: #7C3AED;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.40);
 }
-.gl-tint-line { border: 1px solid rgba(125, 211, 252, 0.08); }
-.gl-dashed-sep { border-top: 1px dashed rgba(125, 211, 252, 0.1); }
+.gl-tint-line { border: 1px solid rgba(167, 139, 250, 0.08); }
+.gl-dashed-sep { border-top: 1px dashed rgba(167, 139, 250, 0.12); }
 
 /* Bottom bar */
 .gl-bottom-bar {
-  background: rgba(10, 14, 26, 0.95);
-  border-top: 1px solid rgba(125, 211, 252, 0.08);
+  background: rgba(12, 8, 28, 0.96);
+  border-top: 1px solid rgba(167, 139, 250, 0.08);
 }
 
 /* Side picker active thumbnail */
 .gl-thumb-active {
-  border: 2px solid #7dd3fc;
-  box-shadow: 0 0 16px rgba(125, 211, 252, 0.3);
+  border: 2px solid #a78bfa;
+  box-shadow: 0 0 16px rgba(167, 139, 250, 0.35);
 }
-.gl-thumb-idle { border: 1px solid rgba(125, 211, 252, 0.15); }
+.gl-thumb-idle { border: 1px solid rgba(167, 139, 250, 0.15); }
+
+
 
 /* ═══════════════════════════════════════════════════════
    GENERAL UI COMPONENTS (Landing page, Order page, etc.)

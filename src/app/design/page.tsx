@@ -8,12 +8,12 @@ import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, La
 // All coords are in virtual canvas units (400 wide × 480 tall)
 const SNAP_SLOTS = [
   {
-    // Front Center: mid-chest print zone
+    // Front Center: upper-chest print zone
     id: "front-center",
     label: "Front Center",
     desc: "Vùng in lớn mặt trước — giữa ngực",
     side: "front" as const,
-    x: 115, y: 110, width: 170, height: 170,
+    x: 115, y: 85, width: 170, height: 170,
     icon: "⬛",
   },
   {
@@ -22,16 +22,16 @@ const SNAP_SLOTS = [
     label: "Chest Logo",
     desc: "Logo nhỏ góc ngực trái — kiểu pocket logo",
     side: "front" as const,
-    x: 90, y: 100, width: 70, height: 70,
+    x: 90, y: 80, width: 70, height: 70,
     icon: "🔲",
   },
   {
-    // Back Center: centered upper back
+    // Back Center: upper-center back
     id: "back-center",
     label: "Back Center",
-    desc: "Vùng in lớn mặt sau — giữa lưng",
+    desc: "Vùng in lớn mặt sau — giữa lưng trên",
     side: "back" as const,
-    x: 115, y: 100, width: 170, height: 170,
+    x: 115, y: 78, width: 170, height: 170,
     icon: "🔳",
   },
 ] as const;
@@ -800,10 +800,41 @@ export default function DesignPage() {
     setSlotPicker({ image });
   }, []);
 
-  // Called once user picks a slot
-  const handlePlaceInSlot = useCallback((slotId: SnapSlotId) => {
+  // ── Client-side white background removal via Canvas API ───
+  const removeWhiteBg = useCallback((src: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        // Threshold: pixels with R,G,B all >= 230 are considered "white/near-white"
+        const threshold = 230;
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          if (r >= threshold && g >= threshold && b >= threshold) {
+            data[i + 3] = 0; // make transparent
+          }
+        }
+        ctx.putImageData(imageData, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(src); // fallback: keep original
+      img.src = src;
+    });
+  }, []);
+
+  // Called once user picks a slot — removes white bg first, then places
+  const handlePlaceInSlot = useCallback(async (slotId: SnapSlotId) => {
     if (!slotPicker) return;
     const slot = SNAP_SLOTS.find(s => s.id === slotId)!;
+    // Strip white background client-side before placing
+    const cleanUrl = await removeWhiteBg(slotPicker.image.url);
     setElements(prev => {
       pushHistory(prev);
       // Replace any existing element in this exact slot
@@ -812,7 +843,7 @@ export default function DesignPage() {
         id: `el-${Date.now()}`,
         type: "image" as const,
         label: slotPicker.image.label,
-        url: slotPicker.image.url,
+        url: cleanUrl,
         x: slot.x, y: slot.y,
         width: slot.width, height: slot.height,
         rotation: 0,

@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles, RefreshCw, Type } from "lucide-react";
+import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles, RefreshCw, Type, Upload } from "lucide-react";
 
 // ─── Fixed Snap Slots ─────────────────────────────────────────
 // All coords are in virtual canvas units (400 wide × 480 tall)
@@ -679,6 +679,7 @@ export default function DesignPage() {
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
   const [suggestedDesigns, setSuggestedDesigns] = useState<AIImage[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<AIImage[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const suggestionsLoaded = useRef(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -1600,40 +1601,71 @@ export default function DesignPage() {
                 )}
 
                 {/* Chat input */}
-                <div className="relative mt-auto group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/30 to-fuchsia-600/30 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
-                  <input
-                    value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                    placeholder="Mô tả ý tưởng thiết kế..."
-                    className="relative w-full px-5 py-4 text-[14px] outline-none transition-all pr-16 text-white placeholder:text-violet-300/40 rounded-2xl bg-[#0c081c]/90 border border-violet-500/30 focus:border-violet-400 focus:bg-[#140d33] focus:shadow-[inset_0_2px_20px_rgba(124,58,237,0.15)] font-[family-name:var(--font-space-grotesk)]"
-                  />
-                  <button
-                    onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                    disabled={isLoading || (!isLoggedIn() && genCount >= 4)}
-                    title="Generate AI design"
-                    aria-label="Generate AI design"
-                    className="absolute right-2 top-2 bottom-2 w-12 flex items-center justify-center bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white rounded-xl hover:shadow-[0_0_20px_rgba(167,139,250,0.6)] hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed z-10 border border-white/10"
-                  >
-                    <Zap size={20} className={isLoading ? "animate-pulse" : "fill-white/20"} />
-                  </button>
+                <div className="relative mt-auto pt-4 group">
+                  {/* Glowing border wrapper */}
+                  <div className="relative p-[2px] rounded-[24px] bg-gradient-to-r from-violet-600/40 via-fuchsia-500/40 to-violet-600/40 group-focus-within:from-violet-500 group-focus-within:via-fuchsia-400 group-focus-within:to-violet-500 transition-all duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 blur-xl opacity-20 group-focus-within:opacity-50 transition-opacity rounded-[24px] pointer-events-none" />
+                    
+                    <div className="relative flex items-center bg-[#070410] rounded-[22px] overflow-hidden shadow-2xl">
+                      <input
+                        value={chatInput} onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
+                        placeholder="Mô tả ý tưởng..."
+                        className="flex-1 px-6 py-5 text-[16px] outline-none transition-all text-white placeholder:text-violet-300/30 bg-transparent font-[family-name:var(--font-space-grotesk)]"
+                      />
+                      <div className="pr-2 py-2">
+                        <button
+                          onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
+                          disabled={isLoading || (!isLoggedIn() && genCount >= 4)}
+                          title="Generate AI design"
+                          className="w-12 h-12 flex items-center justify-center bg-white text-[#4c1d95] rounded-[16px] hover:shadow-[0_0_25px_rgba(255,255,255,0.8)] hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Zap size={24} className={isLoading ? "animate-pulse" : "fill-[#4c1d95]"} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
             {activeTab === "gallery" && (
               <div className="flex flex-col gap-4 animate-in fade-in duration-300">
+                {/* Upload Button */}
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400">YOUR GALLERY</span>
+                  <label className="cursor-pointer">
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const newImage = {
+                          id: `upload-${Date.now()}`,
+                          url: URL.createObjectURL(file),
+                          label: file.name
+                        };
+                        setUploadedImages(prev => [newImage, ...prev]);
+                      }
+                      e.target.value = '';
+                    }} />
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 rounded-lg transition-colors border border-violet-500/30 shadow-sm">
+                      <Upload size={12} />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Upload Image</span>
+                    </div>
+                  </label>
+                </div>
+
                 {(() => {
                   const aiImages = messages.filter(m => m.role === "ai").flatMap(m => m.images || []);
-                  return aiImages.length === 0 ? (
+                  const allImages = [...uploadedImages, ...aiImages];
+                  return allImages.length === 0 ? (
                     <div className="py-20 text-center text-gray-600">
-                      <Sparkles size={32} className="mx-auto mb-3 text-violet-400/30" />
-                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-500">No AI images yet</p>
-                      <p className="text-[10px] text-gray-500/60 mt-1 font-mono">Use the AI tab to generate designs</p>
+                      <ImageIcon size={32} className="mx-auto mb-3 text-violet-400/30" />
+                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-500">Empty Gallery</p>
+                      <p className="text-[10px] text-gray-500/60 mt-1 font-mono">Upload images or generate with AI</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 gap-3">
-                      {aiImages.map((img) => (
+                      {allImages.map((img) => (
                         <button key={img.id}
                           onClick={() => handleDropImage(img)}
                           className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"

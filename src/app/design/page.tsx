@@ -79,8 +79,8 @@ function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: s
       const imgR = img.width / img.height;
       const boxR = W / H;
       let dw = W, dh = H, dx = 0, dy = 0;
-      if (imgR > boxR) { dh = W / imgR; dy = (H - dh) / 2; }
-      else { dw = H * imgR; dx = (W - dw) / 2; }
+      if (imgR > boxR) { dh = W / imgR; /* top-align: dy stays 0 */ }
+      else { dw = H * imgR; dx = (W - dw) / 2; /* center horizontally only */ }
 
       ctx.clearRect(0, 0, W, H);
 
@@ -946,12 +946,12 @@ export default function DesignPage() {
               </div>
 
               {/* MAIN: desktop = 2 rows (back + front), mobile = active side only */}
-              <div className="flex-1 flex flex-row gap-1 overflow-hidden h-full min-h-0">
+              <div className="flex-1 flex flex-row gap-0 overflow-hidden h-full min-h-0">
 
                 {/* ── BACK VIEW — shown always on desktop, mobile only when side=back ── */}
-                <div className={`flex gap-3 items-start overflow-hidden ${side === 'back' ? 'flex-1' : 'md:w-[50%] hidden md:flex'} h-full`}>
+                <div className={`flex gap-1 items-start overflow-hidden ${side === 'back' ? 'flex-1' : 'md:w-[50%] hidden md:flex'} h-full`}>
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
-                    <span className="text-[7px] font-black uppercase text-gray-500 tracking-widest mb-1 shrink-0">BACK VIEW</span>
+                    <span className="text-[7px] font-black uppercase text-gray-500 tracking-widest mb-0 shrink-0">BACK VIEW</span>
                     <div ref={backCanvasRef} className="flex-1 w-full min-h-0 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
@@ -969,7 +969,7 @@ export default function DesignPage() {
                 </div>
 
                 {/* ── FRONT VIEW — shown always on desktop, mobile only when side=front ── */}
-                <div className={`flex gap-3 items-end overflow-hidden ${side === 'front' ? 'flex-1' : 'md:w-[50%] hidden md:flex'} h-full`}>
+                <div className={`flex gap-1 items-start overflow-hidden ${side === 'front' ? 'flex-1' : 'md:w-[50%] hidden md:flex'} h-full`}>
                   {/* Logo upload — desktop only */}
                   <div className="hidden md:flex flex-col items-center shrink-0 self-end">
                     <span className="text-[5px] font-black uppercase text-gray-400 mb-1 tracking-widest">LOGO</span>
@@ -997,7 +997,7 @@ export default function DesignPage() {
                   </div>
                   {/* Front shirt */}
                   <div className="flex flex-col items-center h-full min-h-0 flex-1 min-w-0">
-                    <span className="text-[7px] font-black uppercase text-gray-500 tracking-widest mb-1 shrink-0">FRONT VIEW</span>
+                    <span className="text-[7px] font-black uppercase text-gray-500 tracking-widest mb-0 shrink-0">FRONT VIEW</span>
                     <div ref={frontCanvasRef} className="flex-1 w-full min-h-0 relative">
                       <DesignCanvas
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}

@@ -1452,7 +1452,7 @@ export default function DesignPage() {
                 className={`group relative w-11 h-11 flex items-center justify-center transition-all duration-300 rounded-2xl ${
                   isActive ? 'text-white' : 'text-gray-500 hover:text-violet-300'
                 }`}
-                title={item.title}
+                title={tabData.title}
               >
                 {/* Active Background Glow */}
                 {isActive && (

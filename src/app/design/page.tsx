@@ -916,30 +916,35 @@ export default function DesignPage() {
                         onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropTextBack}
                         side="back" tshirtColor={tshirtColor} garmentType={garmentType}
                       />
-                      {/* Back view annotations — percentage-based */}
-                      <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 hidden md:block" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        {/* RAGLAN SLEEVE CONSTRUCTION — left raglan seam */}
-                        <line x1="3" y1="25" x2="18" y2="15" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="1" y="27" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">RAGLAN SLEEVE</text>
-                        <text x="1" y="29" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">CONSTRUCTION</text>
-                        {/* SUBLIMATED PIPING — shoulder seam */}
-                        <line x1="30" y1="8" x2="40" y2="5" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="30" y="4" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">SUBLIMATED PIPING</text>
+                      {/* Back view annotations — mapped to 990×1100 canvas coords */}
+                      <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 hidden md:block" viewBox="0 0 990 1100" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
+                        {/* RAGLAN SLEEVE CONSTRUCTION — left raglan seam at armpit */}
+                        <line x1="80" y1="400" x2="180" y2="300" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="10" y="420" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">RAGLAN SLEEVE</text>
+                        <text x="10" y="440" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">CONSTRUCTION</text>
+
+                        {/* SUBLIMATED PIPING — shoulder/neckline seam */}
+                        <line x1="300" y1="90" x2="380" y2="55" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="200" y="75" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SUBLIMATED PIPING</text>
+
                         {/* SLEEVE LENGTH — right sleeve */}
-                        <line x1="85" y1="22" x2="97" y2="20" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="85" y="18" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">SLEEVE LENGTH:</text>
-                        <text x="88" y="20" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">24CM</text>
-                        {/* EMBROIDERED PATCH AREA — mid-back */}
-                        <line x1="3" y1="60" x2="30" y2="55" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="1" y="62" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">EMBROIDERED</text>
-                        <text x="1" y="64" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">PATCH AREA</text>
-                        {/* MESH VENTILATION PANEL — lower side */}
-                        <line x1="3" y1="72" x2="22" y2="70" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="1" y="74" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">MESH VENTILATION</text>
-                        <text x="3" y="76" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">PANEL</text>
-                        {/* BOTTOM HEM: DOUBLE STITCH */}
-                        <line x1="35" y1="95" x2="45" y2="90" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="25" y="97" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">BOTTOM HEM: DOUBLE STITCH</text>
+                        <line x1="900" y1="260" x2="960" y2="290" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="860" y="240" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SLEEVE LENGTH:</text>
+                        <text x="890" y="260" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">24CM</text>
+
+                        {/* EMBROIDERED PATCH AREA — mid-back body */}
+                        <line x1="100" y1="680" x2="300" y2="650" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="10" y="710" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">EMBROIDERED</text>
+                        <text x="10" y="730" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">PATCH AREA</text>
+
+                        {/* MESH VENTILATION PANEL — lower side panel */}
+                        <line x1="100" y1="830" x2="200" y2="800" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="10" y="850" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">MESH VENTILATION</text>
+                        <text x="10" y="870" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">PANEL</text>
+
+                        {/* BOTTOM HEM: DOUBLE STITCH — hem at y≈1050 */}
+                        <line x1="350" y1="1080" x2="450" y2="1050" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="250" y="1095" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">BOTTOM HEM: DOUBLE STITCH</text>
                       </svg>
                     </div>
                   </div>
@@ -956,23 +961,26 @@ export default function DesignPage() {
                         onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropTextFront}
                         side="front" tshirtColor={tshirtColor} garmentType={garmentType}
                       />
-                      {/* Front view annotations — percentage-based */}
-                      <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 hidden md:block" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        {/* NECK RIB — V-neck collar */}
-                        <line x1="55" y1="8" x2="70" y2="5" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="70" y="4" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">NECK RIB:</text>
-                        <text x="70" y="6" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">1X1 COTTON/SPANDEX</text>
-                        {/* FRONT FULL-LENGTH BUTTONS */}
-                        <line x1="52" y1="35" x2="70" y2="32" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="70" y="31" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">FRONT-SIZE BUTTON/</text>
-                        <text x="70" y="33" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">SPANDEX</text>
-                        {/* SET-IN SLEEVES — right arm */}
-                        <line x1="85" y1="30" x2="97" y2="35" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="88" y="38" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">SET-IN</text>
-                        <text x="88" y="40" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">SLEEVES</text>
-                        {/* DOUBLE NEEDLE HEM */}
-                        <line x1="60" y1="92" x2="75" y2="95" stroke="black" strokeWidth="0.12" strokeDasharray="0.8 0.4" />
-                        <text x="70" y="97" fontSize="1.4" fontFamily="monospace" fontWeight="900" fill="black">DOUBLE NEEDLE HEM</text>
+                      {/* Front view annotations — mapped to 990×1100 canvas coords */}
+                      <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 hidden md:block" viewBox="0 0 990 1100" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
+                        {/* NECK RIB — collar at neckline y≈25 */}
+                        <line x1="550" y1="60" x2="680" y2="35" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="690" y="28" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">NECK RIB:</text>
+                        <text x="690" y="48" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">1X1 COTTON/SPANDEX</text>
+
+                        {/* FRONT BUTTON PLACKET — center buttons at x≈495 */}
+                        <line x1="530" y1="450" x2="700" y2="420" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="710" y="415" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">FULL-LENGTH</text>
+                        <text x="710" y="435" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">BUTTON PLACKET</text>
+
+                        {/* SET-IN SLEEVES — right arm junction at armpit y≈464 */}
+                        <line x1="850" y1="350" x2="920" y2="380" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="880" y="405" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SET-IN</text>
+                        <text x="880" y="425" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">SLEEVES</text>
+
+                        {/* DOUBLE NEEDLE HEM — hem at y≈1050 */}
+                        <line x1="600" y1="1070" x2="720" y2="1080" stroke="black" strokeWidth="1" strokeDasharray="6 3" />
+                        <text x="640" y="1095" fontSize="16" fontFamily="monospace" fontWeight="900" fill="black">DOUBLE NEEDLE HEM</text>
                       </svg>
                     </div>
                   </div>

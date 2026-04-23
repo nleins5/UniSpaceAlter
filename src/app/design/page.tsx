@@ -4,6 +4,37 @@ import Link from "next/link";
 import Image from "next/image";
 import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles, RefreshCw } from "lucide-react";
 
+// ─── Fixed Snap Slots ─────────────────────────────────────────
+// All coords are in virtual canvas units (400 wide × 480 tall)
+const SNAP_SLOTS = [
+  {
+    id: "front-center",
+    label: "Front Center",
+    desc: "Large artwork — mặt trước",
+    side: "front" as const,
+    x: 80, y: 120, width: 240, height: 240,
+    icon: "⬛",
+  },
+  {
+    id: "chest-logo",
+    label: "Chest Logo",
+    desc: "Logo nhỏ ngay ngực trái",
+    side: "front" as const,
+    x: 60, y: 100, width: 90, height: 90,
+    icon: "🔲",
+  },
+  {
+    id: "back-center",
+    label: "Back Center",
+    desc: "Artwork mặt sau",
+    side: "back" as const,
+    x: 80, y: 100, width: 240, height: 240,
+    icon: "🔳",
+  },
+] as const;
+
+type SnapSlotId = typeof SNAP_SLOTS[number]["id"];
+
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
   id: string;
@@ -21,7 +52,7 @@ interface DesignElement {
   height: number;
   rotation: number;
   side: "front" | "back" | "side";
-  slot?: "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging" | "front-artwork" | "back-artwork";
+  slot?: SnapSlotId | "shirt" | "neck-label" | "hang-tag" | "logo-detail" | "packaging" | "front-artwork" | "back-artwork";
   locked?: boolean;
 }
 
@@ -746,15 +777,38 @@ export default function DesignPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleDropImage = useCallback((image: AIImage, x: number, y: number) => {
+  // ── Slot picker state ─────────────────────────────────────
+  const [slotPicker, setSlotPicker] = useState<{ image: AIImage } | null>(null);
+
+  // Open the slot picker instead of placing freely
+  const handleDropImage = useCallback((image: AIImage, _x?: number, _y?: number) => {
+    setSlotPicker({ image });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Called once user picks a slot
+  const handlePlaceInSlot = useCallback((slotId: SnapSlotId) => {
+    if (!slotPicker) return;
+    const slot = SNAP_SLOTS.find(s => s.id === slotId)!;
     setElements(prev => {
       pushHistory(prev);
-      return [...prev, {
-        id: `el-${Date.now()}`, type: "image", label: image.label, url: image.url, 
-        x, y, width: 160, height: 160, rotation: 0, side, locked: false
+      // Replace any existing element in this exact slot
+      const filtered = prev.filter(el => el.slot !== slotId);
+      return [...filtered, {
+        id: `el-${Date.now()}`,
+        type: "image" as const,
+        label: slotPicker.image.label,
+        url: slotPicker.image.url,
+        x: slot.x, y: slot.y,
+        width: slot.width, height: slot.height,
+        rotation: 0,
+        side: slot.side,
+        slot: slotId,
+        locked: true,
       }];
     });
-  }, [side, pushHistory]);
+    setSlotPicker(null);
+  }, [slotPicker, pushHistory]);
 
   // Drop image to a specific side (used by MiniPreview thumbnails)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -983,7 +1037,8 @@ export default function DesignPage() {
   }, [elements, tshirtColor, garmentType]);
 
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
-    setElements(prev => prev.map(el => el.id === id ? { ...el, x, y } : el));
+    // Images placed in snap slots are locked — no movement
+    setElements(prev => prev.map(el => (el.id === id && !el.locked) ? { ...el, x, y } : el));
   }, []);
 
   const handleResizeElement = useCallback((id: string, width: number, height: number, x?: number, y?: number) => {
@@ -992,6 +1047,55 @@ export default function DesignPage() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-white overflow-hidden font-sans text-black">
+
+      {/* ── SLOT PICKER MODAL ─────────────────────────────── */}
+      {slotPicker && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{background:'rgba(10,8,20,0.85)'}} onClick={() => setSlotPicker(null)}>
+          <div className="rounded-2xl p-6 w-[340px] flex flex-col gap-4" style={{background:'rgba(20,12,40,0.98)',border:'1px solid rgba(167,139,250,0.25)'}} onClick={e => e.stopPropagation()}>
+            {/* Preview */}
+            <div className="flex items-center gap-3 pb-3" style={{borderBottom:'1px solid rgba(167,139,250,0.12)'}}>
+              <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0" style={{background:'rgba(124,58,237,0.1)',border:'1px solid rgba(167,139,250,0.2)'}}>
+                <img src={slotPicker.image.url} alt={slotPicker.image.label} className="w-full h-full object-contain p-1" />
+              </div>
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-widest text-white">{slotPicker.image.label}</p>
+                <p className="text-[10px] text-purple-400 mt-0.5">Chọn vị trí đặt thiết kế</p>
+              </div>
+            </div>
+
+            {/* Slot options */}
+            <div className="flex flex-col gap-2">
+              {SNAP_SLOTS.map(slot => (
+                <button
+                  key={slot.id}
+                  onClick={() => handlePlaceInSlot(slot.id)}
+                  className="flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{background:'rgba(124,58,237,0.10)',border:'1px solid rgba(167,139,250,0.18)'}}
+                >
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-lg" style={{background:'rgba(124,58,237,0.20)'}}>
+                    {slot.id === 'front-center' && (
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="2" fill="#7C3AED" opacity="0.5"/><rect x="6" y="6" width="10" height="10" rx="1" fill="#a78bfa"/></svg>
+                    )}
+                    {slot.id === 'chest-logo' && (
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="2" fill="#7C3AED" opacity="0.2"/><rect x="4" y="4" width="8" height="8" rx="1" fill="#a78bfa"/></svg>
+                    )}
+                    {slot.id === 'back-center' && (
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="2" fill="#7C3AED" opacity="0.3" strokeDasharray="3 2" stroke="#a78bfa" strokeWidth="1"/><rect x="6" y="6" width="10" height="10" rx="1" fill="#7C3AED" opacity="0.7"/></svg>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-black text-white uppercase tracking-wider">{slot.label}</p>
+                    <p className="text-[10px] text-purple-400 mt-0.5">{slot.desc}</p>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              ))}
+            </div>
+
+            <button onClick={() => setSlotPicker(null)} className="text-center text-[10px] text-gray-500 hover:text-gray-300 font-bold uppercase tracking-widest transition-colors mt-1">HỦY</button>
+          </div>
+        </div>
+      )}
 
       {/* NAV — white bar, black border per spec */}
       <header className="h-12 bg-white border-b border-black flex items-center justify-between px-4 shrink-0 z-50">

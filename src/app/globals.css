@@ -233,21 +233,45 @@ body::after {
 }
 
 /* ── Admin Panel: GARMENT OS Utility Classes ────────────────── */
+/* Palette: Deep Void #0a0a14 · Violet #7C3AED · Lavender #c8a0f0  */
+
 .adm-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Layer 1 — base glass panel (60% opacity, 16px blur) */
 .adm-glass {
-  background: rgba(26, 26, 26, 0.6);
+  background: rgba(12, 8, 28, 0.60);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 51, 51, 1);
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.05);
 }
+
+/* Layer 2 — elevated glass (75% opacity, 24px blur) */
+.adm-glass-elevated {
+  background: rgba(12, 8, 28, 0.75);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.08);
+}
+
+/* Table wrapper */
 .adm-table-border {
-  background: rgba(26, 26, 26, 0.6);
+  background: rgba(12, 8, 28, 0.60);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(124, 58, 237, 0.15);
 }
-.adm-col-border { border-right: 1px solid rgba(124, 58, 237, 0.08); }
-.adm-row-border { border-bottom: 1px solid rgba(124, 58, 237, 0.08); }
+
+/* Table internals */
+.adm-col-border  { border-right:  1px solid rgba(124, 58, 237, 0.08); }
+.adm-row-border  { border-bottom: 1px solid rgba(124, 58, 237, 0.08); }
+
+/* Interactive glow on hover */
+.adm-hover-glow:hover {
+  border-color: rgba(167, 139, 250, 0.30) !important;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.12);
+}
 
 /* Design studio: garment tab active */
 .gl-tab-active {

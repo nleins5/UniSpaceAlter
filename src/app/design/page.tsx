@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2 } from "lucide-react";
+import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
@@ -395,7 +395,7 @@ function DesignElementItem({
 
 // ─── Main Design Page ──────────────────────────────────────────
 export default function DesignPage() {
-  const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers" | null>("ai");
+  const [activeTab, setActiveTab] = useState<"ai" | "gallery" | "assets" | "type" | "color" | "layers" | null>("ai");
   const [side, setSide] = useState<"front" | "back" | "side">("front");
   const [garmentType, setGarmentType] = useState<'T-SHIRT' | 'RAGLAN' | 'POLO'>('RAGLAN');
   const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
@@ -1076,7 +1076,8 @@ export default function DesignPage() {
           {/* Tab bar — violet underline */}
           <div className="flex px-2 pt-1.5 shrink-0 gap-0 gl-panel-deep gl-border-dim">
             {([
-              { id: "ai", icon: Zap, label: "AI GENERATE" },
+              { id: "ai", icon: Zap, label: "AI" },
+              { id: "gallery", icon: Sparkles, label: "GALLERY" },
               { id: "assets", icon: ImageIcon, label: "DESIGN" },
               { id: "color", icon: PaletteIcon, label: "PALETTE" },
               { id: "layers", icon: LayersIcon, label: "LAYERS" }
@@ -1157,30 +1158,6 @@ export default function DesignPage() {
                       </div>
                     </button>
                   ))}
-
-                  {/* AI-generated images appended after static templates */}
-                  {messages.filter(m => m.role === "ai").flatMap(m => m.images || []).map((img) => (
-                    <button key={img.id}
-                      onClick={() => handleDropImage(img, 120, 150)}
-                      className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col gl-panel gl-border-bright"
-                      draggable
-                      onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
-                      title={`Add ${img.label}`}
-                    >
-                      <div className="w-full py-1.5 px-2 text-[10px] font-black text-[#0a0e1a] uppercase tracking-[0.12em] text-center gl-accent-badge">
-                        AI GENERATED
-                      </div>
-                      <div className="relative aspect-[4/3] w-full">
-                        <Image src={img.url} alt={img.label} width={200} height={150} unoptimized className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" style={{background:'rgba(124,58,237,0.22)'}}>
-                          <Plus size={20} className="text-white shadow-lg" />
-                        </div>
-                      </div>
-                      <div className="px-2 pb-2 pt-1 flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-violet-400/70 tracking-wide truncate">{img.label}</span>
-                      </div>
-                    </button>
-                  ))}
                 </div>
 
                 {isLoading && (
@@ -1208,6 +1185,44 @@ export default function DesignPage() {
                     <Zap size={16} />
                   </button>
                 </div>
+              </div>
+            )}
+
+            {activeTab === "gallery" && (
+              <div className="flex flex-col gap-4 animate-in fade-in duration-300">
+                {(() => {
+                  const aiImages = messages.filter(m => m.role === "ai").flatMap(m => m.images || []);
+                  return aiImages.length === 0 ? (
+                    <div className="py-20 text-center text-gray-600">
+                      <Sparkles size={32} className="mx-auto mb-3 text-violet-400/30" />
+                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-500">No AI images yet</p>
+                      <p className="text-[10px] text-gray-500/60 mt-1 font-mono">Use the AI tab to generate designs</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      {aiImages.map((img) => (
+                        <button key={img.id}
+                          onClick={() => handleDropImage(img, 120, 150)}
+                          className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
+                          draggable
+                          onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
+                          title={`Add ${img.label}`}
+                        >
+                          <div className="relative aspect-[4/3] w-full rounded-t-xl overflow-hidden">
+                            <Image src={img.url} alt={img.label} width={200} height={150} unoptimized className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gl-icon-bg">
+                              <Plus size={20} className="text-white drop-shadow-lg" />
+                            </div>
+                          </div>
+                          <div className="px-3 py-2 flex items-center justify-between">
+                            <span className="text-[10px] font-semibold text-violet-300 tracking-wide truncate">{img.label}</span>
+                            <Sparkles size={10} className="text-violet-400/40 shrink-0" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -1345,32 +1360,7 @@ export default function DesignPage() {
             )}
           </div>
 
-          {/* FRONT / BACK / SIDE — fixed bottom bar */}
-          {(() => {
-            const mockups: Record<string, Record<string, string>> = {
-              'T-SHIRT': { front: '/mockups/v_tshirt_front.png', back: '/mockups/v_tshirt_back.png', side: '/mockups/tshirt_side.png' },
-              'RAGLAN':  { front: '/mockups/v_raglan_front.png', back: '/mockups/v_raglan_back.png', side: '/mockups/raglan_side.png' },
-              'POLO':    { front: '/mockups/v_polo_front.png', back: '/mockups/v_polo_back.png', side: '/mockups/polo_side.png' },
-            };
-            const imgs = mockups[garmentType] || mockups['RAGLAN'];
-            return (
-              <div className="shrink-0 px-4 py-3 flex items-center justify-center gap-6 gl-bottom-bar">
-                {(['front', 'back', 'side'] as const).map((s) => (
-                  <button key={s} onClick={() => setSide(s)}
-                    className={`flex flex-col items-center gap-1.5 transition-all ${side === s ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-70 hover:scale-[1.02]'}`}
-                  >
-                    <div className={`w-16 h-16 overflow-hidden transition-all bg-white rounded ${
-                        side === s ? 'gl-thumb-active' : 'gl-thumb-idle'
-                      }`}>
-                      <Image src={imgs[s]} alt={s} width={64} height={64} unoptimized
-                        className="w-full h-full object-contain p-0.5" />
-                    </div>
-                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${side === s ? 'text-violet-300' : 'text-gray-500/50'}`}>{s.toUpperCase()}</span>
-                  </button>
-                ))}
-              </div>
-            );
-          })()}
+
         </aside>
 
         {/* Mobile: backdrop to dismiss panel */}

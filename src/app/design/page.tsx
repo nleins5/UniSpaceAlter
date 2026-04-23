@@ -8,22 +8,24 @@ import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, La
 // All coords are in virtual canvas units (400 wide × 480 tall)
 // Positions vary by garment type:
 //  - T-SHIRT: large front-center print zone (full chest)
-//  - POLO / RAGLAN: small left-chest logo (button placket limits front printing)
+//  - RAGLAN:  small left-chest logo (baseball button placket limits front printing)
+//  - POLO:    chest logo, slightly right of center-left + higher (above pocket area)
 function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
-  const isLogo = garmentType === "POLO" || garmentType === "RAGLAN";
+  // Coordinates per garment (canvas: 400w × 480h)
+  const slotPos =
+    garmentType === "POLO"   ? { x: 183, y: 140, w: 85, h: 85 } :   // polo: right+up
+    garmentType === "RAGLAN" ? { x: 168, y: 155, w: 85, h: 85 } :   // raglan: left chest
+                               { x: 115, y:  85, w: 170, h: 170 };  // t-shirt: full chest
   return [
     {
       id: "front-center" as const,
       label: "Front Center",
-      desc: isLogo
-        ? "Logo ngực trái — vị trí pocket logo (Polo/Raglan)"
-        : "Vùng in lớn mặt trước — giữa ngực",
+      desc: garmentType === "T-SHIRT"
+        ? "Vùng in lớn mặt trước — giữa ngực"
+        : `Logo ngực — vị trí pocket logo (${garmentType})`,
       side: "front" as const,
-      // Polo/Raglan: small left-chest logo. T-Shirt: large centered print.
-      x: isLogo ? 168 : 115,
-      y: isLogo ? 155 :  85,
-      width:  isLogo ?  85 : 170,
-      height: isLogo ?  85 : 170,
+      x: slotPos.x, y: slotPos.y,
+      width: slotPos.w, height: slotPos.h,
       icon: "⬛",
     },
     {

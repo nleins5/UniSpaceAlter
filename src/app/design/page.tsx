@@ -1600,21 +1600,22 @@ export default function DesignPage() {
                 )}
 
                 {/* Chat input */}
-                <div className="relative mt-auto">
+                <div className="relative mt-auto group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/30 to-fuchsia-600/30 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
                   <input
                     value={chatInput} onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                    placeholder="Describe your design idea..."
-                    className="w-full px-4 py-3 text-[12px] outline-none transition-all pr-14 text-white placeholder:text-gray-500/50 rounded-xl gl-input-main"
+                    placeholder="Mô tả ý tưởng thiết kế..."
+                    className="relative w-full px-5 py-4 text-[14px] outline-none transition-all pr-16 text-white placeholder:text-violet-300/40 rounded-2xl bg-[#0c081c]/90 border border-violet-500/30 focus:border-violet-400 focus:bg-[#140d33] focus:shadow-[inset_0_2px_20px_rgba(124,58,237,0.15)] font-[family-name:var(--font-space-grotesk)]"
                   />
                   <button
                     onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                     disabled={isLoading || (!isLoggedIn() && genCount >= 4)}
                     title="Generate AI design"
                     aria-label="Generate AI design"
-                    className="absolute right-2 top-1.5 w-9 h-9 bg-[#7C3AED] text-white flex items-center justify-center rounded-lg hover:bg-[#6d28d9] hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="absolute right-2 top-2 bottom-2 w-12 flex items-center justify-center bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white rounded-xl hover:shadow-[0_0_20px_rgba(167,139,250,0.6)] hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed z-10 border border-white/10"
                   >
-                    <Zap size={16} />
+                    <Zap size={20} className={isLoading ? "animate-pulse" : "fill-white/20"} />
                   </button>
                 </div>
               </div>

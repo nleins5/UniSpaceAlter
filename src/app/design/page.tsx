@@ -1493,7 +1493,7 @@ export default function DesignPage() {
             {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
               <button key={type}
                 onClick={() => setGarmentType(type)}
-                className={`px-6 py-4 text-[15px] font-bold uppercase tracking-widest transition-all relative overflow-hidden rounded-t-xl font-[family-name:var(--font-space-grotesk)] ${
+                className={`flex-1 py-3 text-center text-[13px] font-bold uppercase tracking-wider transition-all relative overflow-hidden rounded-t-xl font-[family-name:var(--font-space-grotesk)] ${
                   type === garmentType
                     ? 'text-white gl-tab-active shadow-[0_-4px_12px_rgba(139,92,246,0.2)]'
                     : 'text-gray-500 hover:text-violet-300'

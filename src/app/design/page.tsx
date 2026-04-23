@@ -83,9 +83,7 @@ function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
 }
 
 // Static ref used only for TypeScript union type derivation
-const SNAP_SLOTS = getSnapSlots("T-SHIRT");
-
-type SnapSlotId = typeof SNAP_SLOTS[number]["id"];
+type SnapSlotId = ReturnType<typeof getSnapSlots>[number]["id"];
 
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
@@ -1436,19 +1434,21 @@ export default function DesignPage() {
 
         {/* ── VERTICAL ICON TOOLBAR — Glacier glass strip ── */}
         <div className="hidden md:flex flex-col items-center py-6 gap-5 shrink-0 w-[64px] gl-panel-deep border-r border-white/5 shadow-2xl relative z-50">
-          {[
-            { id: 'ai', icon: Zap, title: 'AI Generate' },
-            { id: 'gallery', icon: ImageIcon, title: 'Gallery' },
-            { id: 'assets', icon: Type, title: 'Text Tool' },
-            { id: 'layers', icon: LayersIcon, title: 'Layers' },
-            { id: 'color', icon: PaletteIcon, title: 'Palette' },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
+          {(['ai', 'gallery', 'assets', 'layers', 'color'] as const).map((id) => {
+            const tabData = {
+              ai: { icon: Zap, title: 'AI Generate' },
+              gallery: { icon: ImageIcon, title: 'Gallery' },
+              assets: { icon: Type, title: 'Text Tool' },
+              layers: { icon: LayersIcon, title: 'Layers' },
+              color: { icon: PaletteIcon, title: 'Palette' },
+            }[id];
+            
+            const Icon = tabData.icon;
+            const isActive = activeTab === id;
             return (
               <button
-                key={item.id}
-                onClick={() => setActiveTab(prev => prev === item.id ? null : item.id)}
+                key={id}
+                onClick={() => setActiveTab(prev => prev === id ? null : id)}
                 className={`group relative w-11 h-11 flex items-center justify-center transition-all duration-300 rounded-2xl ${
                   isActive ? 'text-white' : 'text-gray-500 hover:text-violet-300'
                 }`}

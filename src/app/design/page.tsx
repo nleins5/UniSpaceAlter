@@ -40,42 +40,49 @@ interface ChatMessage {
 }
 
 // ─── Mockup image map per garment type ───────────────────────────────────
-const MOCKUP_MAP: Record<string, { front: string; back: string }> = {
-  'T-SHIRT': { front: '/mockups/v_tshirt_front.png', back: '/mockups/v_tshirt_back.png' },
-  'RAGLAN':  { front: '/mockups/v_raglan_front.png', back: '/mockups/v_raglan_back.png' },
-  'POLO':    { front: '/mockups/v_polo_front.png',   back: '/mockups/v_polo_back.png' },
+const MOCKUP_MAP: Record<string, { front: string; back: string; maskFront: string; maskBack: string }> = {
+  'T-SHIRT': { front: '/mockups/v_tshirt_front.png',  back: '/mockups/v_tshirt_back.png',  maskFront: '/mockups/tshirt_front_mask.png',  maskBack: '/mockups/tshirt_back_mask.png' },
+  'RAGLAN':  { front: '/mockups/v_raglan_front.png',  back: '/mockups/v_raglan_back.png',  maskFront: '/mockups/raglan_front_mask.png',  maskBack: '/mockups/raglan_back_mask.png' },
+  'POLO':    { front: '/mockups/v_polo_front.png',    back: '/mockups/v_polo_back.png',    maskFront: '/mockups/raglan_front_mask.png',  maskBack: '/mockups/raglan_back_mask.png' },
 };
 
 // ─── Component: TShirtMockup (Image-Based Mechanical Flat) ───────────────
 function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: string; side?: "front" | "back"; garmentType?: string }) {
   const isFront = side === "front";
   const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
-  const imgSrc = isFront ? mockup.front : mockup.back;
+  const imgSrc  = isFront ? mockup.front     : mockup.back;
+  const maskSrc = isFront ? mockup.maskFront : mockup.maskBack;
   const isWhite = color === "#FFFFFF" || color === "#ffffff" || color === "#F2F0E9";
   return (
     <div className="w-full h-full relative">
-      {/* Color layer masked to shirt silhouette — never bleeds onto grid */}
+      {/* Layer 1: Base shirt mockup (JPEG with shadow/detail) */}
+      <Image src={imgSrc} alt={`Shirt ${side}`} fill priority className="object-contain" />
+
+      {/* Layer 2: Color fill, masked to shirt silhouette via transparent mask PNG.
+          mask-image uses the _mask.png which has transparent bg → color only on shirt. */}
       {!isWhite && (
         <div className="absolute inset-0" style={{
           backgroundColor: color,
-          WebkitMaskImage: `url(${imgSrc})`,
-          maskImage: `url(${imgSrc})`,
+          WebkitMaskImage: `url(${maskSrc})`,
+          maskImage: `url(${maskSrc})`,
           WebkitMaskSize: 'contain',
-          maskSize: 'contain' as string,
+          maskSize: 'contain',
           WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat' as string,
+          maskRepeat: 'no-repeat',
           WebkitMaskPosition: 'center',
-          maskPosition: 'center' as string,
-          opacity: 0.5
+          maskPosition: 'center',
+          mixBlendMode: 'multiply',
+          opacity: 0.9,
         }} />
       )}
-      <Image 
-        src={imgSrc}
-        alt={`Shirt ${side}`} 
-        fill
-        priority
-        className={`relative z-10 object-contain ${isWhite ? '' : 'mix-blend-multiply'}`}
-      />
+
+      {/* Layer 3: Shirt outline/linework on top to preserve stitching detail */}
+      {!isWhite && (
+        <Image src={imgSrc} alt="" fill aria-hidden
+          className="object-contain pointer-events-none"
+          style={{ mixBlendMode: 'multiply', opacity: 0.6 }}
+        />
+      )}
     </div>
   );
 }

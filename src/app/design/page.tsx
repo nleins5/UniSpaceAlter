@@ -412,7 +412,14 @@ function DesignCanvas({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDropTarget, setIsDropTarget] = useState(false);
 
-  const sideElements = elements.filter((el) => el.side === side && (el.slot === slot || !el.slot));
+  // Show: elements matching this canvas's slot prop, elements with no slot,
+  // AND elements placed via snap slots (front-center, chest-logo, back-center)
+  // — those are keyed by side only, not by the "shirt" slot prop.
+  const SNAP_SLOT_IDS = new Set(["front-center", "chest-logo", "back-center"]);
+  const sideElements = elements.filter((el) =>
+    el.side === side &&
+    (el.slot === slot || !el.slot || SNAP_SLOT_IDS.has(el.slot ?? ""))
+  );
   const pushHistoryRef = useRef(onPushHistory);
   useEffect(() => { pushHistoryRef.current = onPushHistory; });
 

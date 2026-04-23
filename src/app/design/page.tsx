@@ -1435,40 +1435,52 @@ export default function DesignPage() {
         </section>
 
         {/* ── VERTICAL ICON TOOLBAR — Glacier glass strip ── */}
-        <div className="hidden md:flex flex-col items-center py-3 px-0 gap-2 shrink-0 w-[44px] gl-panel-deep">
-          <button onClick={() => setActiveTab(prev => prev === 'ai' ? null : 'ai')}
-            className={`w-8 h-8 flex items-center justify-center transition-all text-[9px] font-black rounded-full ${
-              activeTab === 'ai' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
-            }`} title="AI Generate">
-            <Zap size={14} />
-          </button>
-          <button onClick={() => setActiveTab(prev => prev === 'gallery' ? null : 'gallery')}
-            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'gallery' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
-            }`} title="Gallery">
-            <ImageIcon size={14} />
-          </button>
-          <button onClick={() => setActiveTab(prev => prev === 'assets' ? null : 'assets')}
-            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'assets' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
-            }`} title="Text Tool">
-            <span className="text-[13px] font-black">T</span>
-          </button>
-          <button onClick={() => setActiveTab(prev => prev === 'layers' ? null : 'layers')}
-            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'layers' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
-            }`} title="Layers">
-            <LayersIcon size={14} />
-          </button>
-          <button onClick={() => setActiveTab(prev => prev === 'color' ? null : 'color')}
-            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'color' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
-            }`} title="Palette">
-            <PaletteIcon size={14} />
-          </button>
+        <div className="hidden md:flex flex-col items-center py-6 gap-5 shrink-0 w-[64px] gl-panel-deep border-r border-white/5 shadow-2xl relative z-50">
+          {[
+            { id: 'ai', icon: Zap, title: 'AI Generate' },
+            { id: 'gallery', icon: ImageIcon, title: 'Gallery' },
+            { id: 'assets', icon: Type, title: 'Text Tool' },
+            { id: 'layers', icon: LayersIcon, title: 'Layers' },
+            { id: 'color', icon: PaletteIcon, title: 'Palette' },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(prev => prev === item.id ? null : item.id)}
+                className={`group relative w-11 h-11 flex items-center justify-center transition-all duration-300 rounded-2xl ${
+                  isActive ? 'text-white' : 'text-gray-500 hover:text-violet-300'
+                }`}
+                title={item.title}
+              >
+                {/* Active Background Glow */}
+                {isActive && (
+                  <>
+                    <div className="absolute inset-0 bg-violet-600 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.5)] animate-in fade-in zoom-in duration-300" />
+                    <div className="absolute -inset-1 bg-violet-600/20 blur-md rounded-2xl animate-pulse" />
+                  </>
+                )}
+                
+                {/* Hover Background */}
+                {!isActive && (
+                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-2xl transition-all duration-300 scale-90 group-hover:scale-100" />
+                )}
+
+                <Icon size={22} strokeWidth={isActive ? 2.5 : 2} className="relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                
+                {/* Active Side Indicator */}
+                {isActive && (
+                  <div className="absolute -left-[3px] top-1/2 -translate-y-1/2 w-[6px] h-8 bg-violet-400 rounded-r-full shadow-[2px_0_10px_rgba(139,92,246,0.8)]" />
+                )}
+              </button>
+            );
+          })}
+          
           <div className="flex-1" />
-          <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-violet-300 transition-all rounded-full" title="Layers">
-            <LayersIcon size={14} />
+          
+          <button className="w-11 h-11 flex items-center justify-center text-gray-600 hover:text-violet-300 transition-all rounded-2xl hover:bg-white/5" title="Settings">
+            <LayersIcon size={20} />
           </button>
         </div>
 

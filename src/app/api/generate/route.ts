@@ -5,6 +5,14 @@ const T8STAR_URL = "https://ai.t8star.cn/v1/images/generations";
 const T8STAR_MODEL = "gpt-image-1";
 const RATE_LIMIT_PER_MINUTE = 60;
 
+// Garment-optimized style suffixes for Cloudflare Flux variants
+const CF_STYLES = [
+  { label: "Original",   suffix: ", flat vector graphic, isolated centered on pure white, bold lines, vivid colors, printable garment artwork, no background, no shadow" },
+  { label: "Streetwear", suffix: ", streetwear graphic art, bold urban halftone, high contrast, embroidery patch style, isolated on white, no background" },
+  { label: "Minimal",    suffix: ", minimalist flat vector logo, clean sharp shapes, 2-color palette, isolated on white background, no shadow, no texture" },
+  { label: "Vintage",    suffix: ", vintage retro distressed badge, screen print aesthetic, aged texture, isolated on white, no background" },
+];
+
 // ── Vietnamese → English for AI image model ──────
 const VI_EN: Record<string, string> = {
   "con bò": "cow", "con mèo": "cat", "con chó": "dog", "con gà": "chicken",
@@ -110,59 +118,83 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
   return [];
 }
 
-// ── Cloudflare AI (fallback) ─────────────────────────────────
+// ── Cloudflare Workers AI (PRIMARY — Flux, best garment quality) ──
 async function generateWithCloudflare(prompt: string) {
   const enPrompt = translatePrompt(prompt);
-  console.log(`🔤 CF: "${prompt}" → "${enPrompt}"`);
-
-  const styles = [
-    { label: "Original", suffix: ", high quality, detailed, vibrant colors" },
-    { label: "Minimal", suffix: ", minimalist flat vector, clean simple shapes" },
-    { label: "Cartoon", suffix: ", cartoon illustration, cute colorful, playful" },
-    { label: "Streetwear", suffix: ", streetwear graphic art, bold urban, high contrast" },
-  ];
+  console.log(`🔤 CF Flux: "${prompt}" → "${enPrompt}"`);
 
   const cfAccountId = process.env.CF_ACCOUNT_ID || "";
   const cfToken = process.env.CF_API_TOKEN || "";
+  if (!cfAccountId || !cfToken) return [];
 
-  const images: { id: string; label: string; url: string }[] = [];
-  for (const style of styles) {
-    try {
+  // Generate 4 style variants in parallel
+  const results = await Promise.allSettled(
+    CF_STYLES.map(async (style) => {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
-      const res = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${CF_MODEL}`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${cfToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            prompt: `${enPrompt}, t-shirt graphic design, isolated on transparent background, no background, PNG with alpha transparency, centered${style.suffix}`,
-          }),
-          signal: controller.signal,
-        }
-      );
-      clearTimeout(timeout);
-      const data = await res.json();
-      if (data.result?.image) {
-        images.push({
-          id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          label: style.label,
-          url: `data:image/jpeg;base64,${data.result.image}`,
-        });
-        console.log(`✅ CF ${style.label} OK`);
-        if (images.length >= 1) break;
-      } else {
-        console.log(`❌ CF ${style.label}: no image in response`, JSON.stringify(data).slice(0, 200));
-      }
-    } catch (err) {
-      console.log(`❌ CF ${style.label} error:`, (err as Error).message?.slice(0, 100));
-    }
-  }
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      try {
+        const res = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${CF_MODEL}`,
+          {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${cfToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prompt: `${enPrompt}${style.suffix}`,
+              num_steps: 8,
+            }),
+            signal: controller.signal,
+          }
+        );
+        clearTimeout(timeout);
 
-  return images;
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "");
+          console.log(`❌ CF ${style.label} HTTP ${res.status}: ${errText.slice(0, 150)}`);
+          return null;
+        }
+
+        // Flux returns raw image bytes (not JSON)
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          const data = await res.json();
+          if (data.result?.image) {
+            console.log(`✅ CF ${style.label} OK (json)`);
+            return {
+              id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              label: style.label,
+              url: `data:image/jpeg;base64,${data.result.image}`,
+            };
+          }
+          console.log(`❌ CF ${style.label}: unexpected json`, JSON.stringify(data).slice(0, 150));
+          return null;
+        } else {
+          // Raw bytes — convert to base64
+          const arrayBuffer = await res.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString("base64");
+          const mime = contentType.startsWith("image/") ? contentType : "image/jpeg";
+          console.log(`✅ CF ${style.label} OK (raw ${mime})`);
+          return {
+            id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            label: style.label,
+            url: `data:${mime};base64,${base64}`,
+          };
+        }
+      } catch (err) {
+        clearTimeout(timeout);
+        console.log(`❌ CF ${style.label} error:`, (err as Error).message?.slice(0, 100));
+        return null;
+      }
+    })
+  );
+
+  return results
+    .filter((r): r is PromiseFulfilledResult<{ id: string; label: string; url: string }> =>
+      r.status === "fulfilled" && r.value !== null
+    )
+    .map(r => r.value);
 }
 // Rate limiter: max RATE_LIMIT_PER_MINUTE generates per minute per IP
 const genLimiter = new Map<string, { count: number; resetAt: number }>();
@@ -258,22 +290,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    // Priority 1: T8star (unlimited Flux)
-    const t8Key = process.env.T8STAR_API_KEY;
-    if (t8Key) {
-      console.log(`🔑 T8star key: ${t8Key.slice(0, 8)}...`);
-      try {
-        const images = await generateWithT8star(cleanPrompt);
-        if (images.length > 0) {
-          const processed = await processImages(images);
-          return NextResponse.json({ images: processed, isDemo: false, method: "t8star" });
-        }
-      } catch (e) {
-        console.log("T8star failed:", (e as Error).message?.slice(0, 100));
-      }
-    }
-
-    // Priority 2: Cloudflare (daily limit)
+    // Priority 1: Cloudflare Flux (primary — best for garment graphics)
     const accountId = process.env.CF_ACCOUNT_ID;
     const apiToken = process.env.CF_API_TOKEN;
     if (accountId && apiToken) {
@@ -286,6 +303,21 @@ export async function POST(req: NextRequest) {
         }
       } catch (e) {
         console.log("CF failed:", (e as Error).message?.slice(0, 100));
+      }
+    }
+
+    // Priority 2: T8star (fallback)
+    const t8Key = process.env.T8STAR_API_KEY;
+    if (t8Key) {
+      console.log(`🔑 T8star key: ${t8Key.slice(0, 8)}...`);
+      try {
+        const images = await generateWithT8star(cleanPrompt);
+        if (images.length > 0) {
+          const processed = await processImages(images);
+          return NextResponse.json({ images: processed, isDemo: false, method: "t8star" });
+        }
+      } catch (e) {
+        console.log("T8star failed:", (e as Error).message?.slice(0, 100));
       }
     }
 

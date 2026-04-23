@@ -8,27 +8,30 @@ import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, La
 // All coords are in virtual canvas units (400 wide × 480 tall)
 const SNAP_SLOTS = [
   {
+    // Front Center: large print zone — mid-chest to belly, centered
     id: "front-center",
     label: "Front Center",
-    desc: "Large artwork — mặt trước",
+    desc: "Vùng in lớn mặt trước — từ ngực xuống bụng",
     side: "front" as const,
-    x: 80, y: 120, width: 240, height: 240,
+    x: 100, y: 150, width: 200, height: 200,
     icon: "⬛",
   },
   {
+    // Chest Logo: small logo — upper left chest pocket area
     id: "chest-logo",
     label: "Chest Logo",
-    desc: "Logo nhỏ ngay ngực trái",
+    desc: "Logo nhỏ góc ngực trái — kiểu pocket logo",
     side: "front" as const,
-    x: 60, y: 100, width: 90, height: 90,
+    x: 80, y: 130, width: 85, height: 85,
     icon: "🔲",
   },
   {
+    // Back Center: mirror of front center on the back
     id: "back-center",
     label: "Back Center",
-    desc: "Artwork mặt sau",
+    desc: "Vùng in lớn mặt sau — centered trên lưng",
     side: "back" as const,
-    x: 80, y: 100, width: 240, height: 240,
+    x: 100, y: 140, width: 200, height: 200,
     icon: "🔳",
   },
 ] as const;

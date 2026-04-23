@@ -167,7 +167,6 @@ export default function AdminDesignsPage() {
                     <td className="px-4 py-3 text-[10px] font-mono text-gray-500">{order.size || '—'}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        {/* eslint-disable-next-line react/forbid-component-props */}
                         <div className="w-4 h-4 rounded border border-gray-200 shrink-0" style={{ backgroundColor: order.color }} />
                         <span className="text-[10px] font-mono text-gray-400">{order.color}</span>
                       </div>
@@ -286,7 +285,6 @@ export default function AdminDesignsPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] text-gray-500">Màu áo</span>
                       <div className="flex items-center gap-1.5">
-                        {/* eslint-disable-next-line react/forbid-component-props */}
                         <div className="w-4 h-4 rounded border border-gray-200" style={{ backgroundColor: selected.color }} />
                         <span className="text-[10px] font-mono">{selected.color}</span>
                       </div>

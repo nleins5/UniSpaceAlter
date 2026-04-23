@@ -3,6 +3,8 @@
   "css.validate": true,
   "sonarlint.rules": {
     "Web:S5853": { "level": "off" },
+    "Web:InlineStyleUsage": { "level": "off" },
+    "Web:S1015": { "level": "off" },
     "typescript:S6754": { "level": "off" },
     "javascript:S6754": { "level": "off" }
   }

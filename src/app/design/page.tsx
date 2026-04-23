@@ -1177,7 +1177,6 @@ export default function DesignPage() {
           <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
             <div className="border-r border-black px-2 flex items-center gap-1.5">
               { }
-              {/* eslint-disable-next-line react/forbid-component-props */}
               <div className="w-3 h-3 rounded border border-black/20 shrink-0" style={{ backgroundColor: tshirtColor }} />
               <div className="flex flex-col justify-center">
                 <span className="text-[5px] font-black text-gray-400 uppercase">Color:</span>
@@ -1221,7 +1220,6 @@ export default function DesignPage() {
             {/* Annotations moved inside each canvas container below for correct positioning */}
 
             { }
-            {/* eslint-disable-next-line react/forbid-component-props */}
             <div className="relative h-full flex p-3" onDragOver={(e) => e.preventDefault()} style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
               {/* FAR LEFT: Color Swatches — hidden on mobile */}
@@ -1241,8 +1239,7 @@ export default function DesignPage() {
                 ].map(c => (
                   <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={c.hex} className="text-left group">
                     { }
-                    {/* eslint-disable-next-line react/forbid-component-props */}
-                    <div className={`w-5 h-5 border mb-0.5 transition-all ${tshirtColor === c.hex ? 'border-black ring-1 ring-offset-1 ring-black scale-110' : 'border-gray-300'}`}
+                          <div className={`w-5 h-5 border mb-0.5 transition-all ${tshirtColor === c.hex ? 'border-black ring-1 ring-offset-1 ring-black scale-110' : 'border-gray-300'}`}
                       style={{ backgroundColor: c.hex }} />
                     <span className="text-[4px] font-black uppercase leading-tight block text-gray-400 group-hover:text-gray-700 transition-colors">{c.cmyk}</span>
                   </button>
@@ -1614,8 +1611,7 @@ export default function DesignPage() {
                       onClick={() => handleAddText(item.text, item.font)}
                       className="group cursor-grab active:cursor-grabbing px-4 py-3 transition-all flex flex-col gap-1 rounded-lg gl-surface"
                     >
-                      {/* eslint-disable-next-line react/forbid-component-props */}
-                      <div
+                              <div
                         className="leading-tight text-white group-hover:text-violet-300 transition-colors truncate"
                         style={{ fontFamily: item.font, fontSize: item.size, fontWeight: item.weight, fontStyle: item.style }}
                       >

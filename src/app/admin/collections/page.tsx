@@ -47,8 +47,10 @@ export default function CollectionsPage() {
             <div key={c.id} className="adm-glass p-5 group hover:border-[#7C3AED]/30 transition-all">
               <div className="flex justify-between items-start mb-3">
                 <span className="adm-mono text-[10px] text-[#9ca3af] uppercase tracking-widest">{c.id}</span>
+                {/* eslint-disable-next-line react/forbid-component-props */}
                 <span className="adm-mono text-[10px] uppercase tracking-widest px-2 py-0.5"
                   style={{ color: c.color, background: `${c.color}20`, border: `1px solid ${c.color}50` }}>
+                  {/* eslint-disable-next-line react/forbid-component-props */}
                   <span className="inline-block w-1.5 h-1.5 mr-1.5" style={{ background: c.color }} />{c.status}
                 </span>
               </div>

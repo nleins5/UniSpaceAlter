@@ -308,6 +308,13 @@ body::after {
 .login-modal-panel {
   background: rgba(12, 8, 28, 0.95);
 }
+/* Color picker swatches in design page */
+.adm-active-swatch {
+  border: 2px solid rgba(124, 58, 237, 0.35);
+}
+.adm-color-swatch {
+  border: 1px solid rgba(124, 58, 237, 0.22);
+}
 
 /* ═══════════════════════════════════════════════════════
    GENERAL UI COMPONENTS (Landing page, Order page, etc.)

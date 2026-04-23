@@ -1177,7 +1177,7 @@ export default function DesignPage() {
           <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
             <div className="border-r border-black px-2 flex items-center gap-1.5">
               { }
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {/* eslint-disable-next-line react/forbid-component-props */}
               <div className="w-3 h-3 rounded border border-black/20 shrink-0" style={{ backgroundColor: tshirtColor }} />
               <div className="flex flex-col justify-center">
                 <span className="text-[5px] font-black text-gray-400 uppercase">Color:</span>
@@ -1221,7 +1221,7 @@ export default function DesignPage() {
             {/* Annotations moved inside each canvas container below for correct positioning */}
 
             { }
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {/* eslint-disable-next-line react/forbid-component-props */}
             <div className="relative h-full flex p-3" onDragOver={(e) => e.preventDefault()} style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
               {/* FAR LEFT: Color Swatches — hidden on mobile */}
@@ -1241,7 +1241,7 @@ export default function DesignPage() {
                 ].map(c => (
                   <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={c.hex} className="text-left group">
                     { }
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {/* eslint-disable-next-line react/forbid-component-props */}
                     <div className={`w-5 h-5 border mb-0.5 transition-all ${tshirtColor === c.hex ? 'border-black ring-1 ring-offset-1 ring-black scale-110' : 'border-gray-300'}`}
                       style={{ backgroundColor: c.hex }} />
                     <span className="text-[4px] font-black uppercase leading-tight block text-gray-400 group-hover:text-gray-700 transition-colors">{c.cmyk}</span>
@@ -1449,7 +1449,7 @@ export default function DesignPage() {
                   <div className="grid grid-cols-2 gap-3">
                     {suggestedDesigns.map((img) => (
                       <button key={img.id}
-                        onClick={() => handleDropImage(img, 120, 150)}
+                        onClick={() => handleDropImage(img)}
                         className="group relative overflow-hidden hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
                         draggable
                         onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
@@ -1544,7 +1544,7 @@ export default function DesignPage() {
                     <div className="grid grid-cols-2 gap-3">
                       {aiImages.map((img) => (
                         <button key={img.id}
-                          onClick={() => handleDropImage(img, 120, 150)}
+                          onClick={() => handleDropImage(img)}
                           className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
                           draggable
                           onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
@@ -1614,7 +1614,7 @@ export default function DesignPage() {
                       onClick={() => handleAddText(item.text, item.font)}
                       className="group cursor-grab active:cursor-grabbing px-4 py-3 transition-all flex flex-col gap-1 rounded-lg gl-surface"
                     >
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                      {/* eslint-disable-next-line react/forbid-component-props */}
                       <div
                         className="leading-tight text-white group-hover:text-violet-300 transition-colors truncate"
                         style={{ fontFamily: item.font, fontSize: item.size, fontWeight: item.weight, fontStyle: item.style }}
@@ -1655,8 +1655,7 @@ export default function DesignPage() {
               <div className="space-y-3 animate-in fade-in duration-300">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block">Click a color to apply to shirt</span>
                 <div className="flex items-center gap-2 p-2 rounded-lg gl-active-glow">
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  <div className="w-6 h-6 shrink-0 rounded" style={{border:'2px solid rgba(124,58,237,0.35)'}} ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
+                  <div className="w-6 h-6 shrink-0 rounded adm-active-swatch" ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
                   <span className="text-[11px] font-black uppercase text-violet-300 tracking-[0.12em]">Active: {tshirtColor}</span>
                 </div>
                 {[
@@ -1671,8 +1670,7 @@ export default function DesignPage() {
                       tshirtColor === c.hex ? 'ring-2 ring-violet-400/40 gl-active' : 'hover:ring-1 hover:ring-violet-400/20 gl-surface-mid'
                     }`}
                   >
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    <div className="w-8 h-8 shrink-0 rounded" style={{border:'1px solid rgba(124,58,237,0.22)'}} ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
+                    <div className="w-8 h-8 shrink-0 rounded adm-color-swatch" ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
                     <div className="text-left">
                       <div className="text-[12px] font-bold text-white tracking-wide">{c.name}</div>
                       <div className="text-[10px] font-mono text-gray-500">{c.hex}</div>

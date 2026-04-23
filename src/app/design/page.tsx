@@ -6,35 +6,47 @@ import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, La
 
 // ─── Fixed Snap Slots ─────────────────────────────────────────
 // All coords are in virtual canvas units (400 wide × 480 tall)
-const SNAP_SLOTS = [
-  {
-    // Front Center: upper-chest print zone
-    id: "front-center",
-    label: "Front Center",
-    desc: "Vùng in lớn mặt trước — giữa ngực",
-    side: "front" as const,
-    x: 115, y: 85, width: 170, height: 170,
-    icon: "⬛",
-  },
-  {
-    // Chest Logo: upper-left pocket logo area
-    id: "chest-logo",
-    label: "Chest Logo",
-    desc: "Logo nhỏ góc ngực trái — kiểu pocket logo",
-    side: "front" as const,
-    x: 90, y: 80, width: 70, height: 70,
-    icon: "🔲",
-  },
-  {
-    // Back Center: upper-center back
-    id: "back-center",
-    label: "Back Center",
-    desc: "Vùng in lớn mặt sau — giữa lưng trên",
-    side: "back" as const,
-    x: 115, y: 78, width: 170, height: 170,
-    icon: "🔳",
-  },
-] as const;
+// Positions vary by garment type:
+//  - T-SHIRT: large front-center print zone (full chest)
+//  - POLO / RAGLAN: small left-chest logo (button placket limits front printing)
+function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
+  const isLogo = garmentType === "POLO" || garmentType === "RAGLAN";
+  return [
+    {
+      id: "front-center" as const,
+      label: "Front Center",
+      desc: isLogo
+        ? "Logo ngực trái — vị trí pocket logo (Polo/Raglan)"
+        : "Vùng in lớn mặt trước — giữa ngực",
+      side: "front" as const,
+      // Polo/Raglan: small left-chest logo. T-Shirt: large centered print.
+      x: isLogo ? 168 : 115,
+      y: isLogo ? 155 :  85,
+      width:  isLogo ?  85 : 170,
+      height: isLogo ?  85 : 170,
+      icon: "⬛",
+    },
+    {
+      id: "chest-logo" as const,
+      label: "Chest Logo",
+      desc: "Logo nhỏ góc ngực trái — kiểu pocket logo",
+      side: "front" as const,
+      x: 90, y: 80, width: 70, height: 70,
+      icon: "🔲",
+    },
+    {
+      id: "back-center" as const,
+      label: "Back Center",
+      desc: "Vùng in lớn mặt sau — giữa lưng trên",
+      side: "back" as const,
+      x: 115, y: 78, width: 170, height: 170,
+      icon: "🔳",
+    },
+  ] as const;
+}
+
+// Static version (used for SNAP_SLOT_IDS filter — type only)
+const SNAP_SLOTS = getSnapSlots("T-SHIRT");
 
 type SnapSlotId = typeof SNAP_SLOTS[number]["id"];
 
@@ -845,9 +857,11 @@ export default function DesignPage() {
 
 
   // Called once user picks a slot — removes white bg first, then places
+  // Uses garment-aware slot positions (polo/raglan → chest logo, t-shirt → full front)
   const handlePlaceInSlot = useCallback(async (slotId: SnapSlotId) => {
     if (!slotPicker) return;
-    const slot = SNAP_SLOTS.find(s => s.id === slotId)!;
+    const slots = getSnapSlots(garmentType);
+    const slot = slots.find(s => s.id === slotId)!;
     // Strip white background client-side before placing
     const cleanUrl = await removeWhiteBg(slotPicker.image.url);
     setElements(prev => {

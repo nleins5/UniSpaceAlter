@@ -87,6 +87,7 @@ function rowToUser(row: Record<string, unknown>): User {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function rowToUserWithPassword(row: Record<string, unknown>): UserWithPassword {
   return {
     ...rowToUser(row),

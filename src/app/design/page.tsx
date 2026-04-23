@@ -1013,30 +1013,30 @@ export default function DesignPage() {
         <div className="hidden md:flex flex-col items-center py-3 px-0 gap-2 shrink-0 w-[44px] gl-panel-deep">
           <button onClick={() => setActiveTab(prev => prev === 'ai' ? null : 'ai')}
             className={`w-8 h-8 flex items-center justify-center transition-all text-[9px] font-black rounded-full ${
-              activeTab === 'ai' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-violet-400/60 hover:text-violet-300'
+              activeTab === 'ai' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
             }`} title="AI Generate">
             <Zap size={14} />
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'assets' ? null : 'assets')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'assets' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-violet-400/60 hover:text-violet-300'
+              activeTab === 'assets' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
             }`} title="Design">
             <ImageIcon size={14} />
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'layers' ? null : 'layers')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'layers' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-violet-400/60 hover:text-violet-300'
+              activeTab === 'layers' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
             }`} title="Text">
             <span className="text-[13px] font-black">T</span>
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'color' ? null : 'color')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'color' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-violet-400/60 hover:text-violet-300'
+              activeTab === 'color' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-gray-400 hover:text-violet-300'
             }`} title="Palette">
             <PaletteIcon size={14} />
           </button>
           <div className="flex-1" />
-          <button className="w-8 h-8 flex items-center justify-center text-violet-400/40 hover:text-violet-300 transition-all rounded-full" title="Layers">
+          <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-violet-300 transition-all rounded-full" title="Layers">
             <LayersIcon size={14} />
           </button>
         </div>
@@ -1066,7 +1066,7 @@ export default function DesignPage() {
                 className={`px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] transition-all relative overflow-hidden rounded-t ${
                   type === garmentType
                     ? 'text-[#0a0e1a]'
-                    : 'text-violet-400/50 hover:text-violet-300'
+                    : 'text-gray-400 hover:text-violet-300'
                 }`}
                 style={type===garmentType?{background:'#a78bfa',boxShadow:'0 0 16px rgba(124,58,237,0.25)'}:{}}>
                 <span className="relative z-10">{type}</span>
@@ -1087,7 +1087,7 @@ export default function DesignPage() {
                 className={`flex items-center gap-1.5 px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.12em] transition-all border-b-2 ${
                   activeTab === t.id
                     ? 'border-violet-400 text-violet-300'
-                    : 'border-transparent text-violet-400/40 hover:text-violet-300'
+                    : 'border-transparent text-gray-500 hover:text-violet-300'
                 }`}
               >
                 <t.icon size={13} />{t.label}
@@ -1144,7 +1144,7 @@ export default function DesignPage() {
                         <span className="text-[11px] font-black uppercase tracking-wider text-violet-300">{card.label}</span>
                       </div>
                       <div className="px-2 pb-2 flex items-center justify-between pt-1 gl-border-top">
-                        <span className="text-[9px] font-semibold text-violet-400/40 tracking-wide">UNISPACE</span>
+                        <span className="text-[9px] font-semibold text-gray-500 tracking-wide">UNISPACE</span>
                         <div className="w-6 h-6 rounded-md flex items-center justify-center gl-icon-bg">
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="#a78bfa"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         </div>
@@ -1178,7 +1178,7 @@ export default function DesignPage() {
                         </div>
                       </div>
                       <div className="px-2 pb-2 pt-1 flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-violet-300/60 tracking-wide truncate">{img.label}</span>
+                        <span className="text-[10px] font-semibold text-violet-400/70 tracking-wide truncate">{img.label}</span>
                       </div>
                     </button>
                   ))}
@@ -1187,7 +1187,7 @@ export default function DesignPage() {
                 {isLoading && (
                   <div className="flex items-center gap-2 p-3 rounded-lg gl-icon-bg-dim gl-border">
                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" />
-                    <span className="text-[11px] font-black uppercase text-violet-400/60">Generating...</span>
+                    <span className="text-[11px] font-black uppercase text-gray-400">Generating...</span>
                   </div>
                 )}
 
@@ -1197,7 +1197,7 @@ export default function DesignPage() {
                     value={chatInput} onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                     placeholder="Describe your design idea..."
-                    className="w-full px-4 py-3 text-[12px] outline-none transition-all pr-14 text-violet-100 placeholder:text-violet-400/30 rounded-xl gl-input-main"
+                    className="w-full px-4 py-3 text-[12px] outline-none transition-all pr-14 text-white placeholder:text-gray-500/50 rounded-xl gl-input-main"
                   />
                   <button
                     onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
@@ -1215,26 +1215,26 @@ export default function DesignPage() {
             {activeTab === "assets" && (
               <div className="p-4 flex flex-col gap-5 animate-in fade-in duration-300 rounded-xl gl-panel">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="w-8 h-5 flex items-center justify-center text-[9px] font-black text-violet-400/40 gl-border-bright">000</div>
+                  <div className="w-8 h-5 flex items-center justify-center text-[9px] font-black text-gray-500 gl-border-bright">000</div>
                   <div className="flex-1 h-px gl-dashed-sep" />
-                  <div className="px-3 py-1 text-[10px] font-black uppercase text-violet-300/70 tracking-[0.12em] gl-border-bright">FONT PAIRING GUIDE</div>
+                  <div className="px-3 py-1 text-[10px] font-black uppercase text-violet-400 tracking-[0.12em] gl-border-bright">FONT PAIRING GUIDE</div>
                   <div className="flex-1 h-px gl-dashed-sep" />
-                  <div className="w-8 h-5 flex items-center justify-center text-[9px] font-black text-violet-400/40 gl-border-bright">000</div>
+                  <div className="w-8 h-5 flex items-center justify-center text-[9px] font-black text-gray-500 gl-border-bright">000</div>
                 </div>
 
                 {/* Editable text input */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-400/60">TYPE YOUR TEXT</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">TYPE YOUR TEXT</span>
                   <input
                     type="text"
                     value={fontPreviewText}
                     onChange={(e) => setFontPreviewText(e.target.value)}
                     placeholder="Type here..."
-                    className="w-full px-3 py-2 text-sm font-medium focus:outline-none text-violet-100 placeholder:text-violet-400/30 rounded-lg gl-input"
+                    className="w-full px-3 py-2 text-sm font-medium focus:outline-none text-white placeholder:text-gray-500/50 rounded-lg gl-input"
                   />
                 </div>
 
-                <p className="text-[10px] font-black uppercase text-center tracking-widest text-violet-400/30">DRAG ANY STYLE ONTO THE SHIRT</p>
+                <p className="text-[10px] font-black uppercase text-center tracking-widest text-gray-500/50">DRAG ANY STYLE ONTO THE SHIRT</p>
 
                 {/* Draggable font samples */}
                 <div className="flex flex-col gap-3">
@@ -1259,14 +1259,14 @@ export default function DesignPage() {
                       className="group cursor-grab active:cursor-grabbing px-4 py-3 transition-all flex flex-col gap-1 rounded-lg gl-surface"
                     >
                       <div
-                        className="leading-tight text-violet-100 group-hover:text-violet-300 transition-colors truncate"
+                        className="leading-tight text-white group-hover:text-violet-300 transition-colors truncate"
                         style={{ fontFamily: item.font, fontSize: item.size, fontWeight: item.weight, fontStyle: item.style }}
                       >
                         {item.text}
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-violet-400/50">{item.desc}</span>
-                        <span className="text-[10px] font-mono text-violet-400/30">{item.font}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{item.desc}</span>
+                        <span className="text-[10px] font-mono text-gray-500/50">{item.font}</span>
                       </div>
                     </div>
                   ))}
@@ -1285,7 +1285,7 @@ export default function DesignPage() {
                         }));
                       }}
                       onClick={() => handleAddText(fontPreviewText || font, font)}
-                      className="px-3 py-1.5 text-[10px] font-black uppercase cursor-grab active:cursor-grabbing transition-all text-violet-300/70 rounded gl-border-bright"
+                      className="px-3 py-1.5 text-[10px] font-black uppercase cursor-grab active:cursor-grabbing transition-all text-violet-400 rounded gl-border-bright"
                     >
                       {font}
                     </div>
@@ -1296,7 +1296,7 @@ export default function DesignPage() {
 
             {activeTab === "color" && (
               <div className="space-y-3 animate-in fade-in duration-300">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-violet-400/60 block">Click a color to apply to shirt</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block">Click a color to apply to shirt</span>
                 <div className="flex items-center gap-2 p-2 rounded-lg gl-active-glow">
                   <div className="w-6 h-6 shrink-0 rounded" style={{border:'2px solid rgba(124,58,237,0.35)'}} ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
                   <span className="text-[11px] font-black uppercase text-violet-300 tracking-[0.12em]">Active: {tshirtColor}</span>
@@ -1315,8 +1315,8 @@ export default function DesignPage() {
                   >
                     <div className="w-8 h-8 shrink-0 rounded" style={{border:'1px solid rgba(124,58,237,0.22)'}} ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
                     <div className="text-left">
-                      <div className="text-[12px] font-bold text-violet-100 tracking-wide">{c.name}</div>
-                      <div className="text-[10px] font-mono text-violet-400/40">{c.hex}</div>
+                      <div className="text-[12px] font-bold text-white tracking-wide">{c.name}</div>
+                      <div className="text-[10px] font-mono text-gray-500">{c.hex}</div>
                     </div>
                     {tshirtColor === c.hex && <div className="ml-auto w-2 h-2 bg-violet-400 rounded-full" />}
                   </button>
@@ -1327,7 +1327,7 @@ export default function DesignPage() {
             {activeTab === "layers" && (
               <div className="space-y-2 animate-in fade-in duration-300">
                 {elements.length === 0 ? (
-                  <div className="py-20 text-center text-violet-400/20"><LayersIcon size={32} className="mx-auto" /><p className="text-[11px] font-black uppercase mt-4 tracking-widest">No layers yet</p></div>
+                  <div className="py-20 text-center text-gray-600"><LayersIcon size={32} className="mx-auto" /><p className="text-[11px] font-black uppercase mt-4 tracking-widest">No layers yet</p></div>
                 ) : (
                   elements.slice().reverse().map((el) => (
                     <div key={el.id} onClick={() => setSelectedId(el.id)}
@@ -1335,10 +1335,10 @@ export default function DesignPage() {
                         selectedId === el.id ? 'ring-2 ring-violet-400/40 gl-active' : 'hover:ring-1 hover:ring-violet-400/20 gl-surface-mid'
                       }`}>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[12px] font-bold text-violet-100 truncate">{el.label || el.text}</div>
-                        <div className="text-[10px] font-mono text-violet-400/40">{el.type} / {el.side}</div>
+                        <div className="text-[12px] font-bold text-white truncate">{el.label || el.text}</div>
+                        <div className="text-[10px] font-mono text-gray-500">{el.type} / {el.side}</div>
                       </div>
-                      <button onClick={(e) => { e.stopPropagation(); setElements(prev => prev.filter(item => item.id !== el.id)); }} title="Delete layer" aria-label="Delete layer" className="p-1.5 text-violet-400/40 hover:text-red-400 transition-colors"><Trash2 size={13}/></button>
+                      <button onClick={(e) => { e.stopPropagation(); setElements(prev => prev.filter(item => item.id !== el.id)); }} title="Delete layer" aria-label="Delete layer" className="p-1.5 text-gray-500 hover:text-red-400 transition-colors"><Trash2 size={13}/></button>
                     </div>
                   ))
                 )}
@@ -1366,7 +1366,7 @@ export default function DesignPage() {
                       <Image src={imgs[s]} alt={s} width={64} height={64} unoptimized
                         className="w-full h-full object-contain p-0.5" />
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${side === s ? 'text-violet-300' : 'text-violet-400/30'}`}>{s.toUpperCase()}</span>
+                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${side === s ? 'text-violet-300' : 'text-gray-500/50'}`}>{s.toUpperCase()}</span>
                   </button>
                 ))}
               </div>
@@ -1376,14 +1376,14 @@ export default function DesignPage() {
 
         {/* Mobile: backdrop to dismiss panel */}
         {activeTab !== null && (
-          <div className="fixed inset-0 bg-[#0a0e1a]/60 backdrop-blur-sm z-30 md:hidden" onClick={() => setActiveTab(null)} />
+          <div className="fixed inset-0 bg-[#0c081c]/60 backdrop-blur-sm z-30 md:hidden" onClick={() => setActiveTab(null)} />
         )}
 
         {/* Mobile: floating tool button (opens AI panel) */}
         {activeTab === null && (
           <button
             onClick={() => setActiveTab('ai')}
-            className="fixed bottom-5 right-5 z-50 md:hidden w-12 h-12 bg-[#7dd3fc] text-white rounded-full shadow-2xl shadow-[#7dd3fc]/20 flex items-center justify-center active:scale-95 transition-transform"
+            className="fixed bottom-5 right-5 z-50 md:hidden w-12 h-12 bg-[#7C3AED] text-white rounded-full shadow-2xl shadow-[#7C3AED]/25 flex items-center justify-center active:scale-95 transition-transform"
             aria-label="Mở công cụ thiết kế"
           >
             <Zap size={20} />
@@ -1410,10 +1410,10 @@ export default function DesignPage() {
 
       {/* ── ORDER FORM MODAL ── */}
       {showOrderModal && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-[#0a0e1a]/80 backdrop-blur-xl">
-          <div className="bg-[#0f1524] rounded-3xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden border border-white/10">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-[#0c081c]/85 backdrop-blur-xl">
+          <div className="bg-[#140c28] rounded-3xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden border border-white/10">
             {/* Header */}
-            <div className="bg-[#0a0e1a] text-white px-6 py-4 flex items-center justify-between border-b border-white/5">
+            <div className="bg-[#0c081c] text-white px-6 py-4 flex items-center justify-between border-b border-white/5">
               <div>
                 <h2 className="text-sm font-black uppercase tracking-widest">Thông Tin Đơn Hàng</h2>
                 <p className="text-[10px] text-gray-500 font-mono mt-0.5">Điền thông tin trước khi gửi thiết kế cho admin</p>
@@ -1427,23 +1427,23 @@ export default function DesignPage() {
                 <div>
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Họ tên *</label>
                   <input type="text" value={orderInfo.name} onChange={e => setOrderInfo(p => ({...p, name: e.target.value}))}
-                    className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-[#7dd3fc]/50 transition-colors bg-[#0a0e1a]/60 text-white" placeholder="Nguyễn Văn A" />
+                    className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-violet-500/50 transition-colors bg-[#0c081c]/60 text-white" placeholder="Nguyễn Văn A" />
                 </div>
                 <div>
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Số điện thoại *</label>
                   <input type="tel" value={orderInfo.phone} onChange={e => setOrderInfo(p => ({...p, phone: e.target.value}))}
-                    className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-[#7dd3fc]/50 transition-colors bg-[#0a0e1a]/60 text-white" placeholder="0901 234 567" />
+                    className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-violet-500/50 transition-colors bg-[#0c081c]/60 text-white" placeholder="0901 234 567" />
                 </div>
               </div>
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Địa chỉ giao hàng *</label>
                 <input type="text" value={orderInfo.address} onChange={e => setOrderInfo(p => ({...p, address: e.target.value}))}
-                  className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-[#7dd3fc]/50 transition-colors bg-[#0a0e1a]/60 text-white" placeholder="123 Đường ABC, Quận 1, TP.HCM" />
+                  className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-violet-500/50 transition-colors bg-[#0c081c]/60 text-white" placeholder="123 Đường ABC, Quận 1, TP.HCM" />
               </div>
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Lớp / Trường</label>
                 <input type="text" value={orderInfo.className} onChange={e => setOrderInfo(p => ({...p, className: e.target.value}))}
-                  className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-[#7dd3fc]/50 transition-colors bg-[#0a0e1a]/60 text-white" placeholder="12A1 - THPT Nguyễn Trãi" />
+                  className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-violet-500/50 transition-colors bg-[#0c081c]/60 text-white" placeholder="12A1 - THPT Nguyễn Trãi" />
               </div>
 
               {/* Size quantities */}
@@ -1457,7 +1457,7 @@ export default function DesignPage() {
                         type="number" min="0" max="999" aria-label={`Số lượng size ${size}`}
                         value={orderInfo.sizes[size]}
                         onChange={e => setOrderInfo(p => ({...p, sizes: {...p.sizes, [size]: parseInt(e.target.value)||0}}))}
-                        className="w-full border border-white/10 rounded-xl px-1 py-2 text-sm font-black text-center outline-none focus:border-[#7dd3fc]/50 transition-colors bg-[#0a0e1a]/60 text-white"
+                        className="w-full border border-white/10 rounded-xl px-1 py-2 text-sm font-black text-center outline-none focus:border-violet-500/50 transition-colors bg-[#0c081c]/60 text-white"
                       />
                     </div>
                   ))}
@@ -1471,7 +1471,7 @@ export default function DesignPage() {
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Ghi chú</label>
                 <textarea value={orderInfo.note} onChange={e => setOrderInfo(p => ({...p, note: e.target.value}))}
-                  rows={2} className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-[#7dd3fc]/50 transition-colors resize-none bg-[#0a0e1a]/60 text-white"
+                  rows={2} className="w-full border border-white/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-violet-500/50 transition-colors resize-none bg-[#0c081c]/60 text-white"
                   placeholder="Yêu cầu thêm, màu sắc đặc biệt..." />
               </div>
             </div>
@@ -1485,7 +1485,7 @@ export default function DesignPage() {
               <button
                 onClick={() => handleExportPack(orderInfo)}
                 disabled={!orderInfo.name || !orderInfo.phone || !orderInfo.address || isExporting}
-                className="flex-1 py-2.5 bg-[#7dd3fc] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#7dd3fc]/80 transition-colors disabled:opacity-40">
+                className="flex-1 py-2.5 bg-[#7C3AED] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#6d28d9] transition-colors disabled:opacity-40">
                 {isExporting ? 'Đang xử lý...' : '📦 Gửi Đơn Hàng'}
               </button>
             </div>

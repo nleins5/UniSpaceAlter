@@ -46,34 +46,46 @@ const MOCKUP_MAP: Record<string, { front: string; back: string; maskFront: strin
   'POLO':    { front: '/mockups/v_polo_front.png',    back: '/mockups/v_polo_back.png',    maskFront: '/mockups/raglan_front_mask.png',  maskBack: '/mockups/raglan_back_mask.png' },
 };
 
-// ─── Component: TShirtMockup — 2-layer transparent PNG approach ───────────────
-// Layer 1: solid color background div
-// Layer 2: transparent PNG with linework (mix-blend-mode:multiply keeps black lines)
+// ─── Component: TShirtMockup — masked color + PNG overlay ─────────────────────
 function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: string; side?: "front" | "back"; garmentType?: string }) {
   const isFront = side === "front";
   const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
   const imgSrc = isFront ? mockup.front : mockup.back;
-  const bgColor = (color === "#FFFFFF" || color === "#ffffff") ? "transparent" : color;
+  const isWhite = color === "#FFFFFF" || color === "#ffffff";
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center">
-      {/* Layer 1: shirt color (only visible through transparent areas of PNG) */}
-      <div className="absolute inset-0" style={{ backgroundColor: bgColor }} />
+    <div className="w-full h-full relative" style={{ isolation: 'isolate' }}>
+      {/* Layer 1: Color div — masked by shirt PNG so color only fills silhouette.
+          mask-image uses alpha channel: opaque pixels (shirt) = show color,
+          transparent pixels (background) = hide color. */}
+      {!isWhite && (
+        <div className="absolute inset-0" style={{
+          backgroundColor: color,
+          WebkitMaskImage: `url(${imgSrc})`,
+          maskImage: `url(${imgSrc})`,
+          WebkitMaskSize: 'contain',
+          maskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          maskPosition: 'center',
+        }} />
+      )}
 
-      {/* Layer 2: transparent PNG linework overlay
-          mix-blend-mode:multiply — black lines stay black, white fabric stays (shows color below),
-          transparent background = fully transparent, color div shows through */}
+      {/* Layer 2: PNG linework on top with multiply blend.
+          - White shirt pixels × color = color shows through ✓
+          - Black linework × anything = stays dark ✓
+          - Transparent bg pixels = no effect = grid shows through ✓ */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imgSrc}
         alt={`Shirt ${side}`}
-        className="relative w-full h-full object-contain"
-        style={{ mixBlendMode: 'multiply' }}
+        className="absolute inset-0 w-full h-full object-contain"
+        style={isWhite ? {} : { mixBlendMode: 'multiply' }}
       />
     </div>
   );
 }
-
 
 // ─── Component: MiniPreview (droppable thumbnail, shows components only) ─────
 function MiniPreview({ elements, side, width, height, onDropImage }: {

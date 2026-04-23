@@ -1,31 +1,6 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { createSession } from "../../../../lib/authService";
-
-// Hash password with SHA-256 + salt
-function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password + "_unispace_salt_2026").digest("hex");
-}
-
-// Users with hashed passwords
-const USERS = [
-  {
-    id: "1",
-    email: "admin@unispace.vn",
-    passwordHash: hashPassword("admin123"),
-    firstName: "Admin",
-    lastName: "UniSpace",
-    admin: true,
-  },
-  {
-    id: "2",
-    email: "staff@unispace.vn",
-    passwordHash: hashPassword("staff123"),
-    firstName: "Nhân viên",
-    lastName: "UniSpace",
-    admin: false,
-  },
-];
+import { authenticateUser } from "../../../../lib/userService";
 
 // Simple rate limiter: max 5 login attempts per IP per 15 minutes
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -62,16 +37,14 @@ export async function POST(request: Request) {
     // Sanitize input
     const cleanEmail = email.trim().toLowerCase().slice(0, 100);
     const cleanPassword = password.slice(0, 100);
-    const inputHash = hashPassword(cleanPassword);
 
-    const user = USERS.find(
-      (u) => u.email === cleanEmail && u.passwordHash === inputHash
-    );
+    // Authenticate via userService (Supabase or in-memory)
+    const user = await authenticateUser(cleanEmail, cleanPassword);
 
     if (user) {
       // Create a server-side session token
       const token = createSession(user.id, user.email, user.admin);
-      
+
       return NextResponse.json({
         user: {
           id: user.id,

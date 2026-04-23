@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     // masks, font families from data) and cannot be moved to static CSS files.
     rules: {
       "react/no-inline-styles": "off",
+      "react/forbid-dom-props": "off",
+      "@next/next/no-css-inline-style": "off",
     },
   },
 ]);

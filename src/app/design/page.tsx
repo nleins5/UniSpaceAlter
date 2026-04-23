@@ -39,10 +39,18 @@ interface ChatMessage {
   images?: AIImage[];
 }
 
+// ─── Mockup image map per garment type ───────────────────────────────────
+const MOCKUP_MAP: Record<string, { front: string; back: string }> = {
+  'T-SHIRT': { front: '/mockups/v_tshirt_front.png', back: '/mockups/v_tshirt_back.png' },
+  'RAGLAN':  { front: '/mockups/v_raglan_front.png', back: '/mockups/v_raglan_back.png' },
+  'POLO':    { front: '/mockups/v_polo_front.png',   back: '/mockups/v_polo_back.png' },
+};
+
 // ─── Component: TShirtMockup (Image-Based Mechanical Flat) ───────────────
-function TShirtSVG({ color, side = "front" }: { color: string; side?: "front" | "back" }) {
+function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: string; side?: "front" | "back"; garmentType?: string }) {
   const isFront = side === "front";
-  const imgSrc = isFront ? "/mockups/user_tshirt_front.png" : "/mockups/user_tshirt_back.png";
+  const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
+  const imgSrc = isFront ? mockup.front : mockup.back;
   const isWhite = color === "#FFFFFF" || color === "#ffffff" || color === "#F2F0E9";
   return (
     <div className="w-full h-full relative">
@@ -140,6 +148,7 @@ interface DesignCanvasProps {
   side: "front" | "back";
   tshirtColor: string;
   slot?: string;
+  garmentType?: string;
 }
 
 function DesignCanvas({
@@ -154,6 +163,7 @@ function DesignCanvas({
   side,
   tshirtColor,
   slot = "shirt",
+  garmentType = "RAGLAN",
 }: DesignCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -282,7 +292,7 @@ function DesignCanvas({
       onDrop={handleDrop}
     >
       <div className="absolute inset-0 pointer-events-none">
-        <TShirtSVG color={tshirtColor} side={side} />
+        <TShirtSVG color={tshirtColor} side={side} garmentType={garmentType} />
       </div>
       
       {sideElements.map((el) => <DesignElementItem key={el.id} el={el} selectedId={selectedId} isDragging={isDragging} onMouseDown={handleElementMouseDown} onResizeMouseDown={handleResizeMouseDown} />)}
@@ -347,7 +357,7 @@ function DesignElementItem({
 
 // ─── Main Design Page ──────────────────────────────────────────
 export default function DesignPage() {
-  const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers" | null>(null);
+  const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers" | null>("ai");
   const [side, setSide] = useState<"front" | "back" | "side">("front");
   const [garmentType, setGarmentType] = useState<'T-SHIRT' | 'RAGLAN' | 'POLO'>('RAGLAN');
   const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
@@ -549,7 +559,8 @@ export default function DesignPage() {
         ctx.fillRect(0, 0, EXPORT_W, EXPORT_H);
 
         // Draw shirt mockup with object-contain inside 800×960
-        const shirtSrc = sideName === 'front' ? '/mockups/user_tshirt_front.png' : '/mockups/user_tshirt_back.png';
+        const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
+        const shirtSrc = sideName === 'front' ? mockup.front : mockup.back;
         try {
           const shirtImg = await loadImg(shirtSrc);
           const imgRatio = shirtImg.width / shirtImg.height;
@@ -706,38 +717,35 @@ export default function DesignPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#0a0e1a] overflow-hidden font-sans text-white">
+    <div className="flex flex-col h-[100dvh] bg-white overflow-hidden font-sans text-black">
 
-      {/* NAV */}
-      <header className="h-12 md:h-14 bg-[#0f1524]/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-3 md:px-6 shrink-0 z-50">
-        <div className="flex items-center gap-2 md:gap-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#7dd3fc]/20 border border-[#7dd3fc]/30 rounded-lg flex items-center justify-center shrink-0">
-              <span className="text-[#7dd3fc] text-[8px] font-black tracking-tighter leading-none">US</span>
+      {/* NAV — white bar, black border per spec */}
+      <header className="h-12 bg-white border-b border-black flex items-center justify-between px-4 shrink-0 z-50">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-1.5">
+            <div className="w-7 h-7 bg-black flex items-center justify-center shrink-0">
+              <span className="text-white text-[10px] font-black leading-none">U</span>
             </div>
-            <div className="leading-none hidden sm:block">
-              <span className="font-black text-[13px] tracking-tight text-white">Uni<span className="text-[#7dd3fc]">Space</span></span>
-              <span className="text-[7px] text-gray-500 font-medium block tracking-wide">Design Studio</span>
-            </div>
+            <span className="font-black text-[13px] tracking-tight text-black uppercase hidden sm:block">UniSpace</span>
           </Link>
-          <div className="h-5 w-px bg-white/10 hidden sm:block" />
+          <div className="h-5 w-px bg-black/20 hidden sm:block" />
           <div className="flex items-center gap-0.5">
-            <button onClick={handleUndo} className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Undo"><Undo2 size={14} /></button>
-            <button onClick={handleRedo} className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Redo"><Redo2 size={14} /></button>
+            <button onClick={handleUndo} className="p-1.5 hover:bg-black/5 text-black/40 hover:text-black transition-colors" title="Undo"><Undo2 size={14} /></button>
+            <button onClick={handleRedo} className="p-1.5 hover:bg-black/5 text-black/40 hover:text-black transition-colors" title="Redo"><Redo2 size={14} /></button>
           </div>
         </div>
         {/* Centered project title */}
         <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-2">
-          <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Project:</span>
-          <span className="text-[12px] font-black text-white uppercase tracking-wider">{projectName || 'UNTITLED'}</span>
+          <span className="text-[10px] font-black text-black uppercase tracking-[0.15em]">{projectName || 'UNTITLED'}</span>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowOrderModal(true)} disabled={isExporting}
-            className="px-5 py-1.5 bg-[#7dd3fc] text-[#0a0e1a] text-[10px] font-black uppercase rounded-lg tracking-wider hover:bg-[#7dd3fc]/80 transition-all disabled:opacity-50 shadow-lg shadow-[#7dd3fc]/20">
+            className="px-4 py-1.5 bg-transparent border border-black text-black text-[10px] font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all disabled:opacity-50">
             {isExporting ? '...' : 'EXPORT'}
           </button>
           <Link href="/"
-            className="px-5 py-1.5 bg-transparent text-white text-[10px] font-black uppercase rounded-lg tracking-wider hover:bg-white/10 transition-all border border-white/30">
+            className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-full hover:bg-black/80 transition-all flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
             BACK
           </Link>
         </div>
@@ -746,7 +754,7 @@ export default function DesignPage() {
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
         {/* ── BLUEPRINT PANEL: full-width on mobile, fixed 820px on desktop ── */}
-        <section className="w-full md:w-[820px] shrink-0 flex flex-col bg-white border-b md:border-b-0 md:border-r border-white/5 md:shadow-xl overflow-hidden h-[calc(100dvh-48px)] max-h-[calc(100dvh-48px)]">
+        <section className="w-full md:w-[820px] shrink-0 flex flex-col bg-white border-b md:border-b-0 md:border-r border-black overflow-hidden h-[calc(100dvh-48px)] max-h-[calc(100dvh-48px)]">
 
           {/* HEADER ROW 1 — hidden on mobile, shown on desktop */}
           <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[60px]">
@@ -787,6 +795,7 @@ export default function DesignPage() {
           {/* HEADER ROW 2 — hidden on mobile */}
           <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
             <div className="border-r border-black px-2 flex items-center gap-1.5">
+              { }
               <div className="w-3 h-3 rounded border border-black/20 shrink-0" style={{ backgroundColor: tshirtColor }} />
               <div className="flex flex-col justify-center">
                 <span className="text-[5px] font-black text-gray-400 uppercase">Color:</span>
@@ -880,6 +889,7 @@ export default function DesignPage() {
               <line x1="110" y1="420" x2="680" y2="420" stroke="black" strokeWidth="0.5" strokeDasharray="6 3" opacity="0.3" />
             </svg>
 
+            { }
             <div className="relative h-full flex p-3" onDragOver={(e) => e.preventDefault()} style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
               {/* FAR LEFT: Color Swatches — hidden on mobile */}
@@ -898,6 +908,7 @@ export default function DesignPage() {
                   { hex: '#FFB6C1', cmyk: '0 29 24 0' },
                 ].map(c => (
                   <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={c.hex} className="text-left group">
+                    { }
                     <div className={`w-5 h-5 border mb-0.5 transition-all ${tshirtColor === c.hex ? 'border-black ring-1 ring-offset-1 ring-black scale-110' : 'border-gray-300'}`}
                       style={{ backgroundColor: c.hex }} />
                     <span className="text-[4px] font-black uppercase leading-tight block text-gray-400 group-hover:text-gray-700 transition-colors">{c.cmyk}</span>
@@ -917,7 +928,7 @@ export default function DesignPage() {
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
                         onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropTextBack}
-                        side="back" tshirtColor={tshirtColor}
+                        side="back" tshirtColor={tshirtColor} garmentType={garmentType}
                       />
                     </div>
                   </div>
@@ -963,7 +974,7 @@ export default function DesignPage() {
                         elements={elements} selectedId={selectedId} onSelectElement={setSelectedId}
                         onMoveElement={handleMoveElement} onResizeElement={handleResizeElement}
                         onPushHistory={() => pushHistory(elements)} onDropImage={handleDropImage} onDropText={handleDropTextFront}
-                        side="front" tshirtColor={tshirtColor}
+                        side="front" tshirtColor={tshirtColor} garmentType={garmentType}
                       />
                     </div>
                   </div>
@@ -977,61 +988,64 @@ export default function DesignPage() {
               </div>
             </div>
 
-            {/* Zoom controls + Delete — bottom right of blueprint */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-1 z-30">
+            {/* Zoom controls — brutalist square corners per spec §6 */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center z-30 border border-black/40 bg-black/90">
               {selectedId && (
-                <button onClick={handleDeleteSelected} className="w-8 h-8 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center shadow-lg transition-all" title="Delete selected (Del)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <button onClick={handleDeleteSelected} className="w-8 h-8 bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-all border-r border-black/40" title="Delete selected (Del)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               )}
-              <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg text-sm font-bold transition-all">−</button>
-              <span className="text-[10px] font-mono text-white bg-black/80 px-2 py-1 rounded-lg shadow min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
-              <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg text-sm font-bold transition-all">+</button>
-              <button onClick={() => { setZoom(1); setPanX(0); setPanY(0); }} className="w-8 h-8 bg-black/80 hover:bg-black text-white rounded-lg flex items-center justify-center shadow-lg transition-all" title="Reset zoom & pan">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+              <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all text-sm font-black border-r border-black/40">−</button>
+              <span className="text-[9px] font-mono text-[#7C3AED] font-black px-3 min-w-[44px] text-center">{Math.round(zoom * 100)}%</span>
+              <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all text-sm font-black border-l border-r border-black/40">+</button>
+              <button onClick={() => { setZoom(1); setPanX(0); setPanY(0); }} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all" title="Reset zoom & pan">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
               </button>
             </div>
 
           </div>
         </section>
 
-        {/* ── VERTICAL ICON TOOLBAR — narrow strip between blueprint and content panel ── */}
-        <div className="hidden md:flex flex-col items-center py-4 px-1 bg-[#0a0e1a] border-r border-white/5 gap-3 shrink-0 w-[40px]">
-          <button onClick={() => setActiveTab(prev => prev === 'layers' ? null : 'layers')}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${activeTab === 'layers' ? 'bg-[#7dd3fc]/20 text-[#7dd3fc]' : 'text-gray-500 hover:text-white hover:bg-white/10'}`} title="Layers">
-            <LayersIcon size={16} />
+        {/* ── VERTICAL ICON TOOLBAR — 44px strip, #111111 bg, violet pill active per spec ── */}
+        <div className="hidden md:flex flex-col items-center py-3 px-0 bg-[#111111] gap-2 shrink-0 w-[44px]">
+          <button onClick={() => setActiveTab(prev => prev === 'ai' ? null : 'ai')}
+            className={`w-8 h-8 flex items-center justify-center transition-all text-[9px] font-black rounded-full ${
+              activeTab === 'ai' ? 'bg-[#7C3AED] text-white' : 'text-gray-400 hover:text-white'
+            }`} title="AI Generate">
+            <Zap size={14} />
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'assets' ? null : 'assets')}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${activeTab === 'assets' ? 'bg-[#7dd3fc]/20 text-[#7dd3fc]' : 'text-gray-500 hover:text-white hover:bg-white/10'}`} title="Text">
-            <span className="text-[14px] font-black">T</span>
+            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
+              activeTab === 'assets' ? 'bg-[#7C3AED] text-white' : 'text-gray-400 hover:text-white'
+            }`} title="Image">
+            <ImageIcon size={14} />
           </button>
-          <button className="w-8 h-8 rounded-lg flex items-center justify-center transition-all text-gray-500 hover:text-white hover:bg-white/10" title="Copy">
-            <ImageIcon size={16} />
+          <button onClick={() => setActiveTab(prev => prev === 'layers' ? null : 'layers')}
+            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
+              activeTab === 'layers' ? 'bg-[#7C3AED] text-white' : 'text-gray-400 hover:text-white'
+            }`} title="Text">
+            <span className="text-[13px] font-black">T</span>
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'color' ? null : 'color')}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${activeTab === 'color' ? 'bg-[#7dd3fc]/20 text-[#7dd3fc]' : 'text-gray-500 hover:text-white hover:bg-white/10'}`} title="Color">
-            <PaletteIcon size={16} />
-          </button>
-          <button className="w-8 h-8 rounded-lg flex items-center justify-center transition-all text-gray-500 hover:text-white hover:bg-white/10" title="Upload">
-            <Zap size={16} />
+            className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
+              activeTab === 'color' ? 'bg-[#7C3AED] text-white' : 'text-gray-400 hover:text-white'
+            }`} title="Palette">
+            <PaletteIcon size={14} />
           </button>
           <div className="flex-1" />
-          <div className="w-6 h-px bg-white/10" />
-          <button onClick={() => setActiveTab(prev => prev === 'ai' ? null : 'ai')}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all text-[10px] font-black ${activeTab === 'ai' ? 'bg-[#7dd3fc]/20 text-[#7dd3fc]' : 'text-gray-500 hover:text-white hover:bg-white/10'}`} title="AI">
-            AI
+          <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-all rounded-full" title="Layers">
+            <LayersIcon size={14} />
           </button>
         </div>
 
         {/* ── RIGHT: AI PANEL — sidebar on desktop, bottom sheet on mobile ── */}
         <aside className={`
           fixed md:static inset-x-0 bottom-0 md:inset-auto
-          flex-1 md:h-full flex flex-col bg-[#0f1524]/80 backdrop-blur-xl overflow-hidden
+          flex-1 md:h-full flex flex-col bg-[#1A1A1A] overflow-hidden
           transition-transform duration-300 z-40 md:z-auto
           ${activeTab !== null ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
           md:translate-y-0 h-[72vh] md:h-full
-          rounded-t-3xl md:rounded-none shadow-2xl md:shadow-none
-          border-t md:border-t-0 md:border-l border-white/5
+          border-t md:border-t-0 md:border-l border-black
         `}>
           {/* Mobile drag handle + close */}
           <div className="flex items-center justify-between px-4 pt-3 pb-1 md:hidden shrink-0">
@@ -1042,28 +1056,37 @@ export default function DesignPage() {
             </button>
           </div>
 
-          {/* Garment type tabs — matching Stitch reference */}
-          <div className="flex bg-[#0a0e1a] px-2 pt-2 shrink-0 gap-1">
+          {/* Garment type tabs — square corners per spec */}
+          <div className="flex bg-[#111111] px-2 pt-2.5 shrink-0 gap-1.5">
             {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
               <button key={type}
                 onClick={() => setGarmentType(type)}
-                className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-t-lg transition-all ${
-                  type === garmentType ? 'bg-[#7dd3fc] text-[#0a0e1a]' : 'text-gray-500 hover:text-white'
-                }`}>{type}</button>
+                className={`px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative overflow-hidden ${
+                  type === garmentType
+                    ? 'bg-[#7C3AED] text-white'
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                }`}>
+                <span className="relative z-10">{type}</span>
+                {type === garmentType && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/30" />}
+              </button>
             ))}
           </div>
 
-          {/* Tab bar */}
-          <div className="flex bg-[#0a0e1a]/60 border-b border-white/5 px-2 pt-1 shrink-0 gap-1">
+          {/* Tab bar — uppercase, font-black, violet underline active per spec */}
+          <div className="flex bg-[#111111] border-b border-black/40 px-2 pt-1.5 shrink-0 gap-0">
             {([
-              { id: "ai", icon: Zap, label: "AI" },
-              { id: "assets", icon: ImageIcon, label: "Guide" },
-              { id: "color", icon: PaletteIcon, label: "Palette" },
-              { id: "layers", icon: LayersIcon, label: "Layers" }
+              { id: "ai", icon: Zap, label: "AI GENERATE" },
+              { id: "assets", icon: ImageIcon, label: "DESIGN" },
+              { id: "color", icon: PaletteIcon, label: "PALETTE" },
+              { id: "layers", icon: LayersIcon, label: "LAYERS" }
             ] as const).map((t) => (
               <button
                 key={t.id} onClick={() => setActiveTab(prev => prev === t.id ? null : t.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 text-[10px] font-black uppercase tracking-wide rounded-t-lg transition-all ${activeTab === t.id ? 'bg-[#0f1524] text-[#7dd3fc] border border-b-0 border-white/10' : 'text-gray-500 hover:text-white'}`}
+                className={`flex items-center gap-1.5 px-3.5 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] transition-all border-b-2 ${
+                  activeTab === t.id
+                    ? 'border-[#7C3AED] text-[#7C3AED]'
+                    : 'border-transparent text-gray-500 hover:text-white'
+                }`}
               >
                 <t.icon size={12} />{t.label}
               </button>
@@ -1071,7 +1094,7 @@ export default function DesignPage() {
           </div>
 
           {/* Content area */}
-          <div className="flex-1 overflow-y-auto scrollbar-hide p-4">
+          <div className="flex-1 overflow-y-auto scrollbar-hide p-3">
 
             {activeTab === "ai" && (
               <div className="flex flex-col gap-4 h-full">
@@ -1079,19 +1102,19 @@ export default function DesignPage() {
                 {/* Template mockup grid — 2 columns, always visible */}
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { accent: '#7dd3fc', label: 'HOME',  bg: 'dark' },
-                    { accent: '#7dd3fc', label: 'AWAY',  bg: 'light' },
-                    { accent: '#c8a0f0', label: 'HOME',  bg: 'dark' },
-                    { accent: '#c8a0f0', label: 'AWAY',  bg: 'light' },
-                    { accent: '#7dd3fc', label: 'HOME',  bg: 'dark' },
-                    { accent: '#7dd3fc', label: 'AWAY',  bg: 'light' },
+                    { accent: '#7C3AED', label: 'DARK',   bg: 'dark',  color: '#1A1A1A' },
+                    { accent: '#7C3AED', label: 'LIGHT',  bg: 'light', color: '#FFFFFF' },
+                    { accent: '#9CA3AF', label: 'STEALTH', bg: 'dark',  color: '#111111' },
+                    { accent: '#9CA3AF', label: 'CREAM',  bg: 'light', color: '#F5F4F1' },
+                    { accent: '#7C3AED', label: 'VOID',   bg: 'dark',  color: '#0D0D12' },
+                    { accent: '#7C3AED', label: 'PAPER',  bg: 'light', color: '#E8E4DD' },
                   ].map((card, idx) => (
                     <button key={idx}
-                      className="group relative rounded-2xl overflow-hidden hover:scale-[1.03] transition-all border border-white/10 flex flex-col bg-[#0a0e1a]/70"
-                      title={`Use ${card.label} template`}
+                      className="group relative overflow-hidden hover:scale-[1.03] active:scale-[0.98] transition-all border border-white/10 hover:border-[#7C3AED]/40 flex flex-col bg-[#111111]"
+                      title={`Apply ${card.label} — ${card.color}`}
+                      onClick={() => setTshirtColor(card.color)}
                     >
-                      {/* NEXT PLAYER header bar */}
-                      <div className="w-full py-1 px-2 text-[8px] font-black uppercase tracking-widest text-center text-[#0a0e1a]"
+                      <div className="w-full py-1 px-2 text-[8px] font-black uppercase tracking-[0.15em] text-center text-white"
                         style={{ background: card.accent }}>
                         NEXT PLAYER
                       </div>
@@ -1113,19 +1136,24 @@ export default function DesignPage() {
                       })()}
                       {/* Variant label */}
                       <div className="px-2 py-1 flex items-center justify-center">
+                        { }
                         <span className="text-[8px] font-black uppercase tracking-wider" style={{ color: card.accent }}>{card.label}</span>
                       </div>
                       {/* Bottom info bar */}
                       <div className="px-2 pb-2 flex items-center justify-between border-t border-white/5 pt-1">
                         <span className="text-[6px] font-black uppercase text-gray-500 tracking-wider leading-tight">UNISPACE<br/>VARIOUS STYLES</span>
+                        { }
                         <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: `${card.accent}20` }}>
                           <svg width="8" height="8" viewBox="0 0 24 24" fill={card.accent}><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         </div>
                       </div>
                       {/* Hover overlay */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                        style={{ background: `${card.accent}15` }}>
-                        <Plus size={20} className="text-white drop-shadow-lg" />
+                        style={{ background: `${card.accent}20` }}>
+                        <div className="flex flex-col items-center gap-1">
+                          <Plus size={18} className="text-white drop-shadow-lg" />
+                          <span className="text-[7px] font-black uppercase text-white tracking-wider">APPLY</span>
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -1134,17 +1162,17 @@ export default function DesignPage() {
                   {messages.filter(m => m.role === "ai").flatMap(m => m.images || []).map((img) => (
                     <button key={img.id}
                       onClick={() => handleDropImage(img, 120, 150)}
-                      className="group relative bg-[#0a0e1a]/60 rounded-2xl overflow-hidden hover:scale-[1.03] transition-all border border-[#7dd3fc]/20 flex flex-col"
+                      className="group relative bg-[#111111] overflow-hidden hover:scale-[1.02] transition-all border border-[#7C3AED]/30 flex flex-col"
                       draggable
                       onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
                       title={`Add ${img.label}`}
                     >
-                      <div className="w-full bg-[#7dd3fc] py-1 px-2 text-[8px] font-black text-[#0a0e1a] uppercase tracking-widest text-center">
+                      <div className="w-full bg-[#7C3AED] py-1 px-2 text-[8px] font-black text-white uppercase tracking-[0.15em] text-center">
                         AI GENERATED
                       </div>
                       <div className="relative aspect-[4/3] w-full">
                         <Image src={img.url} alt={img.label} width={200} height={150} unoptimized className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-[#7dd3fc]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="absolute inset-0 bg-[#7C3AED]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Plus size={20} className="text-white shadow-lg" />
                         </div>
                       </div>
@@ -1156,8 +1184,8 @@ export default function DesignPage() {
                 </div>
 
                 {isLoading && (
-                  <div className="flex items-center gap-2 p-3 bg-[#0a0e1a]/60 rounded-xl border border-white/5">
-                    <div className="w-2 h-2 bg-[#7dd3fc] rounded-full animate-bounce" />
+                  <div className="flex items-center gap-2 p-3 bg-[#111111] border border-white/5">
+                    <div className="w-2 h-2 bg-[#7C3AED] rounded-full animate-bounce" />
                     <span className="text-[9px] font-black uppercase text-gray-500">Generating...</span>
                   </div>
                 )}
@@ -1168,14 +1196,14 @@ export default function DesignPage() {
                     value={chatInput} onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                     placeholder="Describe your design idea..."
-                    className="w-full bg-[#0a0e1a]/60 border border-white/10 focus:border-[#7dd3fc]/50 rounded-2xl px-4 py-3 text-[11px] shadow-sm outline-none transition-all pr-12 text-white placeholder:text-gray-600"
+                    className="w-full bg-[#111111] border border-white/10 focus:border-[#7C3AED]/50 px-4 py-3 text-[11px] shadow-sm outline-none transition-all pr-12 text-white placeholder:text-gray-600"
                   />
                   <button
                     onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                     disabled={isLoading}
                     title="Generate AI design"
                     aria-label="Generate AI design"
-                    className="absolute right-2 top-2 w-8 h-8 rounded-xl bg-[#7dd3fc] text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+                    className="absolute right-2 top-2 w-8 h-8 bg-[#7C3AED] text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
                   >
                     <Zap size={14} />
                   </button>
@@ -1184,13 +1212,13 @@ export default function DesignPage() {
             )}
 
             {activeTab === "assets" && (
-              <div className="bg-[#0a0e1a]/60 rounded-3xl border border-white/10 p-5 shadow-sm flex flex-col gap-6 animate-in fade-in duration-300">
+              <div className="bg-[#111111] border border-white/10 p-4 shadow-sm flex flex-col gap-5 animate-in fade-in duration-300">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="w-8 h-5 border border-white/20 rounded-full flex items-center justify-center text-[7px] font-black text-gray-500">000</div>
+                  <div className="w-8 h-5 border border-white/20 flex items-center justify-center text-[7px] font-black text-gray-500">000</div>
                   <div className="flex-1 h-px border-t border-dashed border-white/10" />
-                  <div className="px-3 py-1 border border-white/20 rounded-full text-[8px] font-black uppercase text-gray-300">FONT PAIRING GUIDE</div>
+                  <div className="px-3 py-1 border border-white/20 text-[8px] font-black uppercase text-gray-300 tracking-[0.15em]">FONT PAIRING GUIDE</div>
                   <div className="flex-1 h-px border-t border-dashed border-white/10" />
-                  <div className="w-8 h-5 border border-white/20 rounded-full flex items-center justify-center text-[7px] font-black text-gray-500">000</div>
+                  <div className="w-8 h-5 border border-white/20 flex items-center justify-center text-[7px] font-black text-gray-500">000</div>
                 </div>
 
                 {/* Editable text input */}
@@ -1201,7 +1229,7 @@ export default function DesignPage() {
                     value={fontPreviewText}
                     onChange={(e) => setFontPreviewText(e.target.value)}
                     placeholder="Type here..."
-                    className="w-full px-3 py-2 border border-white/10 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#7dd3fc]/30 focus:border-[#7dd3fc]/40 bg-[#0a0e1a]/60 text-white"
+                    className="w-full px-3 py-2 border border-white/10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED]/40 bg-[#111111] text-white"
                   />
                 </div>
 
@@ -1227,10 +1255,11 @@ export default function DesignPage() {
                         }));
                       }}
                       onClick={() => handleAddText(item.text, item.font)}
-                      className="group cursor-grab active:cursor-grabbing bg-[#0a0e1a]/40 hover:bg-[#7dd3fc]/10 px-4 py-3 rounded-2xl transition-all border border-white/5 hover:border-[#7dd3fc]/30 flex flex-col gap-1"
+                      className="group cursor-grab active:cursor-grabbing bg-[#111111] hover:bg-[#7C3AED]/10 px-4 py-3 transition-all border border-white/5 hover:border-[#7C3AED]/30 flex flex-col gap-1"
                     >
+                      { }
                       <div
-                        className="leading-tight text-white group-hover:text-[#7dd3fc] transition-colors truncate"
+                        className="leading-tight text-white group-hover:text-[#7C3AED] transition-colors truncate"
                         style={{ fontFamily: item.font, fontSize: item.size, fontWeight: item.weight, fontStyle: item.style }}
                       >
                         {item.text}
@@ -1256,7 +1285,7 @@ export default function DesignPage() {
                         }));
                       }}
                       onClick={() => handleAddText(fontPreviewText || font, font)}
-                      className="px-3 py-1.5 border border-white/10 rounded-full text-[8px] font-black uppercase cursor-grab active:cursor-grabbing hover:bg-[#7dd3fc]/10 hover:border-[#7dd3fc]/30 transition-all text-gray-300"
+                      className="px-3 py-1.5 border border-white/10 text-[8px] font-black uppercase cursor-grab active:cursor-grabbing hover:bg-[#7C3AED]/10 hover:border-[#7C3AED]/30 transition-all text-gray-300"
                       style={{ fontFamily: font }}
                     >
                       {font}
@@ -1269,9 +1298,9 @@ export default function DesignPage() {
             {activeTab === "color" && (
               <div className="space-y-3 animate-in fade-in duration-300">
                 <span className="text-[8px] font-black uppercase tracking-widest text-gray-500 block">Click a color to apply to shirt</span>
-                <div className="flex items-center gap-2 p-2 bg-[#7dd3fc]/10 rounded-xl border border-[#7dd3fc]/20">
-                  <div className="w-6 h-6 rounded-md border-2 border-[#7dd3fc]/40 shrink-0" ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
-                  <span className="text-[8px] font-black uppercase text-white">Active: {tshirtColor}</span>
+                <div className="flex items-center gap-2 p-2 bg-[#7C3AED]/10 border border-[#7C3AED]/20">
+                  <div className="w-6 h-6 border-2 border-[#7C3AED]/40 shrink-0" ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
+                  <span className="text-[8px] font-black uppercase text-white tracking-[0.15em]">Active: {tshirtColor}</span>
                 </div>
                 {[
                   { name: "White", hex: "#FFFFFF" }, { name: "Cream", hex: "#F2F0E9" },
@@ -1281,16 +1310,16 @@ export default function DesignPage() {
                   { name: "Sky Blue", hex: "#87CEEB" }, { name: "Blush Pink", hex: "#FFB6C1" },
                 ].map(c => (
                   <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={`Apply ${c.name}`}
-                    className={`w-full flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
-                      tshirtColor === c.hex ? 'bg-[#7dd3fc]/10 border-[#7dd3fc]/30 ring-2 ring-[#7dd3fc]/20' : 'bg-[#0a0e1a]/40 border-white/5 hover:border-[#7dd3fc]/20'
+                    className={`w-full flex items-center gap-3 p-2.5 border transition-all ${
+                      tshirtColor === c.hex ? 'bg-[#7C3AED]/10 border-[#7C3AED]/30 ring-2 ring-[#7C3AED]/20' : 'bg-[#111111] border-white/5 hover:border-[#7C3AED]/20'
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-lg border border-white/10 shrink-0" ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
+                    <div className="w-8 h-8 border border-white/10 shrink-0" ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
                     <div className="text-left">
-                      <div className="text-[9px] font-black uppercase text-white">{c.name}</div>
+                      <div className="text-[9px] font-black uppercase text-white tracking-[0.15em]">{c.name}</div>
                       <div className="text-[7px] font-mono text-gray-500">{c.hex}</div>
                     </div>
-                    {tshirtColor === c.hex && <div className="ml-auto w-2 h-2 bg-[#7dd3fc] rounded-full" />}
+                    {tshirtColor === c.hex && <div className="ml-auto w-2 h-2 bg-[#7C3AED] rounded-full" />}
                   </button>
                 ))}
               </div>
@@ -1302,7 +1331,7 @@ export default function DesignPage() {
                   <div className="py-20 text-center opacity-20 text-gray-500"><LayersIcon size={32} className="mx-auto" /><p className="text-[8px] font-black uppercase mt-4">No layers yet</p></div>
                 ) : (
                   elements.slice().reverse().map((el) => (
-                    <div key={el.id} onClick={() => setSelectedId(el.id)} className={`flex items-center gap-3 p-3 rounded-xl bg-[#0a0e1a]/40 border cursor-pointer transition-all ${selectedId === el.id ? 'border-[#7dd3fc]/50 ring-4 ring-[#7dd3fc]/10' : 'border-white/5 hover:border-white/10'}`}>
+                    <div key={el.id} onClick={() => setSelectedId(el.id)} className={`flex items-center gap-3 p-3 border cursor-pointer transition-all ${selectedId === el.id ? 'bg-[#7C3AED]/10 border-[#7C3AED]/50' : 'bg-[#111111] border-white/5 hover:border-white/10'}`}>
                       <div className="flex-1 min-w-0">
                         <div className="text-[9px] font-black uppercase truncate text-white">{el.label || el.text}</div>
                         <div className="text-[7px] font-mono text-gray-500">{el.type} / {el.side}</div>
@@ -1318,22 +1347,22 @@ export default function DesignPage() {
           {/* FRONT / BACK / SIDE — fixed bottom bar */}
           {(() => {
             const mockups: Record<string, Record<string, string>> = {
-              'T-SHIRT': { front: '/mockups/tshirt_front.png', back: '/mockups/tshirt_back.png', side: '/mockups/tshirt_side.png' },
+              'T-SHIRT': { front: '/mockups/v_tshirt_front.png', back: '/mockups/v_tshirt_back.png', side: '/mockups/tshirt_side.png' },
               'RAGLAN':  { front: '/mockups/v_raglan_front.png', back: '/mockups/v_raglan_back.png', side: '/mockups/raglan_side.png' },
               'POLO':    { front: '/mockups/v_polo_front.png', back: '/mockups/v_polo_back.png', side: '/mockups/polo_side.png' },
             };
             const imgs = mockups[garmentType] || mockups['RAGLAN'];
             return (
-              <div className="shrink-0 border-t border-white/5 bg-[#0a0e1a]/60 px-3 py-2 flex items-center justify-center gap-4">
+              <div className="shrink-0 border-t border-white/5 bg-[#0D0D12] px-4 py-3 flex items-center justify-center gap-6">
                 {(['front', 'back', 'side'] as const).map((s) => (
                   <button key={s} onClick={() => setSide(s)}
-                    className={`flex flex-col items-center gap-1 transition-all ${side === s ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+                    className={`flex flex-col items-center gap-1.5 transition-all ${side === s ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-70 hover:scale-[1.02]'}`}
                   >
-                    <div className={`w-14 h-14 rounded-lg border overflow-hidden ${side === s ? 'border-[#7dd3fc] ring-2 ring-[#7dd3fc]/20' : 'border-white/10'} bg-white`}>
-                      <Image src={imgs[s]} alt={s} width={56} height={56} unoptimized
-                        className="w-full h-full object-contain" />
+                    <div className={`w-16 h-16 overflow-hidden transition-all ${side === s ? 'border-2 border-[#7C3AED] ring-4 ring-[#7C3AED]/15' : 'border border-white/10'} bg-white`}>
+                      <Image src={imgs[s]} alt={s} width={64} height={64} unoptimized
+                        className="w-full h-full object-contain p-0.5" />
                     </div>
-                    <span className={`text-[7px] font-black uppercase tracking-wider ${side === s ? 'text-[#7dd3fc]' : 'text-gray-500'}`}>{s.toUpperCase()}</span>
+                    <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${side === s ? 'text-[#7C3AED]' : 'text-gray-600'}`}>{s.toUpperCase()}</span>
                   </button>
                 ))}
               </div>

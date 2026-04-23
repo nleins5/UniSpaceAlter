@@ -63,43 +63,51 @@ function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: s
     if (!canvas || !container) return;
 
     const img = new window.Image();
-    img.onload = () => {
+    img.crossOrigin = 'anonymous';
+    let loaded = false;
+
+    const render = () => {
+      if (!loaded) return;
       const dpr = window.devicePixelRatio || 1;
       const W = container.clientWidth || 400;
       const H = container.clientHeight || 480;
+      if (W < 10 || H < 10) return; // container not sized yet
 
-      // Set canvas buffer to full retina resolution
       canvas.width = W * dpr;
       canvas.height = H * dpr;
 
       const ctx = canvas.getContext('2d')!;
       ctx.scale(dpr, dpr);
 
-      // object-contain math
+      // object-contain math — top-aligned
       const imgR = img.width / img.height;
       const boxR = W / H;
       let dw = W, dh = H, dx = 0, dy = 0;
-      if (imgR > boxR) { dh = W / imgR; /* top-align: dy stays 0 */ }
-      else { dw = H * imgR; dx = (W - dw) / 2; /* center horizontally only */ }
+      if (imgR > boxR) { dh = W / imgR; }
+      else { dw = H * imgR; dx = (W - dw) / 2; }
 
       ctx.clearRect(0, 0, W, H);
 
-      // 1. Draw the transparent PNG (establishes alpha mask)
       ctx.globalCompositeOperation = 'source-over';
       ctx.drawImage(img, dx, dy, dw, dh);
 
-      // 2. Fill color ONLY where PNG is opaque (source-atop)
       if (color !== '#FFFFFF' && color !== '#ffffff') {
         ctx.globalCompositeOperation = 'source-atop';
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, W, H);
 
-        // 3. Draw PNG again with multiply → restore black linework
         ctx.globalCompositeOperation = 'multiply';
         ctx.drawImage(img, dx, dy, dw, dh);
       }
     };
+
+    img.onload = () => { loaded = true; render(); };
     img.src = imgSrc;
+
+    // Re-render when container resizes (e.g. on initial layout)
+    const ro = new ResizeObserver(() => render());
+    ro.observe(container);
+    return () => ro.disconnect();
   }, [imgSrc, color]);
 
   return (

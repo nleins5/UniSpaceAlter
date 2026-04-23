@@ -5,25 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface DesignElement {
-  id: string;
-  type?: "image" | "text";
-  url?: string;
-  text?: string;
-  fontSize?: number;
-  fontFamily?: string;
-  textColor?: string;
-  label: string;
-  x: number; y: number; width: number; height: number;
-  rotation?: number;
+  id: string; type?: "image" | "text"; url?: string; text?: string;
+  fontSize?: number; fontFamily?: string; textColor?: string; label: string;
+  x: number; y: number; width: number; height: number; rotation?: number;
   side: "front" | "back";
 }
 
 interface DesignData {
-  elements: DesignElement[];
-  tshirtColor: string;
-  sleeveColor?: string;
-  collarColor?: string;
-  shirtType?: string;
+  elements: DesignElement[]; tshirtColor: string;
+  sleeveColor?: string; collarColor?: string; shirtType?: string;
 }
 
 function ShirtSVG({ color, side = "front", shirtType = "tshirt" }: {
@@ -75,14 +65,13 @@ function PreviewCanvas({ elements, side, tshirtColor, shirtType }: {
       <ShirtSVG color={tshirtColor} side={side} shirtType={shirtType} />
       <style>{sideEls.map(el => {
         const cls = `.rv-el-${el.id.replace(/[^a-z0-9]/gi, '')}`;
-        let css = `${cls}{left:${(el.x/400)*100}%;top:${(el.y/480)*100}%;width:${(el.width/400)*100}%;height:${(el.height/480)*100}%;`;
-        if (el.rotation) css += `transform:rotate(${el.rotation}deg);`;
-        css += `}`;
-        if (el.type === "text") css += `${cls} .rv-txt{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${((el.fontSize||24)/400)*100}vw;font-family:${el.fontFamily||'sans-serif'};color:${el.textColor||'#fff'};font-weight:bold;text-align:center;}`;
+        let css = `${cls}{left:${(el.x / 400) * 100}%;top:${(el.y / 480) * 100}%;width:${(el.width / 400) * 100}%;height:${(el.height / 480) * 100}%;position:absolute;}`;
+        if (el.rotation) css = css.replace('}', `transform:rotate(${el.rotation}deg);}`);
+        if (el.type === "text") css += `${cls} .rv-txt{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${((el.fontSize || 24) / 400) * 100}vw;font-family:${el.fontFamily || 'sans-serif'};color:${el.textColor || '#fff'};font-weight:bold;text-align:center;}`;
         return css;
       }).join(' ')}</style>
       {sideEls.map(el => (
-        <div key={el.id} className={`absolute rv-el-${el.id.replace(/[^a-z0-9]/gi, '')}`}>
+        <div key={el.id} className={`rv-el-${el.id.replace(/[^a-z0-9]/gi, '')}`}>
           {el.type === "text"
             ? <div className="rv-txt">{el.text}</div>
             // eslint-disable-next-line @next/next/no-img-element
@@ -94,48 +83,59 @@ function PreviewCanvas({ elements, side, tshirtColor, shirtType }: {
   );
 }
 
-const SIZES = ["S","M","L","XL","XXL"] as const;
+const SIZES = ["S", "M", "L", "XL", "XXL"] as const;
 
 function getColorName(hex: string) {
-  const map: Record<string,string> = {
-    '#ffffff':'ARCTIC WHITE','#000000':'OBSIDIAN BLACK','#1a1a1a':'CARBON BLACK',
-    '#2d2d2d':'GRAPHITE','#c62828':'CRIMSON RED','#1565c0':'COBALT BLUE',
-    '#2e7d32':'FOREST GREEN','#6a1b9a':'ROYAL VIOLET','#e91e63':'NEON PINK',
-    '#ff6f00':'BLAZE ORANGE','#FFB6C1':'BLUSH PINK',
+  const map: Record<string, string> = {
+    '#ffffff': 'ARCTIC WHITE', '#000000': 'OBSIDIAN BLACK', '#1a1a1a': 'CARBON BLACK',
+    '#2d2d2d': 'GRAPHITE', '#c62828': 'CRIMSON RED', '#1565c0': 'COBALT BLUE',
+    '#2e7d32': 'FOREST GREEN', '#6a1b9a': 'ROYAL VIOLET', '#e91e63': 'NEON PINK',
+    '#ff6f00': 'BLAZE ORANGE', '#FFB6C1': 'BLUSH PINK',
   };
   return map[hex.toLowerCase()] || hex.toUpperCase();
+}
+
+/* Color swatch — uses ref to avoid inline style warning */
+function ColorSwatch({ color }: { color: string }) {
+  return (
+    <span
+      className="gl-color-swatch"
+      ref={(el) => { if (el) { el.style.background = color; } }}
+    />
+  );
 }
 
 export default function OrderReviewPage() {
   const router = useRouter();
   const [designData, setDesignData] = useState<DesignData | null>(null);
   const [shirtType, setShirtType] = useState("tshirt");
-  const [previewSide, setPreviewSide] = useState<"front"|"back">("front");
-  const [qty, setQty] = useState<Record<string,number>>({ S:0, M:0, L:0, XL:0, XXL:0 });
-  const totalQty = Object.values(qty).reduce((a,b) => a+b, 0);
-  const [sysId] = useState(() => `SYS-${Math.floor(1000+Math.random()*8999)}-${String.fromCharCode(65+Math.floor(Math.random()*26))}${String.fromCharCode(65+Math.floor(Math.random()*26))}`);
+  const [previewSide, setPreviewSide] = useState<"front" | "back">("front");
+  const [qty, setQty] = useState<Record<string, number>>({ S: 0, M: 0, L: 0, XL: 0, XXL: 0 });
+  const totalQty = Object.values(qty).reduce((a, b) => a + b, 0);
+  const [sysId] = useState(() => `SYS-${Math.floor(1000 + Math.random() * 8999)}-${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`);
 
+  // Load from sessionStorage once on mount — using startTransition-equivalent pattern
   useEffect(() => {
-    const data = sessionStorage.getItem("designData");
-    if (data) {
-      const parsed = JSON.parse(data);
-      setDesignData(parsed);
-      if (parsed.shirtType) setShirtType(parsed.shirtType);
-    }
+    const raw = sessionStorage.getItem("designData");
+    if (!raw) return;
+    const parsed: DesignData = JSON.parse(raw);
+    // Batch both state updates to avoid cascading renders
+    const type = parsed.shirtType ?? "tshirt";
+    setDesignData(parsed);
+    setShirtType(type);
   }, []);
 
   const handleProceed = () => {
-    // Save qty to sessionStorage for checkout page
     sessionStorage.setItem("orderQty", JSON.stringify(qty));
     router.push("/order/checkout");
   };
 
   if (!designData) {
     return (
-      <div className="gl-order-bg" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', padding: '48px 32px' }}>
-          <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 12 }}>Chưa có thiết kế</h1>
-          <p style={{ color: 'rgba(160,180,196,0.6)', marginBottom: 24, fontFamily: 'monospace' }}>Bạn cần tạo thiết kế trước khi đặt hàng.</p>
+      <div className="gl-order-bg gl-order-centered">
+        <div className="gl-order-empty">
+          <h1>Chưa có thiết kế</h1>
+          <p className="gl-order-empty-sub">Bạn cần tạo thiết kế trước khi đặt hàng.</p>
           <Link href="/design" className="gl-btn-primary">Bắt đầu thiết kế</Link>
         </div>
       </div>
@@ -147,7 +147,6 @@ export default function OrderReviewPage() {
 
   return (
     <div className="gl-order-bg">
-      {/* Header */}
       <header className="gl-order-header">
         <div className="gl-order-header-inner">
           <Link href="/" className="gl-order-brand">UNISPACE</Link>
@@ -183,14 +182,14 @@ export default function OrderReviewPage() {
               <div className="gl-order-preview-gradient" />
             </div>
 
-            {/* Tech specs */}
             <div className="gl-glass-panel gl-order-specs">
               <h3>TECHNICAL SPECIFICATIONS</h3>
               <div className="gl-spec-rows">
                 <div className="gl-spec-row"><span>FABRIC:</span><span className="gl-spec-val gl-spec-accent">HEAVYWEIGHT COTTON JERSEY</span></div>
-                <div className="gl-spec-row"><span>COLOR:</span>
-                  <span className="gl-spec-val" style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <span style={{ display:'inline-block', width:12, height:12, borderRadius:2, background: designData.tshirtColor, border:'1px solid rgba(255,255,255,0.2)' }} />
+                <div className="gl-spec-row">
+                  <span>COLOR:</span>
+                  <span className="gl-spec-val gl-spec-color-row">
+                    <ColorSwatch color={designData.tshirtColor} />
                     {colorName}
                   </span>
                 </div>
@@ -205,9 +204,7 @@ export default function OrderReviewPage() {
           <section className="gl-order-right">
             <div className="gl-glass-panel gl-order-qty-panel">
               <h3>QUANTITY MATRIX</h3>
-              <p style={{ fontFamily:'monospace', fontSize:12, color:'rgba(160,180,196,0.5)', marginBottom:16 }}>
-                Nhập số lượng cho từng size
-              </p>
+              <p className="gl-qty-hint">Nhập số lượng cho từng size</p>
               <div className="gl-qty-table-wrap">
                 <table className="gl-qty-table">
                   <thead>
@@ -223,7 +220,7 @@ export default function OrderReviewPage() {
                           <input
                             type="number" min={0} max={999}
                             value={qty[s] || ""}
-                            onChange={e => setQty({...qty, [s]: Math.max(0, parseInt(e.target.value)||0)})}
+                            onChange={e => setQty({ ...qty, [s]: Math.max(0, parseInt(e.target.value) || 0) })}
                             placeholder="0"
                             className="gl-qty-input"
                           />
@@ -236,31 +233,29 @@ export default function OrderReviewPage() {
               </div>
             </div>
 
-            {/* Design summary chips */}
-            <div className="gl-glass-panel" style={{ padding:20 }}>
-              <h3 style={{ fontSize:11, fontWeight:900, letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:16 }}>DESIGN SUMMARY</h3>
-              <div style={{ display:'flex', flexWrap:'wrap', gap:10 }}>
+            <div className="gl-glass-panel gl-order-summary-panel">
+              <h3 className="gl-summary-heading">DESIGN SUMMARY</h3>
+              <div className="gl-summary-chips">
                 <div className="gl-summary-chip">
-                  <span className="material-symbols-outlined" style={{ fontSize:14 }}>checkroom</span>
+                  <span className="material-symbols-outlined gl-chip-icon">checkroom</span>
                   {typeLabel}
                 </div>
                 <div className="gl-summary-chip">
-                  <span style={{ width:10, height:10, borderRadius:2, background: designData.tshirtColor, border:'1px solid rgba(255,255,255,0.2)', display:'inline-block' }} />
+                  <ColorSwatch color={designData.tshirtColor} />
                   {colorName}
                 </div>
                 <div className="gl-summary-chip">
-                  <span className="material-symbols-outlined" style={{ fontSize:14 }}>image</span>
-                  {designData.elements.filter(e=>e.side==='front').length} FRONT ELEMENTS
+                  <span className="material-symbols-outlined gl-chip-icon">image</span>
+                  {designData.elements.filter(e => e.side === 'front').length} FRONT ELEMENTS
                 </div>
                 <div className="gl-summary-chip">
-                  <span className="material-symbols-outlined" style={{ fontSize:14 }}>image</span>
-                  {designData.elements.filter(e=>e.side==='back').length} BACK ELEMENTS
+                  <span className="material-symbols-outlined gl-chip-icon">image</span>
+                  {designData.elements.filter(e => e.side === 'back').length} BACK ELEMENTS
                 </div>
               </div>
             </div>
 
-            {/* Actions */}
-            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <div className="gl-order-actions">
               <button
                 className={`gl-order-cta ${totalQty < 1 ? 'gl-order-cta-disabled' : ''}`}
                 disabled={totalQty < 1}
@@ -270,7 +265,7 @@ export default function OrderReviewPage() {
                 <span className="material-symbols-outlined gl-cta-arrow">arrow_forward</span>
               </button>
               <Link href="/design" className="gl-btn-back-link">
-                <span className="material-symbols-outlined" style={{ fontSize:16 }}>arrow_back</span>
+                <span className="material-symbols-outlined gl-back-icon">arrow_back</span>
                 Quay lại chỉnh sửa
               </Link>
             </div>

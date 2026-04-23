@@ -6,32 +6,75 @@ import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, La
 
 // ─── Fixed Snap Slots ─────────────────────────────────────────
 // All coords are in virtual canvas units (400 wide × 480 tall)
-// Positions vary by garment type:
-//  - T-SHIRT: large front-center print zone (full chest)
-//  - RAGLAN:  small left-chest logo (baseball button placket limits front printing)
-//  - POLO:    chest logo, slightly right of center-left + higher (above pocket area)
+// Slot layout per garment:
+//  - T-SHIRT: front-center (large), back-center (large)
+//  - RAGLAN:  front-center (small chest-logo), back-center (large)
+//  - POLO:    chest-logo only (front, no front-center), back-left + back-right
 function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
-  // Coordinates per garment (canvas: 400w × 480h)
-  const slotPos =
-    garmentType === "POLO"   ? { x: 183, y: 140, w: 85, h: 85 } :   // polo: right+up
-    garmentType === "RAGLAN" ? { x: 168, y: 155, w: 85, h: 85 } :   // raglan: left chest
-                               { x: 115, y:  85, w: 170, h: 170 };  // t-shirt: full chest
+  if (garmentType === "POLO") {
+    return [
+      {
+        id: "chest-logo" as const,
+        label: "Chest Logo",
+        desc: "Logo góc ngực phải — pocket logo (Polo)",
+        side: "front" as const,
+        x: 198, y: 140, width: 85, height: 85,   // phải hơn, lên cao hơn
+        icon: "🔲",
+      },
+      {
+        id: "back-left" as const,
+        label: "Back Left",
+        desc: "Vùng in lưng trái",
+        side: "back" as const,
+        x: 70, y: 100, width: 120, height: 120,
+        icon: "◧",
+      },
+      {
+        id: "back-right" as const,
+        label: "Back Right",
+        desc: "Vùng in lưng phải",
+        side: "back" as const,
+        x: 215, y: 100, width: 120, height: 120,
+        icon: "◨",
+      },
+    ] as const;
+  }
+
+  if (garmentType === "RAGLAN") {
+    return [
+      {
+        id: "front-center" as const,
+        label: "Front Center",
+        desc: "Logo ngực trái — pocket logo (Raglan)",
+        side: "front" as const,
+        x: 168, y: 155, width: 85, height: 85,
+        icon: "⬛",
+      },
+      {
+        id: "back-center" as const,
+        label: "Back Center",
+        desc: "Vùng in lớn mặt sau — giữa lưng trên",
+        side: "back" as const,
+        x: 115, y: 78, width: 170, height: 170,
+        icon: "🔳",
+      },
+    ] as const;
+  }
+
+  // T-SHIRT
   return [
     {
       id: "front-center" as const,
       label: "Front Center",
-      desc: garmentType === "T-SHIRT"
-        ? "Vùng in lớn mặt trước — giữa ngực"
-        : `Logo ngực — vị trí pocket logo (${garmentType})`,
+      desc: "Vùng in lớn mặt trước — giữa ngực",
       side: "front" as const,
-      x: slotPos.x, y: slotPos.y,
-      width: slotPos.w, height: slotPos.h,
+      x: 115, y: 85, width: 170, height: 170,
       icon: "⬛",
     },
     {
       id: "chest-logo" as const,
       label: "Chest Logo",
-      desc: "Logo nhỏ góc ngực trái — kiểu pocket logo",
+      desc: "Logo nhỏ góc ngực trái — pocket logo",
       side: "front" as const,
       x: 90, y: 80, width: 70, height: 70,
       icon: "🔲",
@@ -47,7 +90,7 @@ function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
   ] as const;
 }
 
-// Static version (used for SNAP_SLOT_IDS filter — type only)
+// Static ref used only for TypeScript union type derivation
 const SNAP_SLOTS = getSnapSlots("T-SHIRT");
 
 type SnapSlotId = typeof SNAP_SLOTS[number]["id"];
@@ -429,7 +472,7 @@ function DesignCanvas({
   // Show: elements matching this canvas's slot prop, elements with no slot,
   // AND elements placed via snap slots (front-center, chest-logo, back-center)
   // — those are keyed by side only, not by the "shirt" slot prop.
-  const SNAP_SLOT_IDS = new Set(["front-center", "chest-logo", "back-center"]);
+  const SNAP_SLOT_IDS = new Set(["front-center", "chest-logo", "back-center", "back-left", "back-right"]);
   const sideElements = elements.filter((el) =>
     el.side === side &&
     (el.slot === slot || !el.slot || SNAP_SLOT_IDS.has(el.slot ?? ""))
@@ -884,7 +927,7 @@ export default function DesignPage() {
       }];
     });
     setSlotPicker(null);
-  }, [slotPicker, pushHistory]);
+  }, [slotPicker, garmentType, pushHistory, removeWhiteBg]);
 
   // Drop image to a specific side (used by MiniPreview thumbnails)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1141,7 +1184,7 @@ export default function DesignPage() {
 
             {/* Slot options */}
             <div className="flex flex-col gap-2">
-              {SNAP_SLOTS.map(slot => (
+              {getSnapSlots(garmentType).map(slot => (
                 <button
                   key={slot.id}
                   onClick={() => handlePlaceInSlot(slot.id)}

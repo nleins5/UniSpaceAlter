@@ -1122,14 +1122,18 @@ export default function DesignPage() {
                       {(() => {
                         const frontImg = garmentType === 'POLO' ? '/mockups/v_polo_front.png'
                           : garmentType === 'RAGLAN' ? '/mockups/v_raglan_front.png'
-                          : '/mockups/tshirt_front.png';
+                          : '/mockups/v_tshirt_front.png';
                         return (
-                          <div className="relative w-full flex items-end justify-center gap-0.5 px-2 pt-2 pb-0 min-h-[72px]">
-                            <div className="relative w-[38%] aspect-square">
-                              <Image src={frontImg} alt="shirt" fill sizes="64px" unoptimized className="object-contain" style={{ filter: 'brightness(0)' }} />
+                          <div className="relative w-full flex items-end justify-center gap-1 px-3 pt-2 pb-0 min-h-[80px] bg-white/5">
+                            <div className="relative w-[42%] aspect-square">
+                              <Image src={frontImg} alt="shirt front" fill sizes="72px" unoptimized
+                                className="object-contain"
+                                style={{ filter: card.bg === 'dark' ? 'brightness(0) invert(0)' : 'none', opacity: 0.85 }} />
                             </div>
-                            <div className="relative w-[38%] aspect-square">
-                              <Image src={frontImg} alt="shirt" fill sizes="64px" unoptimized className="object-contain opacity-70" />
+                            <div className="relative w-[42%] aspect-square">
+                              <Image src={frontImg} alt="shirt back" fill sizes="72px" unoptimized
+                                className="object-contain opacity-50"
+                                style={{ filter: 'grayscale(1)' }} />
                             </div>
                           </div>
                         );

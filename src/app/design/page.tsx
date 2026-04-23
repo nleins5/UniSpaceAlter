@@ -44,11 +44,19 @@ function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
     return [
       {
         id: "front-center" as const,
-        label: "Front Center",
+        label: "Chest Logo",
         desc: "Logo ngực trái — pocket logo (Raglan)",
         side: "front" as const,
         x: 168, y: 155, width: 85, height: 85,
         icon: "⬛",
+      },
+      {
+        id: "back-center" as const,
+        label: "Back Center",
+        desc: "In full mặt sau — giữa lưng",
+        side: "back" as const,
+        x: 115, y: 78, width: 170, height: 170,
+        icon: "🔳",
       },
     ] as const;
   }

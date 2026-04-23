@@ -1493,7 +1493,7 @@ export default function DesignPage() {
             {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
               <button key={type}
                 onClick={() => setGarmentType(type)}
-                className={`px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] transition-all relative overflow-hidden rounded-t ${
+                className={`px-5 py-3 text-[14px] font-black uppercase tracking-[0.18em] transition-all relative overflow-hidden rounded-t ${
                   type === garmentType
                     ? 'text-[#0c081c] gl-tab-active'
                     : 'text-gray-400 hover:text-violet-300'
@@ -1514,13 +1514,13 @@ export default function DesignPage() {
             ] as const).map((t) => (
               <button
                 key={t.id} onClick={() => setActiveTab(prev => prev === t.id ? null : t.id)}
-                className={`flex items-center gap-1.5 px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.12em] transition-all border-b-2 ${
+                className={`flex items-center justify-center px-4 py-3 text-[10px] transition-all border-b-2 ${
                   activeTab === t.id
                     ? 'border-violet-400 text-violet-300'
                     : 'border-transparent text-gray-500 hover:text-violet-300'
                 }`}
               >
-                <t.icon size={13} />{t.label}
+                <t.icon size={16} />
               </button>
             ))}
           </div>

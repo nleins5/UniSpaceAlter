@@ -1063,7 +1063,7 @@ export default function DesignPage() {
             {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
               <button key={type}
                 onClick={() => setGarmentType(type)}
-                className={`px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative overflow-hidden rounded-t ${
+                className={`px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] transition-all relative overflow-hidden rounded-t ${
                   type === garmentType
                     ? 'text-[#0a0e1a]'
                     : 'text-sky-400/50 hover:text-sky-300'
@@ -1084,13 +1084,13 @@ export default function DesignPage() {
             ] as const).map((t) => (
               <button
                 key={t.id} onClick={() => setActiveTab(prev => prev === t.id ? null : t.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] transition-all border-b-2 ${
+                className={`flex items-center gap-1.5 px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.12em] transition-all border-b-2 ${
                   activeTab === t.id
                     ? 'border-sky-400 text-sky-300'
                     : 'border-transparent text-sky-400/40 hover:text-sky-300'
                 }`}
               >
-                <t.icon size={12} />{t.label}
+                <t.icon size={13} />{t.label}
               </button>
             ))}
           </div>
@@ -1116,7 +1116,7 @@ export default function DesignPage() {
                       title={`Apply ${card.label} — ${card.color}`}
                       onClick={() => setTshirtColor(card.color)}
                     >
-                      <div className="w-full py-1 px-2 text-[8px] font-black uppercase tracking-[0.15em] text-center text-[#0a0e1a] gl-accent-badge">
+                      <div className="w-full py-1.5 px-2 text-[10px] font-black uppercase tracking-[0.12em] text-center text-[#0a0e1a] gl-accent-badge">
                         NEXT PLAYER
                       </div>
                       {/* Mockup thumbnails — side-by-side shirts, matching active garment type */}
@@ -1140,21 +1140,20 @@ export default function DesignPage() {
                         );
                       })()}
                       {/* Variant label */}
-                      <div className="px-2 py-1 flex items-center justify-center">
-                        { }
-                        <span className="text-[8px] font-black uppercase tracking-wider text-sky-300">{card.label}</span>
+                      <div className="px-2 py-1.5 flex items-center justify-center">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-sky-300">{card.label}</span>
                       </div>
                       <div className="px-2 pb-2 flex items-center justify-between pt-1 gl-border-top">
-                        <span className="text-[6px] font-black uppercase text-sky-400/40 tracking-wider leading-tight">UNISPACE<br/>VARIOUS STYLES</span>
-                        <div className="w-5 h-5 rounded-md flex items-center justify-center gl-icon-bg">
-                          <svg width="8" height="8" viewBox="0 0 24 24" fill="#7dd3fc"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span className="text-[9px] font-semibold text-sky-400/40 tracking-wide">UNISPACE</span>
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center gl-icon-bg">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="#7dd3fc"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         </div>
                       </div>
                       {/* Hover overlay */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" style={{background:'rgba(125,211,252,0.12)'}}>
-                        <div className="flex flex-col items-center gap-1">
-                          <Plus size={18} className="text-white drop-shadow-lg" />
-                          <span className="text-[7px] font-black uppercase text-white tracking-wider">APPLY</span>
+                        <div className="flex flex-col items-center gap-1.5">
+                          <Plus size={22} className="text-white drop-shadow-lg" />
+                          <span className="text-[10px] font-black uppercase text-white tracking-widest">APPLY</span>
                         </div>
                       </div>
                     </button>
@@ -1169,7 +1168,7 @@ export default function DesignPage() {
                       onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
                       title={`Add ${img.label}`}
                     >
-                      <div className="w-full py-1 px-2 text-[8px] font-black text-[#0a0e1a] uppercase tracking-[0.15em] text-center gl-accent-badge">
+                      <div className="w-full py-1.5 px-2 text-[10px] font-black text-[#0a0e1a] uppercase tracking-[0.12em] text-center gl-accent-badge">
                         AI GENERATED
                       </div>
                       <div className="relative aspect-[4/3] w-full">
@@ -1179,7 +1178,7 @@ export default function DesignPage() {
                         </div>
                       </div>
                       <div className="px-2 pb-2 pt-1 flex items-center justify-between">
-                        <span className="text-[6px] font-black uppercase text-gray-500 tracking-wider">{img.label}</span>
+                        <span className="text-[10px] font-semibold text-sky-300/60 tracking-wide truncate">{img.label}</span>
                       </div>
                     </button>
                   ))}
@@ -1188,7 +1187,7 @@ export default function DesignPage() {
                 {isLoading && (
                   <div className="flex items-center gap-2 p-3 rounded-lg gl-icon-bg-dim gl-border">
                     <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" />
-                    <span className="text-[9px] font-black uppercase text-sky-400/60">Generating...</span>
+                    <span className="text-[11px] font-black uppercase text-sky-400/60">Generating...</span>
                   </div>
                 )}
 
@@ -1198,16 +1197,16 @@ export default function DesignPage() {
                     value={chatInput} onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                     placeholder="Describe your design idea..."
-                    className="w-full px-4 py-3 text-[11px] outline-none transition-all pr-12 text-sky-100 placeholder:text-sky-400/30 rounded-xl gl-input-main"
+                    className="w-full px-4 py-3 text-[12px] outline-none transition-all pr-14 text-sky-100 placeholder:text-sky-400/30 rounded-xl gl-input-main"
                   />
                   <button
                     onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                     disabled={isLoading}
                     title="Generate AI design"
                     aria-label="Generate AI design"
-                    className="absolute right-2 top-2 w-8 h-8 bg-[#7C3AED] text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+                    className="absolute right-2 top-1.5 w-9 h-9 bg-[#7C3AED] text-white flex items-center justify-center rounded-lg hover:bg-[#6d28d9] hover:scale-105 active:scale-95 transition-all"
                   >
-                    <Zap size={14} />
+                    <Zap size={16} />
                   </button>
                 </div>
               </div>
@@ -1216,16 +1215,16 @@ export default function DesignPage() {
             {activeTab === "assets" && (
               <div className="p-4 flex flex-col gap-5 animate-in fade-in duration-300 rounded-xl gl-panel">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="w-8 h-5 flex items-center justify-center text-[7px] font-black text-sky-400/40 gl-border-bright">000</div>
+                  <div className="w-8 h-5 flex items-center justify-center text-[9px] font-black text-sky-400/40 gl-border-bright">000</div>
                   <div className="flex-1 h-px gl-dashed-sep" />
-                  <div className="px-3 py-1 text-[8px] font-black uppercase text-sky-300/70 tracking-[0.15em] gl-border-bright">FONT PAIRING GUIDE</div>
+                  <div className="px-3 py-1 text-[10px] font-black uppercase text-sky-300/70 tracking-[0.12em] gl-border-bright">FONT PAIRING GUIDE</div>
                   <div className="flex-1 h-px gl-dashed-sep" />
-                  <div className="w-8 h-5 flex items-center justify-center text-[7px] font-black text-sky-400/40 gl-border-bright">000</div>
+                  <div className="w-8 h-5 flex items-center justify-center text-[9px] font-black text-sky-400/40 gl-border-bright">000</div>
                 </div>
 
                 {/* Editable text input */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-[7px] font-black uppercase tracking-widest text-sky-400/50">TYPE YOUR TEXT</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-sky-400/60">TYPE YOUR TEXT</span>
                   <input
                     type="text"
                     value={fontPreviewText}
@@ -1235,7 +1234,7 @@ export default function DesignPage() {
                   />
                 </div>
 
-                <p className="text-[7px] font-black uppercase text-center tracking-widest text-sky-400/30">DRAG ANY STYLE ONTO THE SHIRT</p>
+                <p className="text-[10px] font-black uppercase text-center tracking-widest text-sky-400/30">DRAG ANY STYLE ONTO THE SHIRT</p>
 
                 {/* Draggable font samples */}
                 <div className="flex flex-col gap-3">
@@ -1266,8 +1265,8 @@ export default function DesignPage() {
                         {item.text}
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[7px] font-black uppercase tracking-widest text-sky-400/50">{item.desc}</span>
-                        <span className="text-[7px] font-mono text-sky-400/30">{item.font}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-sky-400/50">{item.desc}</span>
+                        <span className="text-[10px] font-mono text-sky-400/30">{item.font}</span>
                       </div>
                     </div>
                   ))}
@@ -1286,7 +1285,7 @@ export default function DesignPage() {
                         }));
                       }}
                       onClick={() => handleAddText(fontPreviewText || font, font)}
-                      className="px-3 py-1.5 text-[8px] font-black uppercase cursor-grab active:cursor-grabbing transition-all text-sky-300/70 rounded gl-border-bright"
+                      className="px-3 py-1.5 text-[10px] font-black uppercase cursor-grab active:cursor-grabbing transition-all text-sky-300/70 rounded gl-border-bright"
                     >
                       {font}
                     </div>
@@ -1297,10 +1296,10 @@ export default function DesignPage() {
 
             {activeTab === "color" && (
               <div className="space-y-3 animate-in fade-in duration-300">
-                <span className="text-[8px] font-black uppercase tracking-widest text-sky-400/50 block">Click a color to apply to shirt</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-400/60 block">Click a color to apply to shirt</span>
                 <div className="flex items-center gap-2 p-2 rounded-lg gl-active-glow">
                   <div className="w-6 h-6 shrink-0 rounded" style={{border:'2px solid rgba(125,211,252,0.3)'}} ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
-                  <span className="text-[8px] font-black uppercase text-sky-300 tracking-[0.15em]">Active: {tshirtColor}</span>
+                  <span className="text-[11px] font-black uppercase text-sky-300 tracking-[0.12em]">Active: {tshirtColor}</span>
                 </div>
                 {[
                   { name: "White", hex: "#FFFFFF" }, { name: "Cream", hex: "#F2F0E9" },
@@ -1316,8 +1315,8 @@ export default function DesignPage() {
                   >
                     <div className="w-8 h-8 shrink-0 rounded" style={{border:'1px solid rgba(125,211,252,0.15)'}} ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
                     <div className="text-left">
-                      <div className="text-[9px] font-black uppercase text-sky-100 tracking-[0.15em]">{c.name}</div>
-                      <div className="text-[7px] font-mono text-sky-400/40">{c.hex}</div>
+                      <div className="text-[12px] font-bold text-sky-100 tracking-wide">{c.name}</div>
+                      <div className="text-[10px] font-mono text-sky-400/40">{c.hex}</div>
                     </div>
                     {tshirtColor === c.hex && <div className="ml-auto w-2 h-2 bg-sky-400 rounded-full" />}
                   </button>
@@ -1328,7 +1327,7 @@ export default function DesignPage() {
             {activeTab === "layers" && (
               <div className="space-y-2 animate-in fade-in duration-300">
                 {elements.length === 0 ? (
-                  <div className="py-20 text-center text-sky-400/20"><LayersIcon size={32} className="mx-auto" /><p className="text-[8px] font-black uppercase mt-4">No layers yet</p></div>
+                  <div className="py-20 text-center text-sky-400/20"><LayersIcon size={32} className="mx-auto" /><p className="text-[11px] font-black uppercase mt-4 tracking-widest">No layers yet</p></div>
                 ) : (
                   elements.slice().reverse().map((el) => (
                     <div key={el.id} onClick={() => setSelectedId(el.id)}
@@ -1336,8 +1335,8 @@ export default function DesignPage() {
                         selectedId === el.id ? 'ring-2 ring-sky-400/40 gl-active' : 'hover:ring-1 hover:ring-sky-400/20 gl-surface-mid'
                       }`}>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[9px] font-black uppercase truncate text-sky-100">{el.label || el.text}</div>
-                        <div className="text-[7px] font-mono text-sky-400/40">{el.type} / {el.side}</div>
+                        <div className="text-[12px] font-bold text-sky-100 truncate">{el.label || el.text}</div>
+                        <div className="text-[10px] font-mono text-sky-400/40">{el.type} / {el.side}</div>
                       </div>
                       <button onClick={(e) => { e.stopPropagation(); setElements(prev => prev.filter(item => item.id !== el.id)); }} title="Delete layer" aria-label="Delete layer" className="p-1.5 text-sky-400/40 hover:text-red-400 transition-colors"><Trash2 size={13}/></button>
                     </div>
@@ -1367,7 +1366,7 @@ export default function DesignPage() {
                       <Image src={imgs[s]} alt={s} width={64} height={64} unoptimized
                         className="w-full h-full object-contain p-0.5" />
                     </div>
-                    <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${side === s ? 'text-sky-300' : 'text-sky-400/30'}`}>{s.toUpperCase()}</span>
+                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${side === s ? 'text-sky-300' : 'text-sky-400/30'}`}>{s.toUpperCase()}</span>
                   </button>
                 ))}
               </div>

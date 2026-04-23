@@ -1503,27 +1503,7 @@ export default function DesignPage() {
             ))}
           </div>
 
-          {/* Tab bar — violet underline */}
-          <div className="flex px-2 pt-1.5 shrink-0 gap-0 gl-panel-deep gl-border-dim">
-            {([
-              { id: "ai", icon: Zap, label: "AI" },
-              { id: "gallery", icon: ImageIcon, label: "GALLERY" },
-              { id: "assets", icon: Type, label: "TEXT" },
-              { id: "color", icon: PaletteIcon, label: "PALETTE" },
-              { id: "layers", icon: LayersIcon, label: "LAYERS" }
-            ] as const).map((t) => (
-              <button
-                key={t.id} onClick={() => setActiveTab(prev => prev === t.id ? null : t.id)}
-                className={`flex items-center justify-center px-4 py-3 text-[10px] transition-all border-b-2 ${
-                  activeTab === t.id
-                    ? 'border-violet-400 text-violet-300'
-                    : 'border-transparent text-gray-500 hover:text-violet-300'
-                }`}
-              >
-                <t.icon size={16} />
-              </button>
-            ))}
-          </div>
+
 
           {/* Content area — glass surface */}
           <div className="flex-1 overflow-y-auto scrollbar-hide p-3 gl-surface-mid">

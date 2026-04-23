@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, JetBrains_Mono, Quicksand, Permanent_Marker } from "next/font/google";
+import { Nunito, JetBrains_Mono, Quicksand, Permanent_Marker, Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -27,6 +27,18 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "UniSpace",
   description: "Thiết kế áo thun độc đáo với AI. Tạo hình ảnh, kéo thả lên áo và đặt hàng ngay.",
@@ -47,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" data-scroll-behavior="smooth" className={`h-full antialiased ${nunito.variable} ${quicksand.variable} ${permanentMarker.variable} ${jetbrainsMono.variable}`}>
+    <html lang="vi" data-scroll-behavior="smooth" className={`h-full antialiased ${nunito.variable} ${quicksand.variable} ${permanentMarker.variable} ${jetbrainsMono.variable} ${inter.variable} ${spaceGrotesk.variable}`}>
       <head>
         {/* Google Fonts for Design Studio */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

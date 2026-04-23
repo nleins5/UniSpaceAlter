@@ -1714,15 +1714,24 @@ export default function DesignPage() {
                 </div>
 
                 {/* Editable text input */}
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">TYPE YOUR TEXT</span>
-                  <input
-                    type="text"
-                    value={fontPreviewText}
-                    onChange={(e) => setFontPreviewText(e.target.value)}
-                    placeholder="Type here..."
-                    className="w-full px-3 py-2 text-sm font-medium focus:outline-none text-white placeholder:text-gray-500/50 rounded-lg gl-input"
-                  />
+                <div className="flex flex-col gap-2 group">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-violet-400/80">TYPE YOUR TEXT</span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
+                      <span className="text-[9px] font-bold text-violet-500/60 uppercase">Live Preview</span>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                    <input
+                      type="text"
+                      value={fontPreviewText}
+                      onChange={(e) => setFontPreviewText(e.target.value)}
+                      placeholder="Nhập nội dung chữ..."
+                      className="relative w-full px-6 py-5 text-[20px] font-black focus:outline-none text-white placeholder:text-white/10 rounded-2xl bg-black/40 border border-white/5 focus:border-violet-500/50 focus:bg-black/60 shadow-2xl transition-all font-[family-name:var(--font-space-grotesk)] tracking-tight"
+                    />
+                  </div>
                 </div>
 
                 <p className="text-[10px] font-black uppercase text-center tracking-widest text-gray-500/50">DRAG ANY STYLE ONTO THE SHIRT</p>

@@ -46,68 +46,81 @@ const MOCKUP_MAP: Record<string, { front: string; back: string; maskFront: strin
   'POLO':    { front: '/mockups/v_polo_front.png',    back: '/mockups/v_polo_back.png',    maskFront: '/mockups/raglan_front_mask.png',  maskBack: '/mockups/raglan_back_mask.png' },
 };
 
-// ─── Component: TShirtMockup (SVG filter-based color tinting) ───────────────
-function hexToRgb01(hex: string) {
-  const h = hex.replace('#', '');
-  return {
-    r: parseInt(h.slice(0, 2), 16) / 255,
-    g: parseInt(h.slice(2, 4), 16) / 255,
-    b: parseInt(h.slice(4, 6), 16) / 255,
-  };
-}
-
+// ─── Component: TShirtMockup (Canvas pixel-level tinting) ────────────────────
 function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: string; side?: "front" | "back"; garmentType?: string }) {
   const isFront = side === "front";
   const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
   const imgSrc = isFront ? mockup.front : mockup.back;
-  const isWhite = color === "#FFFFFF" || color === "#ffffff" || color === "#F2F0E9";
-  const filterId = `tint-${side}-${garmentType}`;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // SVG feColorMatrix: tint non-white pixels toward target color.
-  // Matrix maps: R'= r*R + (1-r)*lum, G'= g*G + (1-g)*lum, B'= b*B + (1-b)*lum
-  // where lum = grayscale luminance. White (R=G=B=1) stays white; grey gets tinted.
-  let filterContent: React.ReactNode = null;
-  if (!isWhite) {
-    const { r, g, b } = hexToRgb01(color);
-    // feColorMatrix type="matrix" — 5×4 matrix applied to [R, G, B, A, 1]
-    // We want: out_R = r * in_lum, out_G = g * in_lum, out_B = b * in_lum
-    // where lum = 0.299R + 0.587G + 0.114B (standard luminance)
-    // But preserve white: when in=white (all 1), out should be white (all 1).
-    // Strategy: multiply each channel by color ratio, boost whites back.
-    // Simple approach: sepia-like matrix that maps grey → color
-    const rr = r * 0.299, rg = r * 0.587, rb = r * 0.114;
-    const gr = g * 0.299, gg = g * 0.587, gb = g * 0.114;
-    const br = b * 0.299, bg = b * 0.587, bb = b * 0.114;
-    const matrix = [
-      rr, rg, rb, 0, 0,
-      gr, gg, gb, 0, 0,
-      br, bg, bb, 0, 0,
-      0,  0,  0,  1, 0,
-    ].join(' ');
-    filterContent = (
-      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-        <defs>
-          <filter id={filterId} colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values={matrix} />
-          </filter>
-        </defs>
-      </svg>
-    );
-  }
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    const img = new window.Image();
+    // No crossOrigin — /mockups/* are same-origin local files, getImageData works fine
+    img.onload = () => {
+      const W = container.clientWidth  || 400;
+      const H = container.clientHeight || 480;
+
+      // object-contain layout
+      const imgRatio = img.width / img.height;
+      const boxRatio = W / H;
+      let drawW = W, drawH = H, drawX = 0, drawY = 0;
+      if (imgRatio > boxRatio) {
+        drawH = W / imgRatio; drawY = (H - drawH) / 2;
+      } else {
+        drawW = H * imgRatio; drawX = (W - drawW) / 2;
+      }
+
+      canvas.width  = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+      if (color !== '#FFFFFF' && color !== '#ffffff' && color !== '#F2F0E9') {
+        const tr = parseInt(color.slice(1, 3), 16);
+        const tg = parseInt(color.slice(3, 5), 16);
+        const tb = parseInt(color.slice(5, 7), 16);
+
+        const id = ctx.getImageData(0, 0, W, H);
+        const d  = id.data;
+
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i], g = d[i+1], b = d[i+2];
+          const lum = (r + g + b) / 3;
+
+          if (lum > 230) continue; // white background → skip
+
+          if (lum < 50) {
+            // Very dark = linework → keep dark (desaturate slightly)
+            d[i] = d[i+1] = d[i+2] = Math.round(lum * 0.4);
+          } else {
+            // Fabric pixel → tint toward target color
+            // Blend: how dark the fabric is (darker = more color)
+            const blend = 1 - lum / 255;
+            d[i]   = Math.round(r   + (tr - r)   * blend * 0.85);
+            d[i+1] = Math.round(g   + (tg - g)   * blend * 0.85);
+            d[i+2] = Math.round(b   + (tb - b)   * blend * 0.85);
+          }
+        }
+        ctx.putImageData(id, 0, 0);
+      }
+    };
+    img.src = imgSrc;
+  }, [imgSrc, color]);
 
   return (
-    <div className="w-full h-full relative">
-      {filterContent}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imgSrc}
-        alt={`Shirt ${side}`}
-        className="w-full h-full object-contain"
-        style={isWhite ? {} : { filter: `url(#${filterId})` }}
-      />
+    <div ref={containerRef} className="w-full h-full">
+      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
     </div>
   );
 }
+
 
 
 // ─── Component: MiniPreview (droppable thumbnail, shows components only) ─────

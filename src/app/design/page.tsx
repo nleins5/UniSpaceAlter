@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles } from "lucide-react";
+import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles, RefreshCw } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────
 interface DesignElement {
@@ -418,6 +418,9 @@ export default function DesignPage() {
   const [chatInput, setChatInput] = useState("");
   const [historyStack, setHistoryStack] = useState<DesignElement[][]>([]);
   const [redoStack, setRedoStack] = useState<DesignElement[][]>([]);
+  const [suggestedDesigns, setSuggestedDesigns] = useState<AIImage[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const suggestionsLoaded = useRef(false);
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
@@ -509,6 +512,46 @@ export default function DesignPage() {
       const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Protocol Engaged.`, images: data.images };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err) { console.error(err); } finally { setIsLoading(false); }
+  }, []);
+
+  // ── Auto-load AI design suggestions on mount ──────────────────
+  const SUGGESTION_PROMPTS = [
+    "logo lớp A5 áo lớp ngầu 2026 varsity streetwear",
+    "mascot rồng dragon ngầu class jersey",
+    "galaxy cosmic y2k aesthetic neon"
+  ];
+
+  const loadSuggestions = useCallback(async () => {
+    if (suggestionsLoading) return;
+    setSuggestionsLoading(true);
+    try {
+      const results = await Promise.allSettled(
+        SUGGESTION_PROMPTS.map(prompt =>
+          fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt }),
+          }).then(r => r.json())
+        )
+      );
+      const allImages: AIImage[] = [];
+      for (const r of results) {
+        if (r.status === "fulfilled" && r.value.images) {
+          allImages.push(...r.value.images);
+        }
+      }
+      if (allImages.length > 0) setSuggestedDesigns(allImages);
+    } catch (err) { console.error("Suggestion load error:", err); }
+    finally { setSuggestionsLoading(false); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestionsLoading]);
+
+  useEffect(() => {
+    if (!suggestionsLoaded.current) {
+      suggestionsLoaded.current = true;
+      loadSuggestions();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDropImage = useCallback((image: AIImage, x: number, y: number) => {
@@ -1101,64 +1144,72 @@ export default function DesignPage() {
             {activeTab === "ai" && (
               <div className="flex flex-col gap-4 h-full">
 
-                {/* Template mockup grid — 2 columns, always visible */}
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { accent: '#7C3AED', label: 'DARK',   bg: 'dark',  color: '#1A1A1A' },
-                    { accent: '#7C3AED', label: 'LIGHT',  bg: 'light', color: '#FFFFFF' },
-                    { accent: '#9CA3AF', label: 'STEALTH', bg: 'dark',  color: '#111111' },
-                    { accent: '#9CA3AF', label: 'CREAM',  bg: 'light', color: '#F5F4F1' },
-                    { accent: '#7C3AED', label: 'VOID',   bg: 'dark',  color: '#0D0D12' },
-                    { accent: '#7C3AED', label: 'PAPER',  bg: 'light', color: '#E8E4DD' },
-                  ].map((card, idx) => (
-                    <button key={idx}
-                      className="group relative overflow-hidden hover:scale-[1.03] active:scale-[0.98] transition-all flex flex-col gl-panel"
-                      title={`Apply ${card.label} — ${card.color}`}
-                      onClick={() => setTshirtColor(card.color)}
-                    >
-                      <div className="w-full py-1.5 px-2 text-[10px] font-black uppercase tracking-[0.12em] text-center text-[#0a0e1a] gl-accent-badge">
-                        NEXT PLAYER
-                      </div>
-                      {/* Mockup thumbnails — side-by-side shirts, matching active garment type */}
-                      {(() => {
-                        const frontImg = garmentType === 'POLO' ? '/mockups/v_polo_front.png'
-                          : garmentType === 'RAGLAN' ? '/mockups/v_raglan_front.png'
-                          : '/mockups/v_tshirt_front.png';
-                        return (
-                          <div className="relative w-full flex items-end justify-center gap-1 px-3 pt-2 pb-0 min-h-[80px] bg-white/5">
-                            <div className="relative w-[42%] aspect-square">
-                              <Image src={frontImg} alt="shirt front" fill sizes="72px" unoptimized
-                                className="object-contain"
-                                style={{ filter: card.bg === 'dark' ? 'brightness(0) invert(0)' : 'none', opacity: 0.85 }} />
-                            </div>
-                            <div className="relative w-[42%] aspect-square">
-                              <Image src={frontImg} alt="shirt back" fill sizes="72px" unoptimized
-                                className="object-contain opacity-50"
-                                style={{ filter: 'grayscale(1)' }} />
-                            </div>
-                          </div>
-                        );
-                      })()}
-                      {/* Variant label */}
-                      <div className="px-2 py-1.5 flex items-center justify-center">
-                        <span className="text-[11px] font-black uppercase tracking-wider text-violet-300">{card.label}</span>
-                      </div>
-                      <div className="px-2 pb-2 flex items-center justify-between pt-1 gl-border-top">
-                        <span className="text-[9px] font-semibold text-gray-500 tracking-wide">UNISPACE</span>
-                        <div className="w-6 h-6 rounded-md flex items-center justify-center gl-icon-bg">
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="#a78bfa"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        </div>
-                      </div>
-                      {/* Hover overlay */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" style={{background:'rgba(124,58,237,0.18)'}}>
-                        <div className="flex flex-col items-center gap-1.5">
-                          <Plus size={22} className="text-white drop-shadow-lg" />
-                          <span className="text-[10px] font-black uppercase text-white tracking-widest">APPLY</span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+                {/* AI Design Suggestions — auto-generated on mount */}
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400">AI SUGGESTIONS</span>
+                  <button
+                    onClick={loadSuggestions}
+                    disabled={suggestionsLoading}
+                    className="text-[9px] font-bold uppercase tracking-wider text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1"
+                  >
+                    <RefreshCw size={10} className={suggestionsLoading ? 'animate-spin' : ''} />
+                    {suggestionsLoading ? 'GENERATING...' : 'REFRESH'}
+                  </button>
                 </div>
+
+                {suggestionsLoading && suggestedDesigns.length === 0 ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="aspect-square rounded-xl gl-panel animate-pulse flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-violet-500/20 animate-pulse" />
+                          <span className="text-[9px] font-bold text-gray-600 uppercase tracking-wider">Generating...</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : suggestedDesigns.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {suggestedDesigns.map((img) => (
+                      <button key={img.id}
+                        onClick={() => handleDropImage(img, 120, 150)}
+                        className="group relative overflow-hidden hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
+                        draggable
+                        onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
+                        title={`Add ${img.label} to canvas`}
+                      >
+                        <div className="w-full py-1 px-2 text-[9px] font-black uppercase tracking-[0.12em] text-center text-[#0a0e1a] gl-accent-badge flex items-center justify-center gap-1">
+                          <Sparkles size={8} />
+                          AI GENERATED
+                        </div>
+                        <div className="relative aspect-square w-full overflow-hidden bg-white/5">
+                          <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-contain p-2" />
+                        </div>
+                        <div className="px-2 py-1.5 flex items-center justify-between gl-border-top">
+                          <span className="text-[10px] font-bold text-violet-300 tracking-wide truncate">{img.label}</span>
+                          <div className="w-5 h-5 rounded-md flex items-center justify-center gl-icon-bg shrink-0">
+                            <Plus size={10} className="text-violet-400" />
+                          </div>
+                        </div>
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" style={{background:'rgba(124,58,237,0.22)'}}>
+                          <div className="flex flex-col items-center gap-1.5">
+                            <Plus size={22} className="text-white drop-shadow-lg" />
+                            <span className="text-[10px] font-black uppercase text-white tracking-widest">APPLY</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-10 text-center">
+                    <Sparkles size={28} className="mx-auto mb-2 text-violet-400/30" />
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">No suggestions yet</p>
+                    <button onClick={loadSuggestions} className="mt-2 text-[10px] text-violet-400 hover:text-violet-300 font-bold uppercase tracking-wider">
+                      Generate Now
+                    </button>
+                  </div>
+                )}
 
                 {isLoading && (
                   <div className="flex items-center gap-2 p-3 rounded-lg gl-icon-bg-dim gl-border">

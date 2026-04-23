@@ -14,28 +14,20 @@ function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
   if (garmentType === "POLO") {
     return [
       {
-        id: "chest-logo" as const,
+        id: "front-center" as const,
         label: "Chest Logo",
         desc: "Logo góc ngực phải — pocket logo (Polo)",
         side: "front" as const,
-        x: 198, y: 140, width: 85, height: 85,   // phải hơn, lên cao hơn
+        x: 203, y: 120, width: 85, height: 85,
         icon: "🔲",
       },
       {
-        id: "back-left" as const,
-        label: "Back Left",
-        desc: "Vùng in lưng trái",
+        id: "back-center" as const,
+        label: "Back Center",
+        desc: "In full mặt sau — giữa lưng (Polo)",
         side: "back" as const,
-        x: 70, y: 100, width: 120, height: 120,
-        icon: "◧",
-      },
-      {
-        id: "back-right" as const,
-        label: "Back Right",
-        desc: "Vùng in lưng phải",
-        side: "back" as const,
-        x: 215, y: 100, width: 120, height: 120,
-        icon: "◨",
+        x: 115, y: 78, width: 170, height: 170,
+        icon: "🔳",
       },
     ] as const;
   }

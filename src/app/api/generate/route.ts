@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const CF_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 const T8STAR_URL = "https://ai.t8star.cn/v1/images/generations";
-const T8STAR_MODEL = "flux-schnell";
+const T8STAR_MODEL = "gpt-image-1";
 const RATE_LIMIT_PER_MINUTE = 60;
 
 // ── Vietnamese → English for AI image model ──────
@@ -53,7 +53,9 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
   const t8Key = process.env.T8STAR_API_KEY;
   if (!t8Key) return [];
 
-  const fullPrompt = `${enPrompt}, isolated on solid white background, NO T-SHIRT, NO CLOTHING, NO MOCKUP, NO BODY, NO PEOPLE, flat 2D vector decal, professional edgy streetwear graphic design, high-fidelity vector illustration, vibrant urban hiphop aesthetic, Y2K aesthetic elements, chrome textures, graffiti art influences, clean sharp lines, bold color palette, masterpiece, printable screen-print design, centered composition, high-end merchandise quality, 8k resolution, minimalist background`;
+  // Add random seed so re-gens are always fresh, never cached
+  const seed = Math.floor(Math.random() * 99999);
+  const fullPrompt = `${enPrompt}, flat vector graphic art, white background, no clothing no shirt no body, isolated centered design element, bold streetwear aesthetic, high contrast, vivid colors, printable iron-on decal, clean sharp edges, professional graphic tee print quality, seed:${seed}`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -70,8 +72,7 @@ async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: st
           model: T8STAR_MODEL,
           prompt: fullPrompt,
           n: 1,
-          size: "512x512",
-          response_format: "b64_json",
+          size: "1024x1024",
         }),
         signal: controller.signal,
       });

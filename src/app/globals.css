@@ -280,6 +280,35 @@ body::after {
 }
 
 
+/* ── Slot Picker Modal ───────────────────────────────── */
+.slot-picker-overlay {
+  background: rgba(10, 8, 20, 0.85);
+}
+.slot-picker-panel {
+  background: rgba(20, 12, 40, 0.98);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+}
+.slot-picker-preview-row {
+  border-bottom: 1px solid rgba(167, 139, 250, 0.12);
+}
+.slot-picker-preview-thumb {
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+.slot-picker-btn {
+  background: rgba(124, 58, 237, 0.10);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+}
+.slot-picker-icon {
+  background: rgba(124, 58, 237, 0.20);
+}
+.ai-hover-overlay {
+  background: rgba(124, 58, 237, 0.22);
+}
+.login-modal-panel {
+  background: rgba(12, 8, 28, 0.95);
+}
+
 /* ═══════════════════════════════════════════════════════
    GENERAL UI COMPONENTS (Landing page, Order page, etc.)
    ═══════════════════════════════════════════════════════ */

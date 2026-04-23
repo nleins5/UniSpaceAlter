@@ -597,7 +597,7 @@ function DesignElementItem({
 // ─── Main Design Page ──────────────────────────────────────────
 export default function DesignPage() {
   const [activeTab, setActiveTab] = useState<"ai" | "gallery" | "assets" | "type" | "color" | "layers" | null>("ai");
-  const [side, setSide] = useState<"front" | "back" | "side">("front");
+  const [side] = useState<"front" | "back" | "side">("front");
   const [garmentType, setGarmentType] = useState<'T-SHIRT' | 'RAGLAN' | 'POLO'>('RAGLAN');
   const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
   const [elements, setElements] = useState<DesignElement[]>([]);
@@ -624,11 +624,12 @@ export default function DesignPage() {
   const suggestionsLoaded = useRef(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const genCountRef = useRef(0);
+  const [genCount, setGenCount] = useState(0); // reactive display copy
 
   // Restore gen count from sessionStorage
   useEffect(() => {
     const saved = sessionStorage.getItem('ai_gen_count');
-    if (saved) genCountRef.current = parseInt(saved, 10);
+    if (saved) { const n = parseInt(saved, 10); genCountRef.current = n; setGenCount(n); }
   }, []);
 
   const isLoggedIn = () => {
@@ -639,7 +640,9 @@ export default function DesignPage() {
     if (isLoggedIn()) return true;
     if (genCountRef.current >= 4) { setShowLoginModal(true); return false; }
     genCountRef.current += 1;
-    sessionStorage.setItem('ai_gen_count', String(genCountRef.current));
+    const next = genCountRef.current;
+    setGenCount(next);
+    sessionStorage.setItem('ai_gen_count', String(next));
     return true;
   };
   const [zoom, setZoom] = useState(1);
@@ -734,6 +737,7 @@ export default function DesignPage() {
       const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Protocol Engaged.`, images: data.images };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err) { console.error(err); } finally { setIsLoading(false); }
+  // checkGenLimit reads genCountRef.current directly — ref is always fresh, no stale closure
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -748,6 +752,7 @@ export default function DesignPage() {
     if (suggestionsLoading) return;
     setSuggestionsLoading(true);
     try {
+      // loadSuggestions bypasses gen limit — it's a background preload, not a user action
       const results = await Promise.allSettled(
         SUGGESTION_PROMPTS.map(prompt =>
           fetch("/api/generate", {
@@ -781,9 +786,8 @@ export default function DesignPage() {
   const [slotPicker, setSlotPicker] = useState<{ image: AIImage } | null>(null);
 
   // Open the slot picker instead of placing freely
-  const handleDropImage = useCallback((image: AIImage, _x?: number, _y?: number) => {
+  const handleDropImage = useCallback((image: AIImage) => {
     setSlotPicker({ image });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Called once user picks a slot
@@ -1050,12 +1054,12 @@ export default function DesignPage() {
 
       {/* ── SLOT PICKER MODAL ─────────────────────────────── */}
       {slotPicker && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{background:'rgba(10,8,20,0.85)'}} onClick={() => setSlotPicker(null)}>
-          <div className="rounded-2xl p-6 w-[340px] flex flex-col gap-4" style={{background:'rgba(20,12,40,0.98)',border:'1px solid rgba(167,139,250,0.25)'}} onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center slot-picker-overlay" onClick={() => setSlotPicker(null)}>
+          <div className="rounded-2xl p-6 w-[340px] flex flex-col gap-4 slot-picker-panel" onClick={e => e.stopPropagation()}>
             {/* Preview */}
-            <div className="flex items-center gap-3 pb-3" style={{borderBottom:'1px solid rgba(167,139,250,0.12)'}}>
-              <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0" style={{background:'rgba(124,58,237,0.1)',border:'1px solid rgba(167,139,250,0.2)'}}>
-                <img src={slotPicker.image.url} alt={slotPicker.image.label} className="w-full h-full object-contain p-1" />
+            <div className="flex items-center gap-3 pb-3 slot-picker-preview-row">
+              <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 slot-picker-preview-thumb">
+                <Image src={slotPicker.image.url} alt={slotPicker.image.label} width={56} height={56} unoptimized className="w-full h-full object-contain p-1" />
               </div>
               <div>
                 <p className="text-[11px] font-black uppercase tracking-widest text-white">{slotPicker.image.label}</p>
@@ -1069,10 +1073,9 @@ export default function DesignPage() {
                 <button
                   key={slot.id}
                   onClick={() => handlePlaceInSlot(slot.id)}
-                  className="flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{background:'rgba(124,58,237,0.10)',border:'1px solid rgba(167,139,250,0.18)'}}
+                  className="slot-picker-btn flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-lg" style={{background:'rgba(124,58,237,0.20)'}}>
+                  <div className="slot-picker-icon w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-lg">
                     {slot.id === 'front-center' && (
                       <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="2" fill="#7C3AED" opacity="0.5"/><rect x="6" y="6" width="10" height="10" rx="1" fill="#a78bfa"/></svg>
                     )}
@@ -1174,6 +1177,7 @@ export default function DesignPage() {
           <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[30px]">
             <div className="border-r border-black px-2 flex items-center gap-1.5">
               { }
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               <div className="w-3 h-3 rounded border border-black/20 shrink-0" style={{ backgroundColor: tshirtColor }} />
               <div className="flex flex-col justify-center">
                 <span className="text-[5px] font-black text-gray-400 uppercase">Color:</span>
@@ -1217,6 +1221,7 @@ export default function DesignPage() {
             {/* Annotations moved inside each canvas container below for correct positioning */}
 
             { }
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <div className="relative h-full flex p-3" onDragOver={(e) => e.preventDefault()} style={{ transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`, transformOrigin: 'center center', transition: 'transform 0.05s ease-out' }}>
 
               {/* FAR LEFT: Color Swatches — hidden on mobile */}
@@ -1236,6 +1241,7 @@ export default function DesignPage() {
                 ].map(c => (
                   <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={c.hex} className="text-left group">
                     { }
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     <div className={`w-5 h-5 border mb-0.5 transition-all ${tshirtColor === c.hex ? 'border-black ring-1 ring-offset-1 ring-black scale-110' : 'border-gray-300'}`}
                       style={{ backgroundColor: c.hex }} />
                     <span className="text-[4px] font-black uppercase leading-tight block text-gray-400 group-hover:text-gray-700 transition-colors">{c.cmyk}</span>
@@ -1463,7 +1469,7 @@ export default function DesignPage() {
                           </div>
                         </div>
                         {/* Hover overlay */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" style={{background:'rgba(124,58,237,0.22)'}}>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center ai-hover-overlay">
                           <div className="flex flex-col items-center gap-1.5">
                             <Plus size={22} className="text-white drop-shadow-lg" />
                             <span className="text-[10px] font-black uppercase text-white tracking-widest">APPLY</span>
@@ -1489,6 +1495,20 @@ export default function DesignPage() {
                   </div>
                 )}
 
+                {/* Gen limit indicator */}
+                {!isLoggedIn() && (
+                  <div className={`flex items-center justify-between px-3 py-1.5 rounded-lg adm-mono text-[10px] ${genCount >= 4 ? 'bg-red-500/10 border border-red-500/30' : 'bg-violet-500/5 border border-violet-500/15'}`}>
+                    <span className={genCount >= 4 ? 'text-red-400' : 'text-gray-500'}>
+                      {genCount >= 4 ? '⚠ Hết lượt miễn phí' : `Lượt gen: ${genCount} / 4`}
+                    </span>
+                    {genCount >= 4 ? (
+                      <button onClick={() => setShowLoginModal(true)} className="text-[10px] font-black text-red-400 hover:text-red-300 uppercase tracking-wider transition-colors">Đăng nhập →</button>
+                    ) : (
+                      <span className="text-violet-500/50">còn {4 - genCount} lượt</span>
+                    )}
+                  </div>
+                )}
+
                 {/* Chat input */}
                 <div className="relative mt-auto">
                   <input
@@ -1499,10 +1519,10 @@ export default function DesignPage() {
                   />
                   <button
                     onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                    disabled={isLoading}
+                    disabled={isLoading || (!isLoggedIn() && genCount >= 4)}
                     title="Generate AI design"
                     aria-label="Generate AI design"
-                    className="absolute right-2 top-1.5 w-9 h-9 bg-[#7C3AED] text-white flex items-center justify-center rounded-lg hover:bg-[#6d28d9] hover:scale-105 active:scale-95 transition-all"
+                    className="absolute right-2 top-1.5 w-9 h-9 bg-[#7C3AED] text-white flex items-center justify-center rounded-lg hover:bg-[#6d28d9] hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Zap size={16} />
                   </button>
@@ -1594,6 +1614,7 @@ export default function DesignPage() {
                       onClick={() => handleAddText(item.text, item.font)}
                       className="group cursor-grab active:cursor-grabbing px-4 py-3 transition-all flex flex-col gap-1 rounded-lg gl-surface"
                     >
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       <div
                         className="leading-tight text-white group-hover:text-violet-300 transition-colors truncate"
                         style={{ fontFamily: item.font, fontSize: item.size, fontWeight: item.weight, fontStyle: item.style }}
@@ -1634,6 +1655,7 @@ export default function DesignPage() {
               <div className="space-y-3 animate-in fade-in duration-300">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block">Click a color to apply to shirt</span>
                 <div className="flex items-center gap-2 p-2 rounded-lg gl-active-glow">
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   <div className="w-6 h-6 shrink-0 rounded" style={{border:'2px solid rgba(124,58,237,0.35)'}} ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
                   <span className="text-[11px] font-black uppercase text-violet-300 tracking-[0.12em]">Active: {tshirtColor}</span>
                 </div>
@@ -1649,6 +1671,7 @@ export default function DesignPage() {
                       tshirtColor === c.hex ? 'ring-2 ring-violet-400/40 gl-active' : 'hover:ring-1 hover:ring-violet-400/20 gl-surface-mid'
                     }`}
                   >
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     <div className="w-8 h-8 shrink-0 rounded" style={{border:'1px solid rgba(124,58,237,0.22)'}} ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
                     <div className="text-left">
                       <div className="text-[12px] font-bold text-white tracking-wide">{c.name}</div>
@@ -1807,14 +1830,14 @@ export default function DesignPage() {
       {/* Login Gate Modal */}
       {showLoginModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-sm mx-4 rounded-2xl overflow-hidden border border-violet-400/20" style={{ background: 'rgba(12,8,28,0.95)' }}>
+          <div className="w-full max-w-sm mx-4 rounded-2xl overflow-hidden border border-violet-400/20 login-modal-panel">
             <div className="px-6 py-5 border-b border-violet-400/10">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-400/60" style={{ fontFamily: "'JetBrains Mono',monospace" }}>AUTH_REQUIRED</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-400/60 adm-mono">AUTH_REQUIRED</span>
               </div>
               <h2 className="text-xl font-black text-white tracking-tight">Đăng nhập để tiếp tục</h2>
-              <p className="text-[11px] text-violet-300/50 mt-1" style={{ fontFamily: "'JetBrains Mono',monospace" }}>
+              <p className="text-[11px] text-violet-300/50 mt-1 adm-mono">
                 Bạn đã dùng hết 4 lượt AI miễn phí. Đăng nhập để tiếp tục tạo design.
               </p>
             </div>

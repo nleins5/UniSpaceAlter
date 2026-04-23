@@ -53,147 +53,94 @@ function translatePrompt(prompt: string): string {
   return r;
 }
 
-// ── T8star AI Gateway (primary — unlimited Flux) ─────────────
-async function generateWithT8star(prompt: string, retries = 1): Promise<{ id: string; label: string; url: string }[]> {
+// ── T8star AI Gateway ─────────────────────────────────────────
+async function generateWithT8star(prompt: string): Promise<{ id: string; label: string; url: string }[]> {
   const enPrompt = translatePrompt(prompt);
-  console.log(`🔤 T8star: "${prompt}" → "${enPrompt}"`);
-
   const t8Key = process.env.T8STAR_API_KEY;
   if (!t8Key) return [];
 
-  // Add random seed so re-gens are always fresh, never cached
   const seed = Math.floor(Math.random() * 99999);
-  const fullPrompt = `${enPrompt}, flat vector graphic art, white background, no clothing no shirt no body, isolated centered design element, bold streetwear aesthetic, high contrast, vivid colors, printable iron-on decal, clean sharp edges, professional graphic tee print quality, seed:${seed}`;
+  const fullPrompt = `${enPrompt}, flat vector graphic art, white background, isolated centered design element, bold streetwear aesthetic, high contrast, vivid colors, printable iron-on decal, clean sharp edges, seed:${seed}`;
+  console.log(`🔤 T8star: "${enPrompt.slice(0, 60)}..."`);
 
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      if (attempt > 0) console.log(`🔄 T8star retry ${attempt}...`);
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
-      const res = await fetch(T8STAR_URL, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${t8Key}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: T8STAR_MODEL,
-          prompt: fullPrompt,
-          n: 1,
-          size: "1024x1024",
-        }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        console.log(`❌ T8star HTTP ${res.status}: ${text.slice(0, 200)}`);
-        if (attempt < retries) continue;
-        return [];
-      }
-
-      const data = await res.json();
-
-      if (data.data && data.data.length > 0) {
-        const images = data.data.map((img: { url?: string; b64_json?: string }, i: number) => ({
-          id: `t8-${Date.now()}-${i}`,
-          label: "AI Design",
-          url: img.b64_json
-            ? `data:image/png;base64,${img.b64_json}`
-            : img.url || "",
-        })).filter((img: { url: string }) => img.url);
-        console.log(`✅ T8star: ${images.length} images (attempt ${attempt + 1})`);
-        return images;
-      } else {
-        console.log(`❌ T8star no images:`, JSON.stringify(data).slice(0, 200));
-        if (attempt < retries) continue;
-      }
-    } catch (err) {
-      const msg = (err as Error).message?.slice(0, 100) || "unknown";
-      console.log(`❌ T8star attempt ${attempt + 1} failed: ${msg}`);
-      if (attempt < retries) continue;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000); // 15s hard cap
+  try {
+    const res = await fetch(T8STAR_URL, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${t8Key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: T8STAR_MODEL, prompt: fullPrompt, n: 2, size: "1024x1024" }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!res.ok) { console.log(`❌ T8star HTTP ${res.status}`); return []; }
+    const data = await res.json();
+    if (data.data?.length > 0) {
+      const images = data.data.map((img: { url?: string; b64_json?: string }, i: number) => ({
+        id: `t8-${Date.now()}-${i}`,
+        label: ["Original", "Variant"][i] ?? "AI Design",
+        url: img.b64_json ? `data:image/png;base64,${img.b64_json}` : img.url || "",
+      })).filter((img: { url: string }) => img.url);
+      console.log(`✅ T8star: ${images.length} images`);
+      return images;
     }
+    console.log(`❌ T8star: no images`, JSON.stringify(data).slice(0, 100));
+    return [];
+  } catch (err) {
+    clearTimeout(timeout);
+    console.log(`❌ T8star: ${(err as Error).message?.slice(0, 60)}`);
+    return [];
   }
-  return [];
 }
 
-// ── Cloudflare Workers AI (PRIMARY — Flux, best garment quality) ──
+// ── Cloudflare Workers AI (Flux) ──────────────────────────────
 async function generateWithCloudflare(prompt: string) {
   const enPrompt = translatePrompt(prompt);
-  console.log(`🔤 CF Flux: "${prompt}" → "${enPrompt}"`);
-
   const cfAccountId = process.env.CF_ACCOUNT_ID || "";
   const cfToken = process.env.CF_API_TOKEN || "";
   if (!cfAccountId || !cfToken) return [];
+  console.log(`🔤 CF Flux: "${enPrompt.slice(0, 60)}..."`);
 
-  // Generate 4 style variants in parallel
-  const results = await Promise.allSettled(
-    CF_STYLES.map(async (style) => {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000);
-      try {
-        const res = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${CF_MODEL}`,
-          {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${cfToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              prompt: `${enPrompt}${style.suffix}`,
-              num_steps: 8,
-            }),
-            signal: controller.signal,
-          }
-        );
-        clearTimeout(timeout);
+  type ImgResult = { id: string; label: string; url: string };
 
-        if (!res.ok) {
-          const errText = await res.text().catch(() => "");
-          console.log(`❌ CF ${style.label} HTTP ${res.status}: ${errText.slice(0, 150)}`);
-          return null;
+  const fetchOne = async (style: typeof CF_STYLES[0]): Promise<ImgResult | null> => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${CF_MODEL}`,
+        {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${cfToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: `${enPrompt}${style.suffix}`, num_steps: 4 }),
+          signal: controller.signal,
         }
-
-        // Flux returns raw image bytes (not JSON)
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          const data = await res.json();
-          if (data.result?.image) {
-            console.log(`✅ CF ${style.label} OK (json)`);
-            return {
-              id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-              label: style.label,
-              url: `data:image/jpeg;base64,${data.result.image}`,
-            };
-          }
-          console.log(`❌ CF ${style.label}: unexpected json`, JSON.stringify(data).slice(0, 150));
-          return null;
-        } else {
-          // Raw bytes — convert to base64
-          const arrayBuffer = await res.arrayBuffer();
-          const base64 = Buffer.from(arrayBuffer).toString("base64");
-          const mime = contentType.startsWith("image/") ? contentType : "image/jpeg";
-          console.log(`✅ CF ${style.label} OK (raw ${mime})`);
-          return {
-            id: `cf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            label: style.label,
-            url: `data:${mime};base64,${base64}`,
-          };
-        }
-      } catch (err) {
-        clearTimeout(timeout);
-        console.log(`❌ CF ${style.label} error:`, (err as Error).message?.slice(0, 100));
-        return null;
+      );
+      clearTimeout(timeout);
+      if (!res.ok) { console.log(`❌ CF ${style.label} HTTP ${res.status}`); return null; }
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        if (!data.result?.image) { console.log(`❌ CF ${style.label}: no image`); return null; }
+        console.log(`✅ CF ${style.label} OK`);
+        return { id: `cf-${Date.now()}-${style.label}`, label: style.label, url: `data:image/jpeg;base64,${data.result.image}` };
       }
-    })
-  );
+      const buf = await res.arrayBuffer();
+      const base64 = Buffer.from(buf).toString("base64");
+      const mime = contentType.startsWith("image/") ? contentType : "image/jpeg";
+      console.log(`✅ CF ${style.label} OK (raw)`);
+      return { id: `cf-${Date.now()}-${style.label}`, label: style.label, url: `data:${mime};base64,${base64}` };
+    } catch (err) {
+      clearTimeout(timeout);
+      console.log(`❌ CF ${style.label}:`, (err as Error).message?.slice(0, 60));
+      return null;
+    }
+  };
 
-  return results
-    .filter((r): r is PromiseFulfilledResult<{ id: string; label: string; url: string }> =>
-      r.status === "fulfilled" && r.value !== null
-    )
+  // Run all 4 variants in parallel, collect all that succeed within 15s
+  const settled = await Promise.allSettled(CF_STYLES.map(fetchOne));
+  return settled
+    .filter((r): r is PromiseFulfilledResult<ImgResult> => r.status === "fulfilled" && r.value !== null)
     .map(r => r.value);
 }
 // Rate limiter: max RATE_LIMIT_PER_MINUTE generates per minute per IP

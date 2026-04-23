@@ -803,31 +803,46 @@ export default function DesignPage() {
   // ── Client-side white background removal via Canvas API ───
   const removeWhiteBg = useCallback((src: string): Promise<string> => {
     return new Promise((resolve) => {
+      // SVG data URIs: already vector, no bg removal needed
+      if (src.startsWith("data:image/svg")) {
+        resolve(src);
+        return;
+      }
+
+      // External URLs: fetch through proxy to avoid CORS canvas taint
+      const loadSrc = src.startsWith("http") ? `/api/proxy-image?url=${encodeURIComponent(src)}` : src;
+
       const img = new window.Image();
       img.crossOrigin = "anonymous";
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        // Threshold: pixels with R,G,B all >= 230 are considered "white/near-white"
-        const threshold = 230;
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i + 1], b = data[i + 2];
-          if (r >= threshold && g >= threshold && b >= threshold) {
-            data[i + 3] = 0; // make transparent
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth || 512;
+          canvas.height = img.naturalHeight || 512;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          // Remove near-white pixels (R,G,B all ≥ 230)
+          const threshold = 228;
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            if (r >= threshold && g >= threshold && b >= threshold) {
+              data[i + 3] = 0;
+            }
           }
+          ctx.putImageData(imageData, 0, 0);
+          resolve(canvas.toDataURL("image/png"));
+        } catch {
+          // Canvas tainted (CORS) — fall back to original
+          resolve(src);
         }
-        ctx.putImageData(imageData, 0, 0);
-        resolve(canvas.toDataURL("image/png"));
       };
-      img.onerror = () => resolve(src); // fallback: keep original
-      img.src = src;
+      img.onerror = () => resolve(src);
+      img.src = loadSrc;
     });
   }, []);
+
 
   // Called once user picks a slot — removes white bg first, then places
   const handlePlaceInSlot = useCallback(async (slotId: SnapSlotId) => {

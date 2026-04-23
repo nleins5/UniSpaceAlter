@@ -54,34 +54,20 @@ function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: s
   const maskSrc = isFront ? mockup.maskFront : mockup.maskBack;
   const isWhite = color === "#FFFFFF" || color === "#ffffff" || color === "#F2F0E9";
   return (
-    <div className="w-full h-full relative">
-      {/* Layer 1: Base shirt mockup (JPEG with shadow/detail) */}
+    <div className="w-full h-full relative" style={{ isolation: 'isolate' }}>
+      {/* Layer 1: Base shirt mockup */}
       <Image src={imgSrc} alt={`Shirt ${side}`} fill priority className="object-contain" />
 
-      {/* Layer 2: Color fill, masked to shirt silhouette via transparent mask PNG.
-          mask-image uses the _mask.png which has transparent bg → color only on shirt. */}
+      {/* Layer 2: Color tint using mix-blend-mode:color
+          - Preserves luminosity of base (white background stays white)
+          - Applies hue+saturation only to grey/dark fabric areas
+          - No mask needed — works naturally with white-background PNGs */}
       {!isWhite && (
         <div className="absolute inset-0" style={{
           backgroundColor: color,
-          WebkitMaskImage: `url(${maskSrc})`,
-          maskImage: `url(${maskSrc})`,
-          WebkitMaskSize: 'contain',
-          maskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-          maskPosition: 'center',
-          mixBlendMode: 'multiply',
-          opacity: 0.9,
+          mixBlendMode: 'color',
+          opacity: 1,
         }} />
-      )}
-
-      {/* Layer 3: Shirt outline/linework on top to preserve stitching detail */}
-      {!isWhite && (
-        <Image src={imgSrc} alt="" fill aria-hidden
-          className="object-contain pointer-events-none"
-          style={{ mixBlendMode: 'multiply', opacity: 0.6 }}
-        />
       )}
     </div>
   );

@@ -46,81 +46,33 @@ const MOCKUP_MAP: Record<string, { front: string; back: string; maskFront: strin
   'POLO':    { front: '/mockups/v_polo_front.png',    back: '/mockups/v_polo_back.png',    maskFront: '/mockups/raglan_front_mask.png',  maskBack: '/mockups/raglan_back_mask.png' },
 };
 
-// ─── Component: TShirtMockup (Canvas pixel-level tinting) ────────────────────
+// ─── Component: TShirtMockup — 2-layer transparent PNG approach ───────────────
+// Layer 1: solid color background div
+// Layer 2: transparent PNG with linework (mix-blend-mode:multiply keeps black lines)
 function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: string; side?: "front" | "back"; garmentType?: string }) {
   const isFront = side === "front";
   const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
   const imgSrc = isFront ? mockup.front : mockup.back;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
-    const img = new window.Image();
-    // No crossOrigin — /mockups/* are same-origin local files, getImageData works fine
-    img.onload = () => {
-      const W = container.clientWidth  || 400;
-      const H = container.clientHeight || 480;
-
-      // object-contain layout
-      const imgRatio = img.width / img.height;
-      const boxRatio = W / H;
-      let drawW = W, drawH = H, drawX = 0, drawY = 0;
-      if (imgRatio > boxRatio) {
-        drawH = W / imgRatio; drawY = (H - drawH) / 2;
-      } else {
-        drawW = H * imgRatio; drawX = (W - drawW) / 2;
-      }
-
-      canvas.width  = W;
-      canvas.height = H;
-      const ctx = canvas.getContext('2d')!;
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, W, H);
-      ctx.drawImage(img, drawX, drawY, drawW, drawH);
-
-      if (color !== '#FFFFFF' && color !== '#ffffff' && color !== '#F2F0E9') {
-        const tr = parseInt(color.slice(1, 3), 16);
-        const tg = parseInt(color.slice(3, 5), 16);
-        const tb = parseInt(color.slice(5, 7), 16);
-
-        const id = ctx.getImageData(0, 0, W, H);
-        const d  = id.data;
-
-        for (let i = 0; i < d.length; i += 4) {
-          const r = d[i], g = d[i+1], b = d[i+2];
-          const lum = (r + g + b) / 3;
-
-          if (lum > 230) continue; // white background → skip
-
-          if (lum < 50) {
-            // Very dark = linework → keep dark (desaturate slightly)
-            d[i] = d[i+1] = d[i+2] = Math.round(lum * 0.4);
-          } else {
-            // Fabric pixel → tint toward target color
-            // Blend: how dark the fabric is (darker = more color)
-            const blend = 1 - lum / 255;
-            d[i]   = Math.round(r   + (tr - r)   * blend * 0.85);
-            d[i+1] = Math.round(g   + (tg - g)   * blend * 0.85);
-            d[i+2] = Math.round(b   + (tb - b)   * blend * 0.85);
-          }
-        }
-        ctx.putImageData(id, 0, 0);
-      }
-    };
-    img.src = imgSrc;
-  }, [imgSrc, color]);
+  const bgColor = (color === "#FFFFFF" || color === "#ffffff") ? "transparent" : color;
 
   return (
-    <div ref={containerRef} className="w-full h-full">
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+    <div className="w-full h-full relative flex items-center justify-center">
+      {/* Layer 1: shirt color (only visible through transparent areas of PNG) */}
+      <div className="absolute inset-0" style={{ backgroundColor: bgColor }} />
+
+      {/* Layer 2: transparent PNG linework overlay
+          mix-blend-mode:multiply — black lines stay black, white fabric stays (shows color below),
+          transparent background = fully transparent, color div shows through */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imgSrc}
+        alt={`Shirt ${side}`}
+        className="relative w-full h-full object-contain"
+        style={{ mixBlendMode: 'multiply' }}
+      />
     </div>
   );
 }
-
 
 
 // ─── Component: MiniPreview (droppable thumbnail, shows components only) ─────

@@ -1630,64 +1630,76 @@ export default function DesignPage() {
             )}
 
             {activeTab === "gallery" && (
-              <div className="flex flex-col gap-4 animate-in fade-in duration-300">
-                {/* Upload Button */}
-                <div className="flex justify-between items-center px-1">
+              <div className="flex flex-col gap-4 animate-in fade-in duration-300 h-full flex flex-col">
+                <div className="flex justify-between items-center px-1 shrink-0">
                   <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400">YOUR GALLERY</span>
-                  <label className="cursor-pointer">
-                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const newImage = {
-                          id: `upload-${Date.now()}`,
-                          url: URL.createObjectURL(file),
-                          label: file.name
-                        };
-                        setUploadedImages(prev => [newImage, ...prev]);
-                      }
-                      e.target.value = '';
-                    }} />
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 rounded-lg transition-colors border border-violet-500/30 shadow-sm">
-                      <Upload size={12} />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Upload Image</span>
-                    </div>
-                  </label>
                 </div>
 
-                {(() => {
-                  const aiImages = messages.filter(m => m.role === "ai").flatMap(m => m.images || []);
-                  const allImages = [...uploadedImages, ...aiImages];
-                  return allImages.length === 0 ? (
-                    <div className="py-20 text-center text-gray-600">
-                      <ImageIcon size={32} className="mx-auto mb-3 text-violet-400/30" />
-                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-500">Empty Gallery</p>
-                      <p className="text-[10px] text-gray-500/60 mt-1 font-mono">Upload images or generate with AI</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-3">
-                      {allImages.map((img) => (
-                        <button key={img.id}
-                          onClick={() => handleDropImage(img)}
-                          className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
-                          draggable
-                          onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
-                          title={`Add ${img.label}`}
-                        >
-                          <div className="relative aspect-[4/3] w-full rounded-t-xl overflow-hidden">
-                            <Image src={img.url} alt={img.label} width={200} height={150} unoptimized className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gl-icon-bg">
-                              <Plus size={20} className="text-white drop-shadow-lg" />
+                <div className="flex-1 overflow-y-auto pr-1 scrollbar-hide flex flex-col gap-4">
+                  {(() => {
+                    const aiImages = messages.filter(m => m.role === "ai").flatMap(m => m.images || []);
+                    const allImages = [...uploadedImages, ...aiImages];
+                    
+                    return (
+                      <>
+                        {allImages.length === 0 ? (
+                          <div className="py-10 text-center text-gray-600 gl-panel rounded-xl border-dashed border-2 border-white/5">
+                            <ImageIcon size={32} className="mx-auto mb-3 text-violet-400/20" />
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Empty Gallery</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-3">
+                            {allImages.map((img) => (
+                              <button key={img.id}
+                                onClick={() => handleDropImage(img)}
+                                className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
+                                draggable
+                                onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
+                                title={`Add ${img.label}`}
+                              >
+                                <div className="relative aspect-[4/3] w-full rounded-t-xl overflow-hidden">
+                                  <Image src={img.url} alt={img.label} width={200} height={150} unoptimized className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gl-icon-bg">
+                                    <Plus size={20} className="text-white drop-shadow-lg" />
+                                  </div>
+                                </div>
+                                <div className="px-3 py-2 flex items-center justify-between">
+                                  <span className="text-[10px] font-semibold text-violet-300 tracking-wide truncate">{img.label}</span>
+                                  <Sparkles size={10} className="text-violet-400/40 shrink-0" />
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Big Upload Area */}
+                        <label className="group relative cursor-pointer mt-2">
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const newImage = {
+                                id: `upload-${Date.now()}`,
+                                url: URL.createObjectURL(file),
+                                label: file.name
+                              };
+                              setUploadedImages(prev => [newImage, ...prev]);
+                            }
+                            e.target.value = '';
+                          }} />
+                          <div className="flex flex-col items-center justify-center gap-3 py-8 px-4 rounded-2xl border-2 border-dashed border-violet-500/20 bg-violet-500/5 hover:bg-violet-500/10 hover:border-violet-500/40 transition-all">
+                            <div className="w-12 h-12 rounded-full bg-violet-600/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <Upload size={24} className="text-violet-400" />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-[11px] font-black uppercase tracking-widest text-violet-300">Tải ảnh của bạn</p>
+                              <p className="text-[9px] text-gray-500 font-medium mt-1">PNG, JPG, SVG (Max 5MB)</p>
                             </div>
                           </div>
-                          <div className="px-3 py-2 flex items-center justify-between">
-                            <span className="text-[10px] font-semibold text-violet-300 tracking-wide truncate">{img.label}</span>
-                            <Sparkles size={10} className="text-violet-400/40 shrink-0" />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  );
-                })()}
+                        </label>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
             )}
 

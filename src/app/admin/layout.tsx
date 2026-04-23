@@ -15,21 +15,20 @@ const NAV = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const path = usePathname();
   return (
-    <div className="flex h-screen bg-[#1a1a1a] text-white overflow-hidden" style={{ fontFamily: "'Inter',sans-serif" }}>
+    <div className="flex h-screen bg-[#1a1a1a] text-white overflow-hidden font-[Inter,sans-serif]">
       {/* Sidebar */}
       <nav className="hidden md:flex flex-col w-64 shrink-0 border-r border-white/10 bg-[#1a1a1a]/75 backdrop-blur-2xl z-50">
         <div className="p-6 border-b border-white/10">
-          <h1 className="text-xl font-bold tracking-widest uppercase" style={{ fontFamily: "'JetBrains Mono',monospace" }}>GARMENT OS</h1>
-          <p className="text-xs text-[#9ca3af] mt-1" style={{ fontFamily: "'JetBrains Mono',monospace" }}>v2.4.0-STABLE</p>
+          <h1 className="adm-mono text-xl font-bold tracking-widest uppercase">GARMENT OS</h1>
+          <p className="adm-mono text-xs text-[#9ca3af] mt-1">v2.4.0-STABLE</p>
           <div className="mt-4 flex items-center gap-3">
             <div className="w-8 h-8 bg-[#262626] border border-white/20 flex items-center justify-center">
               <span className="material-symbols-outlined text-sm text-[#9ca3af]">person</span>
             </div>
-            <span className="text-xs text-white" style={{ fontFamily: "'JetBrains Mono',monospace" }}>System Operator</span>
+            <span className="adm-mono text-xs text-white">System Operator</span>
           </div>
           <Link href="/design"
-            className="mt-4 w-full py-2 border border-[#7C3AED]/30 text-[#7C3AED] hover:bg-[#7C3AED]/10 transition-colors text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2"
-            style={{ fontFamily: "'JetBrains Mono',monospace" }}>
+            className="adm-mono mt-4 w-full py-2 border border-[#7C3AED]/30 text-[#7C3AED] hover:bg-[#7C3AED]/10 transition-colors text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2">
             <span className="material-symbols-outlined text-[14px]">add</span>
             New Design
           </Link>
@@ -41,11 +40,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             const isActive = active || exact;
             return (
               <Link key={n.href} href={n.href}
-                className={`flex items-center px-4 py-3 text-xs uppercase tracking-wider transition-all duration-300 ${
+                className={`adm-mono flex items-center px-4 py-3 text-xs uppercase tracking-wider transition-all duration-300 ${
                   isActive
                     ? "text-white bg-[#7C3AED]/20 border-r-2 border-[#7C3AED]"
                     : "text-[#9ca3af] hover:bg-white/5 hover:text-white hover:translate-x-1"
-                }`} style={{ fontFamily: "'JetBrains Mono',monospace" }}>
+                }`}>
                 <span className="material-symbols-outlined mr-3 text-[18px]">{n.icon}</span>
                 {n.label}
               </Link>
@@ -58,8 +57,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <span className="material-symbols-outlined text-sm text-[#9ca3af]">person</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-white" style={{ fontFamily: "'JetBrains Mono',monospace" }}>System Operator</span>
-              <span className="text-[10px] text-[#7C3AED]" style={{ fontFamily: "'JetBrains Mono',monospace" }}>ADMIN_AUTH</span>
+              <span className="adm-mono text-xs text-white">System Operator</span>
+              <span className="adm-mono text-[10px] text-[#7C3AED]">ADMIN_AUTH</span>
             </div>
           </div>
         </div>
@@ -70,12 +69,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {/* Top bar */}
         <header className="bg-[#1a1a1a]/60 backdrop-blur-lg border-b border-white/10 flex justify-between items-center px-6 h-16 shrink-0 z-40">
           <div className="flex items-center gap-4">
-            <span className="text-lg font-black tracking-tighter uppercase" style={{ fontFamily: "'JetBrains Mono',monospace" }}>GLACIER DESIGN</span>
+            <span className="adm-mono text-lg font-black tracking-tighter uppercase">GLACIER DESIGN</span>
             <div className="h-4 w-px bg-white/20" />
             <div className="relative flex items-center">
               <span className="material-symbols-outlined absolute left-3 text-sm text-[#9ca3af]">search</span>
-              <input className="bg-[#262626]/50 border border-white/20 text-white text-sm pl-9 pr-4 py-1.5 focus:outline-none focus:border-[#7C3AED]/50 placeholder:text-[#9ca3af] w-64 transition-all"
-                placeholder="QUERY_DATABASE..." style={{ fontFamily: "'JetBrains Mono',monospace" }} />
+              <input className="adm-mono bg-[#262626]/50 border border-white/20 text-white text-sm pl-9 pr-4 py-1.5 focus:outline-none focus:border-[#7C3AED]/50 placeholder:text-[#9ca3af] w-64 transition-all"
+                placeholder="QUERY_DATABASE..." />
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -93,10 +92,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </header>
         <div className="flex-1 overflow-auto p-6 md:p-8">{children}</div>
       </main>
-
-      {/* Material Icons */}
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
     </div>
   );
 }

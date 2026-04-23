@@ -66,6 +66,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Montserrat:wght@400;700;900&family=Poppins:wght@400;600;700&family=Nunito:wght@400;700&family=Raleway:wght@400;700&family=Oswald:wght@400;700&family=Ubuntu:wght@400;700&family=Quicksand:wght@400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Lora:wght@400;700&family=PT+Serif:wght@400;700&family=Crimson+Text:wght@400;700&family=Bebas+Neue&family=Righteous&family=Pacifico&family=Lobster&family=Permanent+Marker&family=Bungee&family=Fredoka+One&family=Abril+Fatface&family=Dancing+Script:wght@400;700&family=Caveat:wght@400;700&family=Satisfy&family=Great+Vibes&family=Sacramento&family=Fira+Code:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         {/* Noise overlay for premium texture */}

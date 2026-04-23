@@ -18,7 +18,7 @@ function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
         label: "Chest Logo",
         desc: "Logo góc ngực phải — pocket logo (Polo)",
         side: "front" as const,
-        x: 213, y: 110, width: 85, height: 85,
+        x: 213, y: 95, width: 70, height: 70,
         icon: "🔲",
       },
       {
@@ -39,7 +39,7 @@ function getSnapSlots(garmentType: "T-SHIRT" | "RAGLAN" | "POLO") {
         label: "Chest Logo",
         desc: "Logo ngực trái — pocket logo (Raglan)",
         side: "front" as const,
-        x: 213, y: 110, width: 85, height: 85,
+        x: 213, y: 95, width: 70, height: 70,
         icon: "⬛",
       },
       {

@@ -64,10 +64,16 @@ function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: s
 
     const img = new window.Image();
     img.onload = () => {
+      const dpr = window.devicePixelRatio || 1;
       const W = container.clientWidth || 400;
       const H = container.clientHeight || 480;
-      canvas.width = W;
-      canvas.height = H;
+
+      // Set canvas buffer to full retina resolution
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+
+      const ctx = canvas.getContext('2d')!;
+      ctx.scale(dpr, dpr);
 
       // object-contain math
       const imgR = img.width / img.height;
@@ -76,7 +82,6 @@ function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: s
       if (imgR > boxR) { dh = W / imgR; dy = (H - dh) / 2; }
       else { dw = H * imgR; dx = (W - dw) / 2; }
 
-      const ctx = canvas.getContext('2d')!;
       ctx.clearRect(0, 0, W, H);
 
       // 1. Draw the transparent PNG (establishes alpha mask)
@@ -84,14 +89,12 @@ function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: s
       ctx.drawImage(img, dx, dy, dw, dh);
 
       // 2. Fill color ONLY where PNG is opaque (source-atop)
-      //    → white fabric becomes color, black lines become color, transparent stays transparent
       if (color !== '#FFFFFF' && color !== '#ffffff') {
         ctx.globalCompositeOperation = 'source-atop';
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, W, H);
 
         // 3. Draw PNG again with multiply → restore black linework
-        //    multiply: black line × color = black, white × color = color (no change)
         ctx.globalCompositeOperation = 'multiply';
         ctx.drawImage(img, dx, dy, dw, dh);
       }

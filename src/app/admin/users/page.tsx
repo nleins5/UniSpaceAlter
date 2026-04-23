@@ -17,7 +17,7 @@ export default function UsersPage() {
           <span className="material-symbols-outlined text-[14px]">terminal</span>
           <span>root@unispace:~# ./view_users.sh</span>
         </div>
-        <h2 className="adm-mono text-2xl font-bold tracking-tight uppercase">USER DIRECTORY <span className="text-[#7C3AED] font-normal">// DATABASE_01</span></h2>
+        <h2 className="adm-mono text-2xl font-bold tracking-tight uppercase">USER DIRECTORY <span className="text-[#7C3AED] font-normal">{'// DATABASE_01'}</span></h2>
         <p className="adm-mono text-sm text-[#9ca3af]">Displaying 6 records. Filter: None. Sorting: Last Active (DESC).</p>
       </div>
 

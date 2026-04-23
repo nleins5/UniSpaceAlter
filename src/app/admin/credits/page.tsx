@@ -24,7 +24,7 @@ export default function CreditsPage() {
           <span className="material-symbols-outlined text-[14px]">terminal</span>
           <span>root@unispace:~# ./credits_manager.sh</span>
         </div>
-        <h2 className="adm-mono text-2xl font-bold tracking-tight uppercase">AI CREDITS <span className="text-[#7C3AED] font-normal">// BILLING</span></h2>
+        <h2 className="adm-mono text-2xl font-bold tracking-tight uppercase">AI CREDITS <span className="text-[#7C3AED] font-normal">{'// BILLING'}</span></h2>
         <p className="adm-mono text-sm text-[#9ca3af]">Purchase credits to power AI design generation.</p>
       </div>
 

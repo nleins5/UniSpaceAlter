@@ -8,7 +8,7 @@ export default function AnalyticsPage() {
           <span className="material-symbols-outlined text-[14px]">terminal</span>
           <span>root@unispace:~# ./analytics_engine.sh</span>
         </div>
-        <h2 className="adm-mono text-2xl font-bold tracking-tight uppercase">ANALYTICS <span className="text-[#7C3AED] font-normal">// INSIGHTS</span></h2>
+        <h2 className="adm-mono text-2xl font-bold tracking-tight uppercase">ANALYTICS <span className="text-[#7C3AED] font-normal">{'// INSIGHTS'}</span></h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[

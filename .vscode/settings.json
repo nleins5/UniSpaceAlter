@@ -3,9 +3,13 @@
   "css.validate": true,
   "sonarlint.rules": {
     "Web:S5853": { "level": "off" },
-    "Web:InlineStyleUsage": { "level": "off" },
     "Web:S1015": { "level": "off" },
+    "Web:S1307": { "level": "off" },
+    "Web:InlineStyleUsage": { "level": "off" },
     "typescript:S6754": { "level": "off" },
-    "javascript:S6754": { "level": "off" }
-  }
+    "javascript:S6754": { "level": "off" },
+    "typescript:S6847": { "level": "off" },
+    "javascript:S6847": { "level": "off" }
+  },
+  "gemini.diagnostics.enable": false
 }

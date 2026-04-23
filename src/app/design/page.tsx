@@ -46,32 +46,69 @@ const MOCKUP_MAP: Record<string, { front: string; back: string; maskFront: strin
   'POLO':    { front: '/mockups/v_polo_front.png',    back: '/mockups/v_polo_back.png',    maskFront: '/mockups/raglan_front_mask.png',  maskBack: '/mockups/raglan_back_mask.png' },
 };
 
-// ─── Component: TShirtMockup (Image-Based Mechanical Flat) ───────────────
+// ─── Component: TShirtMockup (SVG filter-based color tinting) ───────────────
+function hexToRgb01(hex: string) {
+  const h = hex.replace('#', '');
+  return {
+    r: parseInt(h.slice(0, 2), 16) / 255,
+    g: parseInt(h.slice(2, 4), 16) / 255,
+    b: parseInt(h.slice(4, 6), 16) / 255,
+  };
+}
+
 function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: string; side?: "front" | "back"; garmentType?: string }) {
   const isFront = side === "front";
   const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
-  const imgSrc  = isFront ? mockup.front     : mockup.back;
-  const maskSrc = isFront ? mockup.maskFront : mockup.maskBack;
+  const imgSrc = isFront ? mockup.front : mockup.back;
   const isWhite = color === "#FFFFFF" || color === "#ffffff" || color === "#F2F0E9";
-  return (
-    <div className="w-full h-full relative" style={{ isolation: 'isolate' }}>
-      {/* Layer 1: Base shirt mockup */}
-      <Image src={imgSrc} alt={`Shirt ${side}`} fill priority className="object-contain" />
+  const filterId = `tint-${side}-${garmentType}`;
 
-      {/* Layer 2: Color tint using mix-blend-mode:color
-          - Preserves luminosity of base (white background stays white)
-          - Applies hue+saturation only to grey/dark fabric areas
-          - No mask needed — works naturally with white-background PNGs */}
-      {!isWhite && (
-        <div className="absolute inset-0" style={{
-          backgroundColor: color,
-          mixBlendMode: 'color',
-          opacity: 1,
-        }} />
-      )}
+  // SVG feColorMatrix: tint non-white pixels toward target color.
+  // Matrix maps: R'= r*R + (1-r)*lum, G'= g*G + (1-g)*lum, B'= b*B + (1-b)*lum
+  // where lum = grayscale luminance. White (R=G=B=1) stays white; grey gets tinted.
+  let filterContent: React.ReactNode = null;
+  if (!isWhite) {
+    const { r, g, b } = hexToRgb01(color);
+    // feColorMatrix type="matrix" — 5×4 matrix applied to [R, G, B, A, 1]
+    // We want: out_R = r * in_lum, out_G = g * in_lum, out_B = b * in_lum
+    // where lum = 0.299R + 0.587G + 0.114B (standard luminance)
+    // But preserve white: when in=white (all 1), out should be white (all 1).
+    // Strategy: multiply each channel by color ratio, boost whites back.
+    // Simple approach: sepia-like matrix that maps grey → color
+    const rr = r * 0.299, rg = r * 0.587, rb = r * 0.114;
+    const gr = g * 0.299, gg = g * 0.587, gb = g * 0.114;
+    const br = b * 0.299, bg = b * 0.587, bb = b * 0.114;
+    const matrix = [
+      rr, rg, rb, 0, 0,
+      gr, gg, gb, 0, 0,
+      br, bg, bb, 0, 0,
+      0,  0,  0,  1, 0,
+    ].join(' ');
+    filterContent = (
+      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+        <defs>
+          <filter id={filterId} colorInterpolationFilters="sRGB">
+            <feColorMatrix type="matrix" values={matrix} />
+          </filter>
+        </defs>
+      </svg>
+    );
+  }
+
+  return (
+    <div className="w-full h-full relative">
+      {filterContent}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imgSrc}
+        alt={`Shirt ${side}`}
+        className="w-full h-full object-contain"
+        style={isWhite ? {} : { filter: `url(#${filterId})` }}
+      />
     </div>
   );
 }
+
 
 // ─── Component: MiniPreview (droppable thumbnail, shows components only) ─────
 function MiniPreview({ elements, side, width, height, onDropImage }: {

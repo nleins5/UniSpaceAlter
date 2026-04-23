@@ -348,7 +348,8 @@ function DesignElementItem({
 // ─── Main Design Page ──────────────────────────────────────────
 export default function DesignPage() {
   const [activeTab, setActiveTab] = useState<"ai" | "assets" | "type" | "color" | "layers" | null>(null);
-  const [side, setSide] = useState<"front" | "back">("front");
+  const [side, setSide] = useState<"front" | "back" | "side">("front");
+  const [garmentType, setGarmentType] = useState<'T-SHIRT' | 'RAGLAN' | 'POLO'>('RAGLAN');
   const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
   const [elements, setElements] = useState<DesignElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -745,7 +746,7 @@ export default function DesignPage() {
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
         {/* ── BLUEPRINT PANEL: full-width on mobile, fixed 820px on desktop ── */}
-        <section className="w-full md:w-[820px] shrink-0 flex flex-col bg-white border-b md:border-b-0 md:border-r border-white/5 md:shadow-xl overflow-hidden" style={{ height: 'calc(100dvh - 48px)', maxHeight: 'calc(100dvh - 48px)' }}>
+        <section className="w-full md:w-[820px] shrink-0 flex flex-col bg-white border-b md:border-b-0 md:border-r border-white/5 md:shadow-xl overflow-hidden h-[calc(100dvh-48px)] max-h-[calc(100dvh-48px)]">
 
           {/* HEADER ROW 1 — hidden on mobile, shown on desktop */}
           <div className="hidden md:grid grid-cols-[150px_1fr_120px_90px] border-b border-black shrink-0 h-[60px]">
@@ -1043,10 +1044,12 @@ export default function DesignPage() {
 
           {/* Garment type tabs — matching Stitch reference */}
           <div className="flex bg-[#0a0e1a] px-2 pt-2 shrink-0 gap-1">
-            {['T-SHIRT', 'RAGLAN', 'POLO'].map(type => (
-              <button key={type} className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-t-lg transition-all ${
-                type === 'RAGLAN' ? 'bg-[#7dd3fc] text-[#0a0e1a]' : 'text-gray-500 hover:text-white'
-              }`}>{type}</button>
+            {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
+              <button key={type}
+                onClick={() => setGarmentType(type)}
+                className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-t-lg transition-all ${
+                  type === garmentType ? 'bg-[#7dd3fc] text-[#0a0e1a]' : 'text-gray-500 hover:text-white'
+                }`}>{type}</button>
             ))}
           </div>
 
@@ -1084,8 +1087,7 @@ export default function DesignPage() {
                     { accent: '#7dd3fc', label: 'AWAY',  bg: 'light' },
                   ].map((card, idx) => (
                     <button key={idx}
-                      className="group relative rounded-2xl overflow-hidden hover:scale-[1.03] transition-all border border-white/10 flex flex-col"
-                      style={{ background: 'rgba(10,14,26,0.7)' }}
+                      className="group relative rounded-2xl overflow-hidden hover:scale-[1.03] transition-all border border-white/10 flex flex-col bg-[#0a0e1a]/70"
                       title={`Use ${card.label} template`}
                     >
                       {/* NEXT PLAYER header bar */}
@@ -1093,21 +1095,22 @@ export default function DesignPage() {
                         style={{ background: card.accent }}>
                         NEXT PLAYER
                       </div>
-                      {/* Mockup thumbnails — side-by-side shirts */}
-                      <div className="relative w-full flex items-end justify-center gap-0.5 px-2 pt-2 pb-0" style={{ minHeight: 72 }}>
-                        {/* Dark shirt */}
-                        <div className="relative w-[38%] aspect-square"
-                          style={{ filter: card.bg === 'dark' ? 'none' : 'invert(1) brightness(0.85)' }}>
-                          <Image src="/mockups/user_tshirt_front.png" alt="shirt" fill sizes="64px" unoptimized
-                            className="object-contain"
-                            style={{ filter: `brightness(0) saturate(100%) invert(${card.bg === 'dark' ? 0 : 1})` }} />
-                        </div>
-                        {/* Light shirt */}
-                        <div className="relative w-[38%] aspect-square">
-                          <Image src="/mockups/user_tshirt_front.png" alt="shirt" fill sizes="64px" unoptimized
-                            className="object-contain" style={{ opacity: 0.75 }} />
-                        </div>
-                      </div>
+                      {/* Mockup thumbnails — side-by-side shirts, matching active garment type */}
+                      {(() => {
+                        const frontImg = garmentType === 'POLO' ? '/mockups/v_polo_front.png'
+                          : garmentType === 'RAGLAN' ? '/mockups/v_raglan_front.png'
+                          : '/mockups/tshirt_front.png';
+                        return (
+                          <div className="relative w-full flex items-end justify-center gap-0.5 px-2 pt-2 pb-0 min-h-[72px]">
+                            <div className="relative w-[38%] aspect-square">
+                              <Image src={frontImg} alt="shirt" fill sizes="64px" unoptimized className="object-contain" style={{ filter: 'brightness(0)' }} />
+                            </div>
+                            <div className="relative w-[38%] aspect-square">
+                              <Image src={frontImg} alt="shirt" fill sizes="64px" unoptimized className="object-contain opacity-70" />
+                            </div>
+                          </div>
+                        );
+                      })()}
                       {/* Variant label */}
                       <div className="px-2 py-1 flex items-center justify-center">
                         <span className="text-[8px] font-black uppercase tracking-wider" style={{ color: card.accent }}>{card.label}</span>
@@ -1313,24 +1316,29 @@ export default function DesignPage() {
           </div>
 
           {/* FRONT / BACK / SIDE — fixed bottom bar */}
-          <div className="shrink-0 border-t border-white/5 bg-[#0a0e1a]/60 px-3 py-2 flex items-center justify-center gap-4">
-            {(['front', 'back', 'side'] as const).map((s) => (
-              <button key={s} onClick={() => s !== 'side' && setSide(s)}
-                className={`flex flex-col items-center gap-1 transition-all ${side === s ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
-              >
-                <div className={`w-14 h-14 rounded-lg border overflow-hidden ${side === s ? 'border-[#7dd3fc] ring-2 ring-[#7dd3fc]/20' : 'border-white/10'} bg-white/5`}>
-                  {s !== 'side' ? (
-                    <MiniPreview elements={elements} side={s} width={56} height={56} onDropImage={handleDropImageToSide} />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-[8px] font-black text-gray-600">SIDE</span>
+          {(() => {
+            const mockups: Record<string, Record<string, string>> = {
+              'T-SHIRT': { front: '/mockups/tshirt_front.png', back: '/mockups/tshirt_back.png', side: '/mockups/tshirt_side.png' },
+              'RAGLAN':  { front: '/mockups/v_raglan_front.png', back: '/mockups/v_raglan_back.png', side: '/mockups/raglan_side.png' },
+              'POLO':    { front: '/mockups/v_polo_front.png', back: '/mockups/v_polo_back.png', side: '/mockups/polo_side.png' },
+            };
+            const imgs = mockups[garmentType] || mockups['RAGLAN'];
+            return (
+              <div className="shrink-0 border-t border-white/5 bg-[#0a0e1a]/60 px-3 py-2 flex items-center justify-center gap-4">
+                {(['front', 'back', 'side'] as const).map((s) => (
+                  <button key={s} onClick={() => setSide(s)}
+                    className={`flex flex-col items-center gap-1 transition-all ${side === s ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+                  >
+                    <div className={`w-14 h-14 rounded-lg border overflow-hidden ${side === s ? 'border-[#7dd3fc] ring-2 ring-[#7dd3fc]/20' : 'border-white/10'} bg-white`}>
+                      <Image src={imgs[s]} alt={s} width={56} height={56} unoptimized
+                        className="w-full h-full object-contain" />
                     </div>
-                  )}
-                </div>
-                <span className={`text-[7px] font-black uppercase tracking-wider ${side === s ? 'text-[#7dd3fc]' : 'text-gray-500'}`}>{s.toUpperCase()}</span>
-              </button>
-            ))}
-          </div>
+                    <span className={`text-[7px] font-black uppercase tracking-wider ${side === s ? 'text-[#7dd3fc]' : 'text-gray-500'}`}>{s.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
         </aside>
 
         {/* Mobile: backdrop to dismiss panel */}

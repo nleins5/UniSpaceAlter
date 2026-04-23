@@ -124,6 +124,85 @@ body::after {
   background: transparent;
   overflow: hidden;
 }
+
+/* ─── Glacier Design System ─── */
+/* Frozen Light — ice-blue (#7dd3fc) glassmorphism tokens */
+
+/* Glass surfaces */
+.gl-panel {
+  background: rgba(15, 21, 36, 0.75);
+  border: 1px solid rgba(125, 211, 252, 0.1);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.gl-panel-deep {
+  background: rgba(10, 14, 26, 0.95);
+  border: 1px solid rgba(125, 211, 252, 0.08);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+.gl-surface {
+  background: rgba(10, 14, 26, 0.6);
+  border: 1px solid rgba(125, 211, 252, 0.08);
+}
+.gl-surface-mid {
+  background: rgba(15, 21, 36, 0.6);
+  border: 1px solid rgba(125, 211, 252, 0.08);
+}
+.gl-input {
+  background: rgba(10, 14, 26, 0.8);
+  border: 1px solid rgba(125, 211, 252, 0.15);
+}
+.gl-input-main {
+  background: rgba(15, 21, 36, 0.75);
+  border: 1px solid rgba(125, 211, 252, 0.15);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+/* Borders */
+.gl-border { border: 1px solid rgba(125, 211, 252, 0.1); }
+.gl-border-bright { border: 1px solid rgba(125, 211, 252, 0.15); }
+.gl-border-dim { border: 1px solid rgba(125, 211, 252, 0.08); }
+.gl-border-accent { border: 1px solid rgba(125, 211, 252, 0.25); }
+.gl-border-top { border-top: 1px solid rgba(125, 211, 252, 0.08); }
+
+/* Active selected state */
+.gl-active {
+  background: rgba(125, 211, 252, 0.1);
+  border: 1px solid rgba(125, 211, 252, 0.3);
+}
+.gl-active-glow {
+  background: rgba(125, 211, 252, 0.08);
+  border: 1px solid rgba(125, 211, 252, 0.2);
+}
+.gl-hover-ring:hover { box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.2); }
+.gl-active-ring { box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.4); }
+
+/* Icon/accent containers */
+.gl-icon-bg { background: rgba(125, 211, 252, 0.1); }
+.gl-icon-bg-dim { background: rgba(125, 211, 252, 0.05); }
+.gl-accent-badge {
+  background: #7dd3fc;
+  color: #0a0e1a;
+  box-shadow: 0 0 12px rgba(125, 211, 252, 0.3);
+}
+.gl-tint-line { border: 1px solid rgba(125, 211, 252, 0.08); }
+.gl-dashed-sep { border-top: 1px dashed rgba(125, 211, 252, 0.1); }
+
+/* Bottom bar */
+.gl-bottom-bar {
+  background: rgba(10, 14, 26, 0.95);
+  border-top: 1px solid rgba(125, 211, 252, 0.08);
+}
+
+/* Side picker active thumbnail */
+.gl-thumb-active {
+  border: 2px solid #7dd3fc;
+  box-shadow: 0 0 16px rgba(125, 211, 252, 0.3);
+}
+.gl-thumb-idle { border: 1px solid rgba(125, 211, 252, 0.15); }
+
 /* ═══════════════════════════════════════════════════════
    GENERAL UI COMPONENTS (Landing page, Order page, etc.)
    ═══════════════════════════════════════════════════════ */

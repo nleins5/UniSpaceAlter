@@ -112,7 +112,7 @@ function TShirtSVG({ color, side = "front", garmentType = "RAGLAN" }: { color: s
 
   return (
     <div ref={containerRef} className="w-full h-full">
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+      <canvas ref={canvasRef} className="block w-full h-full" />
     </div>
   );
 }
@@ -1010,29 +1010,29 @@ export default function DesignPage() {
         </section>
 
         {/* ── VERTICAL ICON TOOLBAR — Glacier glass strip ── */}
-        <div className="hidden md:flex flex-col items-center py-3 px-0 gap-2 shrink-0 w-[44px]" style={{background:'rgba(10,14,26,0.95)',borderLeft:'1px solid rgba(125,211,252,0.08)'}}>
+        <div className="hidden md:flex flex-col items-center py-3 px-0 gap-2 shrink-0 w-[44px] gl-panel-deep">
           <button onClick={() => setActiveTab(prev => prev === 'ai' ? null : 'ai')}
             className={`w-8 h-8 flex items-center justify-center transition-all text-[9px] font-black rounded-full ${
-              activeTab === 'ai' ? 'text-[#0a0e1a]' : 'text-sky-400/60 hover:text-sky-300'
-            }`} style={activeTab==='ai'?{background:'#7dd3fc',boxShadow:'0 0 12px rgba(125,211,252,0.3)'}:{}} title="AI Generate">
+              activeTab === 'ai' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-sky-400/60 hover:text-sky-300'
+            }`} title="AI Generate">
             <Zap size={14} />
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'assets' ? null : 'assets')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'assets' ? 'text-[#0a0e1a]' : 'text-sky-400/60 hover:text-sky-300'
-            }`} style={activeTab==='assets'?{background:'#7dd3fc',boxShadow:'0 0 12px rgba(125,211,252,0.3)'}:{}} title="Design">
+              activeTab === 'assets' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-sky-400/60 hover:text-sky-300'
+            }`} title="Design">
             <ImageIcon size={14} />
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'layers' ? null : 'layers')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'layers' ? 'text-[#0a0e1a]' : 'text-sky-400/60 hover:text-sky-300'
-            }`} style={activeTab==='layers'?{background:'#7dd3fc',boxShadow:'0 0 12px rgba(125,211,252,0.3)'}:{}} title="Text">
+              activeTab === 'layers' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-sky-400/60 hover:text-sky-300'
+            }`} title="Text">
             <span className="text-[13px] font-black">T</span>
           </button>
           <button onClick={() => setActiveTab(prev => prev === 'color' ? null : 'color')}
             className={`w-8 h-8 flex items-center justify-center transition-all rounded-full ${
-              activeTab === 'color' ? 'text-[#0a0e1a]' : 'text-sky-400/60 hover:text-sky-300'
-            }`} style={activeTab==='color'?{background:'#7dd3fc',boxShadow:'0 0 12px rgba(125,211,252,0.3)'}:{}} title="Palette">
+              activeTab === 'color' ? 'text-[#0a0e1a] gl-accent-badge' : 'text-sky-400/60 hover:text-sky-300'
+            }`} title="Palette">
             <PaletteIcon size={14} />
           </button>
           <div className="flex-1" />
@@ -1047,8 +1047,8 @@ export default function DesignPage() {
           flex-1 md:h-full flex flex-col overflow-hidden
           transition-transform duration-300 z-40 md:z-auto
           ${activeTab !== null ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
-          md:translate-y-0 h-[72vh] md:h-full
-        `} style={{background:'rgba(10,14,26,0.97)',borderLeft:'1px solid rgba(125,211,252,0.08)',backdropFilter:'blur(24px)'}}>
+          md:translate-y-0 h-[72vh] md:h-full gl-panel-deep
+        `}>
           {/* Mobile drag handle + close */}
           <div className="flex items-center justify-between px-4 pt-3 pb-1 md:hidden shrink-0">
             <div className="w-10 h-1 bg-white/20 rounded-full mx-auto absolute left-1/2 -translate-x-1/2" />
@@ -1059,7 +1059,7 @@ export default function DesignPage() {
           </div>
 
           {/* Garment type tabs — Glacier style */}
-          <div className="flex px-2 pt-2.5 shrink-0 gap-1.5" style={{background:'rgba(10,14,26,0.9)',borderBottom:'1px solid rgba(125,211,252,0.06)'}}>
+          <div className="flex px-2 pt-2.5 shrink-0 gap-1.5 gl-panel-deep" style={{borderBottom:'1px solid rgba(125,211,252,0.06)'}}>
             {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
               <button key={type}
                 onClick={() => setGarmentType(type)}
@@ -1075,7 +1075,7 @@ export default function DesignPage() {
           </div>
 
           {/* Tab bar — Glacier ice-blue underline */}
-          <div className="flex px-2 pt-1.5 shrink-0 gap-0" style={{background:'rgba(10,14,26,0.9)',borderBottom:'1px solid rgba(125,211,252,0.08)'}}>
+          <div className="flex px-2 pt-1.5 shrink-0 gap-0 gl-panel-deep" style={{borderBottom:'1px solid rgba(125,211,252,0.08)'}}>
             {([
               { id: "ai", icon: Zap, label: "AI GENERATE" },
               { id: "assets", icon: ImageIcon, label: "DESIGN" },
@@ -1096,7 +1096,7 @@ export default function DesignPage() {
           </div>
 
           {/* Content area — glass surface */}
-          <div className="flex-1 overflow-y-auto scrollbar-hide p-3" style={{background:'rgba(15,21,36,0.6)'}}>
+          <div className="flex-1 overflow-y-auto scrollbar-hide p-3 gl-surface-mid">
 
             {activeTab === "ai" && (
               <div className="flex flex-col gap-4 h-full">
@@ -1112,13 +1112,11 @@ export default function DesignPage() {
                     { accent: '#7C3AED', label: 'PAPER',  bg: 'light', color: '#E8E4DD' },
                   ].map((card, idx) => (
                     <button key={idx}
-                      className="group relative overflow-hidden hover:scale-[1.03] active:scale-[0.98] transition-all flex flex-col"
-                      style={{background:'rgba(15,21,36,0.75)',border:'1px solid rgba(125,211,252,0.1)',backdropFilter:'blur(16px)'}}
+                      className="group relative overflow-hidden hover:scale-[1.03] active:scale-[0.98] transition-all flex flex-col gl-panel"
                       title={`Apply ${card.label} — ${card.color}`}
                       onClick={() => setTshirtColor(card.color)}
                     >
-                      <div className="w-full py-1 px-2 text-[8px] font-black uppercase tracking-[0.15em] text-center text-[#0a0e1a]"
-                        style={{ background: '#7dd3fc' }}>
+                      <div className="w-full py-1 px-2 text-[8px] font-black uppercase tracking-[0.15em] text-center text-[#0a0e1a] gl-accent-badge">
                         NEXT PLAYER
                       </div>
                       {/* Mockup thumbnails — side-by-side shirts, matching active garment type */}
@@ -1146,9 +1144,9 @@ export default function DesignPage() {
                         { }
                         <span className="text-[8px] font-black uppercase tracking-wider text-sky-300">{card.label}</span>
                       </div>
-                      <div className="px-2 pb-2 flex items-center justify-between pt-1" style={{borderTop:'1px solid rgba(125,211,252,0.08)'}}>
+                      <div className="px-2 pb-2 flex items-center justify-between pt-1 gl-border-top">
                         <span className="text-[6px] font-black uppercase text-sky-400/40 tracking-wider leading-tight">UNISPACE<br/>VARIOUS STYLES</span>
-                        <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{background:'rgba(125,211,252,0.1)'}}>
+                        <div className="w-5 h-5 rounded-md flex items-center justify-center gl-icon-bg">
                           <svg width="8" height="8" viewBox="0 0 24 24" fill="#7dd3fc"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         </div>
                       </div>
@@ -1166,13 +1164,12 @@ export default function DesignPage() {
                   {messages.filter(m => m.role === "ai").flatMap(m => m.images || []).map((img) => (
                     <button key={img.id}
                       onClick={() => handleDropImage(img, 120, 150)}
-                      className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col"
-                      style={{background:'rgba(15,21,36,0.75)',border:'1px solid rgba(125,211,252,0.15)'}}
+                      className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col gl-panel gl-border-bright"
                       draggable
                       onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(img))}
                       title={`Add ${img.label}`}
                     >
-                      <div className="w-full py-1 px-2 text-[8px] font-black text-[#0a0e1a] uppercase tracking-[0.15em] text-center" style={{background:'#7dd3fc'}}>
+                      <div className="w-full py-1 px-2 text-[8px] font-black text-[#0a0e1a] uppercase tracking-[0.15em] text-center gl-accent-badge">
                         AI GENERATED
                       </div>
                       <div className="relative aspect-[4/3] w-full">
@@ -1189,7 +1186,7 @@ export default function DesignPage() {
                 </div>
 
                 {isLoading && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg" style={{background:'rgba(125,211,252,0.05)',border:'1px solid rgba(125,211,252,0.1)'}}>
+                  <div className="flex items-center gap-2 p-3 rounded-lg gl-icon-bg-dim gl-border">
                     <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" />
                     <span className="text-[9px] font-black uppercase text-sky-400/60">Generating...</span>
                   </div>
@@ -1201,8 +1198,7 @@ export default function DesignPage() {
                     value={chatInput} onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                     placeholder="Describe your design idea..."
-                    className="w-full px-4 py-3 text-[11px] outline-none transition-all pr-12 text-sky-100 placeholder:text-sky-400/30 rounded-xl"
-                    style={{background:'rgba(15,21,36,0.75)',border:'1px solid rgba(125,211,252,0.15)',backdropFilter:'blur(16px)'}}
+                    className="w-full px-4 py-3 text-[11px] outline-none transition-all pr-12 text-sky-100 placeholder:text-sky-400/30 rounded-xl gl-input-main"
                   />
                   <button
                     onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
@@ -1218,13 +1214,13 @@ export default function DesignPage() {
             )}
 
             {activeTab === "assets" && (
-              <div className="p-4 flex flex-col gap-5 animate-in fade-in duration-300 rounded-xl" style={{background:'rgba(15,21,36,0.75)',border:'1px solid rgba(125,211,252,0.1)',backdropFilter:'blur(16px)'}}>
+              <div className="p-4 flex flex-col gap-5 animate-in fade-in duration-300 rounded-xl gl-panel">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="w-8 h-5 flex items-center justify-center text-[7px] font-black text-sky-400/40" style={{border:'1px solid rgba(125,211,252,0.15)'}}>000</div>
-                  <div className="flex-1 h-px" style={{borderTop:'1px dashed rgba(125,211,252,0.1)'}} />
-                  <div className="px-3 py-1 text-[8px] font-black uppercase text-sky-300/70 tracking-[0.15em]" style={{border:'1px solid rgba(125,211,252,0.15)'}}>FONT PAIRING GUIDE</div>
-                  <div className="flex-1 h-px" style={{borderTop:'1px dashed rgba(125,211,252,0.1)'}} />
-                  <div className="w-8 h-5 flex items-center justify-center text-[7px] font-black text-sky-400/40" style={{border:'1px solid rgba(125,211,252,0.15)'}}>000</div>
+                  <div className="w-8 h-5 flex items-center justify-center text-[7px] font-black text-sky-400/40 gl-border-bright">000</div>
+                  <div className="flex-1 h-px gl-dashed-sep" />
+                  <div className="px-3 py-1 text-[8px] font-black uppercase text-sky-300/70 tracking-[0.15em] gl-border-bright">FONT PAIRING GUIDE</div>
+                  <div className="flex-1 h-px gl-dashed-sep" />
+                  <div className="w-8 h-5 flex items-center justify-center text-[7px] font-black text-sky-400/40 gl-border-bright">000</div>
                 </div>
 
                 {/* Editable text input */}
@@ -1235,8 +1231,7 @@ export default function DesignPage() {
                     value={fontPreviewText}
                     onChange={(e) => setFontPreviewText(e.target.value)}
                     placeholder="Type here..."
-                    className="w-full px-3 py-2 text-sm font-medium focus:outline-none text-sky-100 placeholder:text-sky-400/30 rounded-lg"
-                    style={{background:'rgba(10,14,26,0.8)',border:'1px solid rgba(125,211,252,0.15)'}}
+                    className="w-full px-3 py-2 text-sm font-medium focus:outline-none text-sky-100 placeholder:text-sky-400/30 rounded-lg gl-input"
                   />
                 </div>
 
@@ -1262,8 +1257,7 @@ export default function DesignPage() {
                         }));
                       }}
                       onClick={() => handleAddText(item.text, item.font)}
-                      className="group cursor-grab active:cursor-grabbing px-4 py-3 transition-all flex flex-col gap-1 rounded-lg"
-                      style={{background:'rgba(10,14,26,0.6)',border:'1px solid rgba(125,211,252,0.08)'}}
+                      className="group cursor-grab active:cursor-grabbing px-4 py-3 transition-all flex flex-col gap-1 rounded-lg gl-surface"
                     >
                       <div
                         className="leading-tight text-sky-100 group-hover:text-sky-300 transition-colors truncate"
@@ -1292,8 +1286,7 @@ export default function DesignPage() {
                         }));
                       }}
                       onClick={() => handleAddText(fontPreviewText || font, font)}
-                      className="px-3 py-1.5 text-[8px] font-black uppercase cursor-grab active:cursor-grabbing transition-all text-sky-300/70 rounded"
-                      style={{border:'1px solid rgba(125,211,252,0.15)',fontFamily:font}}
+                      className="px-3 py-1.5 text-[8px] font-black uppercase cursor-grab active:cursor-grabbing transition-all text-sky-300/70 rounded gl-border-bright"
                     >
                       {font}
                     </div>
@@ -1305,7 +1298,7 @@ export default function DesignPage() {
             {activeTab === "color" && (
               <div className="space-y-3 animate-in fade-in duration-300">
                 <span className="text-[8px] font-black uppercase tracking-widest text-sky-400/50 block">Click a color to apply to shirt</span>
-                <div className="flex items-center gap-2 p-2 rounded-lg" style={{background:'rgba(125,211,252,0.08)',border:'1px solid rgba(125,211,252,0.2)'}}>
+                <div className="flex items-center gap-2 p-2 rounded-lg gl-active-glow">
                   <div className="w-6 h-6 shrink-0 rounded" style={{border:'2px solid rgba(125,211,252,0.3)'}} ref={(el) => { if (el) el.style.setProperty('background-color', tshirtColor); }} />
                   <span className="text-[8px] font-black uppercase text-sky-300 tracking-[0.15em]">Active: {tshirtColor}</span>
                 </div>
@@ -1318,9 +1311,8 @@ export default function DesignPage() {
                 ].map(c => (
                   <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={`Apply ${c.name}`}
                     className={`w-full flex items-center gap-3 p-2.5 transition-all rounded-lg ${
-                      tshirtColor === c.hex ? 'ring-2 ring-sky-400/40' : 'hover:ring-1 hover:ring-sky-400/20'
+                      tshirtColor === c.hex ? 'ring-2 ring-sky-400/40 gl-active' : 'hover:ring-1 hover:ring-sky-400/20 gl-surface-mid'
                     }`}
-                    style={tshirtColor===c.hex?{background:'rgba(125,211,252,0.1)',border:'1px solid rgba(125,211,252,0.3)'}:{background:'rgba(15,21,36,0.6)',border:'1px solid rgba(125,211,252,0.08)'}}
                   >
                     <div className="w-8 h-8 shrink-0 rounded" style={{border:'1px solid rgba(125,211,252,0.15)'}} ref={(el) => { if (el) el.style.setProperty('background-color', c.hex); }} />
                     <div className="text-left">
@@ -1341,9 +1333,8 @@ export default function DesignPage() {
                   elements.slice().reverse().map((el) => (
                     <div key={el.id} onClick={() => setSelectedId(el.id)}
                       className={`flex items-center gap-3 p-3 cursor-pointer transition-all rounded-lg ${
-                        selectedId === el.id ? 'ring-2 ring-sky-400/40' : 'hover:ring-1 hover:ring-sky-400/20'
-                      }`}
-                      style={selectedId===el.id?{background:'rgba(125,211,252,0.1)',border:'1px solid rgba(125,211,252,0.25)'}:{background:'rgba(15,21,36,0.6)',border:'1px solid rgba(125,211,252,0.08)'}}>
+                        selectedId === el.id ? 'ring-2 ring-sky-400/40 gl-active' : 'hover:ring-1 hover:ring-sky-400/20 gl-surface-mid'
+                      }`}>
                       <div className="flex-1 min-w-0">
                         <div className="text-[9px] font-black uppercase truncate text-sky-100">{el.label || el.text}</div>
                         <div className="text-[7px] font-mono text-sky-400/40">{el.type} / {el.side}</div>
@@ -1365,13 +1356,14 @@ export default function DesignPage() {
             };
             const imgs = mockups[garmentType] || mockups['RAGLAN'];
             return (
-              <div className="shrink-0 px-4 py-3 flex items-center justify-center gap-6" style={{borderTop:'1px solid rgba(125,211,252,0.08)',background:'rgba(10,14,26,0.95)'}}>
+              <div className="shrink-0 px-4 py-3 flex items-center justify-center gap-6 gl-bottom-bar">
                 {(['front', 'back', 'side'] as const).map((s) => (
                   <button key={s} onClick={() => setSide(s)}
                     className={`flex flex-col items-center gap-1.5 transition-all ${side === s ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-70 hover:scale-[1.02]'}`}
                   >
-                    <div className={`w-16 h-16 overflow-hidden transition-all bg-white rounded`}
-                      style={side===s?{border:'2px solid #7dd3fc',boxShadow:'0 0 16px rgba(125,211,252,0.3)'}:{border:'1px solid rgba(125,211,252,0.15)'}}>
+                    <div className={`w-16 h-16 overflow-hidden transition-all bg-white rounded ${
+                        side === s ? 'gl-thumb-active' : 'gl-thumb-idle'
+                      }`}>
                       <Image src={imgs[s]} alt={s} width={64} height={64} unoptimized
                         className="w-full h-full object-contain p-0.5" />
                     </div>

@@ -893,41 +893,22 @@ export default function DesignPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Auto-load AI design suggestions on mount ──────────────────
-  const SUGGESTION_PROMPTS = [
-    "logo lớp A5 áo lớp ngầu 2026 varsity streetwear",
-    "mascot rồng dragon ngầu class jersey",
-    "galaxy cosmic y2k aesthetic neon"
+  // ── AI design suggestions — pre-baked static images (instant, never fail) ──
+  const STATIC_SUGGESTIONS: AIImage[] = [
+    { id: "sug-varsity", label: "Varsity Logo", url: "/suggestions/s1.jpg" },
+    { id: "sug-dragon", label: "Dragon Mascot", url: "/suggestions/s2.jpg" },
+    { id: "sug-galaxy", label: "Galaxy Y2K", url: "/suggestions/s3.jpg" },
   ];
 
   const loadSuggestions = useCallback(async () => {
     if (suggestionsLoading) return;
     setSuggestionsLoading(true);
-    try {
-      const allImages: AIImage[] = [];
-      // Sequential with stagger — avoid Pollinations rate-limit
-      for (let i = 0; i < SUGGESTION_PROMPTS.length; i++) {
-        if (i > 0) await new Promise(r => setTimeout(r, 1500)); // 1.5s between requests
-        try {
-          const res = await fetch("/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: SUGGESTION_PROMPTS[i] }),
-          });
-          const data = await res.json();
-          if (data.images) {
-            allImages.push(...data.images);
-            // Show images progressively as each one arrives
-            setSuggestedDesigns(prev => {
-              const existingIds = new Set(prev.map(p => p.id));
-              const newImgs = data.images.filter((img: AIImage) => !existingIds.has(img.id));
-              return [...prev, ...newImgs];
-            });
-          }
-        } catch { /* skip failed suggestion */ }
-      }
-    } catch (err) { console.error("Suggestion load error:", err); }
-    finally { setSuggestionsLoading(false); }
+    // Start with static images immediately
+    setSuggestedDesigns(prev => {
+      if (prev.length === 0) return STATIC_SUGGESTIONS;
+      return prev;
+    });
+    setSuggestionsLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestionsLoading]);
 
@@ -938,6 +919,7 @@ export default function DesignPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   // ── Slot picker state ─────────────────────────────────────
   const [slotPicker, setSlotPicker] = useState<{ image: AIImage } | null>(null);
@@ -2001,10 +1983,12 @@ export default function DesignPage() {
                           AI GENERATED
                         </div>
                         <div className="relative aspect-square w-full overflow-hidden bg-white/5 flex items-center justify-center">
-                          {img.url.startsWith('data:') ? (
-                            <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-contain p-2" />
+                          {img.url.startsWith('data:') || img.url.startsWith('/suggestions/') ? (
+                            // Static local image — always works
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={img.url} alt={img.label} className="w-full h-full object-contain p-2" />
                           ) : (
-                            // External Pollinations URL — plain img with spinner overlay
+                            // External Pollinations URL — proxy with loading spinner
                             <AIImageCard src={img.url} alt={img.label} />
                           )}
                         </div>

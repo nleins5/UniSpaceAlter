@@ -738,8 +738,7 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
         key={imgSrc}
         src={imgSrc}
         alt={alt}
-        className="w-full h-full object-contain p-2 transition-opacity duration-500"
-        style={{ opacity: loaded ? 1 : 0 }}
+        className={`w-full h-full object-contain p-2 transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
         onError={handleError}
       />

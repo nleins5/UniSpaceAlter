@@ -177,20 +177,11 @@ export default function LoginPage() {
 
           {/* AI Credits banner */}
           {aiCreditsMessage && (
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.10))',
-              border: '1px solid rgba(139,92,246,0.3)',
-              borderRadius: '12px',
-              padding: '12px 16px',
-              margin: '16px 16px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-            }}>
-              <span style={{ fontSize: '20px' }}>⚡</span>
+            <div className="login-ai-credits-banner">
+              <span className="login-ai-credits-icon">⚡</span>
               <div>
-                <div style={{ fontSize: '11px', fontWeight: 800, color: '#a78bfa', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>AI Credits hết</div>
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>Đăng nhập để tiếp tục sử dụng AI Design miễn phí</div>
+                <div className="login-ai-credits-title">AI Credits hết</div>
+                <div className="login-ai-credits-desc">Đăng nhập để tiếp tục sử dụng AI Design miễn phí</div>
               </div>
             </div>
           )}

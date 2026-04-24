@@ -793,8 +793,24 @@ export default function DesignPage() {
     } catch { /* ignore */ }
   }, []);
 
+  const MAX_FREE_GENS = 2;
+
   const checkGenLimit = (): boolean => {
-    // Allow unlimited AI generation for all users (guests included)
+    // Logged-in users: unlimited generation
+    if (isUserLoggedIn) {
+      genCountRef.current += 1;
+      const next = genCountRef.current;
+      setGenCount(next);
+      sessionStorage.setItem('ai_gen_count', String(next));
+      return true;
+    }
+    // Guest users: 2 free generations, then require login
+    if (genCountRef.current >= MAX_FREE_GENS) {
+      // Store return URL so login can redirect back
+      sessionStorage.setItem('login_redirect', '/design');
+      router.push('/login?reason=ai_credits');
+      return false;
+    }
     genCountRef.current += 1;
     const next = genCountRef.current;
     setGenCount(next);

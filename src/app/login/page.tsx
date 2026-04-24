@@ -9,6 +9,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
   const [mounted, setMounted] = useState(false);
+  const [aiCreditsMessage, setAiCreditsMessage] = useState(false);
 
   // Shared fields
   const [email, setEmail] = useState("");
@@ -22,7 +23,12 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [devOtp, setDevOtp] = useState("");
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    // Detect AI credits redirect
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reason') === 'ai_credits') setAiCreditsMessage(true);
+  }, []);
 
   const switchMode = (m: Mode) => {
     setMode(m);
@@ -44,11 +50,13 @@ export default function LoginPage() {
       if (data.user) {
         sessionStorage.setItem("user", JSON.stringify(data.user));
         sessionStorage.removeItem("ai_gen_count");
+        const redirect = sessionStorage.getItem('login_redirect');
+        sessionStorage.removeItem('login_redirect');
         if (data.user.admin) {
           sessionStorage.setItem("admin_logged_in", "1");
-          router.push("/admin");
+          router.push(redirect || "/admin");
         } else {
-          router.push("/dashboard");
+          router.push(redirect || "/design");
         }
       } else {
         setError(data.error || "AUTHENTICATION_FAILED // INVALID_CREDENTIALS");
@@ -166,6 +174,26 @@ export default function LoginPage() {
       <main className={`login-terminal-main ${mounted ? 'login-card-enter' : ''}`}>
         <div className="login-terminal-card">
           <div className="login-card-accent-line" />
+
+          {/* AI Credits banner */}
+          {aiCreditsMessage && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.10))',
+              border: '1px solid rgba(139,92,246,0.3)',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              margin: '16px 16px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}>
+              <span style={{ fontSize: '20px' }}>⚡</span>
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: '#a78bfa', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>AI Credits hết</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>Đăng nhập để tiếp tục sử dụng AI Design miễn phí</div>
+              </div>
+            </div>
+          )}
 
           {/* ═══ MODE TABS ═══ */}
           <div className="login-mode-tabs">

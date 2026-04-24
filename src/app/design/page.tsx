@@ -654,30 +654,38 @@ function DesignElementItem({
   );
 }
 
-// ─── AIImageCard — handles external Pollinations URLs with auto-retry ──────
+// ─── AIImageCard — proxies Pollinations URLs to avoid CORS/hotlink issues ──────
 function AIImageCard({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [attempt, setAttempt] = React.useState(0);
-  const [currentSrc, setCurrentSrc] = React.useState(src);
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 5;
+
+  // Build proxy URL — always route through our API to avoid CORS
+  const buildProxySrc = React.useCallback((seed?: number) => {
+    try {
+      const pollinationsUrl = new URL(src);
+      if (seed !== undefined) {
+        pollinationsUrl.searchParams.set('seed', String(seed));
+      }
+      return `/api/proxy-image?url=${encodeURIComponent(pollinationsUrl.toString())}`;
+    } catch {
+      return `/api/proxy-image?url=${encodeURIComponent(src)}`;
+    }
+  }, [src]);
+
+  const [proxySrc, setProxySrc] = React.useState(() => buildProxySrc());
 
   const retry = React.useCallback(() => {
     setError(false);
     setLoaded(false);
-    try {
-      const url = new URL(src);
-      url.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
-      setCurrentSrc(url.toString());
-    } catch {
-      setCurrentSrc(src + `&seed=${Math.floor(Math.random() * 99999)}`);
-    }
-  }, [src]);
+    setProxySrc(buildProxySrc(Math.floor(Math.random() * 99999)));
+  }, [buildProxySrc]);
 
   const handleError = React.useCallback(() => {
     if (attempt < MAX_RETRIES) {
       setAttempt(a => a + 1);
-      setTimeout(retry, 2000); // wait 2s before retry
+      setTimeout(retry, 3000);
     } else {
       setError(true);
     }
@@ -707,8 +715,8 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        key={currentSrc}
-        src={currentSrc}
+        key={proxySrc}
+        src={proxySrc}
         alt={alt}
         className="w-full h-full object-contain p-2 transition-opacity duration-500"
         style={{ opacity: loaded ? 1 : 0 }}

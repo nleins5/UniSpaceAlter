@@ -1,50 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Allowlisted domains — only proxy images from known safe hosts
-const ALLOWED_HOSTS = [
-  "oss.filenest.top",
-  "images.unsplash.com",
-  "oaidalleapiprodscus.blob.core.windows.net",
-];
+export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
-  if (!url) {
-    return NextResponse.json({ error: "Missing url param" }, { status: 400 });
-  }
-
-  let parsed: URL;
-  try {
-    parsed = new URL(url);
-  } catch {
+  if (!url || !url.startsWith("https://image.pollinations.ai/")) {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
-  }
-
-  // Security: only proxy allowed domains
-  const isAllowed = ALLOWED_HOSTS.some(
-    (h) => parsed.hostname === h || parsed.hostname.endsWith(`.${h}`)
-  );
-  if (!isAllowed) {
-    return NextResponse.json({ error: "Domain not allowed" }, { status: 403 });
   }
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const timeout = setTimeout(() => controller.abort(), 55000);
+
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "User-Agent": "UniSpace/1.0 image-proxy" },
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; UniSpace/1.0)",
+        "Accept": "image/webp,image/jpeg,image/*",
+      },
     });
     clearTimeout(timeout);
 
     if (!res.ok) {
-      return NextResponse.json({ error: `Upstream ${res.status}` }, { status: res.status });
+      return NextResponse.json({ error: "Upstream failed" }, { status: 502 });
     }
 
     const contentType = res.headers.get("content-type") || "image/jpeg";
-    const body = await res.arrayBuffer();
+    const buffer = await res.arrayBuffer();
 
-    return new NextResponse(body, {
+    return new NextResponse(buffer, {
       status: 200,
       headers: {
         "Content-Type": contentType,
@@ -52,10 +36,7 @@ export async function GET(req: NextRequest) {
         "Access-Control-Allow-Origin": "*",
       },
     });
-  } catch (err) {
-    return NextResponse.json(
-      { error: (err as Error).message?.slice(0, 100) || "Fetch failed" },
-      { status: 502 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Proxy failed" }, { status: 504 });
   }
 }

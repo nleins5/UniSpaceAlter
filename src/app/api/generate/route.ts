@@ -319,7 +319,7 @@ export async function POST(req: NextRequest) {
       const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
 
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 25000);
+      const timeout = setTimeout(() => controller.abort(), 10000);
       try {
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(timeout);

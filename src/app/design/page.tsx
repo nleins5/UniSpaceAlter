@@ -654,27 +654,43 @@ function DesignElementItem({
   );
 }
 
-// ─── AIImageCard — handles external Pollinations URLs with loading state ──────
+// ─── AIImageCard — handles external Pollinations URLs with auto-retry ──────
 function AIImageCard({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(false);
-  const [retrySrc, setRetrySrc] = React.useState(src);
+  const [attempt, setAttempt] = React.useState(0);
+  const [currentSrc, setCurrentSrc] = React.useState(src);
+  const MAX_RETRIES = 3;
 
-  const handleRetry = () => {
+  const retry = React.useCallback(() => {
     setError(false);
     setLoaded(false);
-    // Add cache-bust to force re-fetch
-    const url = new URL(src);
-    url.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
-    setRetrySrc(url.toString());
-  };
+    try {
+      const url = new URL(src);
+      url.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
+      setCurrentSrc(url.toString());
+    } catch {
+      setCurrentSrc(src + `&seed=${Math.floor(Math.random() * 99999)}`);
+    }
+  }, [src]);
+
+  const handleError = React.useCallback(() => {
+    if (attempt < MAX_RETRIES) {
+      setAttempt(a => a + 1);
+      setTimeout(retry, 2000); // wait 2s before retry
+    } else {
+      setError(true);
+    }
+  }, [attempt, retry]);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       {!loaded && !error && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
           <div className="w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-[9px] text-violet-400 font-bold uppercase tracking-wider">Generating...</span>
+          <span className="text-[9px] text-violet-400 font-bold uppercase tracking-wider">
+            {attempt > 0 ? `Retry ${attempt}/${MAX_RETRIES}...` : 'Generating...'}
+          </span>
         </div>
       )}
       {error && (
@@ -682,7 +698,7 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
           <span className="text-xl">⚠️</span>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); handleRetry(); }}
+            onClick={(e) => { e.stopPropagation(); setAttempt(0); retry(); }}
             className="text-[9px] text-violet-400 hover:text-violet-200 font-black uppercase tracking-wider border border-violet-500/40 rounded-lg px-2 py-1 hover:bg-violet-500/20 transition-all"
           >
             ↺ Retry
@@ -691,13 +707,13 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        key={retrySrc}
-        src={retrySrc}
+        key={currentSrc}
+        src={currentSrc}
         alt={alt}
         className="w-full h-full object-contain p-2 transition-opacity duration-500"
         style={{ opacity: loaded ? 1 : 0 }}
         onLoad={() => setLoaded(true)}
-        onError={() => setError(true)}
+        onError={handleError}
       />
     </div>
   );

@@ -781,39 +781,37 @@ export default function DesignPage() {
   const [genCount, setGenCount] = useState(0); // reactive display copy
 
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const isUserLoggedInRef = useRef(false); // ref so checkGenLimit always reads fresh value
 
-  // Restore gen count and login state from sessionStorage (client-only)
+  // Restore login state from sessionStorage (client-only)
+  // NOTE: gen count intentionally NOT restored — resets each page load (per-session tab)
   useEffect(() => {
-    const saved = sessionStorage.getItem('ai_gen_count');
-    if (saved) { const n = parseInt(saved, 10); genCountRef.current = n; setGenCount(n); }
     try {
       const u = sessionStorage.getItem('user');
-      if (u && JSON.parse(u)?.token) setIsUserLoggedIn(true);
+      if (u && JSON.parse(u)?.token) {
+        setIsUserLoggedIn(true);
+        isUserLoggedInRef.current = true;
+      }
     } catch { /* ignore */ }
   }, []);
 
   const MAX_FREE_GENS = 2;
 
   const checkGenLimit = (): boolean => {
-    // Logged-in users: unlimited generation
-    if (isUserLoggedIn) {
+    // Logged-in users: unlimited generation (use ref — never stale)
+    if (isUserLoggedInRef.current) {
       genCountRef.current += 1;
-      const next = genCountRef.current;
-      setGenCount(next);
-      sessionStorage.setItem('ai_gen_count', String(next));
+      setGenCount(genCountRef.current);
       return true;
     }
     // Guest users: 2 free generations, then require login
     if (genCountRef.current >= MAX_FREE_GENS) {
-      // Store return URL so login can redirect back
       sessionStorage.setItem('login_redirect', '/design');
       router.push('/login?reason=ai_credits');
       return false;
     }
     genCountRef.current += 1;
-    const next = genCountRef.current;
-    setGenCount(next);
-    sessionStorage.setItem('ai_gen_count', String(next));
+    setGenCount(genCountRef.current);
     return true;
   };
   const [zoom, setZoom] = useState(1);

@@ -658,23 +658,41 @@ function DesignElementItem({
 function AIImageCard({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(false);
+  const [retrySrc, setRetrySrc] = React.useState(src);
+
+  const handleRetry = () => {
+    setError(false);
+    setLoaded(false);
+    // Add cache-bust to force re-fetch
+    const url = new URL(src);
+    url.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
+    setRetrySrc(url.toString());
+  };
+
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       {!loaded && !error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
           <div className="w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
           <span className="text-[9px] text-violet-400 font-bold uppercase tracking-wider">Generating...</span>
         </div>
       )}
       {error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
           <span className="text-xl">⚠️</span>
-          <span className="text-[9px] text-red-400 font-bold uppercase">Failed</span>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleRetry(); }}
+            className="text-[9px] text-violet-400 hover:text-violet-200 font-black uppercase tracking-wider border border-violet-500/40 rounded-lg px-2 py-1 hover:bg-violet-500/20 transition-all"
+          >
+            ↺ Retry
+          </button>
         </div>
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={src}
+        key={retrySrc}
+        src={retrySrc}
         alt={alt}
         className="w-full h-full object-contain p-2 transition-opacity duration-500"
         style={{ opacity: loaded ? 1 : 0 }}

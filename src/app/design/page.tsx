@@ -654,42 +654,63 @@ function DesignElementItem({
   );
 }
 
-// ─── AIImageCard — proxies Pollinations URLs to avoid CORS/hotlink issues ──────
+// ─── AIImageCard — loads Pollinations URLs directly (no proxy needed for display) ──
 function AIImageCard({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [attempt, setAttempt] = React.useState(0);
-  const MAX_RETRIES = 5;
+  const MAX_RETRIES = 3;
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Build proxy URL — always route through our API to avoid CORS
-  const buildProxySrc = React.useCallback((seed?: number) => {
+  // Build URL with cache-busting seed on retry
+  const buildSrc = React.useCallback((retryNum: number) => {
+    if (retryNum === 0) return src;
     try {
-      const pollinationsUrl = new URL(src);
-      if (seed !== undefined) {
-        pollinationsUrl.searchParams.set('seed', String(seed));
-      }
-      return `/api/proxy-image?url=${encodeURIComponent(pollinationsUrl.toString())}`;
+      const u = new URL(src);
+      u.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
+      u.searchParams.set('_t', String(Date.now()));
+      return u.toString();
     } catch {
-      return `/api/proxy-image?url=${encodeURIComponent(src)}`;
+      return src;
     }
   }, [src]);
 
-  const [proxySrc, setProxySrc] = React.useState(() => buildProxySrc());
+  const [imgSrc, setImgSrc] = React.useState(() => buildSrc(0));
 
-  const retry = React.useCallback(() => {
-    setError(false);
-    setLoaded(false);
-    setProxySrc(buildProxySrc(Math.floor(Math.random() * 99999)));
-  }, [buildProxySrc]);
+  // Timeout: if image hasn't loaded in 25s, treat as error
+  React.useEffect(() => {
+    if (loaded || error) return;
+    timerRef.current = setTimeout(() => {
+      if (!loaded) {
+        if (attempt < MAX_RETRIES) {
+          setAttempt(a => a + 1);
+          setImgSrc(buildSrc(attempt + 1));
+        } else {
+          setError(true);
+        }
+      }
+    }, 25000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [imgSrc, loaded, error, attempt, buildSrc]);
 
   const handleError = React.useCallback(() => {
     if (attempt < MAX_RETRIES) {
-      setAttempt(a => a + 1);
-      setTimeout(retry, 3000);
+      const nextAttempt = attempt + 1;
+      setAttempt(nextAttempt);
+      // Stagger retries to avoid simultaneous hits
+      setTimeout(() => setImgSrc(buildSrc(nextAttempt)), 2000 * nextAttempt);
     } else {
       setError(true);
     }
-  }, [attempt, retry]);
+  }, [attempt, buildSrc]);
+
+  const handleRetry = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAttempt(0);
+    setError(false);
+    setLoaded(false);
+    setImgSrc(buildSrc(1));
+  }, [buildSrc]);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
@@ -706,7 +727,7 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
           <span className="text-xl">⚠️</span>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setAttempt(0); retry(); }}
+            onClick={handleRetry}
             className="text-[9px] text-violet-400 hover:text-violet-200 font-black uppercase tracking-wider border border-violet-500/40 rounded-lg px-2 py-1 hover:bg-violet-500/20 transition-all"
           >
             ↺ Retry
@@ -715,12 +736,12 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        key={proxySrc}
-        src={proxySrc}
+        key={imgSrc}
+        src={imgSrc}
         alt={alt}
         className="w-full h-full object-contain p-2 transition-opacity duration-500"
         style={{ opacity: loaded ? 1 : 0 }}
-        onLoad={() => setLoaded(true)}
+        onLoad={() => { setLoaded(true); if (timerRef.current) clearTimeout(timerRef.current); }}
         onError={handleError}
       />
     </div>

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 60; // Vercel: allow up to 60s for AI generation
+
 const CF_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 const T8STAR_URL = "https://ai.t8star.cn/v1/images/generations";
 const T8STAR_MODEL = "gpt-image-1";
@@ -144,10 +146,9 @@ async function generateWithCloudflare(prompt: string) {
     .map(r => r.value);
 }
 // ── Pollinations.ai (FREE — no API key needed) ───────────────
+// Only 2 styles to stay within Vercel's 60s limit
 const POLLINATIONS_STYLES = [
   { label: "Original",   suffix: ", flat vector logo, isolated on white background, bold lines, vivid colors, printable garment artwork, no shadow" },
-  { label: "Streetwear", suffix: ", streetwear graphic art, bold urban style, high contrast, t-shirt print design, white background, no background" },
-  { label: "Minimal",    suffix: ", minimalist flat vector logo, clean sharp shapes, 2-color palette, white background, no shadow, no texture" },
   { label: "Vintage Tem",suffix: ", vintage retro badge, screen print aesthetic, distressed texture, white background, circular stamp design" },
 ];
 
@@ -163,7 +164,7 @@ async function generateWithPollinations(prompt: string) {
     const encoded = encodeURIComponent(fullPrompt);
     const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
     try {
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeout);

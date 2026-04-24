@@ -904,23 +904,28 @@ export default function DesignPage() {
     if (suggestionsLoading) return;
     setSuggestionsLoading(true);
     try {
-      // loadSuggestions now respects gen limit
-      const results = await Promise.allSettled(
-        SUGGESTION_PROMPTS.map(prompt =>
-          fetch("/api/generate", {
+      const allImages: AIImage[] = [];
+      // Sequential with stagger — avoid Pollinations rate-limit
+      for (let i = 0; i < SUGGESTION_PROMPTS.length; i++) {
+        if (i > 0) await new Promise(r => setTimeout(r, 1500)); // 1.5s between requests
+        try {
+          const res = await fetch("/api/generate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt }),
-          }).then(r => r.json())
-        )
-      );
-      const allImages: AIImage[] = [];
-      for (const r of results) {
-        if (r.status === "fulfilled" && r.value.images) {
-          allImages.push(...r.value.images);
-        }
+            body: JSON.stringify({ prompt: SUGGESTION_PROMPTS[i] }),
+          });
+          const data = await res.json();
+          if (data.images) {
+            allImages.push(...data.images);
+            // Show images progressively as each one arrives
+            setSuggestedDesigns(prev => {
+              const existingIds = new Set(prev.map(p => p.id));
+              const newImgs = data.images.filter((img: AIImage) => !existingIds.has(img.id));
+              return [...prev, ...newImgs];
+            });
+          }
+        } catch { /* skip failed suggestion */ }
       }
-      if (allImages.length > 0) setSuggestedDesigns(allImages);
     } catch (err) { console.error("Suggestion load error:", err); }
     finally { setSuggestionsLoading(false); }
   // eslint-disable-next-line react-hooks/exhaustive-deps

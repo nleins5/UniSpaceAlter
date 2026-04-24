@@ -689,7 +689,7 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
           setError(true);
         }
       }
-    }, 25000);
+    }, 10000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [imgSrc, loaded, error, attempt, buildSrc]);
 

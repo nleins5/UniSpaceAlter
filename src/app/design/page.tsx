@@ -809,6 +809,10 @@ export default function DesignPage() {
         body: JSON.stringify({ prompt: content }),
       });
       const data = await res.json();
+      if (data.images && data.images.length > 0) {
+        // Add to suggestedDesigns so they appear in the AI tab grid immediately
+        setSuggestedDesigns(prev => [...data.images, ...prev]);
+      }
       const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Protocol Engaged.`, images: data.images };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err) { console.error(err); } finally { setIsLoading(false); }

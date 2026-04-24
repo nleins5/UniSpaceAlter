@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.filenest.top" },
       { protocol: "https", hostname: "oaidalleapiprodscus.blob.core.windows.net" },
       { protocol: "https", hostname: "*.blob.core.windows.net" },
+      { protocol: "https", hostname: "image.pollinations.ai" },
       ...supabasePatterns,
     ],
   },

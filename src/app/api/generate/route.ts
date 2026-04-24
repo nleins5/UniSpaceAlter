@@ -310,36 +310,22 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Priority 3: Pollinations.ai — 1 image only, no post-processing (URL-based, fast)
+    // Priority 3: Pollinations.ai — return URL directly, browser loads image (no server timeout)
     try {
       const enPrompt = translatePrompt(cleanPrompt);
       const seed = Math.floor(Math.random() * 99999);
-      const fullPrompt = `logo design for garment printing: ${enPrompt}, flat vector logo, white background, bold lines, vivid colors, printable t-shirt artwork, no shadow`;
+      const fullPrompt = `logo design for garment printing: ${enPrompt}, flat vector logo, white background, bold lines, vivid colors, printable t-shirt artwork, no shadow, no text`;
       const encoded = encodeURIComponent(fullPrompt);
-      const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
+      const imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
-      try {
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeout);
-        if (res.ok) {
-          const buffer = await res.arrayBuffer();
-          const base64 = Buffer.from(buffer).toString("base64");
-          const mime = res.headers.get("content-type") || "image/jpeg";
-          const dataUrl = `data:${mime};base64,${base64}`;
-          return NextResponse.json({
-            images: [{ id: `poll-${Date.now()}`, label: "AI Design", url: dataUrl }],
-            isDemo: false,
-            method: "pollinations",
-          });
-        }
-      } catch {
-        clearTimeout(timeout);
-        console.log("Pollinations timed out, using SVG fallback");
-      }
+      // Return the URL directly — browser handles fetching the image, no server timeout
+      return NextResponse.json({
+        images: [{ id: `poll-${Date.now()}`, label: "AI Design", url: imageUrl }],
+        isDemo: false,
+        method: "pollinations",
+      });
     } catch (e) {
-      console.log("Pollinations failed:", (e as Error).message?.slice(0, 100));
+      console.log("Pollinations URL build failed:", (e as Error).message?.slice(0, 100));
     }
 
     // Last resort: Smart SVG (instant, no network)

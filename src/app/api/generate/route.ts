@@ -66,7 +66,7 @@ async function generateWithT8star(prompt: string): Promise<{ id: string; label: 
   console.log(`🔤 T8star: "${enPrompt.slice(0, 60)}..."`);
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000); // 15s hard cap
+  const timeout = setTimeout(() => controller.abort(), 6000); // 6s hard cap for <10s total
   try {
     const res = await fetch(T8STAR_URL, {
       method: "POST",
@@ -107,7 +107,7 @@ async function generateWithCloudflare(prompt: string) {
 
   const fetchOne = async (style: typeof CF_STYLES[0]): Promise<ImgResult | null> => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 6000);
     try {
       const res = await fetch(
         `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${CF_MODEL}`,
@@ -164,7 +164,7 @@ async function removeBackground(base64Image: string): Promise<string> {
     const rawBase64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, "");
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3s for fast fallback
 
     const res = await fetch("https://api.remove.bg/v1.0/removebg", {
       method: "POST",
@@ -242,32 +242,56 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    // Priority 1: T8star — gpt-image-1, best quality (works when account has credits)
+    // Try T8star and Cloudflare in parallel for speed (max 6s total)
     const t8Key = process.env.T8STAR_API_KEY;
-    if (t8Key) {
-      try {
-        const images = await generateWithT8star(cleanPrompt);
-        if (images.length > 0) {
-          const processed = await processImages(images);
-          return NextResponse.json({ images: processed, isDemo: false, method: "t8star" });
-        }
-      } catch (e) {
-        console.log("T8star failed:", (e as Error).message?.slice(0, 100));
-      }
-    }
-
-    // Priority 2: Cloudflare Workers AI — Flux model, free with account
     const accountId = process.env.CF_ACCOUNT_ID;
     const apiToken = process.env.CF_API_TOKEN;
+
+    const promises: Promise<{ images: { id: string; label: string; url: string }[]; method: string }>[] = [];
+
+    if (t8Key) {
+      const p = generateWithT8star(cleanPrompt)
+        .then(images => {
+          if (images.length === 0) throw new Error('no images from T8star');
+          return { images, method: 't8star' };
+        })
+        .catch(err => {
+          console.log("T8star promise failed:", err instanceof Error ? err.message : String(err));
+          throw err; // reject to skip
+        });
+      promises.push(p);
+    }
+
     if (accountId && apiToken && accountId !== "PASTE_YOUR_ACCOUNT_ID_HERE") {
+      const p = generateWithCloudflare(cleanPrompt)
+        .then(images => {
+          if (images.length === 0) throw new Error('no images from Cloudflare');
+          return { images, method: 'cloudflare' };
+        })
+        .catch(err => {
+          console.log("Cloudflare promise failed:", err instanceof Error ? err.message : String(err));
+          throw err; // reject to skip
+        });
+      promises.push(p);
+    }
+
+    if (promises.length > 0) {
       try {
-        const images = await generateWithCloudflare(cleanPrompt);
-        if (images.length > 0) {
-          const processed = await processImages(images);
-          return NextResponse.json({ images: processed, isDemo: false, method: "cloudflare" });
-        }
+        // Timeout after 6 seconds
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('generation timeout after 6s')), 6000)
+        );
+        const result = await Promise.any([...promises, timeoutPromise]) as { images: { id: string; label: string; url: string }[]; method: string };
+        // Process images (background removal)
+        const processed = await processImages(result.images);
+        return NextResponse.json({
+          images: processed,
+          isDemo: false,
+          method: result.method,
+        });
       } catch (e) {
-        console.log("CF failed:", (e as Error).message?.slice(0, 100));
+        console.log("T8star/Cloudflare both failed or timed out, falling back to Pollinations");
+        // Fall through to Pollinations
       }
     }
 

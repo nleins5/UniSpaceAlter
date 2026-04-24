@@ -654,6 +654,37 @@ function DesignElementItem({
   );
 }
 
+// ─── AIImageCard — handles external Pollinations URLs with loading state ──────
+function AIImageCard({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  return (
+    <div className="relative w-full h-full flex items-center justify-center">
+      {!loaded && !error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+          <div className="w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-[9px] text-violet-400 font-bold uppercase tracking-wider">Generating...</span>
+        </div>
+      )}
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+          <span className="text-xl">⚠️</span>
+          <span className="text-[9px] text-red-400 font-bold uppercase">Failed</span>
+        </div>
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-contain p-2 transition-opacity duration-500"
+        style={{ opacity: loaded ? 1 : 0 }}
+        onLoad={() => setLoaded(true)}
+        onError={() => setError(true)}
+      />
+    </div>
+  );
+}
+
 // ─── Main Design Page ──────────────────────────────────────────
 export default function DesignPage() {
   const router = useRouter();
@@ -1922,8 +1953,13 @@ export default function DesignPage() {
                           <Sparkles size={8} />
                           AI GENERATED
                         </div>
-                        <div className="relative aspect-square w-full overflow-hidden bg-white/5">
-                          <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-contain p-2" />
+                        <div className="relative aspect-square w-full overflow-hidden bg-white/5 flex items-center justify-center">
+                          {img.url.startsWith('data:') ? (
+                            <Image src={img.url} alt={img.label} width={200} height={200} unoptimized className="w-full h-full object-contain p-2" />
+                          ) : (
+                            // External Pollinations URL — plain img with spinner overlay
+                            <AIImageCard src={img.url} alt={img.label} />
+                          )}
                         </div>
                         <div className="px-2 py-1.5 flex items-center justify-between gl-border-top">
                           <span className="text-[10px] font-bold text-violet-300 tracking-wide truncate">{img.label}</span>

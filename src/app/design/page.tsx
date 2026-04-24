@@ -654,9 +654,9 @@ function DesignElementItem({
   );
 }
 
-// ─── AIImageCard — loads Pollinations URLs directly, no artificial timeout ──
-// Pollinations takes 15-30s to generate. Timeout-based retries kill working generations.
-// Strategy: let browser handle load naturally, only retry on actual onError.
+// ─── AIImageCard — smart routing: proxy for Pollinations, direct for local ──
+// Pollinations blocks direct <img> hotlinks → must route through /api/proxy-image.
+// Local assets (/suggestions/*) load directly.
 function AIImageCard({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(false);
@@ -664,35 +664,42 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
   const [elapsed, setElapsed] = React.useState(0);
   const MAX_RETRIES = 2;
 
-  // Elapsed seconds counter for visual feedback
+  const isPollinations = src.includes('image.pollinations.ai');
+
+  // Build the actual src — proxy Pollinations, direct for local
+  const buildSrc = React.useCallback((seed?: number) => {
+    if (!isPollinations) return src;
+    try {
+      const u = new URL(src);
+      if (seed !== undefined) u.searchParams.set('seed', String(seed));
+      return `/api/proxy-image?url=${encodeURIComponent(u.toString())}`;
+    } catch {
+      return `/api/proxy-image?url=${encodeURIComponent(src)}`;
+    }
+  }, [src, isPollinations]);
+
+  const [imgSrc, setImgSrc] = React.useState(() => buildSrc());
+
+  // Elapsed seconds counter
   React.useEffect(() => {
     if (loaded || error) return;
     const t = setInterval(() => setElapsed(s => s + 1), 1000);
     return () => clearInterval(t);
   }, [loaded, error]);
 
-  // Reset elapsed on src change
-  const [imgSrc, setImgSrc] = React.useState(src);
-
   const handleError = React.useCallback(() => {
     if (attempt < MAX_RETRIES) {
       const next = attempt + 1;
       setAttempt(next);
       setElapsed(0);
-      // Retry with same prompt but different seed after 2s delay
+      // Staggered retry: 3s, 6s — with new seed to avoid Pollinations cache
       setTimeout(() => {
-        try {
-          const u = new URL(src);
-          u.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
-          setImgSrc(u.toString());
-        } catch {
-          setImgSrc(src + (src.includes('?') ? '&' : '?') + '_r=' + Date.now());
-        }
-      }, 2000);
+        setImgSrc(buildSrc(Math.floor(Math.random() * 99999)));
+      }, 3000 * next);
     } else {
       setError(true);
     }
-  }, [attempt, src]);
+  }, [attempt, buildSrc]);
 
   const handleRetry = React.useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -700,14 +707,8 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
     setError(false);
     setLoaded(false);
     setElapsed(0);
-    try {
-      const u = new URL(src);
-      u.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
-      setImgSrc(u.toString());
-    } catch {
-      setImgSrc(src + (src.includes('?') ? '&' : '?') + '_r=' + Date.now());
-    }
-  }, [src]);
+    setImgSrc(buildSrc(Math.floor(Math.random() * 99999)));
+  }, [buildSrc]);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">

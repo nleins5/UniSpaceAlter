@@ -281,7 +281,10 @@ export async function POST(req: NextRequest) {
         const timeoutPromise = new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error('generation timeout after 6s')), 6000)
         );
-        const result = await Promise.any([...promises, timeoutPromise]) as { images: { id: string; label: string; url: string }[]; method: string };
+        const result = await Promise.race([
+          Promise.any(promises),
+          timeoutPromise
+        ]) as { images: { id: string; label: string; url: string }[]; method: string };
         // Process images (background removal)
         const processed = await processImages(result.images);
         return NextResponse.json({

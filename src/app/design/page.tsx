@@ -1979,7 +1979,7 @@ export default function DesignPage() {
                         <button
                           type="button"
                           onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                          disabled={isLoading || (!isUserLoggedIn && genCount >= 4)}
+                          disabled={isLoading}
                           title="Generate AI design"
                           className="w-12 h-12 flex items-center justify-center bg-white text-[#4c1d95] rounded-[16px] hover:shadow-[0_0_25px_rgba(255,255,255,0.8)] hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                         >

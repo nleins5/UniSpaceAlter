@@ -1316,8 +1316,10 @@ export default function DesignPage() {
           const shirtImg = await loadImg(shirtSrc);
           const imgRatio = shirtImg.width / shirtImg.height;
           const canvasRatio = EXPORT_W / EXPORT_H;
-          let drawW = EXPORT_W, drawH = EXPORT_H, drawX = 0, drawY = 0;
-          if (imgRatio > canvasRatio) { drawH = EXPORT_W / imgRatio; drawY = (EXPORT_H - drawH) / 2; }
+          // Top-aligned object-contain — matches on-screen TShirtSVG (dy=0)
+          let drawW = EXPORT_W, drawH = EXPORT_H, drawX = 0;
+          const drawY = 0;
+          if (imgRatio > canvasRatio) { drawH = EXPORT_W / imgRatio; }
           else { drawW = EXPORT_H * imgRatio; drawX = (EXPORT_W - drawW) / 2; }
           ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
           if (tshirtColor !== '#FFFFFF' && tshirtColor !== '#ffffff') {
@@ -1412,10 +1414,11 @@ export default function DesignPage() {
           const shirtImg = await loadImg(shirtSrc);
           const imgRatio = shirtImg.width / shirtImg.height;
           const canvasRatio = EXPORT_W / EXPORT_H;
-          let drawW = EXPORT_W, drawH = EXPORT_H, drawX = 0, drawY = 0;
+          // Top-aligned object-contain — matches on-screen TShirtSVG (dy=0)
+          let drawW = EXPORT_W, drawH = EXPORT_H, drawX = 0;
+          const drawY = 0;
           if (imgRatio > canvasRatio) {
             drawH = EXPORT_W / imgRatio;
-            drawY = (EXPORT_H - drawH) / 2;
           } else {
             drawW = EXPORT_H * imgRatio;
             drawX = (EXPORT_W - drawW) / 2;

@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured, supabase } from "../../../../lib/supabase";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
 /**
  * POST /api/admin/upload-design
  * Accepts: FormData with field "file" (PNG/JPEG)
  * Returns: { url: string }
  *   1. Supabase Storage (if configured & bucket exists)
- *   2. Local filesystem fallback → /public/uploads/designs/
+ *   2. Base64 data URL fallback (works on read-only filesystems like Vercel)
  */
 export async function POST(req: NextRequest) {
   try {
@@ -36,18 +34,14 @@ export async function POST(req: NextRequest) {
           .getPublicUrl(fileName);
         return NextResponse.json({ url: urlData.publicUrl });
       }
-      console.warn("[upload-design] Supabase Storage failed, falling back to local:", error.message);
+      console.warn("[upload-design] Supabase Storage failed, falling back to data URL:", error.message);
     }
 
-    // ── Strategy 2: Local filesystem ──────────────────────────
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", "designs");
-    await mkdir(uploadsDir, { recursive: true });
-    const localPath = path.join(uploadsDir, uniqueName);
-    await writeFile(localPath, buffer);
-
-    // Return a path relative to /public so Next.js can serve it
-    const publicUrl = `/uploads/designs/${uniqueName}`;
-    return NextResponse.json({ url: publicUrl });
+    // ── Strategy 2: Base64 data URL (serverless-safe) ─────────
+    const mimeType = file.type || (ext === "png" ? "image/png" : "image/jpeg");
+    const base64 = buffer.toString("base64");
+    const dataUrl = `data:${mimeType};base64,${base64}`;
+    return NextResponse.json({ url: dataUrl });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[POST /api/admin/upload-design]", msg);

@@ -1444,11 +1444,6 @@ export default function DesignPage() {
       if (isAdmin) {
         router.push('/admin/publish');
       } else {
-        // User (buyer) flow: check login first for guests
-        if (!isUserLoggedIn) {
-          router.push('/login');
-          return;
-        }
         router.push('/order');
       }
     } catch (err) {

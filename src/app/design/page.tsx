@@ -654,63 +654,60 @@ function DesignElementItem({
   );
 }
 
-// ─── AIImageCard — loads Pollinations URLs directly (no proxy needed for display) ──
+// ─── AIImageCard — loads Pollinations URLs directly, no artificial timeout ──
+// Pollinations takes 15-30s to generate. Timeout-based retries kill working generations.
+// Strategy: let browser handle load naturally, only retry on actual onError.
 function AIImageCard({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [attempt, setAttempt] = React.useState(0);
-  const MAX_RETRIES = 3;
-  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [elapsed, setElapsed] = React.useState(0);
+  const MAX_RETRIES = 2;
 
-  // Build URL with cache-busting seed on retry
-  const buildSrc = React.useCallback((retryNum: number) => {
-    if (retryNum === 0) return src;
-    try {
-      const u = new URL(src);
-      u.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
-      u.searchParams.set('_t', String(Date.now()));
-      return u.toString();
-    } catch {
-      return src;
-    }
-  }, [src]);
-
-  const [imgSrc, setImgSrc] = React.useState(() => buildSrc(0));
-
-  // Timeout: if image hasn't loaded in 25s, treat as error
+  // Elapsed seconds counter for visual feedback
   React.useEffect(() => {
     if (loaded || error) return;
-    timerRef.current = setTimeout(() => {
-      if (!loaded) {
-        if (attempt < MAX_RETRIES) {
-          setAttempt(a => a + 1);
-          setImgSrc(buildSrc(attempt + 1));
-        } else {
-          setError(true);
-        }
-      }
-    }, 10000);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [imgSrc, loaded, error, attempt, buildSrc]);
+    const t = setInterval(() => setElapsed(s => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [loaded, error]);
+
+  // Reset elapsed on src change
+  const [imgSrc, setImgSrc] = React.useState(src);
 
   const handleError = React.useCallback(() => {
     if (attempt < MAX_RETRIES) {
-      const nextAttempt = attempt + 1;
-      setAttempt(nextAttempt);
-      // Stagger retries to avoid simultaneous hits
-      setTimeout(() => setImgSrc(buildSrc(nextAttempt)), 2000 * nextAttempt);
+      const next = attempt + 1;
+      setAttempt(next);
+      setElapsed(0);
+      // Retry with same prompt but different seed after 2s delay
+      setTimeout(() => {
+        try {
+          const u = new URL(src);
+          u.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
+          setImgSrc(u.toString());
+        } catch {
+          setImgSrc(src + (src.includes('?') ? '&' : '?') + '_r=' + Date.now());
+        }
+      }, 2000);
     } else {
       setError(true);
     }
-  }, [attempt, buildSrc]);
+  }, [attempt, src]);
 
   const handleRetry = React.useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setAttempt(0);
     setError(false);
     setLoaded(false);
-    setImgSrc(buildSrc(1));
-  }, [buildSrc]);
+    setElapsed(0);
+    try {
+      const u = new URL(src);
+      u.searchParams.set('seed', String(Math.floor(Math.random() * 99999)));
+      setImgSrc(u.toString());
+    } catch {
+      setImgSrc(src + (src.includes('?') ? '&' : '?') + '_r=' + Date.now());
+    }
+  }, [src]);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
@@ -720,6 +717,7 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
           <span className="text-[9px] text-violet-400 font-bold uppercase tracking-wider">
             {attempt > 0 ? `Retry ${attempt}/${MAX_RETRIES}...` : 'Generating...'}
           </span>
+          <span className="text-[8px] text-violet-400/50 font-mono">{elapsed}s</span>
         </div>
       )}
       {error && (
@@ -741,7 +739,7 @@ function AIImageCard({ src, alt }: { src: string; alt: string }) {
         alt={alt}
         className="w-full h-full object-contain p-2 transition-opacity duration-500"
         style={{ opacity: loaded ? 1 : 0 }}
-        onLoad={() => { setLoaded(true); if (timerRef.current) clearTimeout(timerRef.current); }}
+        onLoad={() => setLoaded(true)}
         onError={handleError}
       />
     </div>

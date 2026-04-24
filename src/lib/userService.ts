@@ -24,6 +24,7 @@ export interface User {
   lastActive?: string;
   ordersCount?: number;
   totalSpent?: number;
+  phone?: string;
 }
 
 interface UserWithPassword extends User {
@@ -107,15 +108,26 @@ export async function authenticateUser(email: string, password: string): Promise
       .eq("password_hash", inputHash)
       .single();
 
-    if (error || !data) return null;
+    if (!error && data) {
+      // Success — update last_active and return
+      await supabase
+        .from("users")
+        .update({ last_active: new Date().toISOString() })
+        .eq("id", data.id);
+      return rowToUser(data);
+    }
 
-    // Update last_active
-    await supabase
-      .from("users")
-      .update({ last_active: new Date().toISOString() })
-      .eq("id", data.id);
-
-    return rowToUser(data);
+    if (error) {
+      console.warn("[AUTH DEBUG] Supabase error:", JSON.stringify({ code: error.code, message: error.message, details: error.details, hint: error.hint }));
+      
+      // PGRST116 = "JSON object requested, multiple (or no) rows returned" — means table exists, 0 matching rows
+      if (error.code === "PGRST116") {
+        // Table exists, just no matching user — genuinely wrong credentials
+        return null;
+      }
+      // Any other error (table missing, schema cache, relation, permission, etc.) — fall through to in-memory
+      console.warn("Supabase auth: falling back to in-memory store");
+    }
   }
 
   // In-memory fallback
@@ -146,11 +158,8 @@ export async function getAllUsers(): Promise<User[]> {
       .select("id, email, first_name, last_name, admin, created_at, last_active, orders_count, total_spent")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Supabase getAllUsers:", error.message);
-      return [];
-    }
-    return (data || []).map(rowToUser);
+    if (!error) return (data || []).map(rowToUser);
+    console.warn("Supabase getAllUsers (falling back to memory):", error.message);
   }
 
   // In-memory fallback
@@ -176,8 +185,12 @@ export async function getUser(id: string): Promise<User | null> {
       .eq("id", id)
       .single();
 
-    if (error || !data) return null;
-    return rowToUser(data);
+    if (!error && data) return rowToUser(data);
+    // If table missing, fall through to in-memory
+    if (error && !error.message.includes("schema cache") && !error.message.includes("relation")) {
+      return null; // Table exists but user not found
+    }
+    console.warn("Supabase getUser: table missing, using in-memory fallback");
   }
 
   const u = memoryUsers.get(id);
@@ -196,6 +209,7 @@ export async function createUser(
   firstName: string,
   lastName: string,
   admin = false,
+  phone?: string,
 ): Promise<User | null> {
   const passwordHash = hashPassword(password);
 
@@ -208,20 +222,26 @@ export async function createUser(
         first_name: firstName,
         last_name: lastName,
         admin,
+        phone: phone || null,
         orders_count: 0,
         total_spent: 0,
       })
       .select()
       .single();
 
-    if (error) {
-      console.error("Supabase createUser:", error.message);
-      return null;
+    if (!error && data) return rowToUser(data);
+    const isTableMissing = error?.message.includes("schema cache") || error?.message.includes("relation");
+    if (!isTableMissing) {
+      console.error("Supabase createUser:", error?.message);
+      return null; // Real error (duplicate email, etc.)
     }
-    return rowToUser(data);
+    console.warn("Supabase createUser: table missing, using in-memory fallback");
   }
 
-  // In-memory fallback
+  // In-memory fallback — check duplicate email
+  for (const u of memoryUsers.values()) {
+    if (u.email === email) return null;
+  }
   const id = `usr_${String(memoryUsers.size + 1).padStart(3, "0")}`;
   const user: UserWithPassword = {
     id,
@@ -230,12 +250,13 @@ export async function createUser(
     firstName,
     lastName,
     admin,
+    phone: phone || undefined,
     createdAt: new Date().toISOString(),
     ordersCount: 0,
     totalSpent: 0,
   };
   memoryUsers.set(id, user);
-  return { id, email, firstName, lastName, admin, createdAt: user.createdAt, ordersCount: 0, totalSpent: 0 };
+  return { id, email, firstName, lastName, admin, phone: user.phone, createdAt: user.createdAt, ordersCount: 0, totalSpent: 0 };
 }
 
 // ── UPDATE user last active ──────────────────────────────────

@@ -3,6 +3,8 @@ import { getAllOrders, createOrder } from "../../../lib/orderService";
 import { requireAdmin } from "../../../lib/authService";
 import crypto from "crypto";
 
+export const maxDuration = 30;
+
 /**
  * GET /api/orders — List all orders (ADMIN ONLY)
  */

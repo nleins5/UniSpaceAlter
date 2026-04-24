@@ -36,8 +36,8 @@ function MiniShirt({ color, side = "front" }: { color: string; side?: "front" | 
   );
 }
 
-function MiniPreview({ elements, side, tshirtColor, shirtType }: {
-  elements: DesignElement[]; side: "front" | "back"; tshirtColor: string; shirtType?: string;
+function MiniPreview({ elements, side, tshirtColor }: {
+  elements: DesignElement[]; side: "front" | "back"; tshirtColor: string;
 }) {
   const sideEls = elements.filter(el => el.side === side);
   return (
@@ -75,7 +75,7 @@ export default function CheckoutPage() {
   const initData = useState(readCheckoutData)[0];
   const [designData] = useState<DesignData | null>(initData.design);
   const shirtType = designData?.shirtType ?? "tshirt";
-  const [qty, setQty] = useState<Record<string, number>>(initData.qty);
+  const [qty] = useState<Record<string, number>>(initData.qty);
   const [previewSide, setPreviewSide] = useState<"front" | "back">("front");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -190,12 +190,12 @@ export default function CheckoutPage() {
                 <button onClick={() => setPreviewSide("back")} className={previewSide === "back" ? "active" : ""}>BACK</button>
               </div>
               <div ref={previewSide === "front" ? frontRef : backRef}>
-                <MiniPreview elements={designData.elements} side={previewSide} tshirtColor={designData.tshirtColor} shirtType={shirtType} />
+                <MiniPreview elements={designData.elements} side={previewSide} tshirtColor={designData.tshirtColor} />
               </div>
               {/* Hidden capture targets */}
               <div className="gl-hidden-capture">
-                {previewSide !== "front" && <div ref={frontRef}><MiniPreview elements={designData.elements} side="front" tshirtColor={designData.tshirtColor} shirtType={shirtType} /></div>}
-                {previewSide !== "back" && <div ref={backRef}><MiniPreview elements={designData.elements} side="back" tshirtColor={designData.tshirtColor} shirtType={shirtType} /></div>}
+                {previewSide !== "front" && <div ref={frontRef}><MiniPreview elements={designData.elements} side="front" tshirtColor={designData.tshirtColor} /></div>}
+                {previewSide !== "back" && <div ref={backRef}><MiniPreview elements={designData.elements} side="back" tshirtColor={designData.tshirtColor} /></div>}
               </div>
               <div className="gl-order-preview-gradient" />
             </div>

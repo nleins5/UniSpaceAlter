@@ -19,11 +19,11 @@ export default function AdminDashboard() {
   return (
     <div className="max-w-[1600px] mx-auto">
       {/* Header */}
-      <div className="mb-8 border-b border-[#333] pb-4">
-        <h1 className="text-3xl font-black tracking-tighter uppercase">SYSTEM OVERVIEW // REAL-TIME METRICS</h1>
-        <div className="adm-mono flex items-center mt-2 gap-4 text-xs text-[#9ca3af]">
+      <div className="mb-6 md:mb-8 border-b border-[#333] pb-4">
+        <h1 className="text-xl md:text-3xl font-black tracking-tighter uppercase">UNISPACE // REAL-TIME METRICS</h1>
+        <div className="adm-mono flex flex-wrap items-center mt-2 gap-2 md:gap-4 text-xs text-[#9ca3af]">
           <span className="flex items-center"><span className="w-2 h-2 bg-[#7C3AED] mr-2" /> TERMINAL_ACTIVE</span>
-          <span>|</span><span>UPTIME: 94:12:08</span><span>|</span>
+          <span className="hidden sm:inline">|</span><span className="hidden sm:inline">UPTIME: 94:12:08</span><span className="hidden sm:inline">|</span>
           <span className="text-[#7C3AED]">SECURE_CONNECTION</span>
         </div>
       </div>
@@ -39,8 +39,8 @@ export default function AdminDashboard() {
             </div>
             <div className="text-sm font-bold mb-1 uppercase tracking-wider">{k.label}</div>
             <div className="adm-mono text-4xl font-bold mb-2" ref={(el) => { if (el) el.style.color = k.color === '#fff' ? '#fff' : k.color; }}>{k.value}</div>
-            <div className="adm-mono flex items-center text-xs" ref={(el) => { if (el) el.style.color = k.color === '#fff' ? '#9ca3af' : k.color; }}>
-              <span className="material-symbols-outlined text-[14px] mr-1">{k.up ? 'trending_up' : k.trend.startsWith('-') ? 'trending_down' : 'trending_flat'}</span>
+            <div className="adm-mono flex items-center text-xs font-bold" ref={(el) => { if (el) el.style.color = k.color === '#fff' ? '#9ca3af' : k.color; }}>
+              <span className="material-symbols-outlined text-[18px] font-black mr-1">{k.up ? 'trending_up' : k.trend.startsWith('-') ? 'trending_down' : 'trending_flat'}</span>
               {k.trend} / CYCL
             </div>
             <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r opacity-0 group-hover:opacity-100 transition-opacity" ref={(el) => { if (el) el.style.borderColor = `${k.color}80`; }} />

@@ -4,6 +4,20 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Logo } from "../components/Logo";
 
+interface DesignItem {
+  id: string;
+  name: string;
+  previewUrl: string;
+  garmentType: string;
+  color: string;
+}
+interface Collection {
+  id: string;
+  name: string;
+  description?: string;
+  designs: DesignItem[];
+}
+
 const sliderImages = [
   "/images/slider/1.jpeg",
   "/images/slider/2.jpeg",
@@ -25,12 +39,20 @@ export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [liveCollections, setLiveCollections] = useState<Collection[]>([]);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrentSlide((s) => (s + 1) % sliderImages.length);
     }, 4000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/collections")
+      .then(r => r.json())
+      .then(d => setLiveCollections(d.collections || []))
+      .catch(() => {});
   }, []);
 
   const goSlide = (idx: number) => {
@@ -45,9 +67,9 @@ export default function HomePage() {
     <div className="tdp-page">
       <div className="tdp-header-top">
         <div className="tdp-container tdp-header-top-inner">
-          <Link href="/" className="tdp-logo-link">
+          <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" className="tdp-logo-link" aria-label="UniSpace - Facebook">
             <Logo scale={0.5} />
-          </Link>
+          </a>
 
           <div className="tdp-search-box">
             <span className="tdp-search-icon">
@@ -69,9 +91,15 @@ export default function HomePage() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
+            {mobileMenuOpen ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
@@ -79,6 +107,17 @@ export default function HomePage() {
       <div className="tdp-header-menu">
         <div className="tdp-container">
           <nav className={`tdp-nav ${mobileMenuOpen ? "open" : ""}`}>
+            {/* Mobile close button inside fullscreen overlay */}
+            <button
+              className="tdp-nav-close-btn"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Đóng menu"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              Đóng
+            </button>
             <ul className="tdp-nav-left">
               <li className="tdp-nav-dropdown">
                 <a
@@ -164,6 +203,38 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ── LIVE COLLECTIONS (from admin) ── */}
+      {liveCollections.length > 0 && (
+        <div className="tdp-section" id="collections">
+          <div className="tdp-container">
+            <div className="tdp-section-title center">Bộ sưu tập nổi bật</div>
+            <p className="tdp-catalog-desc">Những mẫu thiết kế độc quyền từ xưởng UniSpace.</p>
+            {liveCollections.map(col => (
+              <div key={col.id} className="col-group">
+                <div className="col-group-header">
+                  <h3 className="col-group-name">{col.name}</h3>
+                  {col.description && <span className="col-group-desc">{col.description}</span>}
+                </div>
+                <div className="tdp-catalog-grid">
+                  {col.designs.map(d => (
+                    <Link key={d.id} href="/design" className="tdp-catalog-item">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={d.previewUrl} alt={d.name} className="col-design-img" />
+                      <div className="tdp-catalog-overlay">
+                        <span>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                          {d.name}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="tdp-section" id="products">
         <div className="tdp-container">
           <div className="tdp-section-title center">
@@ -230,14 +301,16 @@ export default function HomePage() {
         <div className="tdp-container">
           <div className="tdp-footer-grid">
             <div className="tdp-footer-brand">
-              <Logo scale={0.6} />
+              <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer" aria-label="UniSpace - Facebook">
+                <Logo scale={0.6} />
+              </a>
               <p>Trạm In Áo — Chuyên áo lớp, áo nhóm, áo công ty.<br />
                 <a
-                  href="https://www.google.com/maps/search/?api=1&query=647+T%E1%BA%A1+Quang+B%E1%BB%ADu,+P.5,+Q.8,+TP.+H%E1%BB%93+Ch%C3%AD+Minh"
+                  href="https://www.google.com/maps/search/?api=1&query=647+T%E1%BA%A1+Quang+B%E1%BB%ADu+Ph%C6%B0%E1%BB%9Dng+5+Qu%E1%BA%ADn+8+H%E1%BB%93+Ch%C3%AD+Minh"
                   target="_blank" rel="noopener noreferrer"
                   className="tdp-footer-address"
                 >
-                  📍 647 Tạ Quang Bửu, P.5, Q.8, TP. Hồ Chí Minh
+                  647 Tạ Quang Bửu, P.5, Q.8, TP. Hồ Chí Minh
                 </a>
               </p>
             </div>
@@ -262,7 +335,8 @@ export default function HomePage() {
               <h4>Liên kết nhanh</h4>
               <Link href="/design">Tự thiết kế online</Link>
               <a href="https://www.facebook.com/UniSpace.TramInAo" target="_blank" rel="noopener noreferrer">Nhắn tin Facebook</a>
-              <a href="tel:+84000000000">Hotline</a>
+              <a href="https://www.instagram.com/tramdongphuc/" target="_blank" rel="noopener noreferrer">Instagram</a>
+              <a href="tel:+84833206879">Hotline: 083 320 6879</a>
             </div>
           </div>
           <div className="tdp-footer-bottom">

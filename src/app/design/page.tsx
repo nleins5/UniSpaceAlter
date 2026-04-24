@@ -2,7 +2,10 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Zap, Plus, Undo2, Redo2, Image as ImageIcon, Palette as PaletteIcon, Layers as LayersIcon, Trash2, Sparkles, RefreshCw, Type, Upload } from "lucide-react";
+import { SaveToCollectionModal } from "../../components/SaveToCollectionModal";
+import { Logo } from "../../components/Logo";
 
 // ─── Fixed Snap Slots ─────────────────────────────────────────
 // All coords are in virtual canvas units (400 wide × 480 tall)
@@ -653,8 +656,9 @@ function DesignElementItem({
 
 // ─── Main Design Page ──────────────────────────────────────────
 export default function DesignPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"ai" | "gallery" | "assets" | "type" | "color" | "layers" | null>("ai");
-  const [side] = useState<"front" | "back" | "side">("front");
+  const [side, setSide] = useState<"front" | "back" | "side">("front");
   const [garmentType, setGarmentType] = useState<'T-SHIRT' | 'RAGLAN' | 'POLO'>('RAGLAN');
   const [tshirtColor, setTshirtColor] = useState("#FFFFFF");
   const [elements, setElements] = useState<DesignElement[]>([]);
@@ -680,23 +684,28 @@ export default function DesignPage() {
   const [uploadedImages, setUploadedImages] = useState<AIImage[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const suggestionsLoaded = useRef(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  // Login gate: redirect to /login instead of modal
   const genCountRef = useRef(0);
   const [genCount, setGenCount] = useState(0); // reactive display copy
 
-  // Restore gen count from sessionStorage
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+  // Restore gen count and login state from sessionStorage (client-only)
   useEffect(() => {
     const saved = sessionStorage.getItem('ai_gen_count');
     if (saved) { const n = parseInt(saved, 10); genCountRef.current = n; setGenCount(n); }
+    try {
+      const u = sessionStorage.getItem('user');
+      if (u && JSON.parse(u)?.token) setIsUserLoggedIn(true);
+    } catch { /* ignore */ }
   }, []);
 
-  const isLoggedIn = () => {
-    try { const u = sessionStorage.getItem('user'); return u ? JSON.parse(u)?.token : false; } catch { return false; }
-  };
-
   const checkGenLimit = (): boolean => {
-    if (isLoggedIn()) return true;
-    if (genCountRef.current >= 4) { setShowLoginModal(true); return false; }
+    if (isAdmin || isUserLoggedIn) return true;  // admin & logged-in users: unlimited
+    if (genCountRef.current >= 3) { 
+      router.push('/login');
+      return false; 
+    }
     genCountRef.current += 1;
     const next = genCountRef.current;
     setGenCount(next);
@@ -709,6 +718,10 @@ export default function DesignPage() {
   const [fontPreviewText, setFontPreviewText] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [savePreviewUrl, setSavePreviewUrl] = useState("");
   const [projectName, setProjectName] = useState('VARSITY PRO JERSEY REV 1');
   const [orderInfo, setOrderInfo] = useState({
     name: '', phone: '', address: '', className: '', note: '',
@@ -716,6 +729,14 @@ export default function DesignPage() {
   });
   const frontCanvasRef = useRef<HTMLDivElement>(null);
   const backCanvasRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Admin mode ONLY via URL param ?admin=1 (set by admin sidebar link)
+    // Never from sessionStorage — prevents homepage /design from showing admin UI
+    const adminParam = new URLSearchParams(window.location.search).get("admin");
+    if (adminParam === "1") setIsAdmin(true);
+    setMounted(true);
+  }, []);
 
   const pushHistory = useCallback((prev: DesignElement[]) => {
     setHistoryStack(h => [...h.slice(-49), prev]);
@@ -808,9 +829,10 @@ export default function DesignPage() {
 
   const loadSuggestions = useCallback(async () => {
     if (suggestionsLoading) return;
+    if (!checkGenLimit()) return;
     setSuggestionsLoading(true);
     try {
-      // loadSuggestions bypasses gen limit — it's a background preload, not a user action
+      // loadSuggestions now respects gen limit
       const results = await Promise.allSettled(
         SUGGESTION_PROMPTS.map(prompt =>
           fetch("/api/generate", {
@@ -1146,6 +1168,298 @@ export default function DesignPage() {
     }
   }, [elements, tshirtColor, garmentType]);
 
+  // Generate a quick front-side preview PNG for "Save to Collection"
+  const handleSaveToCollection = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const loadImg = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+      const EXPORT_W = 400, EXPORT_H = 480;
+      const c = document.createElement('canvas');
+      c.width = EXPORT_W; c.height = EXPORT_H;
+      const ctx = c.getContext('2d')!;
+      const mockup = MOCKUP_MAP[garmentType];
+      if (mockup) {
+        try {
+          const bg = await loadImg(mockup.front);
+          const ratio = bg.naturalWidth / bg.naturalHeight;
+          const drawH = ratio > (EXPORT_W / EXPORT_H) ? EXPORT_H : EXPORT_W / ratio;
+          const drawW = ratio > (EXPORT_W / EXPORT_H) ? EXPORT_H * ratio : EXPORT_W;
+          const dx = (EXPORT_W - drawW) / 2, dy = (EXPORT_H - drawH) / 2;
+          ctx.fillStyle = tshirtColor;
+          ctx.fillRect(0, 0, EXPORT_W, EXPORT_H);
+          ctx.drawImage(bg, dx, dy, drawW, drawH);
+        } catch { ctx.fillStyle = tshirtColor; ctx.fillRect(0, 0, EXPORT_W, EXPORT_H); }
+      } else { ctx.fillStyle = tshirtColor; ctx.fillRect(0, 0, EXPORT_W, EXPORT_H); }
+      // Draw front elements
+      const frontElements = elements.filter(el => !el.side || el.side === 'front');
+      for (const el of frontElements) {
+        if (el.type === 'text') {
+          ctx.save();
+          ctx.font = `${(el.fontWeight || '').toString().toLowerCase() === 'italic' ? 'italic ' : ''}${el.fontWeight || 700} ${(el.fontSize ?? 16) * (EXPORT_W / 400)}px ${el.fontFamily || 'sans-serif'}`;
+          ctx.fillStyle = el.textColor || '#000000';
+          ctx.textAlign = 'center';
+          ctx.fillText(el.text || '', el.x * (EXPORT_W / 400), el.y * (EXPORT_H / 480));
+          ctx.restore();
+        } else if (el.type === 'image' && el.url) {
+          try {
+            const img = await loadImg(el.url);
+            const ew = el.width * (EXPORT_W / 400);
+            const eh = el.height * (EXPORT_H / 480);
+            ctx.drawImage(img, el.x * (EXPORT_W / 400) - ew / 2, el.y * (EXPORT_H / 480) - eh / 2, ew, eh);
+          } catch { /* skip */ }
+        }
+      }
+      const dataUrl = c.toDataURL('image/png');
+      setSavePreviewUrl(dataUrl);
+      // Store data in sessionStorage and open in new tab
+      sessionStorage.setItem('unispace_save_draft', JSON.stringify({
+        previewUrl: dataUrl,
+        garmentType,
+        color: tshirtColor,
+        ts: Date.now(),
+      }));
+      window.open('/admin/save-collection', '_blank');
+    } catch (err) {
+      console.error('Save preview failed:', err);
+      alert('Không thể tạo preview');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [elements, tshirtColor, garmentType]);
+
+  // Open a new tab showing front+back previews with download buttons (admin only)
+  const handleOpenPreviewTab = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const loadImg = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+      const EXPORT_W = 800, EXPORT_H = 960;
+      const renderSideForPreview = async (side: 'front' | 'back') => {
+        const c = document.createElement('canvas');
+        c.width = EXPORT_W; c.height = EXPORT_H;
+        const ctx = c.getContext('2d')!;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, EXPORT_W, EXPORT_H);
+        const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
+        const shirtSrc = side === 'front' ? mockup.front : mockup.back;
+        try {
+          const shirtImg = await loadImg(shirtSrc);
+          const imgRatio = shirtImg.width / shirtImg.height;
+          const canvasRatio = EXPORT_W / EXPORT_H;
+          let drawW = EXPORT_W, drawH = EXPORT_H, drawX = 0, drawY = 0;
+          if (imgRatio > canvasRatio) { drawH = EXPORT_W / imgRatio; drawY = (EXPORT_H - drawH) / 2; }
+          else { drawW = EXPORT_H * imgRatio; drawX = (EXPORT_W - drawW) / 2; }
+          ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
+          if (tshirtColor !== '#FFFFFF' && tshirtColor !== '#ffffff') {
+            const tmp = document.createElement('canvas');
+            tmp.width = EXPORT_W; tmp.height = EXPORT_H;
+            const tCtx = tmp.getContext('2d')!;
+            tCtx.fillStyle = tshirtColor;
+            tCtx.fillRect(drawX, drawY, drawW, drawH);
+            tCtx.globalCompositeOperation = 'destination-in';
+            tCtx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.drawImage(tmp, 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+          }
+        } catch { /* no mockup */ }
+        const scaleX = EXPORT_W / 400;
+        const scaleY = EXPORT_H / 480;
+        const sideElements = elements.filter(el => el.side === side);
+        for (const el of sideElements) {
+          const x = el.x * scaleX; const y = el.y * scaleY;
+          const boxW = el.width * scaleX; const boxH = el.height * scaleY;
+          if (el.type === 'image' && el.url) {
+            try {
+              const elImg = await loadImg(el.url);
+              const ir = elImg.naturalWidth / elImg.naturalHeight; const br = boxW / boxH;
+              let iw = boxW, ih = boxH, ix = x, iy = y;
+              if (ir > br) { ih = boxW / ir; iy = y + (boxH - ih) / 2; }
+              else { iw = boxH * ir; ix = x + (boxW - iw) / 2; }
+              ctx.drawImage(elImg, ix, iy, iw, ih);
+            } catch { /* skip */ }
+          } else if (el.type === 'text' && el.text) {
+            ctx.save();
+            const fontSize = (el.fontSize || 32) * scaleX;
+            const fontStr = `${el.fontWeight || '900'} ${fontSize}px ${el.fontFamily || 'sans-serif'}`;
+            try { await document.fonts.load(fontStr); } catch { /* skip */ }
+            ctx.font = fontStr;
+            ctx.fillStyle = el.textColor || '#000000';
+            ctx.textBaseline = 'top';
+            const words = el.text.split(' ');
+            let line = ''; const lh = fontSize * 1.2; let dy = y;
+            for (const w of words) {
+              const test = line ? `${line} ${w}` : w;
+              if (ctx.measureText(test).width > boxW && line) { ctx.fillText(line, x, dy); line = w; dy += lh; }
+              else { line = test; }
+            }
+            if (line) ctx.fillText(line, x, dy);
+            ctx.restore();
+          }
+        }
+        return c.toDataURL('image/png');
+      };
+      const [frontData, backData] = await Promise.all([
+        renderSideForPreview('front'),
+        renderSideForPreview('back'),
+      ]);
+      sessionStorage.setItem('design_preview_front', frontData);
+      sessionStorage.setItem('design_preview_back', backData);
+      sessionStorage.setItem('design_config', JSON.stringify({ garmentType, tshirtColor, projectName }));
+      window.open('/design/preview', '_blank');
+    } catch (err) {
+      console.error('Preview tab failed:', err);
+      alert('Không thể mở preview');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [elements, tshirtColor, garmentType, projectName]);
+
+  const handleProceedToOrder = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const loadImg = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+
+      const EXPORT_W = 800, EXPORT_H = 960;
+      
+      const renderSide = async (side: 'front' | 'back') => {
+        const c = document.createElement('canvas');
+        c.width = EXPORT_W; c.height = EXPORT_H;
+        const ctx = c.getContext('2d')!;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, EXPORT_W, EXPORT_H);
+
+        const mockup = MOCKUP_MAP[garmentType] || MOCKUP_MAP['RAGLAN'];
+        const shirtSrc = side === 'front' ? mockup.front : mockup.back;
+        
+        try {
+          const shirtImg = await loadImg(shirtSrc);
+          const imgRatio = shirtImg.width / shirtImg.height;
+          const canvasRatio = EXPORT_W / EXPORT_H;
+          let drawW = EXPORT_W, drawH = EXPORT_H, drawX = 0, drawY = 0;
+          if (imgRatio > canvasRatio) {
+            drawH = EXPORT_W / imgRatio;
+            drawY = (EXPORT_H - drawH) / 2;
+          } else {
+            drawW = EXPORT_H * imgRatio;
+            drawX = (EXPORT_W - drawW) / 2;
+          }
+          ctx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
+
+          if (tshirtColor !== '#FFFFFF' && tshirtColor !== '#ffffff') {
+            const tmp = document.createElement('canvas');
+            tmp.width = EXPORT_W; tmp.height = EXPORT_H;
+            const tCtx = tmp.getContext('2d')!;
+            tCtx.fillStyle = tshirtColor;
+            tCtx.fillRect(drawX, drawY, drawW, drawH);
+            tCtx.globalCompositeOperation = 'destination-in';
+            tCtx.drawImage(shirtImg, drawX, drawY, drawW, drawH);
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.drawImage(tmp, 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+          }
+        } catch {}
+
+        // Elements use virtual 400×480 coordinate space — scale directly to export size
+        const scaleX = EXPORT_W / 400;
+        const scaleY = EXPORT_H / 480;
+        const sideElements = elements.filter(el => el.side === side);
+        for (const el of sideElements) {
+          const x = el.x * scaleX;
+          const y = el.y * scaleY;
+          const boxW = el.width * scaleX;
+          const boxH = el.height * scaleY;
+
+          if (el.type === 'image' && el.url) {
+            try {
+              const elImg = await loadImg(el.url);
+              const imgRatio = elImg.naturalWidth / elImg.naturalHeight;
+              const boxRatio = boxW / boxH;
+              let imgDrawW = boxW, imgDrawH = boxH, imgDrawX = x, imgDrawY = y;
+              if (imgRatio > boxRatio) {
+                imgDrawH = boxW / imgRatio;
+                imgDrawY = y + (boxH - imgDrawH) / 2;
+              } else {
+                imgDrawW = boxH * imgRatio;
+                imgDrawX = x + (boxW - imgDrawW) / 2;
+              }
+              ctx.drawImage(elImg, imgDrawX, imgDrawY, imgDrawW, imgDrawH);
+            } catch {}
+          } else if (el.type === 'text' && el.text) {
+            ctx.save();
+            const fontSize = (el.fontSize || 32) * scaleX;
+            const fontStr = `${el.fontWeight || '900'} ${fontSize}px ${el.fontFamily || 'sans-serif'}`;
+            try { await document.fonts.load(fontStr); } catch {}
+            ctx.font = fontStr;
+            ctx.fillStyle = el.textColor || '#000000';
+            ctx.textBaseline = 'top';
+            const words = el.text.split(' ');
+            let line = '';
+            const lh = fontSize * 1.2;
+            let dy = y;
+            for (const w of words) {
+              const test = line ? `${line} ${w}` : w;
+              if (ctx.measureText(test).width > boxW && line) {
+                ctx.fillText(line, x, dy);
+                line = w;
+                dy += lh;
+              } else { line = test; }
+            }
+            if (line) ctx.fillText(line, x, dy);
+            ctx.restore();
+          }
+        }
+        return c.toDataURL('image/png');
+      };
+
+      const front = await renderSide('front');
+      const back = await renderSide('back');
+
+      // Save to sessionStorage for order page
+      sessionStorage.setItem('design_preview_front', front);
+      sessionStorage.setItem('design_preview_back', back);
+      sessionStorage.setItem('design_config', JSON.stringify({
+        garmentType,
+        tshirtColor,
+        projectName
+      }));
+
+      if (isAdmin) {
+        router.push('/admin/publish');
+      } else {
+        // User (buyer) flow: check login first for guests
+        if (!isUserLoggedIn) {
+          router.push('/login');
+          return;
+        }
+        router.push('/order');
+      }
+    } catch (err) {
+      console.error('Proceed to order failed:', err);
+      if (isAdmin) router.push('/admin/publish');
+      else router.push('/order');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [elements, tshirtColor, garmentType, projectName, router, isAdmin, isUserLoggedIn]);
+
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
     // Images placed in snap slots are locked — no movement
     setElements(prev => prev.map(el => (el.id === id && !el.locked) ? { ...el, x, y } : el));
@@ -1178,6 +1492,7 @@ export default function DesignPage() {
               {getSnapSlots(garmentType).map(slot => (
                 <button
                   key={slot.id}
+                  type="button"
                   onClick={() => handlePlaceInSlot(slot.id)}
                   className="slot-picker-btn flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
@@ -1201,38 +1516,54 @@ export default function DesignPage() {
               ))}
             </div>
 
-            <button onClick={() => setSlotPicker(null)} className="text-center text-[10px] text-gray-500 hover:text-gray-300 font-bold uppercase tracking-widest transition-colors mt-1">HỦY</button>
+            <button type="button" onClick={() => setSlotPicker(null)} className="text-center text-[10px] text-gray-500 hover:text-gray-300 font-bold uppercase tracking-widest transition-colors mt-1">HỦY</button>
           </div>
         </div>
       )}
 
       {/* NAV — white bar, black border per spec */}
-      <header className="h-12 bg-white border-b border-black flex items-center justify-between px-4 shrink-0 z-50">
+      <header className="h-12 bg-[#7C3AED] border-b border-[#5b21b6] flex items-center justify-between px-4 shrink-0 z-50">
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-1.5">
-            <div className="w-7 h-7 bg-black flex items-center justify-center shrink-0">
-              <span className="text-white text-[10px] font-black leading-none">U</span>
-            </div>
-            <span className="font-black text-[13px] tracking-tight text-black uppercase hidden sm:block">UniSpace</span>
+          <Link href="/" className="flex items-center" aria-label="UniSpace - Trang chủ">
+            <Logo scale={0.45} />
           </Link>
-          <div className="h-5 w-px bg-black/20 hidden sm:block" />
+          <div className="h-5 w-px bg-white/30 hidden sm:block" />
           <div className="flex items-center gap-0.5">
-            <button onClick={handleUndo} className="p-1.5 hover:bg-black/5 text-black/40 hover:text-black transition-colors" title="Undo"><Undo2 size={14} /></button>
-            <button onClick={handleRedo} className="p-1.5 hover:bg-black/5 text-black/40 hover:text-black transition-colors" title="Redo"><Redo2 size={14} /></button>
+            <button type="button" onClick={handleUndo} className="p-1.5 hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Undo"><Undo2 size={14} /></button>
+            <button type="button" onClick={handleRedo} className="p-1.5 hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Redo"><Redo2 size={14} /></button>
           </div>
         </div>
         {/* Centered project title */}
         <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-2">
-          <span className="text-[10px] font-black text-black uppercase tracking-[0.15em]">{projectName || 'UNTITLED'}</span>
+          <span className="text-[10px] font-black text-white/90 uppercase tracking-[0.15em]">{projectName || 'UNTITLED'}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowOrderModal(true)} disabled={isExporting}
-            className="px-4 py-1.5 bg-transparent border border-black text-black text-[10px] font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all disabled:opacity-50">
-            {isExporting ? '...' : 'EXPORT'}
+          {/* Admin: Preview & Save buttons — only render after client mount to avoid hydration mismatch */}
+          {mounted && isAdmin && (
+            <>
+              <button type="button" onClick={handleOpenPreviewTab} disabled={isExporting}
+                className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest bg-[#111] text-white border border-white/20 hover:bg-white/10 transition-colors disabled:opacity-40">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                PREVIEW
+              </button>
+              <button type="button" onClick={handleSaveToCollection} disabled={isExporting}
+                className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 transition-colors disabled:opacity-40">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                SAVE
+              </button>
+            </>
+          )}
+          <button type="button" onClick={handleProceedToOrder} disabled={isExporting}
+            className="design-header-btn-export">
+            <span className="design-header-btn-slide" />
+            <span className="design-header-btn-content">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              {isExporting ? '...' : (mounted && isAdmin ? 'REVIEW_&_PUBLISH' : 'ĐẶT HÀNG')}
+            </span>
           </button>
           <Link href="/"
-            className="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-full hover:bg-black/80 transition-all flex items-center gap-1.5">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+            className="design-header-btn-back">
+            <svg className="design-back-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
             BACK
           </Link>
         </div>
@@ -1315,6 +1646,14 @@ export default function DesignPage() {
           <div ref={blueprintRef} className="flex-1 relative overflow-hidden">
             <div className="absolute inset-0 blueprint-lattice pointer-events-none opacity-50" />
 
+            {/* Mobile: Front/Back toggle — pill floating top-center */}
+            <div className="md:hidden absolute top-3 left-1/2 -translate-x-1/2 z-20 flex rounded-lg overflow-hidden border border-black/30 bg-white shadow-md">
+              <button type="button" onClick={() => setSide('front')}
+                className={`px-4 py-2 text-[11px] font-black uppercase tracking-wider transition-colors ${side === 'front' ? 'bg-black text-white' : 'bg-white text-black/50'}`}>FRONT</button>
+              <button type="button" onClick={() => setSide('back')}
+                className={`px-4 py-2 text-[11px] font-black uppercase tracking-wider transition-colors ${side === 'back' ? 'bg-black text-white' : 'bg-white text-black/50'}`}>BACK</button>
+            </div>
+
             {/* Garment Style badge */}
             <div className="absolute top-3 left-[70px] z-20 hidden md:flex items-center gap-2">
               <span className="text-[8px] font-black uppercase tracking-wider text-gray-500">Garment Style</span>
@@ -1343,7 +1682,7 @@ export default function DesignPage() {
                   { hex: '#87CEEB', cmyk: '42 11 0 0' },
                   { hex: '#FFB6C1', cmyk: '0 29 24 0' },
                 ].map(c => (
-                  <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={c.hex} className="text-left group">
+                  <button key={c.hex} type="button" onClick={() => setTshirtColor(c.hex)} title={c.hex} className="text-left group">
                     { }
                           <div className={`w-5 h-5 border mb-0.5 transition-all ${tshirtColor === c.hex ? 'border-black ring-1 ring-offset-1 ring-black scale-110' : 'border-gray-300'}`}
                       ref={(el) => { if (el) el.style.backgroundColor = c.hex; }} />
@@ -1417,14 +1756,14 @@ export default function DesignPage() {
             {/* Zoom controls — brutalist square corners per spec §6 */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center z-30 border border-black/40 bg-black/90">
               {selectedId && (
-                <button onClick={handleDeleteSelected} className="w-8 h-8 bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-all border-r border-black/40" title="Delete selected (Del)">
+                <button type="button" onClick={handleDeleteSelected} className="w-8 h-8 bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-all border-r border-black/40" title="Delete selected (Del)">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               )}
-              <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all text-sm font-black border-r border-black/40">−</button>
+              <button type="button" onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all text-sm font-black border-r border-black/40">−</button>
               <span className="text-[9px] font-mono text-[#7C3AED] font-black px-3 min-w-[44px] text-center">{Math.round(zoom * 100)}%</span>
-              <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all text-sm font-black border-l border-r border-black/40">+</button>
-              <button onClick={() => { setZoom(1); setPanX(0); setPanY(0); }} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all" title="Reset zoom & pan">
+              <button type="button" onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all text-sm font-black border-l border-r border-black/40">+</button>
+              <button type="button" onClick={() => { setZoom(1); setPanX(0); setPanY(0); }} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all" title="Reset zoom & pan">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
               </button>
             </div>
@@ -1448,6 +1787,7 @@ export default function DesignPage() {
             return (
               <button
                 key={id}
+                type="button"
                 onClick={() => setActiveTab(prev => prev === id ? null : id)}
                 className={`group relative w-11 h-11 flex items-center justify-center transition-all duration-300 rounded-2xl ${
                   isActive ? 'text-white' : 'text-gray-500 hover:text-violet-300'
@@ -1479,7 +1819,7 @@ export default function DesignPage() {
           
           <div className="flex-1" />
           
-          <button className="w-11 h-11 flex items-center justify-center text-gray-600 hover:text-violet-300 transition-all rounded-2xl hover:bg-white/5" title="Settings">
+          <button type="button" className="w-11 h-11 flex items-center justify-center text-gray-600 hover:text-violet-300 transition-all rounded-2xl hover:bg-white/5" title="Settings">
             <LayersIcon size={20} />
           </button>
         </div>
@@ -1496,15 +1836,39 @@ export default function DesignPage() {
           <div className="flex items-center justify-between px-4 pt-3 pb-1 md:hidden shrink-0">
             <div className="w-10 h-1 bg-white/20 rounded-full mx-auto absolute left-1/2 -translate-x-1/2" />
             <div />
-            <button onClick={() => setActiveTab(null)} aria-label="Đóng bảng công cụ" className="ml-auto p-1.5 rounded-full hover:bg-white/10 text-gray-400">
+            <button type="button" onClick={() => setActiveTab(null)} aria-label="Đóng bảng công cụ" className="ml-auto p-1.5 rounded-full hover:bg-white/10 text-gray-400">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
+          </div>
+
+          {/* Mobile: horizontal tab switcher */}
+          <div className="flex md:hidden items-center gap-1.5 px-3 pb-2 overflow-x-auto scrollbar-hide shrink-0">
+            {(['ai', 'gallery', 'assets', 'layers', 'color'] as const).map((id) => {
+              const info: Record<string, { label: string; path: string }> = {
+                ai:      { label: 'AI',      path: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
+                gallery: { label: 'Gallery', path: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' },
+                assets:  { label: 'Text',    path: 'M4 6h16M4 12h16M4 18h7' },
+                layers:  { label: 'Layers',  path: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' },
+                color:   { label: 'Colors',  path: 'M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z' },
+              };
+              const t = info[id];
+              return (
+                <button key={id} type="button" onClick={() => setActiveTab(id)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase whitespace-nowrap shrink-0 transition-all ${
+                    activeTab === id ? 'bg-violet-600 text-white shadow-lg' : 'text-gray-500 bg-white/5'
+                  }`}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d={t.path}/></svg>
+                  {t.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Garment type tabs — Glacier style */}
           <div className="flex px-2 pt-2.5 shrink-0 gap-1.5 gl-panel-deep gl-border-dim">
             {(['T-SHIRT', 'RAGLAN', 'POLO'] as const).map(type => (
               <button key={type}
+                type="button"
                 onClick={() => setGarmentType(type)}
                 className={`flex-1 py-3 text-center text-[13px] font-bold uppercase tracking-wider transition-all relative overflow-hidden rounded-t-xl font-[family-name:var(--font-space-grotesk)] ${
                   type === garmentType
@@ -1528,6 +1892,7 @@ export default function DesignPage() {
                 <div className="flex items-center justify-between px-1">
                   <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400">AI SUGGESTIONS</span>
                   <button
+                    type="button"
                     onClick={loadSuggestions}
                     disabled={suggestionsLoading}
                     className="text-[9px] font-bold uppercase tracking-wider text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1"
@@ -1552,6 +1917,7 @@ export default function DesignPage() {
                   <div className="grid grid-cols-2 gap-3">
                     {suggestedDesigns.map((img) => (
                       <button key={img.id}
+                        type="button"
                         onClick={() => handleDropImage(img)}
                         className="group relative overflow-hidden hover:scale-[1.02] active:scale-[0.98] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
                         draggable
@@ -1585,7 +1951,7 @@ export default function DesignPage() {
                   <div className="py-10 text-center">
                     <Sparkles size={28} className="mx-auto mb-2 text-violet-400/30" />
                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">No suggestions yet</p>
-                    <button onClick={loadSuggestions} className="mt-2 text-[10px] text-violet-400 hover:text-violet-300 font-bold uppercase tracking-wider">
+                    <button type="button" onClick={loadSuggestions} className="mt-2 text-[10px] text-violet-400 hover:text-violet-300 font-bold uppercase tracking-wider">
                       Generate Now
                     </button>
                   </div>
@@ -1598,17 +1964,11 @@ export default function DesignPage() {
                   </div>
                 )}
 
-                {/* Gen limit indicator */}
-                {!isLoggedIn() && (
-                  <div className={`flex items-center justify-between px-3 py-1.5 rounded-lg adm-mono text-[10px] ${genCount >= 4 ? 'bg-red-500/10 border border-red-500/30' : 'bg-violet-500/5 border border-violet-500/15'}`}>
-                    <span className={genCount >= 4 ? 'text-red-400' : 'text-gray-500'}>
-                      {genCount >= 4 ? '⚠ Hết lượt miễn phí' : `Lượt gen: ${genCount} / 4`}
-                    </span>
-                    {genCount >= 4 ? (
-                      <button onClick={() => setShowLoginModal(true)} className="text-[10px] font-black text-red-400 hover:text-red-300 uppercase tracking-wider transition-colors">Đăng nhập →</button>
-                    ) : (
-                      <span className="text-violet-500/50">còn {4 - genCount} lượt</span>
-                    )}
+                {/* Gen limit indicator — shown only when near limit (100 free gens) */}
+                {mounted && !isUserLoggedIn && genCount >= 90 && (
+                  <div className="flex items-center justify-between px-3 py-1.5 rounded-lg adm-mono text-[10px] bg-amber-500/10 border border-amber-500/30">
+                    <span className="text-amber-400">Còn {100 - genCount} lượt miễn phí</span>
+                    <button type="button" onClick={() => router.push('/login')} className="text-[10px] font-black text-amber-400 hover:text-amber-300 uppercase tracking-wider transition-colors">Đăng nhập →</button>
                   </div>
                 )}
 
@@ -1627,8 +1987,9 @@ export default function DesignPage() {
                       />
                       <div className="pr-2 py-2">
                         <button
+                          type="button"
                           onClick={() => chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
-                          disabled={isLoading || (!isLoggedIn() && genCount >= 4)}
+                          disabled={isLoading || (!isUserLoggedIn && genCount >= 4)}
                           title="Generate AI design"
                           className="w-12 h-12 flex items-center justify-center bg-white text-[#4c1d95] rounded-[16px] hover:shadow-[0_0_25px_rgba(255,255,255,0.8)] hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                         >
@@ -1663,6 +2024,7 @@ export default function DesignPage() {
                           <div className="grid grid-cols-2 gap-3">
                             {allImages.map((img) => (
                               <button key={img.id}
+                                type="button"
                                 onClick={() => handleDropImage(img)}
                                 className="group relative overflow-hidden hover:scale-[1.02] transition-all flex flex-col rounded-xl gl-panel gl-border-bright"
                                 draggable
@@ -1820,7 +2182,7 @@ export default function DesignPage() {
                   { name: "Plasma", hex: "#a78bfa" }, { name: "Signal Red", hex: "#E63B2E" },
                   { name: "Sky Blue", hex: "#87CEEB" }, { name: "Blush Pink", hex: "#FFB6C1" },
                 ].map(c => (
-                  <button key={c.hex} onClick={() => setTshirtColor(c.hex)} title={`Apply ${c.name}`}
+                  <button key={c.hex} type="button" onClick={() => setTshirtColor(c.hex)} title={`Apply ${c.name}`}
                     className={`w-full flex items-center gap-3 p-2.5 transition-all rounded-lg ${
                       tshirtColor === c.hex ? 'ring-2 ring-violet-400/40 gl-active' : 'hover:ring-1 hover:ring-violet-400/20 gl-surface-mid'
                     }`}
@@ -1850,7 +2212,7 @@ export default function DesignPage() {
                         <div className="text-[12px] font-bold text-white truncate">{el.label || el.text}</div>
                         <div className="text-[10px] font-mono text-gray-500">{el.type} / {el.side}</div>
                       </div>
-                      <button onClick={(e) => { e.stopPropagation(); setElements(prev => prev.filter(item => item.id !== el.id)); }} title="Delete layer" aria-label="Delete layer" className="p-1.5 text-gray-500 hover:text-red-400 transition-colors"><Trash2 size={13}/></button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setElements(prev => prev.filter(item => item.id !== el.id)); }} title="Delete layer" aria-label="Delete layer" className="p-1.5 text-gray-500 hover:text-red-400 transition-colors"><Trash2 size={13}/></button>
                     </div>
                   ))
                 )}
@@ -1869,6 +2231,7 @@ export default function DesignPage() {
         {/* Mobile: floating tool button (opens AI panel) */}
         {activeTab === null && (
           <button
+            type="button"
             onClick={() => setActiveTab('ai')}
             className="fixed bottom-5 right-5 z-50 md:hidden w-12 h-12 bg-[#7C3AED] text-white rounded-full shadow-2xl shadow-[#7C3AED]/25 flex items-center justify-center active:scale-95 transition-transform"
             aria-label="Mở công cụ thiết kế"
@@ -1905,7 +2268,7 @@ export default function DesignPage() {
                 <h2 className="text-sm font-black uppercase tracking-widest">Thông Tin Đơn Hàng</h2>
                 <p className="text-[10px] text-gray-500 font-mono mt-0.5">Điền thông tin trước khi gửi thiết kế cho admin</p>
               </div>
-              <button onClick={() => setShowOrderModal(false)} className="text-gray-500 hover:text-white text-lg leading-none">✕</button>
+              <button type="button" onClick={() => setShowOrderModal(false)} className="text-gray-500 hover:text-white text-lg leading-none">✕</button>
             </div>
 
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -1965,11 +2328,12 @@ export default function DesignPage() {
 
             {/* Footer */}
             <div className="px-6 pb-6 flex gap-3">
-              <button onClick={() => setShowOrderModal(false)}
+              <button type="button" onClick={() => setShowOrderModal(false)}
                 className="flex-1 py-2.5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:border-white/30 transition-colors text-gray-400">
                 Hủy
               </button>
               <button
+                type="button"
                 onClick={() => handleExportPack(orderInfo)}
                 disabled={!orderInfo.name || !orderInfo.phone || !orderInfo.address || isExporting}
                 className="flex-1 py-2.5 bg-[#7C3AED] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#6d28d9] transition-colors disabled:opacity-40">
@@ -1980,39 +2344,16 @@ export default function DesignPage() {
         </div>
       )}
 
-      {/* Login Gate Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-sm mx-4 rounded-2xl overflow-hidden border border-violet-400/20 login-modal-panel">
-            <div className="px-6 py-5 border-b border-violet-400/10">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-400/60 adm-mono">AUTH_REQUIRED</span>
-              </div>
-              <h2 className="text-xl font-black text-white tracking-tight">Đăng nhập để tiếp tục</h2>
-              <p className="text-[11px] text-violet-300/50 mt-1 adm-mono">
-                Bạn đã dùng hết 4 lượt AI miễn phí. Đăng nhập để tiếp tục tạo design.
-              </p>
-            </div>
-            <div className="px-6 py-6 flex flex-col gap-3">
-              <input className="w-full px-4 py-3 rounded-xl bg-white/5 border border-violet-400/15 text-sm text-white placeholder:text-violet-300/30 focus:outline-none focus:border-violet-400/40" placeholder="Email / Username" />
-              <input type="password" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-violet-400/15 text-sm text-white placeholder:text-violet-300/30 focus:outline-none focus:border-violet-400/40" placeholder="Password" />
-              <button
-                onClick={() => {
-                  sessionStorage.setItem('user', JSON.stringify({ username: 'user', token: 'user-token-2026' }));
-                  genCountRef.current = 0;
-                  sessionStorage.setItem('ai_gen_count', '0');
-                  setShowLoginModal(false);
-                }}
-                className="w-full py-3 rounded-xl bg-[#7C3AED] text-white text-[12px] font-black uppercase tracking-[0.15em] hover:bg-[#6d28d9] transition-colors">
-                🔓 Đăng Nhập
-              </button>
-              <button onClick={() => setShowLoginModal(false)} className="text-[11px] text-violet-300/40 hover:text-violet-300/60 transition-colors">
-                Để sau
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Login gate: redirects to /login page directly (no modal) */}
+
+      {/* Save to Collection Modal — admin only */}
+      {showSaveModal && savePreviewUrl && (
+        <SaveToCollectionModal
+          previewUrl={savePreviewUrl}
+          garmentType={garmentType}
+          color={tshirtColor}
+          onClose={() => setShowSaveModal(false)}
+        />
       )}
     </div>
   );

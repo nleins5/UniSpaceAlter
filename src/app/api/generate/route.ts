@@ -60,7 +60,7 @@ async function generateWithT8star(prompt: string): Promise<{ id: string; label: 
   if (!t8Key) return [];
 
   const seed = Math.floor(Math.random() * 99999);
-  const fullPrompt = `${enPrompt}, flat vector graphic art, white background, isolated centered design element, bold streetwear aesthetic, high contrast, vivid colors, printable iron-on decal, clean sharp edges, seed:${seed}`;
+  const fullPrompt = `logo design for garment printing: ${enPrompt}. Style: flat vector graphic, bold clean shapes, isolated on pure white background, high contrast vivid colors, no gradients, printable t-shirt artwork, streetwear aesthetic, sharp edges, no shadow, no texture, centered composition, seed:${seed}`;
   console.log(`🔤 T8star: "${enPrompt.slice(0, 60)}..."`);
 
   const controller = new AbortController();
@@ -112,7 +112,7 @@ async function generateWithCloudflare(prompt: string) {
         {
           method: "POST",
           headers: { "Authorization": `Bearer ${cfToken}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: `${enPrompt}${style.suffix}`, num_steps: 4 }),
+          body: JSON.stringify({ prompt: `${enPrompt}${style.suffix}`, num_steps: 8 }),
           signal: controller.signal,
         }
       );
@@ -143,7 +143,50 @@ async function generateWithCloudflare(prompt: string) {
     .filter((r): r is PromiseFulfilledResult<ImgResult> => r.status === "fulfilled" && r.value !== null)
     .map(r => r.value);
 }
-// Rate limiter: max RATE_LIMIT_PER_MINUTE generates per minute per IP
+// ── Pollinations.ai (FREE — no API key needed) ───────────────
+const POLLINATIONS_STYLES = [
+  { label: "Original",   suffix: ", flat vector logo, isolated on white background, bold lines, vivid colors, printable garment artwork, no shadow" },
+  { label: "Streetwear", suffix: ", streetwear graphic art, bold urban style, high contrast, t-shirt print design, white background, no background" },
+  { label: "Minimal",    suffix: ", minimalist flat vector logo, clean sharp shapes, 2-color palette, white background, no shadow, no texture" },
+  { label: "Vintage Tem",suffix: ", vintage retro badge, screen print aesthetic, distressed texture, white background, circular stamp design" },
+];
+
+async function generateWithPollinations(prompt: string) {
+  const enPrompt = translatePrompt(prompt);
+  console.log(`🌸 Pollinations: "${enPrompt.slice(0, 60)}..."`);
+
+  type ImgResult = { id: string; label: string; url: string };
+
+  const fetchOne = async (style: typeof POLLINATIONS_STYLES[0], idx: number): Promise<ImgResult | null> => {
+    const seed = Math.floor(Math.random() * 999999) + idx * 1000;
+    const fullPrompt = `logo design for garment printing: ${enPrompt}${style.suffix}`;
+    const encoded = encodeURIComponent(fullPrompt);
+    const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) { console.log(`❌ Pollinations ${style.label} HTTP ${res.status}`); return null; }
+      const buf = await res.arrayBuffer();
+      const base64 = Buffer.from(buf).toString("base64");
+      const mime = res.headers.get("content-type") || "image/jpeg";
+      console.log(`✅ Pollinations ${style.label} OK`);
+      return { id: `poll-${Date.now()}-${idx}`, label: style.label, url: `data:${mime};base64,${base64}` };
+    } catch (err) {
+      clearTimeout(timeout);
+      console.log(`❌ Pollinations ${style.label}:`, (err as Error).message?.slice(0, 60));
+      return null;
+    }
+  };
+
+  const settled = await Promise.allSettled(POLLINATIONS_STYLES.map((s, i) => fetchOne(s, i)));
+  return settled
+    .filter((r): r is PromiseFulfilledResult<ImgResult> => r.status === "fulfilled" && r.value !== null)
+    .map(r => r.value);
+}
+
+
 const genLimiter = new Map<string, { count: number; resetAt: number }>();
 
 // ── Background removal via remove.bg ─────────────────────────
@@ -237,10 +280,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    // Priority 1: Cloudflare Flux (primary — best for garment graphics)
+    // Priority 1: T8star — gpt-image-1, best quality (works when account has credits)
+    const t8Key = process.env.T8STAR_API_KEY;
+    if (t8Key) {
+      try {
+        const images = await generateWithT8star(cleanPrompt);
+        if (images.length > 0) {
+          const processed = await processImages(images);
+          return NextResponse.json({ images: processed, isDemo: false, method: "t8star" });
+        }
+      } catch (e) {
+        console.log("T8star failed:", (e as Error).message?.slice(0, 100));
+      }
+    }
+
+    // Priority 2: Cloudflare Workers AI — Flux model, free with account
     const accountId = process.env.CF_ACCOUNT_ID;
     const apiToken = process.env.CF_API_TOKEN;
-    if (accountId && apiToken) {
+    if (accountId && apiToken && accountId !== "PASTE_YOUR_ACCOUNT_ID_HERE") {
       console.log(`🔑 CF env: ${accountId.slice(0, 8)}...`);
       try {
         const images = await generateWithCloudflare(cleanPrompt);
@@ -253,22 +310,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Priority 2: T8star (fallback)
-    const t8Key = process.env.T8STAR_API_KEY;
-    if (t8Key) {
-      console.log(`🔑 T8star key: ${t8Key.slice(0, 8)}...`);
-      try {
-        const images = await generateWithT8star(cleanPrompt);
-        if (images.length > 0) {
-          const processed = await processImages(images);
-          return NextResponse.json({ images: processed, isDemo: false, method: "t8star" });
-        }
-      } catch (e) {
-        console.log("T8star failed:", (e as Error).message?.slice(0, 100));
+    // Priority 3: Pollinations.ai — always free, no key needed
+    try {
+      const images = await generateWithPollinations(cleanPrompt);
+      if (images.length > 0) {
+        const processed = await processImages(images);
+        return NextResponse.json({ images: processed, isDemo: false, method: "pollinations" });
       }
+    } catch (e) {
+      console.log("Pollinations failed:", (e as Error).message?.slice(0, 100));
     }
 
-    // Fallback: Smart SVG
+    // Last resort: Smart SVG
     return NextResponse.json({
       images: getSmartSVG(cleanPrompt),
       isDemo: false,

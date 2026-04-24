@@ -59,3 +59,4 @@ AGENTS.md
 next-env.d.ts
 orders/
 .env*.local
+public/uploads/

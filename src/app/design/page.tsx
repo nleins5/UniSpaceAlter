@@ -795,25 +795,26 @@ export default function DesignPage() {
     } catch { /* ignore */ }
   }, []);
 
-  const MAX_FREE_GENS = 3;
+  const MAX_FREE_GENS = 2;
 
+  // Pre-flight check only — does NOT increment the counter
   const checkGenLimit = useCallback((): boolean => {
-    // Logged-in users: unlimited generation (use ref — never stale)
-    if (isUserLoggedInRef.current) {
-      genCountRef.current += 1;
-      setGenCount(genCountRef.current);
-      return true;
-    }
-    // Guest users: 3 free generations, then require login
+    // Logged-in users: always allowed
+    if (isUserLoggedInRef.current) return true;
+    // Guest users: block when they've already used all free gens
     if (genCountRef.current >= MAX_FREE_GENS) {
       sessionStorage.setItem('login_redirect', '/design');
       router.push('/login?reason=ai_credits');
       return false;
     }
-    genCountRef.current += 1;
-    setGenCount(genCountRef.current);
     return true;
   }, [router]);
+
+  // Called ONLY after a successful generation
+  const incrementGenCount = useCallback(() => {
+    genCountRef.current += 1;
+    setGenCount(genCountRef.current);
+  }, []);
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
@@ -923,17 +924,20 @@ export default function DesignPage() {
       const data = await res.json();
       if (data.images && data.images.length > 0) {
         setSuggestedDesigns(prev => [...data.images, ...prev]);
+        // Only count SUCCESSFUL generations (not failed attempts)
+        incrementGenCount();
       }
       
       const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Hệ thống đã tạo xong thiết kế cho bạn.`, images: data.images };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err) { 
       console.error(err); 
-      setMessages((prev) => [...prev, { id: `msg-${Date.now()}-err`, role: "ai", content: "Hệ thống đang bận hoặc hết lượt dùng thử. Vui lòng thử lại sau hoặc đăng nhập." }]);
+      // Failed attempt — does NOT count against free quota
+      setMessages((prev) => [...prev, { id: `msg-${Date.now()}-err`, role: "ai", content: "Hệ thống đang bận. Vui lòng thử lại — lượt này không bị tính." }]);
     } finally { 
       setIsLoading(false); 
     }
-  }, [checkGenLimit, isLoading]);
+  }, [checkGenLimit, incrementGenCount, isLoading]);
 
   // ── AI design suggestions — pre-baked static images (instant, never fail) ──
   const STATIC_SUGGESTIONS: AIImage[] = [

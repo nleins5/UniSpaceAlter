@@ -701,11 +701,7 @@ export default function DesignPage() {
   }, []);
 
   const checkGenLimit = (): boolean => {
-    if (isAdmin || isUserLoggedIn) return true;  // admin & logged-in users: unlimited
-    if (genCountRef.current >= 3) { 
-      router.push('/login');
-      return false; 
-    }
+    // Allow unlimited AI generation for all users (guests included)
     genCountRef.current += 1;
     const next = genCountRef.current;
     setGenCount(next);
@@ -829,7 +825,6 @@ export default function DesignPage() {
 
   const loadSuggestions = useCallback(async () => {
     if (suggestionsLoading) return;
-    if (!checkGenLimit()) return;
     setSuggestionsLoading(true);
     try {
       // loadSuggestions now respects gen limit

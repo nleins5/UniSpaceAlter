@@ -795,16 +795,16 @@ export default function DesignPage() {
     } catch { /* ignore */ }
   }, []);
 
-  const MAX_FREE_GENS = 2;
+  const MAX_FREE_GENS = 3;
 
-  const checkGenLimit = (): boolean => {
+  const checkGenLimit = useCallback((): boolean => {
     // Logged-in users: unlimited generation (use ref — never stale)
     if (isUserLoggedInRef.current) {
       genCountRef.current += 1;
       setGenCount(genCountRef.current);
       return true;
     }
-    // Guest users: 2 free generations, then require login
+    // Guest users: 3 free generations, then require login
     if (genCountRef.current >= MAX_FREE_GENS) {
       sessionStorage.setItem('login_redirect', '/design');
       router.push('/login?reason=ai_credits');
@@ -813,7 +813,7 @@ export default function DesignPage() {
     genCountRef.current += 1;
     setGenCount(genCountRef.current);
     return true;
-  };
+  }, [router]);
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
@@ -904,27 +904,36 @@ export default function DesignPage() {
   }, []);
 
   const handleSendMessage = useCallback(async (content: string) => {
+    if (isLoading) return;
     if (!checkGenLimit()) return;
+
     const userMsg: ChatMessage = { id: `msg-${Date.now()}`, role: "user", content };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
+    
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: content }),
       });
+      
+      if (!res.ok) throw new Error("GENERATION_ERROR");
+      
       const data = await res.json();
       if (data.images && data.images.length > 0) {
-        // Add to suggestedDesigns so they appear in the AI tab grid immediately
         setSuggestedDesigns(prev => [...data.images, ...prev]);
       }
-      const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Protocol Engaged.`, images: data.images };
+      
+      const aiMsg: ChatMessage = { id: `msg-${Date.now()}-ai`, role: "ai", content: `Hệ thống đã tạo xong thiết kế cho bạn.`, images: data.images };
       setMessages((prev) => [...prev, aiMsg]);
-    } catch (err) { console.error(err); } finally { setIsLoading(false); }
-  // checkGenLimit reads genCountRef.current directly — ref is always fresh, no stale closure
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    } catch (err) { 
+      console.error(err); 
+      setMessages((prev) => [...prev, { id: `msg-${Date.now()}-err`, role: "ai", content: "Hệ thống đang bận hoặc hết lượt dùng thử. Vui lòng thử lại sau hoặc đăng nhập." }]);
+    } finally { 
+      setIsLoading(false); 
+    }
+  }, [checkGenLimit, isLoading]);
 
   // ── AI design suggestions — pre-baked static images (instant, never fail) ──
   const STATIC_SUGGESTIONS: AIImage[] = [
@@ -1548,7 +1557,7 @@ export default function DesignPage() {
     } finally {
       setIsExporting(false);
     }
-  }, [elements, tshirtColor, garmentType, projectName, router, isAdmin, isUserLoggedIn]);
+  }, [elements, tshirtColor, garmentType, projectName, router, isAdmin]);
 
   const handleMoveElement = useCallback((id: string, x: number, y: number) => {
     // Images placed in snap slots are locked — no movement
@@ -2061,11 +2070,14 @@ export default function DesignPage() {
                   </div>
                 )}
 
-                {/* Gen limit indicator — shown only when near limit (100 free gens) */}
-                {mounted && !isUserLoggedIn && genCount >= 90 && (
-                  <div className="flex items-center justify-between px-3 py-1.5 rounded-lg adm-mono text-[10px] bg-amber-500/10 border border-amber-500/30">
-                    <span className="text-amber-400">Còn {100 - genCount} lượt miễn phí</span>
-                    <button type="button" onClick={() => router.push('/login')} className="text-[10px] font-black text-amber-400 hover:text-amber-300 uppercase tracking-wider transition-colors">Đăng nhập →</button>
+                {/* Gen limit indicator — visible for guest users to show progress */}
+                {mounted && !isUserLoggedIn && (
+                  <div className="flex items-center justify-between px-4 py-2 rounded-xl adm-mono text-[11px] bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                      <span className="text-violet-200/70">Mã khách: <span className="text-violet-400 font-bold">{genCount}/{MAX_FREE_GENS}</span> lượt miễn phí</span>
+                    </div>
+                    <button type="button" onClick={() => router.push('/login')} className="text-[10px] font-black text-violet-400 hover:text-violet-200 uppercase tracking-widest transition-all">Nâng cấp →</button>
                   </div>
                 )}
 
@@ -2078,7 +2090,7 @@ export default function DesignPage() {
                     <div className="relative flex items-center bg-[#070410] rounded-[22px] overflow-hidden shadow-2xl">
                       <input
                         value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && (handleSendMessage(chatInput.trim()), setChatInput(""))}
+                        onKeyDown={(e) => e.key === 'Enter' && chatInput.trim() && !isLoading && (handleSendMessage(chatInput.trim()), setChatInput(""))}
                         placeholder="Mô tả ý tưởng..."
                         className="flex-1 px-6 py-5 text-[16px] outline-none transition-all text-white placeholder:text-violet-300/30 bg-transparent font-[family-name:var(--font-space-grotesk)]"
                       />

@@ -146,46 +146,7 @@ async function generateWithCloudflare(prompt: string) {
     .map(r => r.value);
 }
 // ── Pollinations.ai (FREE — no API key needed) ───────────────
-// Only 2 styles to stay within Vercel's 60s limit
-const POLLINATIONS_STYLES = [
-  { label: "Original",   suffix: ", flat vector logo, isolated on white background, bold lines, vivid colors, printable garment artwork, no shadow" },
-  { label: "Vintage Tem",suffix: ", vintage retro badge, screen print aesthetic, distressed texture, white background, circular stamp design" },
-];
-
-async function generateWithPollinations(prompt: string) {
-  const enPrompt = translatePrompt(prompt);
-  console.log(`🌸 Pollinations: "${enPrompt.slice(0, 60)}..."`);
-
-  type ImgResult = { id: string; label: string; url: string };
-
-  const fetchOne = async (style: typeof POLLINATIONS_STYLES[0], idx: number): Promise<ImgResult | null> => {
-    const seed = Math.floor(Math.random() * 999999) + idx * 1000;
-    const fullPrompt = `logo design for garment printing: ${enPrompt}${style.suffix}`;
-    const encoded = encodeURIComponent(fullPrompt);
-    const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
-    try {
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeout);
-      if (!res.ok) { console.log(`❌ Pollinations ${style.label} HTTP ${res.status}`); return null; }
-      const buf = await res.arrayBuffer();
-      const base64 = Buffer.from(buf).toString("base64");
-      const mime = res.headers.get("content-type") || "image/jpeg";
-      console.log(`✅ Pollinations ${style.label} OK`);
-      return { id: `poll-${Date.now()}-${idx}`, label: style.label, url: `data:${mime};base64,${base64}` };
-    } catch (err) {
-      clearTimeout(timeout);
-      console.log(`❌ Pollinations ${style.label}:`, (err as Error).message?.slice(0, 60));
-      return null;
-    }
-  };
-
-  const settled = await Promise.allSettled(POLLINATIONS_STYLES.map((s, i) => fetchOne(s, i)));
-  return settled
-    .filter((r): r is PromiseFulfilledResult<ImgResult> => r.status === "fulfilled" && r.value !== null)
-    .map(r => r.value);
-}
+// (Unused helper removed, using direct URL construction in main handler)
 
 
 const genLimiter = new Map<string, { count: number; resetAt: number }>();

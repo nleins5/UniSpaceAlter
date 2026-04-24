@@ -24,7 +24,9 @@ export default function DesignPreviewPage() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setLoaded(true);
+    // Asynchronous update to avoid cascading render warning
+    const t = setTimeout(() => setLoaded(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
   const downloadPng = (dataUrl: string, filename: string) => {
